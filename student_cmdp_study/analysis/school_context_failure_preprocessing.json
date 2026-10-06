@@ -1,0 +1,150 @@
+{
+  "features_numeric": [
+    "age",
+    "Medu",
+    "Fedu",
+    "traveltime",
+    "studytime",
+    "failures",
+    "famrel",
+    "health"
+  ],
+  "features_categorical": [
+    "school",
+    "sex",
+    "address",
+    "famsize",
+    "Pstatus",
+    "Mjob",
+    "Fjob",
+    "guardian",
+    "schoolsup",
+    "famsup",
+    "paid",
+    "activities",
+    "nursery",
+    "higher",
+    "internet"
+  ],
+  "chosen_l2": 100.0,
+  "training_only_transform": {
+    "numeric_median": {
+      "age": 17.0,
+      "Medu": 3.0,
+      "Fedu": 2.0,
+      "traveltime": 1.0,
+      "studytime": 2.0,
+      "failures": 0.0,
+      "famrel": 4.0,
+      "health": 4.0
+    },
+    "numeric_mean": {
+      "age": 16.75515463917526,
+      "Medu": 2.5412371134020617,
+      "Fedu": 2.2912371134020617,
+      "traveltime": 1.6082474226804124,
+      "studytime": 1.9690721649484537,
+      "failures": 0.2345360824742268,
+      "famrel": 3.9329896907216493,
+      "health": 3.479381443298969
+    },
+    "numeric_scale": {
+      "age": 1.23495032113618,
+      "Medu": 1.1468695696358049,
+      "Fedu": 1.1261765968454456,
+      "traveltime": 0.7605844338730964,
+      "studytime": 0.836704485977024,
+      "failures": 0.6293041822939794,
+      "famrel": 1.002905228224948,
+      "health": 1.4843123399548515
+    },
+    "categories": {
+      "school": [
+        "GP",
+        "MS"
+      ],
+      "sex": [
+        "F",
+        "M"
+      ],
+      "address": [
+        "R",
+        "U"
+      ],
+      "famsize": [
+        "GT3",
+        "LE3"
+      ],
+      "Pstatus": [
+        "A",
+        "T"
+      ],
+      "Mjob": [
+        "at_home",
+        "health",
+        "other",
+        "services",
+        "teacher"
+      ],
+      "Fjob": [
+        "at_home",
+        "health",
+        "other",
+        "services",
+        "teacher"
+      ],
+      "guardian": [
+        "father",
+        "mother",
+        "other"
+      ],
+      "schoolsup": [
+        "no",
+        "yes"
+      ],
+      "famsup": [
+        "no",
+        "yes"
+      ],
+      "paid": [
+        "no",
+        "yes"
+      ],
+      "activities": [
+        "no",
+        "yes"
+      ],
+      "nursery": [
+        "no",
+        "yes"
+      ],
+      "higher": [
+        "no",
+        "yes"
+      ],
+      "internet": [
+        "no",
+        "yes"
+      ]
+    },
+    "unseen_category_policy": "all-zero indicator (reference); count unknowns at deployment"
+  },
+  "validation_candidates": [
+    {
+      "l2": 0.1,
+      "validation_log_loss": 0.4495880540260642
+    },
+    {
+      "l2": 1.0,
+      "validation_log_loss": 0.40325602083268647
+    },
+    {
+      "l2": 10.0,
+      "validation_log_loss": 0.33944654159881354
+    },
+    {
+      "l2": 100.0,
+      "validation_log_loss": 0.32290858659875016
+    }
+  ]
+}

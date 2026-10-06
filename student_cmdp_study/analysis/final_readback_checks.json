@@ -1,0 +1,16 @@
+{
+  "source_hashes_unchanged": true,
+  "primary_csv_readback": true,
+  "unknown_fields_preserved": true,
+  "split_and_bootstrap_lineage_isolation": true,
+  "label_file_delimiters_verified": true,
+  "grade_failure_labels_verified": true,
+  "hazard_conversion_verified": true,
+  "markov_rows_sum_to_one": true,
+  "predictive_metric_independent_readback": true,
+  "workbook_saved_xml_formula_errors": [],
+  "workbook_formula_count": 15,
+  "workbook_dependency_changes_and_restoration_verified": true,
+  "workbook_visual_review": "all four sheets reviewed",
+  "policy_experiments_executed": false
+}

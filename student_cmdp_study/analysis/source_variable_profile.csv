@@ -1,0 +1,383 @@
+file,variable,dtype,missing_n,unique_n,min,max,category_examples
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/ieee_online_learning_behavior.csv,student_id,int64,0,5000,0,4999,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/ieee_online_learning_behavior.csv,academic_year,int64,0,5,2019,2023,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/ieee_online_learning_behavior.csv,online_access_count,int64,0,22,0,22,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/ieee_online_learning_behavior.csv,test_scores,float64,0,4772,24.369382692878084,100.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/ieee_online_learning_behavior.csv,project_grades,float64,0,4769,32.686664736432256,100.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/ieee_online_learning_behavior.csv,assignment_completion,float64,0,5000,24.39722434053154,99.94780067449828,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/ieee_online_learning_behavior.csv,final_points,float64,0,4969,114.95255330843156,400.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/ieee_online_learning_behavior.csv,final_grade,object,0,5,,,D; F; C; B; A
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/ieee_online_learning_behavior.csv,graduate,int64,0,2,0,1,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/ieee_online_learning_behavior.csv,semester,int64,0,2,1,2,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/ieee_online_learning_behavior.csv,engagement_score,float64,0,5000,0.1491555186722537,0.6628657709450532,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/massachusetts_school_district_aggregates.csv,year,int64,0,16,2008,2023,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/massachusetts_school_district_aggregates.csv,grade,int64,0,4,9,12,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/massachusetts_school_district_aggregates.csv,economic_status,object,0,5,,,Not Disadvantaged; Economically Disadvantaged; Low Income (pre-2015); Low Income (2022+); All Students
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/massachusetts_school_district_aggregates.csv,dropout_rate,float64,0,320,0.0053491127006651,0.0395783801582588,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/massachusetts_school_district_aggregates.csv,total_students,int64,0,284,503,1996,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/massachusetts_school_district_aggregates.csv,dropout_count,int64,0,51,5,66,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,student_id,float64,45,9955,8.0,39355.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,admission_score,float64,45,9917,6.277890828510458,100.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,high_school_gpa,float64,45,9753,1.596723274142989,10.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,family_income,float64,45,9955,3090.4905724791147,142530.30076962232,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,parents_education,float64,45,4,0.0,3.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,first_gen_student,float64,45,2,0.0,1.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,program_level,object,45,1,,,Master
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,lms_interactions,float64,45,51,27.0,80.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,wifi_access_freq,float64,45,40,12.0,52.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,year_1_gpa,float64,45,9690,0.3947719033440613,10.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,year_2_gpa,float64,45,9654,0.9312400224756274,10.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,credits_attempted,float64,45,24,12.0,35.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,credits_earned,float64,45,36,0.0,35.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,retention_status,object,45,3,,,Retained; Graduated; Dropped
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,credits_completion_rate,float64,45,385,0.0,1.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,academic_risk,float64,45,2,0.0,1.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,age,float64,9955,20,22.0,43.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,previous_degree_gpa,float64,9955,45,2.3466808077913,4.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,work_experience_years,float64,9955,35,0.0,12.1,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,research_interest,float64,9955,2,0.0,1.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,full_time,float64,9955,2,0.0,1.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,international,float64,9955,2,0.0,1.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,funding_type,object,9955,4,,,Self; Scholarship; Research; Employer
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,thesis_track,float64,9955,2,0.0,1.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,research_output_score,float64,9955,20,0.0,6.9232705231654466,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,coursework_gpa,float64,9955,34,2.0,3.1531825716841837,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,completion_status,float64,9955,2,0.0,1.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/school_students_massachusetts_style.csv,age,int64,0,5,14,18,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/school_students_massachusetts_style.csv,grade,int64,0,5,9,13,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/school_students_massachusetts_style.csv,gender,object,0,2,,,F; M
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/school_students_massachusetts_style.csv,economic_status,object,0,3,,,Low Income; Not Disadvantaged; Economically Disadvantaged
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/school_students_massachusetts_style.csv,gpa,float64,0,23538,0.0,4.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/school_students_massachusetts_style.csv,attendance_rate,float64,0,25000,28.704955996640695,99.91413517651078,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/school_students_massachusetts_style.csv,disciplinary_incidents,int64,0,5,0,4,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/school_students_massachusetts_style.csv,dropout_probability,float64,0,8,0.02,0.108,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/school_students_massachusetts_style.csv,dropout,int64,0,2,0,1,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/school_students_massachusetts_style.csv,school_type,object,0,2,,,Public; Private
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/school_students_massachusetts_style.csv,student_teacher_ratio,int64,0,15,15,29,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,student_id,int64,0,39364,0,39363,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,admission_score,float64,0,39212,2.9793270470851354,100.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,high_school_gpa,float64,0,38482,1.24182533875537,10.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,family_income,float64,0,39364,2432.1549288675774,175213.93399445817,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,parents_education,int64,0,4,0,3,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,first_gen_student,int64,0,2,0,1,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,program_level,object,0,4,,,PhD; Bachelor; Lifelong; Master
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,lms_interactions,int64,0,57,23,80,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,wifi_access_freq,int64,0,42,12,53,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,year_1_gpa,float64,0,38354,0.0,10.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,year_2_gpa,float64,0,38157,0.5792193461216621,10.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,credits_attempted,int64,0,24,12,35,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,credits_earned,int64,0,36,0,35,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,retention_status,object,0,3,,,Graduated; Retained; Dropped
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,credits_completion_rate,float64,0,385,0.0,1.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,academic_risk,int64,0,2,0,1,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Marital status,int64,0,5,1,5,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Application mode,int64,0,17,1,17,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Course,int64,0,17,1,17,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Daytime/evening attendance,int64,0,2,0,1,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Previous qualification,int64,0,19,1,19,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Nacionality,int64,0,4,1,4,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Mother's qualification,int64,0,39,1,39,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Father's qualification,int64,0,39,1,39,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Mother's occupation,int64,0,39,1,39,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Father's occupation,int64,0,39,1,39,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Displaced,int64,0,2,0,1,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Educational special needs,int64,0,2,0,1,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Debtor,int64,0,2,0,1,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Tuition fees up to date,int64,0,2,0,1,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Gender,int64,0,2,0,1,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Scholarship holder,int64,0,2,0,1,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Age at enrollment,int64,0,53,17,69,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,International,int64,0,2,0,1,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Curricular units 1st sem (credited),int64,0,10,0,9,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Curricular units 1st sem (enrolled),int64,0,10,0,9,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Curricular units 1st sem (evaluations),int64,0,10,0,9,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Curricular units 1st sem (approved),int64,0,8,0,7,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Curricular units 2nd sem (credited),int64,0,10,0,9,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Curricular units 2nd sem (enrolled),int64,0,10,0,9,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Curricular units 2nd sem (evaluations),int64,0,10,0,9,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Curricular units 2nd sem (approved),int64,0,8,0,7,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Unemployment rate,float64,0,4424,5.002796155194136,14.997034593195698,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Inflation rate,float64,0,4424,0.0043022505896639,4.9981428749493775,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,GDP,float64,0,4424,0.0024409328463764,4.995195179788598,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,Target,object,0,3,,,Enrolled; Dropout; Graduate
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,approval_rate_1st,float64,0,28,0.0,1.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,approval_rate_2nd,float64,0,28,0.0,1.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,total_units_approved,int64,0,15,0,14,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,avg_approval_rate,float64,0,257,0.0,1.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,economic_pressure_index,float64,0,4424,0.1720450728156034,0.9977576435191284,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,financial_risk,float64,0,3,0.0,1.0,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,target_encoded,int64,0,3,0,2,
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,lms_interaction_score,float64,0,4424,0.1417300668194801,90.06233282672756,
+Student_Dropout_rate.csv,Marital status,int64,0,6,1,6,
+Student_Dropout_rate.csv,Application mode,int64,0,18,1,57,
+Student_Dropout_rate.csv,Application order,int64,0,8,0,9,
+Student_Dropout_rate.csv,Course,int64,0,17,33,9991,
+Student_Dropout_rate.csv,Daytime/evening attendance,int64,0,2,0,1,
+Student_Dropout_rate.csv,Previous qualification,int64,0,17,1,43,
+Student_Dropout_rate.csv,Previous qualification (grade),float64,0,101,95.0,190.0,
+Student_Dropout_rate.csv,Nacionality,int64,0,21,1,109,
+Student_Dropout_rate.csv,Mother's qualification,int64,0,29,1,44,
+Student_Dropout_rate.csv,Father's qualification,int64,0,34,1,44,
+Student_Dropout_rate.csv,Mother's occupation,int64,0,32,0,194,
+Student_Dropout_rate.csv,Father's occupation,int64,0,46,0,195,
+Student_Dropout_rate.csv,Admission grade,float64,0,620,95.0,190.0,
+Student_Dropout_rate.csv,Displaced,int64,0,2,0,1,
+Student_Dropout_rate.csv,Educational special needs,int64,0,2,0,1,
+Student_Dropout_rate.csv,Debtor,int64,0,2,0,1,
+Student_Dropout_rate.csv,Tuition fees up to date,int64,0,2,0,1,
+Student_Dropout_rate.csv,Gender,int64,0,2,0,1,
+Student_Dropout_rate.csv,Scholarship holder,int64,0,2,0,1,
+Student_Dropout_rate.csv,Age at enrollment,int64,0,46,17,70,
+Student_Dropout_rate.csv,International,int64,0,2,0,1,
+Student_Dropout_rate.csv,Curricular units 1st sem (credited),int64,0,21,0,20,
+Student_Dropout_rate.csv,Curricular units 1st sem (enrolled),int64,0,23,0,26,
+Student_Dropout_rate.csv,Curricular units 1st sem (evaluations),int64,0,35,0,45,
+Student_Dropout_rate.csv,Curricular units 1st sem (approved),int64,0,23,0,26,
+Student_Dropout_rate.csv,Curricular units 1st sem (grade),float64,0,805,0.0,18.875,
+Student_Dropout_rate.csv,Curricular units 1st sem (without evaluations),int64,0,11,0,12,
+Student_Dropout_rate.csv,Curricular units 2nd sem (credited),int64,0,19,0,19,
+Student_Dropout_rate.csv,Curricular units 2nd sem (enrolled),int64,0,22,0,23,
+Student_Dropout_rate.csv,Curricular units 2nd sem (evaluations),int64,0,30,0,33,
+Student_Dropout_rate.csv,Curricular units 2nd sem (approved),int64,0,20,0,20,
+Student_Dropout_rate.csv,Curricular units 2nd sem (grade),float64,0,786,0.0,18.571428571428573,
+Student_Dropout_rate.csv,Curricular units 2nd sem (without evaluations),int64,0,10,0,12,
+Student_Dropout_rate.csv,Unemployment rate,float64,0,10,7.6,16.2,
+Student_Dropout_rate.csv,Inflation rate,float64,0,9,-0.8,3.7,
+Student_Dropout_rate.csv,GDP,float64,0,10,-4.06,3.51,
+Student_Dropout_rate.csv,Target,object,0,3,,,Dropout; Graduate; Enrolled
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,School,object,0,2,,,GP; MS
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Gender,object,0,2,,,F; M
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Age,int64,0,8,15,22,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Address,object,0,2,,,U; R
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Family_Size,object,0,2,,,GT3; LE3
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Parental_Status,object,0,2,,,A; T
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Mother_Education,int64,0,5,0,4,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Father_Education,int64,0,5,0,4,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Mother_Job,object,0,5,,,at_home; health; other; services; teacher
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Father_Job,object,0,5,,,teacher; other; services; health; at_home
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Reason_for_Choosing_School,object,0,4,,,course; other; home; reputation
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Guardian,object,0,3,,,mother; father; other
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Travel_Time,int64,0,4,1,4,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Study_Time,int64,0,4,1,4,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Number_of_Failures,int64,0,4,0,3,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,School_Support,object,0,2,,,yes; no
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Family_Support,object,0,2,,,no; yes
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Extra_Paid_Class,object,0,2,,,no; yes
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Extra_Curricular_Activities,object,0,2,,,no; yes
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Attended_Nursery,object,0,2,,,yes; no
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Wants_Higher_Education,object,0,2,,,yes; no
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Internet_Access,object,0,2,,,no; yes
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,In_Relationship,object,0,2,,,no; yes
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Family_Relationship,int64,0,5,1,5,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Free_Time,int64,0,5,1,5,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Going_Out,int64,0,5,1,5,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Weekend_Alcohol_Consumption,int64,0,5,1,5,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Weekday_Alcohol_Consumption,int64,0,5,1,5,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Health_Status,int64,0,5,1,5,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Number_of_Absences,int64,0,24,0,32,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Grade_1,int64,0,17,0,19,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Grade_2,int64,0,16,0,19,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Final_Grade,int64,0,17,0,19,
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,Dropped_Out,bool,0,2,False,True,
+student+performance/student/student-mat.csv,school,object,0,2,,,GP; MS
+student+performance/student/student-mat.csv,sex,object,0,2,,,F; M
+student+performance/student/student-mat.csv,age,int64,0,8,15,22,
+student+performance/student/student-mat.csv,address,object,0,2,,,U; R
+student+performance/student/student-mat.csv,famsize,object,0,2,,,GT3; LE3
+student+performance/student/student-mat.csv,Pstatus,object,0,2,,,A; T
+student+performance/student/student-mat.csv,Medu,int64,0,5,0,4,
+student+performance/student/student-mat.csv,Fedu,int64,0,5,0,4,
+student+performance/student/student-mat.csv,Mjob,object,0,5,,,at_home; health; other; services; teacher
+student+performance/student/student-mat.csv,Fjob,object,0,5,,,teacher; other; services; health; at_home
+student+performance/student/student-mat.csv,reason,object,0,4,,,course; other; home; reputation
+student+performance/student/student-mat.csv,guardian,object,0,3,,,mother; father; other
+student+performance/student/student-mat.csv,traveltime,int64,0,4,1,4,
+student+performance/student/student-mat.csv,studytime,int64,0,4,1,4,
+student+performance/student/student-mat.csv,failures,int64,0,4,0,3,
+student+performance/student/student-mat.csv,schoolsup,object,0,2,,,yes; no
+student+performance/student/student-mat.csv,famsup,object,0,2,,,no; yes
+student+performance/student/student-mat.csv,paid,object,0,2,,,no; yes
+student+performance/student/student-mat.csv,activities,object,0,2,,,no; yes
+student+performance/student/student-mat.csv,nursery,object,0,2,,,yes; no
+student+performance/student/student-mat.csv,higher,object,0,2,,,yes; no
+student+performance/student/student-mat.csv,internet,object,0,2,,,no; yes
+student+performance/student/student-mat.csv,romantic,object,0,2,,,no; yes
+student+performance/student/student-mat.csv,famrel,int64,0,5,1,5,
+student+performance/student/student-mat.csv,freetime,int64,0,5,1,5,
+student+performance/student/student-mat.csv,goout,int64,0,5,1,5,
+student+performance/student/student-mat.csv,Dalc,int64,0,5,1,5,
+student+performance/student/student-mat.csv,Walc,int64,0,5,1,5,
+student+performance/student/student-mat.csv,health,int64,0,5,1,5,
+student+performance/student/student-mat.csv,absences,int64,0,34,0,75,
+student+performance/student/student-mat.csv,G1,int64,0,17,3,19,
+student+performance/student/student-mat.csv,G2,int64,0,17,0,19,
+student+performance/student/student-mat.csv,G3,int64,0,18,0,20,
+student+performance/student/student-por.csv,school,object,0,2,,,GP; MS
+student+performance/student/student-por.csv,sex,object,0,2,,,F; M
+student+performance/student/student-por.csv,age,int64,0,8,15,22,
+student+performance/student/student-por.csv,address,object,0,2,,,U; R
+student+performance/student/student-por.csv,famsize,object,0,2,,,GT3; LE3
+student+performance/student/student-por.csv,Pstatus,object,0,2,,,A; T
+student+performance/student/student-por.csv,Medu,int64,0,5,0,4,
+student+performance/student/student-por.csv,Fedu,int64,0,5,0,4,
+student+performance/student/student-por.csv,Mjob,object,0,5,,,at_home; health; other; services; teacher
+student+performance/student/student-por.csv,Fjob,object,0,5,,,teacher; other; services; health; at_home
+student+performance/student/student-por.csv,reason,object,0,4,,,course; other; home; reputation
+student+performance/student/student-por.csv,guardian,object,0,3,,,mother; father; other
+student+performance/student/student-por.csv,traveltime,int64,0,4,1,4,
+student+performance/student/student-por.csv,studytime,int64,0,4,1,4,
+student+performance/student/student-por.csv,failures,int64,0,4,0,3,
+student+performance/student/student-por.csv,schoolsup,object,0,2,,,yes; no
+student+performance/student/student-por.csv,famsup,object,0,2,,,no; yes
+student+performance/student/student-por.csv,paid,object,0,2,,,no; yes
+student+performance/student/student-por.csv,activities,object,0,2,,,no; yes
+student+performance/student/student-por.csv,nursery,object,0,2,,,yes; no
+student+performance/student/student-por.csv,higher,object,0,2,,,yes; no
+student+performance/student/student-por.csv,internet,object,0,2,,,no; yes
+student+performance/student/student-por.csv,romantic,object,0,2,,,no; yes
+student+performance/student/student-por.csv,famrel,int64,0,5,1,5,
+student+performance/student/student-por.csv,freetime,int64,0,5,1,5,
+student+performance/student/student-por.csv,goout,int64,0,5,1,5,
+student+performance/student/student-por.csv,Dalc,int64,0,5,1,5,
+student+performance/student/student-por.csv,Walc,int64,0,5,1,5,
+student+performance/student/student-por.csv,health,int64,0,5,1,5,
+student+performance/student/student-por.csv,absences,int64,0,24,0,32,
+student+performance/student/student-por.csv,G1,int64,0,17,0,19,
+student+performance/student/student-por.csv,G2,int64,0,16,0,19,
+student+performance/student/student-por.csv,G3,int64,0,17,0,19,
+student-dropout-prediction/X_test.csv,school,int64,0,2,0,1,
+student-dropout-prediction/X_test.csv,sex,int64,0,2,0,1,
+student-dropout-prediction/X_test.csv,age,float64,0,6,-1.311158392936087,2.5975779482696044,
+student-dropout-prediction/X_test.csv,address,int64,0,2,0,1,
+student-dropout-prediction/X_test.csv,famsize,int64,0,2,0,1,
+student-dropout-prediction/X_test.csv,Pstatus,int64,0,2,0,1,
+student-dropout-prediction/X_test.csv,Medu,float64,0,5,-2.543935836568025,1.1691529595312633,
+student-dropout-prediction/X_test.csv,Fedu,float64,0,4,-1.4150218882543542,1.333832107780744,
+student-dropout-prediction/X_test.csv,Mjob,int64,0,5,0,4,
+student-dropout-prediction/X_test.csv,Fjob,int64,0,4,0,4,
+student-dropout-prediction/X_test.csv,reason,int64,0,4,0,3,
+student-dropout-prediction/X_test.csv,guardian,int64,0,3,0,2,
+student-dropout-prediction/X_test.csv,traveltime,float64,0,3,-0.635701184722968,2.1543206815611695,
+student-dropout-prediction/X_test.csv,studytime,float64,0,4,-1.210567529113607,2.4096785831882843,
+student-dropout-prediction/X_test.csv,failures,float64,0,4,-0.446388008777526,3.545836824440348,
+student-dropout-prediction/X_test.csv,schoolsup,int64,0,2,0,1,
+student-dropout-prediction/X_test.csv,famsup,int64,0,2,0,1,
+student-dropout-prediction/X_test.csv,paid,int64,0,2,0,1,
+student-dropout-prediction/X_test.csv,activities,int64,0,2,0,1,
+student-dropout-prediction/X_test.csv,nursery,int64,0,2,0,1,
+student-dropout-prediction/X_test.csv,higher,int64,0,2,0,1,
+student-dropout-prediction/X_test.csv,internet,int64,0,2,0,1,
+student-dropout-prediction/X_test.csv,romantic,int64,0,2,0,1,
+student-dropout-prediction/X_test.csv,famrel,float64,0,5,-3.3488812290257095,1.1399691140161747,
+student-dropout-prediction/X_test.csv,freetime,float64,0,5,-2.2397461666325964,1.6867991241074891,
+student-dropout-prediction/X_test.csv,goout,float64,0,5,-1.8526028439616553,1.6476811541960907,
+student-dropout-prediction/X_test.csv,Dalc,float64,0,5,-0.5279522558382251,3.981045388617967,
+student-dropout-prediction/X_test.csv,Walc,float64,0,5,-1.0042421447095675,2.0692737654911433,
+student-dropout-prediction/X_test.csv,health,float64,0,5,-1.8128263490096357,1.055024095481202,
+student-dropout-prediction/X_test.csv,absences,float64,0,17,-0.7586440503847741,6.6996699027313165,
+student-dropout-prediction/X_test.csv,parent_edu_mean,float64,0,8,-2.1948036989907247,1.3907987989173132,
+student-dropout-prediction/X_test.csv,total_alcohol,float64,0,8,-0.892955565058867,3.1309155017304655,
+student-dropout-prediction/X_test.csv,high_risk,float64,0,2,-0.2801754691534546,3.5691918461722696,
+student-dropout-prediction/X_test.csv,total_support,float64,0,3,-1.2184158416668165,2.0170413513307803,
+student-dropout-prediction/X_train.csv,school,int64,0,2,0,1,
+student-dropout-prediction/X_train.csv,sex,int64,0,2,0,1,
+student-dropout-prediction/X_train.csv,age,float64,0,8,-1.311158392936087,4.161072484751881,
+student-dropout-prediction/X_train.csv,address,int64,0,2,0,1,
+student-dropout-prediction/X_train.csv,famsize,int64,0,2,0,1,
+student-dropout-prediction/X_train.csv,Pstatus,int64,0,2,0,1,
+student-dropout-prediction/X_train.csv,Medu,float64,0,5,-2.543935836568025,1.1691529595312633,
+student-dropout-prediction/X_train.csv,Fedu,float64,0,5,-2.331306553599387,1.333832107780744,
+student-dropout-prediction/X_train.csv,Mjob,int64,0,5,0,4,
+student-dropout-prediction/X_train.csv,Fjob,int64,0,5,0,4,
+student-dropout-prediction/X_train.csv,reason,int64,0,4,0,3,
+student-dropout-prediction/X_train.csv,guardian,int64,0,3,0,2,
+student-dropout-prediction/X_train.csv,traveltime,float64,0,4,-0.635701184722968,3.5493316147032385,
+student-dropout-prediction/X_train.csv,studytime,float64,0,4,-1.210567529113607,2.4096785831882843,
+student-dropout-prediction/X_train.csv,failures,float64,0,4,-0.446388008777526,3.545836824440348,
+student-dropout-prediction/X_train.csv,schoolsup,int64,0,2,0,1,
+student-dropout-prediction/X_train.csv,famsup,int64,0,2,0,1,
+student-dropout-prediction/X_train.csv,paid,int64,0,2,0,1,
+student-dropout-prediction/X_train.csv,activities,int64,0,2,0,1,
+student-dropout-prediction/X_train.csv,nursery,int64,0,2,0,1,
+student-dropout-prediction/X_train.csv,higher,int64,0,2,0,1,
+student-dropout-prediction/X_train.csv,internet,int64,0,2,0,1,
+student-dropout-prediction/X_train.csv,romantic,int64,0,2,0,1,
+student-dropout-prediction/X_train.csv,famrel,float64,0,5,-3.3488812290257095,1.1399691140161747,
+student-dropout-prediction/X_train.csv,freetime,float64,0,5,-2.2397461666325964,1.6867991241074891,
+student-dropout-prediction/X_train.csv,goout,float64,0,5,-1.8526028439616553,1.6476811541960907,
+student-dropout-prediction/X_train.csv,Dalc,float64,0,5,-0.5279522558382251,3.981045388617967,
+student-dropout-prediction/X_train.csv,Walc,float64,0,5,-1.0042421447095675,2.0692737654911433,
+student-dropout-prediction/X_train.csv,health,float64,0,5,-1.8128263490096357,1.055024095481202,
+student-dropout-prediction/X_train.csv,absences,float64,0,31,-0.7586440503847741,9.23016927968142,
+student-dropout-prediction/X_train.csv,parent_edu_mean,float64,0,8,-2.1948036989907247,1.3907987989173132,
+student-dropout-prediction/X_train.csv,total_alcohol,float64,0,9,-0.892955565058867,3.1309155017304655,
+student-dropout-prediction/X_train.csv,high_risk,float64,0,2,-0.2801754691534546,3.5691918461722696,
+student-dropout-prediction/X_train.csv,total_support,float64,0,3,-1.2184158416668165,2.0170413513307803,
+student-dropout-prediction/student-mat.csv,school,object,0,2,,,GP; MS
+student-dropout-prediction/student-mat.csv,sex,object,0,2,,,F; M
+student-dropout-prediction/student-mat.csv,age,int64,0,8,15,22,
+student-dropout-prediction/student-mat.csv,address,object,0,2,,,U; R
+student-dropout-prediction/student-mat.csv,famsize,object,0,2,,,GT3; LE3
+student-dropout-prediction/student-mat.csv,Pstatus,object,0,2,,,A; T
+student-dropout-prediction/student-mat.csv,Medu,int64,0,5,0,4,
+student-dropout-prediction/student-mat.csv,Fedu,int64,0,5,0,4,
+student-dropout-prediction/student-mat.csv,Mjob,object,0,5,,,at_home; health; other; services; teacher
+student-dropout-prediction/student-mat.csv,Fjob,object,0,5,,,teacher; other; services; health; at_home
+student-dropout-prediction/student-mat.csv,reason,object,0,4,,,course; other; home; reputation
+student-dropout-prediction/student-mat.csv,guardian,object,0,3,,,mother; father; other
+student-dropout-prediction/student-mat.csv,traveltime,int64,0,4,1,4,
+student-dropout-prediction/student-mat.csv,studytime,int64,0,4,1,4,
+student-dropout-prediction/student-mat.csv,failures,int64,0,4,0,3,
+student-dropout-prediction/student-mat.csv,schoolsup,object,0,2,,,yes; no
+student-dropout-prediction/student-mat.csv,famsup,object,0,2,,,no; yes
+student-dropout-prediction/student-mat.csv,paid,object,0,2,,,no; yes
+student-dropout-prediction/student-mat.csv,activities,object,0,2,,,no; yes
+student-dropout-prediction/student-mat.csv,nursery,object,0,2,,,yes; no
+student-dropout-prediction/student-mat.csv,higher,object,0,2,,,yes; no
+student-dropout-prediction/student-mat.csv,internet,object,0,2,,,no; yes
+student-dropout-prediction/student-mat.csv,romantic,object,0,2,,,no; yes
+student-dropout-prediction/student-mat.csv,famrel,int64,0,5,1,5,
+student-dropout-prediction/student-mat.csv,freetime,int64,0,5,1,5,
+student-dropout-prediction/student-mat.csv,goout,int64,0,5,1,5,
+student-dropout-prediction/student-mat.csv,Dalc,int64,0,5,1,5,
+student-dropout-prediction/student-mat.csv,Walc,int64,0,5,1,5,
+student-dropout-prediction/student-mat.csv,health,int64,0,5,1,5,
+student-dropout-prediction/student-mat.csv,absences,int64,0,34,0,75,
+student-dropout-prediction/student-mat.csv,G1,int64,0,17,3,19,
+student-dropout-prediction/student-mat.csv,G2,int64,0,17,0,19,
+student-dropout-prediction/student-mat.csv,G3,int64,0,18,0,20,
+student-dropout-prediction/student-por.csv,school,object,0,2,,,GP; MS
+student-dropout-prediction/student-por.csv,sex,object,0,2,,,F; M
+student-dropout-prediction/student-por.csv,age,int64,0,8,15,22,
+student-dropout-prediction/student-por.csv,address,object,0,2,,,U; R
+student-dropout-prediction/student-por.csv,famsize,object,0,2,,,GT3; LE3
+student-dropout-prediction/student-por.csv,Pstatus,object,0,2,,,A; T
+student-dropout-prediction/student-por.csv,Medu,int64,0,5,0,4,
+student-dropout-prediction/student-por.csv,Fedu,int64,0,5,0,4,
+student-dropout-prediction/student-por.csv,Mjob,object,0,5,,,at_home; health; other; services; teacher
+student-dropout-prediction/student-por.csv,Fjob,object,0,5,,,teacher; other; services; health; at_home
+student-dropout-prediction/student-por.csv,reason,object,0,4,,,course; other; home; reputation
+student-dropout-prediction/student-por.csv,guardian,object,0,3,,,mother; father; other
+student-dropout-prediction/student-por.csv,traveltime,int64,0,4,1,4,
+student-dropout-prediction/student-por.csv,studytime,int64,0,4,1,4,
+student-dropout-prediction/student-por.csv,failures,int64,0,4,0,3,
+student-dropout-prediction/student-por.csv,schoolsup,object,0,2,,,yes; no
+student-dropout-prediction/student-por.csv,famsup,object,0,2,,,no; yes
+student-dropout-prediction/student-por.csv,paid,object,0,2,,,no; yes
+student-dropout-prediction/student-por.csv,activities,object,0,2,,,no; yes
+student-dropout-prediction/student-por.csv,nursery,object,0,2,,,yes; no
+student-dropout-prediction/student-por.csv,higher,object,0,2,,,yes; no
+student-dropout-prediction/student-por.csv,internet,object,0,2,,,no; yes
+student-dropout-prediction/student-por.csv,romantic,object,0,2,,,no; yes
+student-dropout-prediction/student-por.csv,famrel,int64,0,5,1,5,
+student-dropout-prediction/student-por.csv,freetime,int64,0,5,1,5,
+student-dropout-prediction/student-por.csv,goout,int64,0,5,1,5,
+student-dropout-prediction/student-por.csv,Dalc,int64,0,5,1,5,
+student-dropout-prediction/student-por.csv,Walc,int64,0,5,1,5,
+student-dropout-prediction/student-por.csv,health,int64,0,5,1,5,
+student-dropout-prediction/student-por.csv,absences,int64,0,24,0,32,
+student-dropout-prediction/student-por.csv,G1,int64,0,17,0,19,
+student-dropout-prediction/student-por.csv,G2,int64,0,16,0,19,
+student-dropout-prediction/student-por.csv,G3,int64,0,17,0,19,
+student-dropout-prediction/y_test.csv,failed,int64,0,2,0,1,
+student-dropout-prediction/y_train.csv,failed,int64,0,2,0,1,

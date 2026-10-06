@@ -1,0 +1,9 @@
+variable,group,all_n,dropout_n,graduate_n,enrolled_n,dropout_fraction_all
+Debtor,0,3921,1109,2108,704,0.2828360112
+Debtor,1,503,312,101,90,0.62027833
+Tuition fees up to date,0,528,457,29,42,0.865530303
+Tuition fees up to date,1,3896,964,2180,752,0.2474332649
+Scholarship holder,0,3325,1287,1374,664,0.3870676692
+Scholarship holder,1,1099,134,835,130,0.1219290264
+Gender,0,2868,720,1661,487,0.2510460251
+Gender,1,1556,701,548,307,0.4505141388

@@ -1,0 +1,17 @@
+file,rows,columns,missing_cells,exact_duplicate_rows
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/ieee_online_learning_behavior.csv,5000,11,0,0
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/massachusetts_school_district_aggregates.csv,320,6,0,0
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/masters_students_research_focused.csv,10000,27,110225,0
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/school_students_massachusetts_style.csv,25000,11,0,0
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/spanish_technological_university_raw.csv,39364,16,0,0
+Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success – All Academic Levels/university_students_comprehensive.csv,4424,38,0,0
+Student_Dropout_rate.csv,4424,37,0,0
+abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv,649,34,0,0
+student+performance/student/student-mat.csv,395,33,0,0
+student+performance/student/student-por.csv,649,33,0,0
+student-dropout-prediction/X_test.csv,79,34,0,0
+student-dropout-prediction/X_train.csv,316,34,0,0
+student-dropout-prediction/student-mat.csv,395,33,0,0
+student-dropout-prediction/student-por.csv,649,33,0,0
+student-dropout-prediction/y_test.csv,79,1,0,77
+student-dropout-prediction/y_train.csv,316,1,0,314

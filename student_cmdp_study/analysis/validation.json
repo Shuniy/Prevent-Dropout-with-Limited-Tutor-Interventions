@@ -1,0 +1,40 @@
+{
+  "school_subject_rows": 1044,
+  "portuguese_rows": 649,
+  "math_rows": 395,
+  "safe_one_to_one_links": 358,
+  "documented_merge_inner_pairs": 382,
+  "ambiguous_shared_keys": 8,
+  "math_rows_in_ambiguous_shared_keys": 12,
+  "math_only_rows_added": 25,
+  "student_initialization_rows": 674,
+  "student_ids_unique": true,
+  "groups_in_multiple_splits": 0,
+  "school_copy_math_equal": true,
+  "school_copy_portuguese_equal": true,
+  "abdullah_first_33_columns_equal_portuguese": true,
+  "abdullah_dropped_out_equals_final_grade_lt10": true,
+  "bundle_school_hazard_rule_exact_match_rows": 25000,
+  "bundle_school_grade13_rows": 5030,
+  "bundle_university_matching_rows_on_common_source_columns": 0,
+  "uci_higher_ed_target_counts": {
+    "Graduate": 2209,
+    "Dropout": 1421,
+    "Enrolled": 794
+  },
+  "split_counts": {
+    "train": 404,
+    "test": 140,
+    "validation": 130
+  },
+  "synthetic_split_counts": {
+    "train": 1200,
+    "validation": 400,
+    "test": 400
+  },
+  "observed_dropout_labels_school": 0,
+  "annual_hazard_calibration_training_mean": 0.10000000000000005,
+  "annual_hazard_intercept_assumed": -2.4823586502491697,
+  "source_files_unchanged": true,
+  "higher_ed_csv_equals_zip_member": true
+}

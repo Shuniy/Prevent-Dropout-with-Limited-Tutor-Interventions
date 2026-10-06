@@ -1,0 +1,5 @@
+split,source_rows,synthetic_rows,represented_source_anchors,represented_linkage_groups,max_descendants_per_anchor,duplicate_inherited_profiles
+train,388,1200,370,361,8,830
+validation,125,400,119,118,8,281
+test,136,400,126,125,8,274
+all,649,2000,615,604,8,1385

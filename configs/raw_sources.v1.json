@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "seed": 20261006,
+  "reference_date": "2026-10-06",
+  "research_plan_sha256": "c2d6c81833ee1fdb95af73302dbaf81ed8ce27871491187a1efb659ca0b86287",
+  "files": [
+    {
+      "relative_path": "Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success \u2013 All Academic Levels.zip",
+      "sha256": "fc55a03a9d7b0624580ea91b815ea92627fb9f64a148a8ba950a7b15ec927bd1",
+      "bytes": 4132085,
+      "role": "quarantined_audit_only"
+    },
+    {
+      "relative_path": "Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success \u2013 All Academic Levels/ieee_online_learning_behavior.csv",
+      "sha256": "81a1944cf4e9b1ad3106d2335eb9a5fe7172b43917158d0bb5828b4888c67b09",
+      "bytes": 540606,
+      "role": "quarantined_audit_only"
+    },
+    {
+      "relative_path": "Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success \u2013 All Academic Levels/massachusetts_school_district_aggregates.csv",
+      "sha256": "371b866ee84c9176f3808626e42cada266f5749fcbad056e6b463768ef0dce17",
+      "bytes": 17922,
+      "role": "quarantined_audit_only"
+    },
+    {
+      "relative_path": "Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success \u2013 All Academic Levels/masters_students_research_focused.csv",
+      "sha256": "f8159f8a6cd02cf1048ecfaf6b4aeafb6920947b26afb7ba1e3a876edb195e35",
+      "bytes": 1673455,
+      "role": "quarantined_audit_only"
+    },
+    {
+      "relative_path": "Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success \u2013 All Academic Levels/school_students_massachusetts_style.csv",
+      "sha256": "5e42323b9e4581f993e7851fdc65190c90d1d76ed9ec35806b332964a95d21ba",
+      "bytes": 2140161,
+      "role": "quarantined_audit_only"
+    },
+    {
+      "relative_path": "Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success \u2013 All Academic Levels/spanish_technological_university_raw.csv",
+      "sha256": "3c31f7d17eaa5ea83c145bb1e026c87250490f5cd0f2037a7bd65ae2a505c270",
+      "bytes": 5571546,
+      "role": "quarantined_audit_only"
+    },
+    {
+      "relative_path": "Student-Dropout-Success-All-Academic-Levels/Student Dropout & Success \u2013 All Academic Levels/university_students_comprehensive.csv",
+      "sha256": "74b7c9e6622ee271db7ec266568ebed3d9fe706047472301f10c7687bbec3731",
+      "bytes": 860265,
+      "role": "quarantined_audit_only"
+    },
+    {
+      "relative_path": "Student_Dropout_rate.csv",
+      "sha256": "3ef126de5cefff26eb11fbb4237f1a1401cb64b488e2f1d598c23cedeb4c45ae",
+      "bytes": 533230,
+      "role": "separate_higher_education"
+    },
+    {
+      "relative_path": "abdullah0a_student-dropout-analysis-and-prediction-dataset/student dropout.csv",
+      "sha256": "a392c704b91d489ba876f1f3ef1362fe07d7eea9f47e11921516ff906cbad096",
+      "bytes": 73278,
+      "role": "duplicate_audit_only"
+    },
+    {
+      "relative_path": "predict+students+dropout+and+academic+success.zip",
+      "sha256": "e90e55fd65ec462ae283ebeb2cca409319e3460ed898d8754f62fb35cc83a65d",
+      "bytes": 533344,
+      "role": "separate_higher_education"
+    },
+    {
+      "relative_path": "student+performance.zip",
+      "sha256": "82ae9d66437b9808df42e8c89d2bb179c46e9cfbcf06f38abc1d20b3b747e177",
+      "bytes": 40735,
+      "role": "primary_school"
+    },
+    {
+      "relative_path": "student+performance/student.zip",
+      "sha256": "4f671ae4598c20bb4e64de0f65931c98a609a52e383604e2601bd8f7e3822427",
+      "bytes": 20478,
+      "role": "primary_school"
+    },
+    {
+      "relative_path": "student+performance/student/student-mat.csv",
+      "sha256": "e47f9ee225e1ee6e69b7564e6dac7123e80b8486677fe111f351964cef5dec80",
+      "bytes": 56993,
+      "role": "primary_school"
+    },
+    {
+      "relative_path": "student+performance/student/student-merge.R",
+      "sha256": "a04f4ef19551c319428f642269c125faa21c521045946beead1c32e656269d31",
+      "bytes": 269,
+      "role": "primary_school"
+    },
+    {
+      "relative_path": "student+performance/student/student-por.csv",
+      "sha256": "a7594a11d7771c0efe1a740824e0e833da9c4cad07c39a9766a874575563fb3f",
+      "bytes": 93220,
+      "role": "primary_school"
+    },
+    {
+      "relative_path": "student+performance/student/student.txt",
+      "sha256": "f8d3e734e237071312790ca667330c66d75e706317f8d5e2125c479d70e962c1",
+      "bytes": 3206,
+      "role": "primary_school"
+    },
+    {
+      "relative_path": "student-dropout-prediction/X_test.csv",
+      "sha256": "8ca4761d72bafe3993fd93a3f6a532eef2f7b16a5bfeb666390462c2a7307219",
+      "bytes": 29449,
+      "role": "duplicate_audit_only"
+    },
+    {
+      "relative_path": "student-dropout-prediction/X_train.csv",
+      "sha256": "a617c5b463e38be5a490b3dfcd9694db1a9819554558e82ea5132f50f98bb01d",
+      "bytes": 116919,
+      "role": "duplicate_audit_only"
+    },
+    {
+      "relative_path": "student-dropout-prediction/student-mat.csv",
+      "sha256": "e47f9ee225e1ee6e69b7564e6dac7123e80b8486677fe111f351964cef5dec80",
+      "bytes": 56993,
+      "role": "duplicate_audit_only"
+    },
+    {
+      "relative_path": "student-dropout-prediction/student-por.csv",
+      "sha256": "a7594a11d7771c0efe1a740824e0e833da9c4cad07c39a9766a874575563fb3f",
+      "bytes": 93220,
+      "role": "duplicate_audit_only"
+    },
+    {
+      "relative_path": "student-dropout-prediction/y_test.csv",
+      "sha256": "a83ecacc5608e73bb6e178400f8fb685aa7134fd0ee6aca540beb2d284a66304",
+      "bytes": 245,
+      "role": "duplicate_audit_only"
+    },
+    {
+      "relative_path": "student-dropout-prediction/y_train.csv",
+      "sha256": "8d4fe06174c6dde488e089c5d370be125d82fec53d1cbec0f83b11c59f6122c7",
+      "bytes": 956,
+      "role": "duplicate_audit_only"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+dataset,metric,estimate,lower_95,upper_95,bootstrap_reps,unit
+school_context_failure,average_precision,0.5046774126,0.3342609292,0.7509007098,500,linkage_group_id
+school_context_failure,roc_auc,0.8464912281,0.7282109713,0.9377145183,500,linkage_group_id
+school_context_failure,brier,0.1159394687,0.07978199853,0.1578777591,500,linkage_group_id
+school_context_failure,recall_at_10pct,0.3181818182,0.1578947368,0.5859068627,500,linkage_group_id
+school_period1_failure,average_precision,0.720380927,0.552096114,0.8914835745,500,linkage_group_id
+school_period1_failure,roc_auc,0.937400319,0.8887448347,0.9755239545,500,linkage_group_id
+school_period1_failure,brier,0.07730689844,0.04881133521,0.1080378402,500,linkage_group_id
+school_period1_failure,recall_at_10pct,0.4545454545,0.3212258065,0.6875,500,linkage_group_id
+higher_ed_enrollment_resolved_dropout,average_precision,0.8345793965,0.7987431121,0.8657293183,500,linkage_group_id
+higher_ed_enrollment_resolved_dropout,roc_auc,0.866837232,0.8358202374,0.8916571936,500,linkage_group_id
+higher_ed_enrollment_resolved_dropout,brier,0.1401931137,0.1258699384,0.1553457162,500,linkage_group_id
+higher_ed_enrollment_resolved_dropout,recall_at_10pct,0.2569444444,0.2369486982,0.2803030303,500,linkage_group_id
+higher_ed_without_financial_status,average_precision,0.7021607627,0.6486172463,0.7548212969,500,linkage_group_id
+higher_ed_without_financial_status,roc_auc,0.7800392909,0.7443994964,0.8117296844,500,linkage_group_id
+higher_ed_without_financial_status,brier,0.1821477827,0.1683393275,0.1969638327,500,linkage_group_id
+higher_ed_without_financial_status,recall_at_10pct,0.21875,0.1905384948,0.2417582418,500,linkage_group_id

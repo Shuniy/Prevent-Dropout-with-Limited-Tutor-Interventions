@@ -1,0 +1,25 @@
+{
+  "status": "applied",
+  "files": [
+    {
+      "relative_path": ".DS_Store",
+      "sha256": "888c582eb330e6ba0cedcf1837d918e4d9cd3109ccd66666b85b82c4e0496096",
+      "bytes": 8196,
+      "reason": "Disposable macOS folder-view metadata; outside preserved baseline"
+    },
+    {
+      "relative_path": "student+performance/.DS_Store",
+      "sha256": "731b90e1b49ee886a93ec4aa17e50313cff1f46172e41805f07d3a5334e6522e",
+      "bytes": 6148,
+      "reason": "Disposable macOS folder-view metadata; outside preserved baseline"
+    },
+    {
+      "relative_path": "Student-Dropout-Success-All-Academic-Levels/.DS_Store",
+      "sha256": "59bd3a0fb5be1a6497a8c8c772d80206067a94e542a9ff09b01b8011c03db64d",
+      "bytes": 6148,
+      "reason": "Disposable macOS folder-view metadata; outside preserved baseline"
+    }
+  ],
+  "datasets_deleted": 0,
+  "baseline_files_deleted": 0
+}

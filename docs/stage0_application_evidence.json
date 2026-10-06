@@ -1,0 +1,15 @@
+{
+  "status": "applied_and_verified",
+  "project": "/Users/shuniy/Documents/projects/school-dropout",
+  "new_files": 76,
+  "deleted_metadata_files": [
+    ".DS_Store",
+    "Student-Dropout-Success-All-Academic-Levels/.DS_Store",
+    "student+performance/.DS_Store"
+  ],
+  "original_files_preserved": 167,
+  "original_datasets_deleted": 0,
+  "baseline_unchanged": true,
+  "installed_data_validation": "passed",
+  "installed_data_checks": 23
+}

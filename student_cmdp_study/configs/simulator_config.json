@@ -1,0 +1,242 @@
+{
+  "version": "1.0",
+  "seed": 20261006,
+  "horizon_weeks": 36,
+  "population_size": 2000,
+  "default_population_filter": {
+    "anchor_subject": "portuguese"
+  },
+  "time_origin": "hypothetical reset after first grading period; no dated attendance observed",
+  "hazard": {
+    "provenance": "assumed",
+    "training_calibrated_annual_target": 0.1,
+    "annual_targets": [
+      0.05,
+      0.1,
+      0.2
+    ],
+    "intercept_for_target_0_10": -2.4823586502491697,
+    "logit_coefficients": {
+      "learning_gap": 0.9,
+      "travel_over_30min": 0.5,
+      "no_home_internet": 0.3,
+      "past_failures_positive": 0.4
+    },
+    "weekly_conversion": "1 - (1 - sigmoid(intercept + score)) ** (1/36)"
+  },
+  "actions": [
+    {
+      "id": 0,
+      "name": "usual_support",
+      "money_units": 0,
+      "tutor_hours": 0,
+      "liaison_hours": 0,
+      "offer_admin_hours": 0,
+      "duration_weeks": 0,
+      "uptake_assumed": 1
+    },
+    {
+      "id": 1,
+      "name": "tutoring_block",
+      "money_units": 4,
+      "tutor_hours": 2,
+      "liaison_hours": 0,
+      "offer_admin_hours": 0.1,
+      "duration_weeks": 4,
+      "uptake_assumed": 0.7,
+      "eligible": "enrolled and learning_gap >= 0.1",
+      "delay_weeks": 1,
+      "effect": "accepted delivery reduces learning_gap by 0.05 * response_tendency per session; clip 0..1"
+    },
+    {
+      "id": 2,
+      "name": "attendance_family_liaison",
+      "money_units": 1,
+      "tutor_hours": 0,
+      "liaison_hours": 0.5,
+      "offer_admin_hours": 0.1,
+      "duration_weeks": 1,
+      "uptake_assumed": 0.75,
+      "eligible": "enrolled and (observed attendance < 0.85 or engagement < 0.6)",
+      "delay_weeks": 1,
+      "effect": "accepted contact adds 0.04 * response_tendency to attendance and 0.03 * response_tendency to engagement"
+    },
+    {
+      "id": 3,
+      "name": "transport_assessment_referral",
+      "money_units": 2,
+      "tutor_hours": 0,
+      "liaison_hours": 1,
+      "offer_admin_hours": 0.1,
+      "duration_weeks": 1,
+      "uptake_assumed": 0.6,
+      "eligible": "enrolled and travel_over_30min == 1 and programme_available; travel is not proof of poverty",
+      "delay_weeks": 2,
+      "effect": "successful assumed referral removes 0.03 attendance penalty for four weeks; not direct cash assistance"
+    }
+  ],
+  "action_parameters_provenance": "all costs, effects, eligibility cutoffs, uptake, delays and programme availability are scenario assumptions",
+  "resources": {
+    "capacity_fractions": [
+      0.05,
+      0.1,
+      0.2
+    ],
+    "unit": "normalized hypothetical budget, not currency",
+    "definition": "K=floor(fraction*N_initial); tutor_hours=2*K; liaison_hours=0.5*K; money=4*K; administration_hours=0.1*K weekly; per-step offers<=K; reservations consume these budgets before new offers",
+    "transport_programme_available": true,
+    "reserve_tutoring_full_4week_cost_before_offer": true,
+    "funding_horizon_rule": "do not initiate a block that finishes after week 36; cancellations release future reservations"
+  },
+  "fairness": {
+    "window_weeks": 4,
+    "group": "disadvantage_proxy_group",
+    "need_strata": "low/moderate/high from learning_gap and simulated attendance at window start",
+    "coverage_targets": [
+      0,
+      0.1,
+      0.2
+    ],
+    "target_definition": "unique eligible students offered an appropriate action / fixed eligible cohort at start of window",
+    "denominator_freeze": true,
+    "minimum_report_group_n": 30,
+    "hard_constraints": [
+      "capacity",
+      "budget",
+      "eligibility",
+      "one_new_offer_per_student_per_week"
+    ],
+    "access_infeasibility": "minimize declared nonnegative coverage slack; never violate hard resources"
+  },
+  "effect_multipliers": [
+    -0.5,
+    0,
+    0.5,
+    1,
+    2
+  ],
+  "transition_families": [
+    "continuous_latent_hazard",
+    "four_state_markov"
+  ],
+  "observation_conditions": [
+    "structured_complete",
+    "mcar_20pct",
+    "group_dependent_missing_40_vs_10pct"
+  ],
+  "evaluation_seeds": {
+    "pilot": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "heldout": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009,
+      1010,
+      1011,
+      1012,
+      1013,
+      1014,
+      1015,
+      1016,
+      1017,
+      1018,
+      1019,
+      1020,
+      1021,
+      1022,
+      1023,
+      1024,
+      1025,
+      1026,
+      1027,
+      1028,
+      1029
+    ]
+  },
+  "rng_streams": [
+    "population",
+    "state_shocks",
+    "dropout",
+    "uptake",
+    "observation",
+    "policy_tie_break"
+  ],
+  "implementation_status": "configuration and reset data generated; sequential environment and policy trials not executed",
+  "objective": {
+    "primary": "maximize expected terminal enrolled_count / initial_population_count",
+    "discount": 1,
+    "intermediate_reward": 0,
+    "secondary_metrics": [
+      "attendance",
+      "engagement",
+      "first_withdrawal",
+      "reentry"
+    ],
+    "partial_observation": "belief/history policy required when latent states hidden"
+  },
+  "continuous_transition_assumptions": {
+    "learning_gap": "clip(g + 0.01*(1-A) + Normal(0,0.015) - tutoring_effect,0,1)",
+    "engagement": "clip(e + 0.02*(A-0.85) + Normal(0,0.025) + liaison_effect,0,1)",
+    "attendance": "clip(0.85 + 0.15*(e_next-0.5) - 0.10*g_next - 0.06*active_travel_barrier + Normal(0,0.03) + support_effect,0,1)",
+    "dynamic_hazard_score_addition": "1.0*(0.85-A) + 0.5*(0.7-e)",
+    "reentry_weekly_probability": 0.005,
+    "reentry_sensitivity": [
+      0,
+      0.02
+    ],
+    "calibration_required": "dynamic usual-support retention is not calibrated by the static annual intercept alone"
+  },
+  "markov_transition_assumptions": {
+    "state_order": [
+      "engaged",
+      "intermittent",
+      "disengaged",
+      "withdrawn"
+    ],
+    "usual_support_matrix": [
+      [
+        0.97,
+        0.025,
+        0.004,
+        0.001
+      ],
+      [
+        0.12,
+        0.835,
+        0.04,
+        0.005
+      ],
+      [
+        0.02,
+        0.13,
+        0.825,
+        0.025
+      ],
+      [
+        0,
+        0.005,
+        0,
+        0.995
+      ]
+    ],
+    "initial_state_rule": "engaged if A>=0.9 and e>=0.7; disengaged if A<0.75 or e<0.4; intermittent otherwise",
+    "intervention_mass_shifts": "see experiment_plan.md; cap by available mass and validate simplex after every adjustment"
+  }
+}

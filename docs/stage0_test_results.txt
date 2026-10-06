@@ -1,0 +1,18 @@
+test_existing_output_is_not_overwritten (test_stage0.Stage0Safety.test_existing_output_is_not_overwritten) ... ok
+test_failed_build_is_not_published (test_stage0.Stage0Safety.test_failed_build_is_not_published) ... ok
+test_generated_directories_and_unlisted_files_are_ignored (test_stage0.Stage0Safety.test_generated_directories_and_unlisted_files_are_ignored) ... ok
+test_generated_paths_cannot_be_manually_added (test_stage0.Stage0Safety.test_generated_paths_cannot_be_manually_added) ... ok
+test_missing_document_fails_before_writes (test_stage0.Stage0Safety.test_missing_document_fails_before_writes) ... ok
+test_missing_input_fails_before_writes (test_stage0.Stage0Safety.test_missing_input_fails_before_writes) ... ok
+test_modified_reference_is_rejected (test_stage0.Stage0Safety.test_modified_reference_is_rejected) ... ok
+test_modified_source_is_rejected (test_stage0.Stage0Safety.test_modified_source_is_rejected) ... ok
+test_output_inside_raw_directory_is_rejected (test_stage0.Stage0Safety.test_output_inside_raw_directory_is_rejected) ... ok
+test_package_ignores_nested_copies_archives_and_itself (test_stage0.Stage0Safety.test_package_ignores_nested_copies_archives_and_itself) ... ok
+test_package_rejects_tampering_and_nested_manifest_entries (test_stage0.Stage0Safety.test_package_rejects_tampering_and_nested_manifest_entries) ... ok
+test_source_symlink_is_rejected (test_stage0.Stage0Safety.test_source_symlink_is_rejected) ... ok
+test_validation_has_no_workbook_runtime_dependency (test_stage0.Stage0Safety.test_validation_has_no_workbook_runtime_dependency) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.318s
+
+OK

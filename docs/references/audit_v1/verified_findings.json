@@ -1,0 +1,148 @@
+{
+  "source_csv_files": 16,
+  "package_csv_files": 28,
+  "primary_shape": [
+    674,
+    44
+  ],
+  "synthetic_shape": [
+    2000,
+    51
+  ],
+  "hidden_shape": [
+    2000,
+    7
+  ],
+  "portuguese_failure_count": 100,
+  "portuguese_failure_prevalence": 0.15408320493066255,
+  "math_failure_count": 130,
+  "math_failure_prevalence": 0.3291139240506329,
+  "higher_ed_target_counts": {
+    "Graduate": 2209,
+    "Dropout": 1421,
+    "Enrolled": 794
+  },
+  "higher_ed_dropout_all": 0.3212025316455696,
+  "higher_ed_dropout_resolved": 0.39146005509641874,
+  "mirror_matches_all_33_fields": true,
+  "mirror_dropout_is_grade_failure": true,
+  "linkage_safe_count": 358,
+  "documented_merge_pairs": 382,
+  "ambiguous_shared_keys": 8,
+  "source_split_counts": {
+    "train": 388,
+    "test": 136,
+    "validation": 125
+  },
+  "synthetic_split_counts": {
+    "train": 1200,
+    "validation": 400,
+    "test": 400
+  },
+  "anchor_inheritance_errors": [],
+  "all_anchors_portuguese": true,
+  "linkage_split_crossings": 0,
+  "unknown_fields_nonmissing": {
+    "income_amount": 0,
+    "income_currency": 0,
+    "verified_economic_disadvantage": 0,
+    "observed_school_dropout": 0
+  },
+  "static_hazard_conversion_max_error": 6.088859971775662e-11,
+  "all_original_files_unchanged": true,
+  "source_manifest_missing": 0,
+  "source_manifest_mismatch": 0,
+  "generator_doc_path_exists": false,
+  "markov_36_week_diagnostic": {
+    "scope": "fixed full reset mixture; no action; exact matrix calculation, not a policy experiment",
+    "initial_state_distribution": [
+      0.3625,
+      0.6355,
+      0.002,
+      0.0
+    ],
+    "endpoint_enrollment": 0.8923117951927765,
+    "first_withdrawal_incidence": 0.11761023134358195
+  },
+  "bootstrap_lineage": [
+    {
+      "split": "train",
+      "source_rows": 388,
+      "synthetic_rows": 1200,
+      "represented_source_anchors": 370,
+      "represented_linkage_groups": 361,
+      "max_descendants_per_anchor": 8,
+      "duplicate_inherited_profiles": 830
+    },
+    {
+      "split": "validation",
+      "source_rows": 125,
+      "synthetic_rows": 400,
+      "represented_source_anchors": 119,
+      "represented_linkage_groups": 118,
+      "max_descendants_per_anchor": 8,
+      "duplicate_inherited_profiles": 281
+    },
+    {
+      "split": "test",
+      "source_rows": 136,
+      "synthetic_rows": 400,
+      "represented_source_anchors": 126,
+      "represented_linkage_groups": 125,
+      "max_descendants_per_anchor": 8,
+      "duplicate_inherited_profiles": 274
+    },
+    {
+      "split": "all",
+      "source_rows": 649,
+      "synthetic_rows": 2000,
+      "represented_source_anchors": 615,
+      "represented_linkage_groups": 604,
+      "max_descendants_per_anchor": 8,
+      "duplicate_inherited_profiles": 1385
+    }
+  ],
+  "prediction_readback": [
+    {
+      "task": "higher_ed_enrollment_resolved_dropout",
+      "test_n": 744,
+      "positive_n": 288,
+      "average_precision": 0.8345793964721866,
+      "roc_auc": 0.8668372319688109,
+      "brier": 0.1401931137306278,
+      "max_probability_readback_error": 1.8486395747530082e-10
+    },
+    {
+      "task": "higher_ed_without_financial_status",
+      "test_n": 744,
+      "positive_n": 288,
+      "average_precision": 0.7021607626944063,
+      "roc_auc": 0.7800392909356725,
+      "brier": 0.18214778268868442,
+      "max_probability_readback_error": 1.4207823806344777e-10
+    },
+    {
+      "task": "school_context_failure",
+      "test_n": 136,
+      "positive_n": 22,
+      "average_precision": 0.5046774126141652,
+      "roc_auc": 0.8464912280701754,
+      "brier": 0.11593946870241935,
+      "max_probability_readback_error": 8.5280005279742e-11
+    },
+    {
+      "task": "school_period1_failure",
+      "test_n": 136,
+      "positive_n": 22,
+      "average_precision": 0.720380926959948,
+      "roc_auc": 0.9374003189792663,
+      "brier": 0.07730689843291734,
+      "max_probability_readback_error": 1.8657542177891173e-10
+    }
+  ],
+  "software_versions": {
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3"
+  }
+}
