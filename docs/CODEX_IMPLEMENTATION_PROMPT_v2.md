@@ -1,3 +1,8 @@
+> Historical detailed specification. For current paths, implementation status and
+> development order, start with [the roadmap](roadmap.md) and [README](../README.md).
+> The original raw inputs and preparation code have been removed. Use generated
+> CSVs directly; do not implement the preparation stages described below.
+
 # CODEX IMPLEMENTATION PROMPT
 
 Version 2 — 7 October 2026. This complete prompt retains the audited implementation sequence and adds the user-requested Task 13A feedback pipeline. The original version is preserved as `CODEX_IMPLEMENTATION_PROMPT.md`; use this version for subsequent implementation. This is a revised plan, not a claim that any simulator or language component has been implemented.
