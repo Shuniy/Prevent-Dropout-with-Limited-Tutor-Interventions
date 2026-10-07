@@ -1,0 +1,56 @@
+{
+  "stage": 1,
+  "status": "passed",
+  "python": "3.12.14",
+  "tests_passed": 41,
+  "stage0_regression_tests": 13,
+  "stage1_tests": 28,
+  "fresh_validation": {
+    "artifacts_verified": 33,
+    "validation": {
+      "ambiguous_math_reference_rows": 12,
+      "ambiguous_shared_keys": 8,
+      "consumer_readback_passed": true,
+      "fixture_descendants": 2000,
+      "fixture_split_counts": {
+        "test": 400,
+        "train": 1200,
+        "validation": 400
+      },
+      "inherited_field_mismatches": 0,
+      "input_hashes_unchanged": true,
+      "lineage_crossings": 0,
+      "math_only_outcome_rows_repaired": 25,
+      "primary_anchors": 649,
+      "primary_split_counts": {
+        "test": 136,
+        "train": 388,
+        "validation": 125
+      },
+      "provenance_rows": 475,
+      "represented_fixture_anchors": 615,
+      "represented_fixture_groups": 604,
+      "reset_features": [
+        "anchor_grade1_0_20",
+        "past_failures_count",
+        "study_time_category"
+      ],
+      "safe_links": 358,
+      "sensitivity_anchors": 674,
+      "sequential_simulator_executed": false,
+      "source_references_exact": true,
+      "source_subject_rows": 1044,
+      "stage": "1",
+      "unknown_fields_preserved": true
+    }
+  },
+  "raw_source_hashes_verified": 22,
+  "baseline_files_hash_verified": 46,
+  "stage0_result_files_hash_verified": 41,
+  "unexpected_original_changes": [],
+  "current_code_matches_result_manifest": true,
+  "test_log_sha256": "a327de09a9f77f5e1648110da57e9ad5886623025bb662561be959d3f7724c79",
+  "completed_result_manifest_sha256": "212346e311d40822d903dc0abfb99ca74f0afd7b6e46da523b7b32203eebd414",
+  "reproducibility": "Relocated second build, all artifact hashes equal; exercised by test_relocated_repeat_build_is_identical_and_preserves_inputs",
+  "later_stages_executed": false
+}

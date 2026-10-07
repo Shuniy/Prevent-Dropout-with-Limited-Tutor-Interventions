@@ -1,5 +1,37 @@
 # Dataset organization and cleanup decisions
 
+## Stage 1
+
+The active Stage 1 datasets are consolidated under `results/stage1-v1/data/`:
+
+| Subfolder/file | Consumer and contents |
+| --- | --- |
+| `context/` | Typed source context/audit/unknown/lineage records; primary (649), sensitivity (674), and fixed fixture (2,000), each partitioned by inherited split. |
+| `policy/` | Minimal allowlisted reset observations for the same cohorts/splits. Generated dynamics are withheld. |
+| `environment/` | Hidden assumed initial state for the fixed fixtures; no static future draw. |
+| `evaluator/` | All 1,044 exact subject references, 674 outcome references with the 25 math-only repairs, and 2,000 legacy static diagnostics. |
+| `split_manifest.csv` | Original conservative 674-anchor split manifest, unchanged values. |
+
+The primary/sensitivity views overlap by design and are labelled alternative
+cohorts; they must never be concatenated as independent students. Policy projections
+are deliberately separate files, so a policy loader never reads a truth/outcome table.
+
+`configs/stage1_inputs.v1.json` is the bounded Stage 1 input catalog: two authentic
+raw subject tables, six audited Stage 0 school tables, the codebook and the historical
+provenance register. The university, processed X/y mirrors, relabelled failure mirror
+and undocumented all-level bundle are not Stage 1 inputs. Original copies remain
+because they are immutable source/provenance material and are required by the
+Stage 0 reproducibility manifest. Moving/deleting them would break that benchmark.
+There is no need for an additional duplicate raw-data directory or download.
+
+Stage 1 cleanup removes only disposable `.DS_Store` metadata outside preserved
+baseline/results folders, and this task's temporary preparation/build copies.
+Exact paths, hashes and sizes of project cleanup are recorded in
+`stage1_cleanup_manifest.json`. No source dataset, completed baseline, historical
+audit or user-added research document is deleted.
+
+## Retained Stage 0 decisions
+
 The project folder already contains all Stage 0 inputs. A second consolidated raw
 folder would duplicate them and invalidate historical paths without improving the
 build. `configs/raw_sources.v1.json` is the single authoritative dataset catalog:

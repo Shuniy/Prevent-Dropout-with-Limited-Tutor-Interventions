@@ -1,0 +1,43 @@
+{
+  "status": "applied",
+  "files": [
+    {
+      "relative_path": ".DS_Store",
+      "sha256": "dce5094809706d7512dadb88f42db5b997e1b980341c261c96b8b5066278f6d9",
+      "bytes": 14340,
+      "reason": "Disposable macOS folder-view metadata; outside preserved datasets/baselines"
+    },
+    {
+      "relative_path": "Student-Dropout-Success-All-Academic-Levels/.DS_Store",
+      "sha256": "8930450e560a73f6d8c78848e6af04a20c99f397933db33e088c099b56c947d7",
+      "bytes": 6148,
+      "reason": "Disposable macOS folder-view metadata; outside preserved datasets/baselines"
+    },
+    {
+      "relative_path": "docs/.DS_Store",
+      "sha256": "0a1c7420fa0cc8f915a9cda5ed6329387ec67a3b087e4164abd8fd6fcc1e8d84",
+      "bytes": 6148,
+      "reason": "Disposable macOS folder-view metadata; outside preserved datasets/baselines"
+    },
+    {
+      "relative_path": "student+performance/.DS_Store",
+      "sha256": "e032c97605549c7b1249642b27173ded139529b235c199ec8f44846e34383c1b",
+      "bytes": 6148,
+      "reason": "Disposable macOS folder-view metadata; outside preserved datasets/baselines"
+    }
+  ],
+  "temporary_directories_removed": [
+    {
+      "path": "/private/tmp/school-stage1-initial",
+      "reason": "Temporary copy created by this task; superseded by implementation and completed result in project"
+    },
+    {
+      "path": "/Users/shuniy/.codex/.chatgpt-projects/g-p-6ab84f827ef081918cdae869c0ac8218/stage1_work",
+      "reason": "Temporary copy created by this task; superseded by implementation and completed result in project"
+    }
+  ],
+  "datasets_deleted": 0,
+  "baseline_files_deleted": 0,
+  "raw_datasets_relocated": 0,
+  "reason_for_retaining_originals": "Required by the implementation prompt and Stage 0 input manifest; Stage 1 uses only its bounded 10-input catalog"
+}

@@ -1,4 +1,57 @@
-# Student support research — Stage 0
+# Student support research — Stage 1
+
+Stage 1 implements school-data ingestion, lineage validation, immutable typed
+contracts, and separate policy, environment and evaluator data interfaces. All
+current Stage 1 tables are together under `results/stage1-v1/data/`, with role
+subfolders to prevent accidental outcome/truth leakage. Original downloads,
+`student_cmdp_study/`, and completed Stage 0 outputs are preserved.
+
+```sh
+python -B -m src.data.stage1 --source-root . \
+  --manifest configs/stage1_inputs.v1.json --output results/stage1-v2
+python -B -m src.data.stage1 --output results/stage1-v1 --verify
+python -B -m unittest discover -s tests -v
+```
+
+Build into a new version name; existing outputs cannot be overwritten. Stage 1 uses
+only the Python standard library, tested on the existing pinned Python 3.12.14
+environment. It adds no dependencies. The source manifest records ten explicit
+inputs and their hashes; it never scans a mixed data/output folder for inputs.
+
+The default cohort is 649 Portuguese anchors; 674 profiles are available only as an
+explicit sensitivity cohort. The 2,000 bootstrap rows are retained as fixed
+fixtures, not new independent students. All 1,044 subject references and split
+lineage are checked against raw data. The known 25 math-only evaluator blanks are
+repaired in the new result only.
+
+Policy reset features default to first-period grade, prior failures and study-time
+category. Generated attendance/engagement remain withheld until the later
+observation mechanism supplies authorized measurements. Unknown income,
+disadvantage and observed school dropout stay null. Sex is audit-only; math G1,
+late grades, absences, hidden response/hazard and future draws cannot enter the
+policy interface. Source questionnaire dates are unknown; reset availability is
+an explicit hypothetical first-period assumption.
+
+```python
+from src.data.access import PolicyStore, model_features
+
+students = PolicyStore("results/stage1-v1").load_reset("train")
+features = model_features(students[0])  # explicit allowlist; excludes IDs/audit groups
+```
+
+Use `ContextStore` only for initialization/auditing, `EnvironmentStore` for hidden
+reset state, and `EvaluatorStore` for historical outcomes/reference diagnostics.
+The loaders and immutable records enforce application data-flow boundaries;
+they do not sandbox malicious Python code with filesystem access.
+
+See [Stage 1 completion](docs/STAGE1_COMPLETION.md),
+[contract guide](docs/STAGE1_CONTRACTS.md), and
+[dataset organization](docs/DATASET_ORGANIZATION.md).
+Schemas for later extraction, updating, risk prediction, events and allocation are
+implemented; those services and the sequential simulator are not yet implemented.
+No real school-dropout predictor or causal intervention effect is claimed.
+
+## Retained Stage 0 workflow
 
 Stage 0 repairs reproducible data preparation. The original downloaded sources and
 `student_cmdp_study/` remain the immutable baseline. The repaired scripts live in

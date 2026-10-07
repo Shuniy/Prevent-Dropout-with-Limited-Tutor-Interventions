@@ -1,0 +1,71 @@
+{
+  "schema_version": "2.0.0",
+  "adapter_version": "stage1-v1",
+  "reset_features": [
+    "anchor_grade1_0_20",
+    "past_failures_count",
+    "study_time_category"
+  ],
+  "inputs": [
+    {
+      "name": "raw_portuguese",
+      "relative_path": "student+performance/student/student-por.csv",
+      "sha256": "a7594a11d7771c0efe1a740824e0e833da9c4cad07c39a9766a874575563fb3f",
+      "bytes": 93220
+    },
+    {
+      "name": "raw_math",
+      "relative_path": "student+performance/student/student-mat.csv",
+      "sha256": "e47f9ee225e1ee6e69b7564e6dac7123e80b8486677fe111f351964cef5dec80",
+      "bytes": 56993
+    },
+    {
+      "name": "student_dataset",
+      "relative_path": "results/stage0-v1/data/student_dataset.csv",
+      "sha256": "7aef06c9779c878aab2d98628b46649cebd04488a17b864e0995cdc4cc591ae3",
+      "bytes": 159765
+    },
+    {
+      "name": "synthetic_student_population",
+      "relative_path": "results/stage0-v1/data/synthetic_student_population.csv",
+      "sha256": "a93086ed07ab6ae85560a6ae818bbefb0c9c6c7610ca9a54a86d750fe7b2f321",
+      "bytes": 594207
+    },
+    {
+      "name": "split_manifest",
+      "relative_path": "results/stage0-v1/data/split_manifest.csv",
+      "sha256": "7e168ff2f2d1e753c347d1231c1bbcea8550c5a2cc78dc0a13a8569334786b79",
+      "bytes": 31413
+    },
+    {
+      "name": "subject_records_reference",
+      "relative_path": "results/stage0-v1/data/subject_records_reference.csv",
+      "sha256": "6157ac391c29c66d397b87eb74278c3f77812937a3d6a90dcd5c67a4db3e7128",
+      "bytes": 162848
+    },
+    {
+      "name": "student_outcomes_reference",
+      "relative_path": "results/stage0-v1/data/student_outcomes_reference.csv",
+      "sha256": "0c71ba32b2500044b9fc4c4f2bdc234eaade83c1a310e9c109da9c353315fda2",
+      "bytes": 23740
+    },
+    {
+      "name": "simulator_hidden_truth",
+      "relative_path": "results/stage0-v1/data/simulator_hidden_truth.csv",
+      "sha256": "17425f0bc2e5e84e7ea044a5a689574a7747ea9811e45c077dc2ff0ebccb8cb9",
+      "bytes": 185084
+    },
+    {
+      "name": "historical_provenance",
+      "relative_path": "docs/references/audit_v1/provenance_register.csv",
+      "sha256": "068412064f60fd6481e45442bb7d541e296904e8de993ddd38bd25320fc28e4b",
+      "bytes": 38893
+    },
+    {
+      "name": "school_codebook",
+      "relative_path": "student+performance/student/student.txt",
+      "sha256": "f8d3e734e237071312790ca667330c66d75e706317f8d5e2125c479d70e962c1",
+      "bytes": 3206
+    }
+  ]
+}

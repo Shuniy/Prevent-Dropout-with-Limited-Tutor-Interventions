@@ -1,0 +1,46 @@
+test_existing_output_is_not_overwritten (test_stage0.Stage0Safety.test_existing_output_is_not_overwritten) ... ok
+test_failed_build_is_not_published (test_stage0.Stage0Safety.test_failed_build_is_not_published) ... ok
+test_generated_directories_and_unlisted_files_are_ignored (test_stage0.Stage0Safety.test_generated_directories_and_unlisted_files_are_ignored) ... ok
+test_generated_paths_cannot_be_manually_added (test_stage0.Stage0Safety.test_generated_paths_cannot_be_manually_added) ... ok
+test_missing_document_fails_before_writes (test_stage0.Stage0Safety.test_missing_document_fails_before_writes) ... ok
+test_missing_input_fails_before_writes (test_stage0.Stage0Safety.test_missing_input_fails_before_writes) ... ok
+test_modified_reference_is_rejected (test_stage0.Stage0Safety.test_modified_reference_is_rejected) ... ok
+test_modified_source_is_rejected (test_stage0.Stage0Safety.test_modified_source_is_rejected) ... ok
+test_output_inside_raw_directory_is_rejected (test_stage0.Stage0Safety.test_output_inside_raw_directory_is_rejected) ... ok
+test_package_ignores_nested_copies_archives_and_itself (test_stage0.Stage0Safety.test_package_ignores_nested_copies_archives_and_itself) ... ok
+test_package_rejects_tampering_and_nested_manifest_entries (test_stage0.Stage0Safety.test_package_rejects_tampering_and_nested_manifest_entries) ... ok
+test_source_symlink_is_rejected (test_stage0.Stage0Safety.test_source_symlink_is_rejected) ... ok
+test_validation_has_no_workbook_runtime_dependency (test_stage0.Stage0Safety.test_validation_has_no_workbook_runtime_dependency) ... ok
+test_all_required_contracts_exported (test_stage1.Contracts.test_all_required_contracts_exported) ... ok
+test_evidence_linked_numeric_and_qualitative_batches (test_stage1.Contracts.test_evidence_linked_numeric_and_qualitative_batches) ... ok
+test_future_and_evaluator_events_forbidden (test_stage1.Contracts.test_future_and_evaluator_events_forbidden) ... ok
+test_interval_and_future_freshness (test_stage1.Contracts.test_interval_and_future_freshness) ... ok
+test_invalid_risk_target_probabilities_and_horizon (test_stage1.Contracts.test_invalid_risk_target_probabilities_and_horizon) ... ok
+test_observation_range_types_units_and_forbidden_fields (test_stage1.Contracts.test_observation_range_types_units_and_forbidden_fields) ... ok
+test_qualitative_pending_support_is_a_status_not_a_numeric_barrier (test_stage1.Contracts.test_qualitative_pending_support_is_a_status_not_a_numeric_barrier) ... ok
+test_stale_risk_and_identity_rejected (test_stage1.Contracts.test_stale_risk_and_identity_rejected) ... ok
+test_unknowns_not_zero_and_no_extra_extractor_risk (test_stage1.Contracts.test_unknowns_not_zero_and_no_extra_extractor_risk) ... ok
+test_valid_event_and_decision_roundtrip (test_stage1.Contracts.test_valid_event_and_decision_roundtrip) ... ok
+test_withdrawn_risk_not_zero (test_stage1.Contracts.test_withdrawn_risk_not_zero) ... ok
+test_all_original_subject_cells_preserved (test_stage1.DataGate.test_all_original_subject_cells_preserved) ... ok
+test_corrupt_lineage_and_derived_fields_fail (test_stage1.DataGate.test_corrupt_lineage_and_derived_fields_fail) ... ok
+test_duplicate_ids_and_raw_invalid_categories_fail (test_stage1.DataGate.test_duplicate_ids_and_raw_invalid_categories_fail) ... ok
+test_environment_never_loads_static_future_draw (test_stage1.DataGate.test_environment_never_loads_static_future_draw) ... ok
+test_existing_outputs_and_baseline_writes_rejected (test_stage1.DataGate.test_existing_outputs_and_baseline_writes_rejected) ... ok
+test_forbidden_serialized_fact_and_extra_field_rejected (test_stage1.DataGate.test_forbidden_serialized_fact_and_extra_field_rejected) ... ok
+test_generated_state_withheld_until_observed (test_stage1.DataGate.test_generated_state_withheld_until_observed) ... ok
+test_hidden_mutation_cannot_change_observation_serialization (test_stage1.DataGate.test_hidden_mutation_cannot_change_observation_serialization) ... ok
+test_math_only_outcomes_fixed_and_missing_enrichment_preserved (test_stage1.DataGate.test_math_only_outcomes_fixed_and_missing_enrichment_preserved) ... ok
+test_metadata_and_math_never_become_score_features (test_stage1.DataGate.test_metadata_and_math_never_become_score_features) ... ok
+test_missing_modified_inputs_fail_before_writes (test_stage1.DataGate.test_missing_modified_inputs_fail_before_writes) ... ok
+test_policy_path_injection_and_symlink_rejected (test_stage1.DataGate.test_policy_path_injection_and_symlink_rejected) ... ok
+test_policy_store_does_not_open_other_roles (test_stage1.DataGate.test_policy_store_does_not_open_other_roles) ... ok
+test_provenance_covers_every_input_column_contract_field_parameter (test_stage1.DataGate.test_provenance_covers_every_input_column_contract_field_parameter) ... ok
+test_relocated_repeat_build_is_identical_and_preserves_inputs (test_stage1.DataGate.test_relocated_repeat_build_is_identical_and_preserves_inputs) ... ok
+test_source_and_lineage_counts (test_stage1.DataGate.test_source_and_lineage_counts) ... ok
+test_unknowns_and_strict_category_types (test_stage1.DataGate.test_unknowns_and_strict_category_types) ... ok
+
+----------------------------------------------------------------------
+Ran 41 tests in 5.205s
+
+OK
