@@ -1,5 +1,6 @@
 """Read the existing generated CSVs directly; never create or rewrite datasets."""
 import csv
+import pandas as pd
 from dataclasses import fields
 from pathlib import Path
 from typing import get_type_hints, get_origin, Literal
@@ -7,25 +8,53 @@ from typing import get_type_hints, get_origin, Literal
 from .contracts import (StudentContext, Lineage, VerifiedContext, AuditGroups,
                         UnknownFields, EnvironmentState)
 
-DATA_DIR = Path(__file__).resolve().parents[2] / 'data/generated'
+DATA_DIR = Path(__file__).resolve().parents[2] / 'data'
+TABLE_PATHS = {
+    'student_dataset': 'processed/students/student_dataset.csv',
+    'split_manifest': 'processed/splits/split_manifest.csv',
+    'subject_records_reference': 'external/subject_records_reference.csv',
+    'student_outcomes_reference': 'external/student_outcomes_reference.csv',
+    'synthetic_student_population': 'synthetic/populations/synthetic_student_population.csv',
+    'simulator_hidden_truth': 'synthetic/simulator_states/simulator_hidden_truth.csv',
+}
 TABLES = {'student_dataset', 'synthetic_student_population', 'split_manifest',
           'subject_records_reference', 'student_outcomes_reference', 'simulator_hidden_truth'}
 
 
-def read_rows(table, directory=DATA_DIR):
+def read_table(table, directory=DATA_DIR):
+    """Return a DataFrame of source strings; preserve blanks and identifiers.
+
+    Convert specific numeric columns with pd.to_numeric in analysis code.
+    This raw research table is not an allowlisted policy feature table.
+    """
     if table not in TABLES:
         raise ValueError('Unknown dataset table')
-    with (Path(directory) / f'{table}.csv').open(newline='', encoding='utf-8-sig') as stream:
-        reader = csv.DictReader(stream)
-        if not reader.fieldnames or len(reader.fieldnames) != len(set(reader.fieldnames)):
+    directory = Path(directory)
+    path = directory / TABLE_PATHS[table]
+    # Keep supporting callers supplying a flat directory of CSVs.
+    if not path.exists():
+        path = directory / f'{table}.csv'
+    with path.open(newline='', encoding='utf-8-sig') as stream:
+        # Check structure first: pandas otherwise renames duplicate headers and
+        # fills short rows. csv handles quoted commas and multiline cells.
+        reader = csv.reader(stream)
+        columns = next(reader, [])
+        if not columns or any(not name for name in columns) or len(columns) != len(set(columns)):
             raise ValueError('Missing or duplicate CSV columns')
-        rows = list(reader)
-    if any(None in row or None in row.values() for row in rows):
-        raise ValueError('Malformed CSV row')
+        for row in reader:
+            if row and len(row) != len(columns):
+                raise ValueError('Malformed CSV row')
+        stream.seek(0)
+        data = pd.read_csv(stream, dtype=str, keep_default_na=False)
     key = 'record_id' if table == 'subject_records_reference' else 'student_id'
-    if any(not row.get(key) for row in rows) or len({row[key] for row in rows}) != len(rows):
+    if key not in data or data[key].eq('').any() or data[key].duplicated().any():
         raise ValueError('Missing or duplicate record ID')
-    return rows
+    return data
+
+
+def read_rows(table, directory=DATA_DIR):
+    """Compatibility adapter for the validated records; no JSON conversion."""
+    return read_table(table, directory).to_dict(orient='records')
 
 
 def binary(value):
@@ -66,22 +95,27 @@ def context_record(row):
                           _record(AuditGroups, row), UnknownFields(None, None, None, None, None))
 
 
-def population_rows(split, cohort='fixture', directory=DATA_DIR):
+def population_table(split, cohort='fixture', directory=DATA_DIR):
+    """Select a split/cohort using readable pandas filters; return a copy."""
     if split not in ('train', 'validation', 'test'):
         raise ValueError('Unknown split')
     if cohort not in ('primary', 'sensitivity', 'fixture'):
         raise ValueError('Unknown cohort')
     table = 'synthetic_student_population' if cohort == 'fixture' else 'student_dataset'
-    rows = read_rows(table, directory)
-    groups = {}
-    for row in rows:
-        if row['split'] not in ('train', 'validation', 'test'):
-            raise ValueError('Invalid dataset split')
-        group = row['linkage_group_id']
-        if groups.setdefault(group, row['split']) != row['split']:
-            raise ValueError('Linkage group crosses splits')
-    return [row for row in rows if row['split'] == split and
-            (cohort != 'primary' or row['anchor_subject'] == 'portuguese')]
+    data = read_table(table, directory)
+    if not data['split'].isin(['train', 'validation', 'test']).all():
+        raise ValueError('Invalid dataset split')
+    if data.groupby('linkage_group_id')['split'].nunique().gt(1).any():
+        raise ValueError('Linkage group crosses splits')
+    selected = data['split'] == split
+    if cohort == 'primary':
+        selected = selected & (data['anchor_subject'] == 'portuguese')
+    return data.loc[selected].copy()
+
+
+def population_rows(split, cohort='fixture', directory=DATA_DIR):
+    """Bridge a selected DataFrame to existing consumer records."""
+    return population_table(split, cohort, directory).to_dict(orient='records')
 
 
 def environment_record(row, hidden):

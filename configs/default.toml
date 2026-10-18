@@ -1,0 +1,6 @@
+# Paths are relative to this file, independent of the notebook working directory.
+[data]
+directory = "../data"
+
+[simulation]
+split = "train"

@@ -5,12 +5,45 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
+import pandas as pd
 
 from src.data.access import PolicyStore, ContextStore, EnvironmentStore, EvaluatorStore, model_features
-from src.data.dataset import DATA_DIR, read_rows, context_record, population_rows
+from src.data.dataset import (DATA_DIR, read_rows, read_table, context_record,
+                              population_rows, population_table)
 
 
 class DatasetTests(unittest.TestCase):
+    def test_dataframe_preserves_source_text_and_blanks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'student_dataset.csv'
+            path.write_text('student_id,label,unknown\n001,NA,\n002,"a,b",\n')
+            table = read_table('student_dataset', directory)
+            self.assertIsInstance(table, pd.DataFrame)
+            self.assertEqual(table['student_id'].tolist(), ['001', '002'])
+            self.assertEqual(table['label'].tolist(), ['NA', 'a,b'])
+            self.assertEqual(table['unknown'].tolist(), ['', ''])
+
+    def test_dataframe_rejects_malformed_csv(self):
+        cases = ['', 'student_id,student_id\na,b\n',
+                 'student_id,\na,b\n', 'student_id,label\na\n',
+                 'student_id,label\na,b,c\n', 'label\na\n',
+                 'student_id,label\n,b\n']
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'student_dataset.csv'
+            for content in cases:
+                with self.subTest(content=content):
+                    path.write_text(content)
+                    with self.assertRaises(ValueError):
+                        read_table('student_dataset', directory)
+
+    def test_dataframe_cohort_filter_and_copy(self):
+        students = population_table('train', 'primary')
+        self.assertEqual(len(students), 388)
+        self.assertTrue(students['anchor_subject'].eq('portuguese').all())
+        self.assertTrue(students['split'].eq('train').all())
+        students.loc[:, 'split'] = 'changed'
+        self.assertTrue(population_table('train', 'primary')['split'].eq('train').all())
+
     def test_population_and_split_counts(self):
         for split, count in [('train', 1200), ('validation', 400), ('test', 400)]:
             self.assertEqual(len(ContextStore().load(split)), count)
