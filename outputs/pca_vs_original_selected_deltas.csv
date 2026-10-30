@@ -1,0 +1,10 @@
+task,representation,delta_PR_AUC,delta_ROC_AUC,delta_macro_F1,delta_Brier
+university_three_class,Original encoded features,0.0,0.0,0.0,0.0
+university_three_class,PCA components (95%),-0.06342155980651387,-0.040154569892473346,-0.014187999882309899,0.008987059319214119
+university_three_class,PCA-ranked original fields (60%),-0.042352601540556534,-0.04723342293906829,-0.009253642794460837,0.00771790885830273
+university_resolved_binary,Original encoded features,0.0,0.0,0.0,0.0
+university_resolved_binary,PCA components (95%),-0.03737946377322798,-0.02828795077972701,-0.014603308021353456,0.006196260058334069
+university_resolved_binary,PCA-ranked original fields (60%),-0.07356872101537848,-0.06243146929824561,-0.010384336445080633,0.01708271126120009
+portuguese_course_failure,Original encoded features,0.0,0.0,0.0,0.0
+portuguese_course_failure,PCA components (95%),-0.12612857070939054,-0.06738437001594899,-0.08401723199654632,0.02614882353991277
+portuguese_course_failure,PCA-ranked original fields (60%),-0.03266951895245995,-0.011562998405103664,-0.036228314414221474,0.004527283351123401

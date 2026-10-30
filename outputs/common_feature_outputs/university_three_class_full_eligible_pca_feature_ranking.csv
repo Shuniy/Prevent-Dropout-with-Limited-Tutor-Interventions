@@ -1,0 +1,21 @@
+task,feature_set,column,encoded_count,pca_variance_score
+university_three_class,full_eligible,International,2,0.004598651081323624
+university_three_class,full_eligible,Daytime/evening attendance,2,0.004049884155392647
+university_three_class,full_eligible,Age at enrollment,1,0.0033749849535524845
+university_three_class,full_eligible,Gender,2,0.0028404411859810352
+university_three_class,full_eligible,Displaced,2,0.0020641926676034927
+university_three_class,full_eligible,Admission grade,1,0.0013646992156282067
+university_three_class,full_eligible,Unemployment rate,1,0.0011869720183312893
+university_three_class,full_eligible,Application order,1,0.0011027749860659242
+university_three_class,full_eligible,Previous qualification (grade),1,0.0009975844295695424
+university_three_class,full_eligible,Application mode,16,0.0009321382967755198
+university_three_class,full_eligible,Marital status,6,0.0008330708369612694
+university_three_class,full_eligible,Previous qualification,16,0.0008071867050603032
+university_three_class,full_eligible,GDP,1,0.0006473729154095054
+university_three_class,full_eligible,Nacionality,17,0.0005717347376048565
+university_three_class,full_eligible,Course,17,0.0005074557848274708
+university_three_class,full_eligible,Mother's occupation,28,0.00046294619096443057
+university_three_class,full_eligible,Mother's qualification,26,0.00042742941877804697
+university_three_class,full_eligible,Father's qualification,29,0.0003598032344598323
+university_three_class,full_eligible,Father's occupation,39,0.00030149525264278054
+university_three_class,full_eligible,Inflation rate,1,0.00015462642477359623

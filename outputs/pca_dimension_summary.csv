@@ -1,0 +1,4 @@
+task,encoded_features,retained_pcs,retained_fraction_of_encoded,training_variance_explained,ranking_pcs,source_fields_selected,source_fields_total
+university_three_class,190,143,0.7526315789473684,0.9520199298858643,10,11,18
+university_resolved_binary,183,135,0.7377049180327869,0.9511959552764893,10,11,18
+portuguese_course_failure,66,39,0.5909090909090909,0.9500037431716919,10,14,23

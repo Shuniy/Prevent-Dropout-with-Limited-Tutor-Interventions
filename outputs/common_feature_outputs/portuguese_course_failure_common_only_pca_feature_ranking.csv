@@ -1,0 +1,7 @@
+task,feature_set,column,encoded_count,pca_variance_score
+portuguese_course_failure,common_only,sex_source,2,0.04263228178024292
+portuguese_course_failure,common_only,mother_education_code,5,0.02990385890007019
+portuguese_course_failure,common_only,father_education_code,5,0.02894754707813263
+portuguese_course_failure,common_only,father_job,5,0.027837052941322327
+portuguese_course_failure,common_only,mother_job,5,0.026234637945890427
+portuguese_course_failure,common_only,age_years,1,0.003109621349722147

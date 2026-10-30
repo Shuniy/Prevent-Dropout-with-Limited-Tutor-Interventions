@@ -1,0 +1,11 @@
+task,feature_set,column,encoded_count,pca_variance_score
+university_three_class,common_plus_exploratory,Educational special needs,2,0.00620229309424758
+university_three_class,common_plus_exploratory,Gender,2,0.004514796659350395
+university_three_class,common_plus_exploratory,Scholarship holder,2,0.004421782214194536
+university_three_class,common_plus_exploratory,Age at enrollment,1,0.0030885390006005764
+university_three_class,common_plus_exploratory,Mother's occupation,28,0.0011394574539735913
+university_three_class,common_plus_exploratory,Mother's qualification,26,0.0011090197367593646
+university_three_class,common_plus_exploratory,Father's qualification,29,0.0009493182878941298
+university_three_class,common_plus_exploratory,Previous qualification (grade),1,0.0009278673096559942
+university_three_class,common_plus_exploratory,Admission grade,1,0.0008011976606212556
+university_three_class,common_plus_exploratory,Father's occupation,39,0.0007422801572829485

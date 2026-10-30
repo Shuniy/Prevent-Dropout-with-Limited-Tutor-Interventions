@@ -1,0 +1,9 @@
+task,feature_set,column,encoded_count,pca_variance_score
+university_resolved_binary,common_plus_cautious,Gender,2,0.006125274114310741
+university_resolved_binary,common_plus_cautious,Age at enrollment,1,0.003113700309768319
+university_resolved_binary,common_plus_cautious,Mother's occupation,25,0.0016397286672145128
+university_resolved_binary,common_plus_cautious,Previous qualification (grade),1,0.0014235774287953973
+university_resolved_binary,common_plus_cautious,Admission grade,1,0.0013253617798909545
+university_resolved_binary,common_plus_cautious,Mother's qualification,26,0.0013088325504213572
+university_resolved_binary,common_plus_cautious,Father's qualification,29,0.001102118636481464
+university_resolved_binary,common_plus_cautious,Father's occupation,35,0.0010890880366787314

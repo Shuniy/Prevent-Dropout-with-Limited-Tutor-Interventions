@@ -1,0 +1,21 @@
+task,feature_set,column,encoded_count,pca_variance_score
+university_resolved_binary,full_eligible,International,2,0.004808624275028706
+university_resolved_binary,full_eligible,Daytime/evening attendance,2,0.003935379907488823
+university_resolved_binary,full_eligible,Age at enrollment,1,0.0034805035684257746
+university_resolved_binary,full_eligible,Gender,2,0.0029278616420924664
+university_resolved_binary,full_eligible,Displaced,2,0.0020721012260764837
+university_resolved_binary,full_eligible,Admission grade,1,0.0014038985827937722
+university_resolved_binary,full_eligible,Unemployment rate,1,0.0013579647056758404
+university_resolved_binary,full_eligible,Application order,1,0.0011821408988907933
+university_resolved_binary,full_eligible,Previous qualification (grade),1,0.0010576689383015037
+university_resolved_binary,full_eligible,Application mode,16,0.0009252236923202872
+university_resolved_binary,full_eligible,Marital status,6,0.0008238604641519487
+university_resolved_binary,full_eligible,Previous qualification,16,0.0008050976321101189
+university_resolved_binary,full_eligible,Nacionality,17,0.000593161559663713
+university_resolved_binary,full_eligible,Mother's occupation,25,0.0005772095755673945
+university_resolved_binary,full_eligible,Course,17,0.0005078479298390448
+university_resolved_binary,full_eligible,Mother's qualification,26,0.00046858488349244
+university_resolved_binary,full_eligible,GDP,1,0.0004355164128355682
+university_resolved_binary,full_eligible,Father's qualification,29,0.00039348058635368943
+university_resolved_binary,full_eligible,Father's occupation,35,0.0003801305138040334
+university_resolved_binary,full_eligible,Inflation rate,1,0.00021014525555074215

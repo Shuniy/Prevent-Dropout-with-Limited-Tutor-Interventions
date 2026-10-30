@@ -1,0 +1,7 @@
+task,feature_set,column,encoded_count,pca_variance_score
+university_resolved_binary,common_only,Gender,2,0.006184144876897335
+university_resolved_binary,common_only,Age at enrollment,1,0.0031363628804683685
+university_resolved_binary,common_only,Mother's occupation,25,0.0017087056767195463
+university_resolved_binary,common_only,Mother's qualification,26,0.0013395996065810323
+university_resolved_binary,common_only,Father's occupation,35,0.0011333583388477564
+university_resolved_binary,common_only,Father's qualification,29,0.0011186439078301191

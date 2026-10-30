@@ -1,0 +1,19 @@
+source_feature,num_encoded_columns,pca_variance_contribution,kind
+Daytime/evening attendance,2,0.004756905138492584,categorical
+International,2,0.004282759502530098,categorical
+Age at enrollment,1,0.0037407793570309877,numeric
+Displaced,2,0.002686848631128669,categorical
+Unemployment rate,1,0.0017539574764668941,numeric
+Admission grade,1,0.001696991384960711,numeric
+Application order,1,0.001259433338418603,numeric
+Application mode,16,0.001127007883042097,categorical
+Previous qualification (grade),1,0.0010979524813592434,numeric
+Previous qualification,16,0.0009906378109008074,categorical
+Marital status,6,0.0009653828456066549,categorical
+GDP,1,0.0008140390273183584,numeric
+Mother's occupation,28,0.0007437443127855659,categorical
+Mother's qualification,26,0.0006671113078482449,categorical
+Course,17,0.0005846723797731102,categorical
+Father's qualification,29,0.0005740661290474236,categorical
+Father's occupation,39,0.0004854246217291802,categorical
+Inflation rate,1,0.00020386271353345364,numeric

@@ -1,0 +1,13 @@
+task,feature_set,source_columns,encoded_dimensions,pca_dimensions,train_variance_explained
+university_three_class,common_only,6,125,95,0.9513494372367859
+university_three_class,common_plus_cautious,8,127,97,0.9529497623443604
+university_three_class,common_plus_exploratory,10,131,98,0.9507836103439331
+university_three_class,full_eligible,20,209,156,0.9515244960784912
+university_resolved_binary,common_only,6,118,88,0.9530635476112366
+university_resolved_binary,common_plus_cautious,8,120,89,0.9507529735565186
+university_resolved_binary,common_plus_exploratory,10,124,91,0.9524537920951843
+university_resolved_binary,full_eligible,20,202,148,0.9505400657653809
+portuguese_course_failure,common_only,6,23,16,0.9651392698287964
+portuguese_course_failure,common_plus_cautious,8,25,18,0.970138669013977
+portuguese_course_failure,common_plus_exploratory,10,29,19,0.9553306698799133
+portuguese_course_failure,full_eligible,25,70,40,0.9533118009567261

@@ -1,0 +1,11 @@
+task,feature_set,column,encoded_count,pca_variance_score
+university_resolved_binary,common_plus_exploratory,Educational special needs,2,0.005273168906569481
+university_resolved_binary,common_plus_exploratory,Scholarship holder,2,0.004482842981815338
+university_resolved_binary,common_plus_exploratory,Gender,2,0.004012513905763626
+university_resolved_binary,common_plus_exploratory,Age at enrollment,1,0.0032393615692853928
+university_resolved_binary,common_plus_exploratory,Mother's occupation,25,0.0014457890065386891
+university_resolved_binary,common_plus_exploratory,Previous qualification (grade),1,0.001424453454092145
+university_resolved_binary,common_plus_exploratory,Admission grade,1,0.001203821855597198
+university_resolved_binary,common_plus_exploratory,Mother's qualification,26,0.0011919736862182617
+university_resolved_binary,common_plus_exploratory,Father's qualification,29,0.0009988356614485383
+university_resolved_binary,common_plus_exploratory,Father's occupation,35,0.0009571023401804268

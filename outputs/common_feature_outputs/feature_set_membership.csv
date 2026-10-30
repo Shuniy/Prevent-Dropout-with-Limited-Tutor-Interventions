@@ -1,0 +1,94 @@
+dataset,subset,column
+school,common_only,age_years
+school,common_only,sex_source
+school,common_only,mother_education_code
+school,common_only,father_education_code
+school,common_only,mother_job
+school,common_only,father_job
+school,common_plus_cautious,age_years
+school,common_plus_cautious,sex_source
+school,common_plus_cautious,mother_education_code
+school,common_plus_cautious,father_education_code
+school,common_plus_cautious,mother_job
+school,common_plus_cautious,father_job
+school,common_plus_cautious,anchor_grade1_0_20
+school,common_plus_cautious,past_failures_count
+school,common_plus_exploratory,age_years
+school,common_plus_exploratory,sex_source
+school,common_plus_exploratory,mother_education_code
+school,common_plus_exploratory,father_education_code
+school,common_plus_exploratory,mother_job
+school,common_plus_exploratory,father_job
+school,common_plus_exploratory,anchor_grade1_0_20
+school,common_plus_exploratory,past_failures_count
+school,common_plus_exploratory,no_home_internet
+school,common_plus_exploratory,school_support_existing
+school,full_eligible,age_years
+school,full_eligible,anchor_grade1_0_20
+school,full_eligible,extracurricular
+school,full_eligible,family_relationship_rating
+school,full_eligible,family_size_gt3
+school,full_eligible,family_support_existing
+school,full_eligible,father_education_code
+school,full_eligible,father_job
+school,full_eligible,guardian
+school,full_eligible,health_self_rating
+school,full_eligible,higher_education_aspiration
+school,full_eligible,internet_at_home
+school,full_eligible,mother_education_code
+school,full_eligible,mother_job
+school,full_eligible,no_home_internet
+school,full_eligible,nursery_attended
+school,full_eligible,paid_classes_existing
+school,full_eligible,parents_apart
+school,full_eligible,past_failures_count
+school,full_eligible,rural_residence
+school,full_eligible,school_id
+school,full_eligible,school_support_existing
+school,full_eligible,sex_source
+school,full_eligible,study_time_category
+school,full_eligible,travel_time_category
+university,common_only,Age at enrollment
+university,common_only,Gender
+university,common_only,Mother's qualification
+university,common_only,Father's qualification
+university,common_only,Mother's occupation
+university,common_only,Father's occupation
+university,common_plus_cautious,Age at enrollment
+university,common_plus_cautious,Gender
+university,common_plus_cautious,Mother's qualification
+university,common_plus_cautious,Father's qualification
+university,common_plus_cautious,Mother's occupation
+university,common_plus_cautious,Father's occupation
+university,common_plus_cautious,Admission grade
+university,common_plus_cautious,Previous qualification (grade)
+university,common_plus_exploratory,Age at enrollment
+university,common_plus_exploratory,Gender
+university,common_plus_exploratory,Mother's qualification
+university,common_plus_exploratory,Father's qualification
+university,common_plus_exploratory,Mother's occupation
+university,common_plus_exploratory,Father's occupation
+university,common_plus_exploratory,Admission grade
+university,common_plus_exploratory,Previous qualification (grade)
+university,common_plus_exploratory,Scholarship holder
+university,common_plus_exploratory,Educational special needs
+university,full_eligible,Admission grade
+university,full_eligible,Age at enrollment
+university,full_eligible,Application mode
+university,full_eligible,Application order
+university,full_eligible,Course
+university,full_eligible,Daytime/evening attendance
+university,full_eligible,Displaced
+university,full_eligible,Father's occupation
+university,full_eligible,Father's qualification
+university,full_eligible,GDP
+university,full_eligible,Gender
+university,full_eligible,Inflation rate
+university,full_eligible,International
+university,full_eligible,Marital status
+university,full_eligible,Mother's occupation
+university,full_eligible,Mother's qualification
+university,full_eligible,Nacionality
+university,full_eligible,Previous qualification
+university,full_eligible,Previous qualification (grade)
+university,full_eligible,Unemployment rate

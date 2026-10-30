@@ -1,0 +1,72 @@
+dataset,column,category,concept,in_candidate_features,caveat
+school,student_id,identifier_or_metadata,,False,Not a predictive feature
+school,linkage_group_id,identifier_or_metadata,,False,Not a predictive feature
+school,split,identifier_or_metadata,,False,Not a predictive feature
+school,source_dataset,identifier_or_metadata,,False,Not a predictive feature
+school,population,identifier_or_metadata,,False,Not a predictive feature
+school,anchor_subject,identifier_or_metadata,,False,Not a predictive feature
+school,source_row,identifier_or_metadata,,False,Not a predictive feature
+school,school_id,unique,,True,No defensibly equivalent counterpart in the other data
+school,record_provenance,identifier_or_metadata,,False,Not a predictive feature
+school,link_status,identifier_or_metadata,,False,Not a predictive feature
+school,age_years,common,Age,True,Age at enrollment and age in school have different reference dates.
+school,sex_source,common,Sex / gender,True,Recorded sex and gender may differ in definition; retain independent categorical encoding; sensitive variable.
+school,rural_residence,unique,,True,No defensibly equivalent counterpart in the other data
+school,family_size_gt3,unique,,True,No defensibly equivalent counterpart in the other data
+school,parents_apart,unique,,True,No defensibly equivalent counterpart in the other data
+school,mother_education_code,common,Mother education,True,Ordinal school categories versus detailed university codes; do not equate numeric codes.
+school,father_education_code,common,Father education,True,Different qualification categories and level coding.
+school,mother_job,common,Mother occupation,True,Broad school categories versus detailed university occupation categories.
+school,father_job,common,Father occupation,True,Broad school categories versus detailed university occupation categories.
+school,guardian,unique,,True,No defensibly equivalent counterpart in the other data
+school,travel_time_category,unique,,True,No defensibly equivalent counterpart in the other data
+school,study_time_category,unique,,True,No defensibly equivalent counterpart in the other data
+school,past_failures_count,partial_cautious,Prior academic history,True,Prior failures count versus previous qualification score; not directly comparable difficulty measures.
+school,school_support_existing,partial_weak,Learning support context,True,Support received versus reported special needs: distinct constructs and sensitive status.
+school,family_support_existing,unique,,True,No defensibly equivalent counterpart in the other data
+school,paid_classes_existing,unique,,True,No defensibly equivalent counterpart in the other data
+school,extracurricular,unique,,True,No defensibly equivalent counterpart in the other data
+school,nursery_attended,unique,,True,No defensibly equivalent counterpart in the other data
+school,higher_education_aspiration,unique,,True,No defensibly equivalent counterpart in the other data
+school,internet_at_home,unique,,True,No defensibly equivalent counterpart in the other data
+school,family_relationship_rating,unique,,True,No defensibly equivalent counterpart in the other data
+school,health_self_rating,unique,,True,No defensibly equivalent counterpart in the other data
+school,anchor_grade1_0_20,partial_cautious,Academic attainment,True,School first-period grade versus prior admission mark; stage/timing/scale differ.
+school,math_grade1_0_20,excluded,,False,"Unavailable at landmark, derivative, or excluded by design"
+school,income_amount,excluded,,False,"Unavailable at landmark, derivative, or excluded by design"
+school,income_currency,excluded,,False,"Unavailable at landmark, derivative, or excluded by design"
+school,verified_economic_disadvantage,excluded,,False,"Unavailable at landmark, derivative, or excluded by design"
+school,observed_school_dropout,unavailable_or_derived_simulation,,False,"Missing, assumed, or simulator-derived—not an observed predictor"
+school,both_parents_education_at_most_2,excluded,,False,"Unavailable at landmark, derivative, or excluded by design"
+school,no_home_internet,partial_weak,Economic/access context,True,No home internet versus scholarship status: different constructs; scholarship timing not established.
+school,travel_over_30min,excluded,,False,"Unavailable at landmark, derivative, or excluded by design"
+school,disadvantage_proxy_count,excluded,,False,"Unavailable at landmark, derivative, or excluded by design"
+school,disadvantage_proxy_group,excluded,,False,"Unavailable at landmark, derivative, or excluded by design"
+school,learning_gap_initial_assumed,unavailable_or_derived_simulation,,False,"Missing, assumed, or simulator-derived—not an observed predictor"
+university,record_id,identifier_or_metadata,,False,Not a predictive feature
+university,linkage_group_id,identifier_or_metadata,,False,Not a predictive feature
+university,split,identifier_or_metadata,,False,Not a predictive feature
+university,Age at enrollment,common,Age,True,Age at enrollment and age in school have different reference dates.
+university,Application order,unique,,True,No defensibly equivalent counterpart in the other data
+university,Previous qualification (grade),partial_cautious,Prior academic history,True,Prior failures count versus previous qualification score; not directly comparable difficulty measures.
+university,Admission grade,partial_cautious,Academic attainment,True,School first-period grade versus prior admission mark; stage/timing/scale differ.
+university,Unemployment rate,unique,,True,No defensibly equivalent counterpart in the other data
+university,Inflation rate,unique,,True,No defensibly equivalent counterpart in the other data
+university,GDP,unique,,True,No defensibly equivalent counterpart in the other data
+university,Marital status,unique,,True,No defensibly equivalent counterpart in the other data
+university,Application mode,unique,,True,No defensibly equivalent counterpart in the other data
+university,Course,unique,,True,No defensibly equivalent counterpart in the other data
+university,Daytime/evening attendance,unique,,True,No defensibly equivalent counterpart in the other data
+university,Previous qualification,unique,,True,No defensibly equivalent counterpart in the other data
+university,Nacionality,unique,,True,No defensibly equivalent counterpart in the other data
+university,Mother's qualification,common,Mother education,True,Ordinal school categories versus detailed university codes; do not equate numeric codes.
+university,Father's qualification,common,Father education,True,Different qualification categories and level coding.
+university,Mother's occupation,common,Mother occupation,True,Broad school categories versus detailed university occupation categories.
+university,Father's occupation,common,Father occupation,True,Broad school categories versus detailed university occupation categories.
+university,Displaced,unique,,True,No defensibly equivalent counterpart in the other data
+university,Educational special needs,partial_weak,Learning support context,True,Support received versus reported special needs: distinct constructs and sensitive status.
+university,Debtor,unavailable_or_derived_simulation,,False,"Missing, assumed, or simulator-derived—not an observed predictor"
+university,Tuition fees up to date,unavailable_or_derived_simulation,,False,"Missing, assumed, or simulator-derived—not an observed predictor"
+university,Gender,common,Sex / gender,True,Recorded sex and gender may differ in definition; retain independent categorical encoding; sensitive variable.
+university,Scholarship holder,partial_weak,Economic/access context,True,No home internet versus scholarship status: different constructs; scholarship timing not established.
+university,International,unique,,True,No defensibly equivalent counterpart in the other data

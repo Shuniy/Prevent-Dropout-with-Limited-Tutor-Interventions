@@ -1,0 +1,11 @@
+feature_concept,category,school_column,university_column,limitation
+Age,common,age_years,Age at enrollment,Age at enrollment and age in school have different reference dates.
+Sex / gender,common,sex_source,Gender,Recorded sex and gender may differ in definition; retain independent categorical encoding; sensitive variable.
+Mother education,common,mother_education_code,Mother's qualification,Ordinal school categories versus detailed university codes; do not equate numeric codes.
+Father education,common,father_education_code,Father's qualification,Different qualification categories and level coding.
+Mother occupation,common,mother_job,Mother's occupation,Broad school categories versus detailed university occupation categories.
+Father occupation,common,father_job,Father's occupation,Broad school categories versus detailed university occupation categories.
+Academic attainment,partial_cautious,anchor_grade1_0_20,Admission grade,School first-period grade versus prior admission mark; stage/timing/scale differ.
+Prior academic history,partial_cautious,past_failures_count,Previous qualification (grade),Prior failures count versus previous qualification score; not directly comparable difficulty measures.
+Economic/access context,partial_weak,no_home_internet,Scholarship holder,No home internet versus scholarship status: different constructs; scholarship timing not established.
+Learning support context,partial_weak,school_support_existing,Educational special needs,Support received versus reported special needs: distinct constructs and sensitive status.
