@@ -19,6 +19,10 @@ policies. Any unavailable risk score must remain explicitly unavailable. Later
 stages must continue to distinguish historical course failure, assumed simulation
 withdrawal and real school dropout.
 
+The data foundation includes plain `Student` and `SyntheticStudent` schema models.
+Data validation remains in the data layer, while mutable episode transitions remain
+part of Stage 3.
+
 ## Organization rules
 
 - Put input data in `data/`, settings in `configs/`, implementation in `src/`,

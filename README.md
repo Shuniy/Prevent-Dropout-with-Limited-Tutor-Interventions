@@ -32,7 +32,7 @@ python -m unittest discover -s tests -v
 python -m notebook
 ```
 
-Open `notebooks/01_data_exploration.ipynb` and restart the kernel/run all cells in
+Open `notebooks/data_exploration.ipynb` and restart the kernel/run all cells in
 order. The notebook explains each step and writes only
 `results/exploration/split_summary.csv`. Jupyter notebooks use their standard file
 format internally; student data is read from CSV directly into pandas, without a
@@ -133,6 +133,11 @@ and observed school dropout are unknown; missing is not zero or false. Access
 proxies are not verified poverty or official eligibility. Historical `G3 < 10`
 means **course failure**, not school dropout. Attendance, engagement, financial
 barriers, withdrawal dynamics and intervention effects are simulation assumptions.
+
+`src.models.student` provides plain `Student` and `SyntheticStudent` dataclasses
+matching the processed and synthetic population schemas. Parsing, conversion and
+data validation remain separate from these models. Internet, travel, disadvantage
+and learning-gap proxies are computed properties rather than constructor parameters.
 
 ## Current data workflow
 
