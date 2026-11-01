@@ -7,9 +7,11 @@ enrollment. It is a research project, not a deployed system for deciding real
 students' eligibility or proof that mentoring prevents real school dropout.
 
 **Current implementation:** a pandas-based data foundation, validated consumer
-interfaces, Jupyter notebooks and a shared console/notebook runner. Baseline model fitting, population
-sampling, simulation transitions, allocation, risk prediction and language-based
-feedback are not implemented. Some of their data contracts already exist.
+interfaces, Jupyter notebooks, a shared console/notebook runner and a basic
+student-to-mentor allocation simulation. Baseline model fitting, population
+sampling, simulation transitions, allocation policies, risk prediction and
+language-based feedback are not implemented. Some of their data contracts already
+exist.
 
 Use [Guidance.md](Guidance.md) for function documentation and simple coding
 conventions, [the roadmap](docs/roadmap.md) for development order, and
@@ -37,6 +39,37 @@ order. The notebook explains each step and writes only
 `results/exploration/split_summary.csv`. Jupyter notebooks use their standard file
 format internally; student data is read from CSV directly into pandas, without a
 JSON loading or preparation step. No external service or model credentials are needed.
+
+The small agent-based allocation model can be run independently. By default it
+loads a configurable number of student agents from
+`data/synthetic/populations/synthetic_student_population.csv`. Constructor values
+default to `src/constants.py` and can be overridden, including the CSV path, or
+callers can supply their own `Student` and `Mentor` objects:
+
+```python
+from src.models.school import School
+
+school = School(
+    num_students=20,
+    num_mentors=3,
+    num_months=12,
+    students_per_mentor=5,
+    sessions_per_student=5,
+    mentor_cost_per_session=1,
+    budget=1000,
+    seed=42,
+)
+monthly_assignments = school.run_simulation()
+```
+
+Every month renews mentor capacity and assigns students up to each mentor's active
+student and session limits. The default schedule runs for 12 months, assigns five
+tutoring sessions per student per month, and returns assignments grouped by month.
+Students are shuffled with a configurable seed each month; selection is unique
+within a month, while students remain eligible to be selected again in later
+months. Mentoring cost is charged per session against the total simulation budget;
+session duration is not modeled. The synthetic profiles are scenario data, not
+independent observations or evidence of intervention effectiveness.
 
 Libraries: pandas for reading/manipulating tables; NumPy for simple numerical
 operations; Matplotlib for plotting; Jupyter Notebook for interactive exploration.
@@ -79,6 +112,7 @@ src/
   cli.py                    Argument parsing and presentation
   data/                     Loading, consumer access and validated contracts
   experiments/runner.py     Shared orchestration returning pandas tables
+  utils/school.py           Student loading and mentor-allocation helpers
 tests/data/                 Data integrity, isolation and contract checks
 tests/experiments/          Runner and entry-point checks
 results/                    Ignored generated runs, tables, figures and logs

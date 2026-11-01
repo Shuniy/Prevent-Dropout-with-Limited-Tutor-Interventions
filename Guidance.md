@@ -40,6 +40,20 @@ or `validate='one_to_one'` as appropriate and check unmatched IDs.
 whose parameters match the two population CSV schemas. Data loading and conversion
 remain the responsibility of the pandas data layer.
 
+`src.models.school.School` provides the basic agent allocation increment. It can
+load `StudentSimulation` agents from the synthetic population CSV or accept
+existing `Student` objects, and it can create configurable mentors or accept
+existing `Mentor` objects. `step(month)` returns detailed assignment records for one
+month; `run_simulation()` runs the configured 12-month default schedule and returns
+`month -> {student_id: mentor_id}` mappings. Mentor student capacity and session
+availability renew monthly. The baseline assigns five sessions per student and does
+not model session duration. Students are shuffled reproducibly each month without
+replacement within that month; prior assignments do not make a student ineligible
+later. Per-session mentor costs accumulate against one simulation budget.
+CSV conversion, configuration/ID validation, default mentor construction and
+assignment-feasibility checks live in `src.utils.school` so the model class stays
+focused on monthly simulation state and orchestration.
+
 ## Notebook and command entry points
 
 - `notebooks/data_exploration.ipynb`: load, inspect, count, select, convert,

@@ -37,6 +37,7 @@ class Mentor:
     current_student_ids: list[str] = field(default_factory=list)
     availability_by_step: list[MentorAvailability] = field(default_factory=list)
     cost_units_per_hour: float = 0.0
+    cost_units_per_session: float = 0.0
 
     def __post_init__(self) -> None:
         if not self.mentor_id:
@@ -45,6 +46,8 @@ class Mentor:
             raise ValueError("max_active_students must be non-negative")
         if self.cost_units_per_hour < 0:
             raise ValueError("cost_units_per_hour must be non-negative")
+        if self.cost_units_per_session < 0:
+            raise ValueError("cost_units_per_session must be non-negative")
         if len(self.current_student_ids) != len(set(self.current_student_ids)):
             raise ValueError("current_student_ids must not contain duplicates")
         if self.current_caseload > self.max_active_students:
