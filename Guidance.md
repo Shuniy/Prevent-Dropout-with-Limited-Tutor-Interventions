@@ -7,9 +7,8 @@ this file explains how to implement it simply.
 
 ## Coding approach
 
-- Read CSV data with pandas. Keep working tables as DataFrames; export analysis
-  tables with `to_csv`. Do not route ordinary data work through JSON or nested
-  dictionaries. Existing typed consumer records remain useful at API boundaries.
+- Use the standard-library CSV loader for the active agent simulation. Use pandas
+  for notebook analysis and future table-oriented experiment outputs.
 - Use Jupyter notebooks to explain and explore data step by step. Put reusable
   loading and validation in `src/`; import it from notebooks.
 - Prefer named intermediate variables, ordinary loops, column selection, `.loc`,
@@ -23,22 +22,16 @@ this file explains how to implement it simply.
 - Notebooks must run from a fresh kernel in order, without hidden cell state.
   Never use exploratory test-set results to tune a model.
 
-## Loader and conversion functions
+## Student loading and conversion
 
-All dataset loaders default to `data/` (organized subdirectories; legacy flat CSV directories also work). A `directory` argument allows a
-separate local copy. They never write input files.
+The active simulation loader defaults to
+`data/synthetic/populations/synthetic_student_population.csv` and accepts an
+overridable path. It reads the first configured number of records and never writes
+the source CSV. Blank nullable values remain `None`; do not turn unknown financial
+need or dropout into `False`.
 
-Supported splits: `train`, `validation`, `test`. Cohorts: `fixture` (2,000 synthetic
-rows across splits), `primary` (649 Portuguese anchors), `sensitivity` (674 anchors).
-
-Convert only columns needed for the analysis. Blank means unknown; use `pd.NA`
-in an analysis copy. Do not fill unknown income, disadvantage or dropout with zero.
-For joins, declare the expected cardinality using `merge(..., validate='many_to_one')`
-or `validate='one_to_one'` as appropriate and check unmatched IDs.
-
-`src.models.student` contains plain `Student` and `SyntheticStudent` dataclasses
-whose parameters match the two population CSV schemas. Data loading and conversion
-remain the responsibility of the pandas data layer.
+`src.models.student` contains `Student` and `StudentSimulation` dataclasses.
+Conversion remains in `src.utils.school`, outside the model records.
 
 `src.models.school.School` provides the basic agent allocation increment. It can
 load `StudentSimulation` agents from the synthetic population CSV or accept
@@ -54,13 +47,13 @@ CSV conversion, configuration/ID validation, default mentor construction and
 assignment-feasibility checks live in `src.utils.school` so the model class stays
 focused on monthly simulation state and orchestration.
 
-## Notebook and command entry points
+## Entry points
 
-- `notebooks/data_exploration.ipynb`: load, inspect, count, select, convert,
-  summarize missingness, plot grades, build allowed features, export a summary.
-- `notebooks/simulator_analysis.ipynb`: executable reset readiness check, clearly
-  labeled as preparation for the future simulator.
-- `notebooks/school_university_common_features.ipynb`: checks for similar features between School and University datasets for feature modelling.
+- `src/main.py`: run the default 12-month allocation baseline.
+- `tests/test_school.py`: focused executable checks for the implemented simulation.
+- `notebooks/exploratory_analysis.ipynb`: existing exploratory analysis.
+- `notebooks/dropout_baseline_analysis.ipynb`: existing baseline-analysis work.
+- `notebooks/school_university_common_features.ipynb`: feature comparison work.
 
 ## Stage completion workflow
 

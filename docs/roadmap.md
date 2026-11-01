@@ -7,10 +7,10 @@ raw-source workflow no longer describe the current setup.
 
 | Stage | Deliverable | Status / completion check |
 | --- | --- | --- |
-| 1. Data foundation | Read CSVs with pandas; expose separate consumer records; explore in Jupyter | Implemented; run the population summary, data tests and exploration notebook |
-| 2. Baselines and population sampling | Reproduce course-failure baselines; sample whole anchor profiles within a split | Next; check held-out metrics and lineage inheritance |
+| 1. Data foundation | Load retained CSVs; expose typed records; explore in Jupyter | Partial; synthetic student loading and typed records work, while the earlier data-service layer is not active in this tree |
+| 2. Baselines and population sampling | Reproduce course-failure baselines; sample whole anchor profiles within a split | Planned; check held-out metrics and lineage inheritance |
 | 3. Simulation | Small structured environment with observations, support delivery, resources and event logs | In progress; seeded 12-month mentor allocation enforces support type, monthly caseload, session limits and total cost; episode transitions remain planned |
-| 4. Allocation and evaluation | Simple usual-support, random and rule-based policies; compare outcomes and resource use | Planned; evaluate on frozen held-out settings |
+| 4. Allocation and evaluation | Simple usual-support, random and rule-based policies; compare outcomes and resource use | In progress; random feasible allocation works, while comparison policies and outcome evaluation remain planned |
 | 5. Feedback and risk | Update estimated state from dated observations; fit and validate simulated-withdrawal risk | Planned; prevent future/hidden information leakage |
 | 6. Extended experiments | Fairness constraints, alternative simulated worlds, sensitivity analysis and optional language input | Planned; add complexity only after simpler comparisons work |
 
@@ -19,7 +19,7 @@ policies. Any unavailable risk score must remain explicitly unavailable. Later
 stages must continue to distinguish historical course failure, assumed simulation
 withdrawal and real school dropout.
 
-The data foundation includes plain `Student` and `SyntheticStudent` schema models.
+The data foundation includes `Student` and `StudentSimulation` schema models.
 The first Stage 3 increment loads student agents from the synthetic population,
 adds configurable mentor agents and runs deterministic monthly assignments for a
 12-month default schedule. Each assigned student receives five sessions per month;
@@ -51,6 +51,5 @@ implemented stage. Notebooks explain analysis; reusable functions belong in `src
 
 The supplied layout is adapted in [architecture.md](architecture.md). Data now
 lives in processed, synthetic and external subdirectories; tests mirror source
-responsibilities. The shared runner and main.py provide summary and simulation
-reset validation. A basic mentor assignment round is available in
-`src.models.school`; no episode transitions run yet.
+responsibilities. `src/main.py` runs the current 12-month random allocation
+baseline. No student-state or outcome transitions run yet.

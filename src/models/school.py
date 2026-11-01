@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Iterable
 
 try:
-    from ..constants import (
+    from ..utils.constants import (
         DEFAULT_BUDGET,
         DEFAULT_MENTOR_COST_PER_SESSION,
         DEFAULT_NUMBER_OF_MENTORS,
@@ -17,7 +17,7 @@ try:
         SEED,
     )
 except ImportError:
-    from constants import (
+    from utils.constants import (
         DEFAULT_BUDGET,
         DEFAULT_MENTOR_COST_PER_SESSION,
         DEFAULT_NUMBER_OF_MENTORS,

@@ -6,12 +6,13 @@ simulation benchmark comparing support policies, resource use, access and simula
 enrollment. It is a research project, not a deployed system for deciding real
 students' eligibility or proof that mentoring prevents real school dropout.
 
-**Current implementation:** a pandas-based data foundation, validated consumer
-interfaces, Jupyter notebooks, a shared console/notebook runner and a basic
-student-to-mentor allocation simulation. Baseline model fitting, population
-sampling, simulation transitions, allocation policies, risk prediction and
-language-based feedback are not implemented. Some of their data contracts already
-exist.
+**Current implementation:** typed student and mentor models plus a reproducible
+12-month random-allocation baseline. The simulator loads synthetic student profiles
+from CSV, creates configurable mentors, renews mentor capacity monthly, schedules
+five tutoring sessions per selected student, permits selection again in later
+months and charges per-session costs against one episode budget. Student-state
+transitions, intervention effects, dropout outcomes, policy comparisons, risk
+prediction and language-based feedback are not implemented.
 
 Use [Guidance.md](Guidance.md) for function documentation and simple coding
 conventions, [the roadmap](docs/roadmap.md) for development order, and
@@ -20,30 +21,25 @@ references and this README as each stage is implemented.
 
 ## Setup and run
 
-Use **Python 3.12 or 3.13** with the pinned pandas/NumPy versions. From the project
-folder, create an environment and install the dependencies:
+Use **Python 3.12 or 3.13**. From the project folder, create an environment and
+install the dependencies:
 
 ```sh
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 python -m pip install -e .
-python main.py summary
-python main.py simulate --dry-run
-python -m unittest discover -s tests -v
-python -m notebook
+python src/main.py
+python -m unittest tests.test_school -v
 ```
 
-Open `notebooks/data_exploration.ipynb` and restart the kernel/run all cells in
-order. The notebook explains each step and writes only
-`results/exploration/split_summary.csv`. Jupyter notebooks use their standard file
-format internally; student data is read from CSV directly into pandas, without a
-JSON loading or preparation step. No external service or model credentials are needed.
+No external service, model credentials or LLM is needed for the current baseline.
+`src/main.py` executes the default simulation without writing output files.
 
 The small agent-based allocation model can be run independently. By default it
 loads a configurable number of student agents from
 `data/synthetic/populations/synthetic_student_population.csv`. Constructor values
-default to `src/constants.py` and can be overridden, including the CSV path, or
+default to `src/utils/constants.py` and can be overridden, including the CSV path, or
 callers can supply their own `Student` and `Mentor` objects:
 
 ```python
@@ -71,73 +67,42 @@ months. Mentoring cost is charged per session against the total simulation budge
 session duration is not modeled. The synthetic profiles are scenario data, not
 independent observations or evidence of intervention effectiveness.
 
-Libraries: pandas for reading/manipulating tables; NumPy for simple numerical
-operations; Matplotlib for plotting; Jupyter Notebook for interactive exploration.
-Use basic, readable operations rather than complex NumPy expressions.
+With the current defaults, 10 mentors each receive 10 students per month. That
+produces 100 assignments per month, 1,200 assignment records and 6,000 scheduled
+sessions over 12 months. At one cost unit per session, 6,000 of the 10,000-unit
+budget is spent. Exact student identities are reproducible for a given seed.
 
-```python
-import pandas as pd
-from src.data.dataset import population_table
-from src.data.access import PolicyStore, model_features
-
-# Raw research table: inspect and manipulate an independent in-memory copy.
-students = population_table('train', cohort='primary')
-students['age_years'] = pd.to_numeric(students['age_years'])
-print(students.groupby('school_id')['age_years'].mean())
-
-# Model inputs: use the allowlisted interface, not arbitrary raw-table columns.
-records = PolicyStore().load_reset('train', cohort='primary')
-features = pd.DataFrame([dict(model_features(record)) for record in records])
-```
-
-Loaders accept an optional dataset directory and default to `data/` (organized subdirectories; legacy flat CSV directories also work).
-Raw tables preserve source strings and blanks. Convert required numeric columns
-explicitly and use `pd.NA` for missing values in analysis copies. Typed consumer
-records add domain validation; the raw DataFrame loader checks file structure/IDs.
+`monthly_assignments` has the shape `month -> {student_id: mentor_id}`. Detailed
+records containing month, support type, session count and cost are retained in
+`school.assignment_history`. `spent_budget`, `remaining_budget` and the mentors'
+current caseloads expose resource use after a run.
 
 ## Repository structure
 
 ```text
-main.py                     Console entry point (same functions as notebooks)
-pyproject.toml              Editable installation and school-dropout command
-configs/default.toml        Shared settings; paths relative to config file
+src/main.py                 Minimal simulation entry point
+pyproject.toml              Package metadata (legacy console target is not active)
 data/
   processed/students/       Source-anchor profiles
   processed/splits/         Fixed split manifest
   synthetic/populations/    Supplied synthetic fixture
   synthetic/simulator_states/  Hidden reset parameters (environment only)
   external/                 Historical outcomes, reference tables, dictionary
-notebooks/                  Ordered interactive research; see its README
 src/
-  cli.py                    Argument parsing and presentation
-  data/                     Loading, consumer access and validated contracts
-  experiments/runner.py     Shared orchestration returning pandas tables
+  utils/constants.py        Default horizon, capacity, cost, budget and seed
+  models/student.py         Student profile and simulation-input records
+  models/mentor.py          Mentor skills, monthly availability and caseload
+  models/school.py          Monthly allocation orchestration and event history
   utils/school.py           Student loading and mentor-allocation helpers
-tests/data/                 Data integrity, isolation and contract checks
-tests/experiments/          Runner and entry-point checks
-results/                    Ignored generated runs, tables, figures and logs
+tests/test_school.py         Allocation, cost and reproducibility checks
+tests/test_student_models.py Legacy model-schema checks; see known issue below
 docs/                       Architecture, roadmap and research specification
 archive/                    Historical reports; not active implementation
 Guidance.md                 Function guide and implementation conventions
 ```
 
-Most research work happens in notebooks; reusable operations belong in `src/`.
-See [architecture](docs/architecture.md) for how the sample structure will grow.
-TOML settings use Python's standard library, so configuration adds no dependency.
-Install this checkout with `pip install -e .`; it keeps the code connected to its
-local data/config files. Standalone wheel distribution is not supported yet.
-
-```python
-from src.experiments.runner import population_summary, run_simulation
-summary = population_summary()
-readiness = run_simulation(dry_run=True)
-```
-
-`python main.py`, `python -m src`, and the installed `school-dropout` command
-share the same CLI. `simulate --config configs/default.toml --dry-run` validates
-fixture/reset inputs and reports **zero executed steps**. Running `simulate`
-without `--dry-run` exits with a clear error: the simulation engine is not yet
-implemented. This structure prepares its entry point without inventing dynamics.
+See [architecture](docs/architecture.md) for current module responsibilities and
+[the roadmap](docs/roadmap.md) for the next bounded increments.
 
 
 ## Dataset and interpretation
@@ -168,37 +133,34 @@ proxies are not verified poverty or official eligibility. Historical `G3 < 10`
 means **course failure**, not school dropout. Attendance, engagement, financial
 barriers, withdrawal dynamics and intervention effects are simulation assumptions.
 
-`src.models.student` provides plain `Student` and `SyntheticStudent` dataclasses
-matching the processed and synthetic population schemas. Parsing, conversion and
-data validation remain separate from these models. Internet, travel, disadvantage
-and learning-gap proxies are computed properties rather than constructor parameters.
+`src.models.student` provides `Student` and `StudentSimulation` dataclasses for the
+profile and synthetic simulation-input fields. `src.utils.school` converts the CSV
+values before constructing those records. Internet, travel, disadvantage and
+learning-gap proxies are computed properties rather than constructor parameters.
 
 ## Current data workflow
 
 ```mermaid
-flowchart TD
-    A[Existing generated CSVs] --> B[Pandas loader: structure and ID checks]
-    B --> C[Split and cohort selection]
-    C --> D[Jupyter exploration: summaries and plots]
-    D --> E[Results CSV]
-    C --> F[Validated context records]
-    F --> G[Allowlisted policy observations]
-    G --> H[Model feature DataFrame]
-    A --> I[Environment-only reset parameters]
-    A --> J[Evaluator-only historical outcomes]
+flowchart LR
+    A[Synthetic student CSV] --> B[CSV conversion]
+    B --> C[StudentSimulation agents]
+    D[Configurable defaults] --> E[Monthly mentor agents]
+    C --> F[Seeded monthly shuffle]
+    E --> F
+    F --> G[Skill, caseload, sessions and budget checks]
+    G --> H[Monthly assignments]
+    H --> I[Assignment history and resource totals]
 ```
 
-Raw research DataFrames may contain withheld fields. Ordinary policies use
-`PolicyStore` and `model_features`; they cannot receive hidden parameters or late
-outcomes through those interfaces. Default model features are first-period grade,
-past failures and study-time category. Generated dynamic fields stay withheld until
-an observation mechanism exists. These are application data-flow boundaries, not
-an operating-system sandbox against arbitrary file reads.
+Selection is without replacement within a month. At the next month all students,
+including previously selected students, return to the eligible random pool. Mentor
+caseload and session capacity renew monthly; the total episode budget does not.
 
 ## Project specification
 
-The following describes the intended complete system. Only the data foundation and
-exploration workflow above are implemented. The detailed
+The following describes the intended complete system. The typed models and random
+monthly allocation baseline above are implemented; student dynamics and outcome
+evaluation remain planned. The detailed
 [research specification](docs/CODEX_IMPLEMENTATION_PROMPT_v2.md) retains additional
 acceptance cases; its old source paths and preparation stages are historical.
 Current paths and development order are defined here and in the roadmap.
@@ -313,21 +275,21 @@ Simulation results describe the assumed worlds, not real-world causal effects.
 
 | Stage | Status | Completion evidence required |
 | --- | --- | --- |
-| 1. Data foundation and exploration | Implemented | Population summary, data/contract tests and fresh-kernel notebook execution |
-| 2. Baselines and profile sampling | Next | Held-out course-failure metrics, within-split sampling and lineage checks |
-| 3. Structured simulation | Planned | Event-order, reproducibility, zero-effect and capacity checks |
-| 4. Allocation and evaluation | Planned | Feasible baseline comparisons on frozen held-out settings |
+| 1. Data foundation and exploration | Partial | Synthetic CSV loading and typed records work; legacy exploration artifacts exist but the earlier data-service layer is not active in this tree |
+| 2. Baselines and profile sampling | Planned | Held-out course-failure metrics, within-split sampling and lineage checks |
+| 3. Structured simulation | In progress | CSV-backed agents and reproducible monthly resource accounting work; state transitions and outcomes remain |
+| 4. Allocation and evaluation | In progress | Random feasible allocation works; usual-support and rule-based comparisons remain |
 | 5. Feedback and risk | Planned | Replayable state updates and independently validated simulated-risk scores |
 | 6. Extended experiments | Planned | Fairness, alternative worlds, uncertainty and optional note-extraction comparisons |
 
-The first simulation milestone is a reproducible table comparing usual support and
-simple policies on retention, access and resource use, including a zero-effect
-control. Historical artifacts in `archive/` do not demonstrate that current code or
-future stages have run. With every completed increment, update this status table,
-run instructions, diagrams, Guidance.md and the roadmap.
+The next simulation milestone is mutable monthly student state plus support-delivery
+events: sessions completed, attendance/engagement transitions and clearly labelled
+simulated withdrawal outcomes. After that, compare no-support, random and simple
+rule-based policies. Structured observations should work before optional LLM note
+extraction is introduced.
 
-Reorganization verified with Python 3.12 and the pinned project dependencies:
-all 26 tests passed, all nine moved CSV hashes matched, and both notebooks ran
-in fresh kernels. Both exploration plots were inspected. Editable installation,
-`main.py`, `python -m src`, and the installed console command were checked.
-Executed notebooks and plots are saved under `results/verification/`.
+Current verification: all eight tests in `tests/test_school.py` pass, including
+monthly capacity, support type, random repeat eligibility, budget limits and replay
+with the same seed. Full test discovery still has one known legacy failure because
+`tests/test_student_models.py` imports the old name `SyntheticStudent`, while the
+current model is named `StudentSimulation`.

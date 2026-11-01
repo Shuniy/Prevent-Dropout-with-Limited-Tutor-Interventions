@@ -1,34 +1,58 @@
-# Data interfaces
+# Current interfaces
 
-`src/data/contracts.py` defines immutable typed records. They reject unsupported
-fields, invalid categories, non-finite numbers and inconsistent identities/times.
-Existing interfaces for later risk, allocation and feedback work are retained;
-they do not imply those services are implemented.
+This document describes interfaces that exist in the active code. More elaborate
+policy, environment, evaluator and language contracts remain planned.
 
-`src/data/dataset.py` reads generated CSVs into pandas DataFrames and converts
-values in memory. `read_table` preserves strings and blanks; `population_table`
-filters splits/cohorts. These raw research interfaces are not policy feature
-allowlists. Record adapters preserve the validated consumer interfaces below.
-It checks record IDs, category/range constraints and within-population split
-consistency. It does not rebuild the dataset or authenticate deleted raw sources.
+## Student input
 
-| Interface | Input and result |
-| --- | --- |
-| `PolicyStore.load_reset(split, cohort="fixture")` | Reads only the selected population CSV; returns allowlisted observations |
-| `ContextStore.load(split, cohort="fixture")` | Returns context, lineage, audit groups and explicit unknowns |
-| `EnvironmentStore.load_fixture(split)` | Joins synthetic population with hidden parameters to return reset states |
-| `EvaluatorStore` | Reads retained subject references, outcomes and static diagnostics unchanged |
+`src.utils.school.load_students(path, num_students)` reads a deterministic prefix
+of the synthetic population CSV and returns `StudentSimulation` records. It converts
+required integer, float, boolean and nullable fields without modifying the source
+file. Duplicate student IDs are rejected when a `School` is created.
 
-Each store accepts an optional dataset directory and defaults to `data/` (organized subdirectories; legacy flat CSV directories also work).
-Supported cohorts are `fixture`, `primary` and `sensitivity`; splits are `train`,
-`validation` and `test`. `model_features()` excludes IDs, audit groups, hidden
-parameters and outcomes. The underlying population CSV contains assumed dynamic
-fields, but the policy projection withholds those values.
+The supplied synthetic rows inherit source profiles and are not independent
+observations. Blank financial need and observed dropout values remain unknown.
 
-Missing income, verified disadvantage and observed school dropout remain null.
-Source categories retain their supplied meanings. Dataset files are never modified;
-existing blanks in evaluator references remain blank. In particular, no automatic
-repair of math-only historical outcome blanks takes place.
+## Mentor input
 
-These interfaces separate normal application data flows. They are not an operating
-system sandbox against Python code that independently reads local files.
+A `Mentor` declares:
+
+- `mentor_id`;
+- supported intervention types;
+- maximum active students;
+- availability and maximum sessions by month;
+- current student IDs;
+- per-session mentoring cost.
+
+Custom mentors may be supplied to `School`. Otherwise helpers create default
+tutoring mentors for every configured month.
+
+## School configuration
+
+`School(...)` accepts configurable students, mentors, CSV path, number of months,
+budget, per-session mentor cost, sessions per student, students per mentor, support
+type and random seed. Invalid negative resources and duplicate IDs are rejected.
+
+## Simulation result
+
+`School.run_simulation()` returns:
+
+```python
+dict[int, dict[str, str]]  # month -> student_id -> mentor_id
+```
+
+`School.assignment_history` contains detailed `MentorAssignment` records with the
+student, mentor, support type, month, sessions and cost. `spent_budget` and
+`remaining_budget` expose episode-level accounting.
+
+The same student cannot be assigned twice within one month. Students are shuffled
+without replacement each month and may be selected again in later months. Mentor
+skill, monthly caseload, monthly session capacity and remaining episode budget are
+hard constraints.
+
+## Not implemented yet
+
+The current contracts do not represent support acceptance, cancellation, actual
+delivery, attendance or engagement transitions, simulated withdrawal, re-entry,
+risk scores, policy observations, teacher notes or LLM extraction. Those interfaces
+should be introduced with the corresponding executable stage, not as empty APIs.
