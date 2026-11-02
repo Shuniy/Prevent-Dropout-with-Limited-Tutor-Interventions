@@ -4,7 +4,38 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 
-SupportType = Literal["tutoring", "family_liaison", "transport_assessment"]
+SupportType = Literal[
+    "attendance_planning",
+    "device_access",
+    "family_finances",
+    "family_liaison",
+    "homework_support",
+    "language_support",
+    "learning_access",
+    "peer_support",
+    "reentry_support",
+    "school_meals",
+    "transport_assessment",
+    "tutoring",
+    "wellbeing_checkin",
+]
+
+ALL_SUPPORT_TYPES: tuple[SupportType, ...] = (
+    "attendance_planning",
+    "device_access",
+    "family_finances",
+    "family_liaison",
+    "homework_support",
+    "language_support",
+    "learning_access",
+    "peer_support",
+    "reentry_support",
+    "school_meals",
+    "transport_assessment",
+    "tutoring",
+    "wellbeing_checkin",
+)
+
 
 @dataclass(frozen=True)
 class MentorAvailability:
@@ -42,6 +73,12 @@ class Mentor:
     def __post_init__(self) -> None:
         if not self.mentor_id:
             raise ValueError("mentor_id must not be empty")
+        unknown_support_types = set(self.support_types) - set(ALL_SUPPORT_TYPES)
+        if unknown_support_types:
+            unknown = ", ".join(sorted(unknown_support_types))
+            raise ValueError(f"unknown mentor support types: {unknown}")
+        if len(self.support_types) != len(set(self.support_types)):
+            raise ValueError("support_types must not contain duplicates")
         if self.max_active_students < 0:
             raise ValueError("max_active_students must be non-negative")
         if self.cost_units_per_hour < 0:
@@ -101,7 +138,8 @@ class Mentor:
 
         availability = self.availability_at(step)
         return (
-            availability is not None
+            self.supports(support_type)
+            and availability is not None
             and availability.max_sessions > 0
             and availability.available_hours >= required_hours
         )

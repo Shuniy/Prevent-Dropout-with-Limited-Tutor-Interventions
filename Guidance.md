@@ -47,6 +47,20 @@ CSV conversion, configuration/ID validation, default mentor construction and
 assignment-feasibility checks live in `src.utils.school` so the model class stays
 focused on monthly simulation state and orchestration.
 
+## Dialogue and problem references
+
+`src.intervention.dialogues.DialogueIndex` reads the canonical synthetic dialogue
+manifest. Use its category, problem, support-type and session queries instead of
+duplicating those labels in simulation code. `School` exposes this catalogue through
+`problem_categories`, `problem_references`, `support_type_references` and
+`problem_reference(problem_id)`.
+
+The dialogue problems are samples, not current student attributes. Do not infer or
+randomly assign them to student profiles, and do not interpret dialogue support
+statuses as simulated offers, delivery or effects. A future increment may attach an
+explicitly supplied problem to a student. Until then, the catalogue is available for
+school/student-facing reference and its support types define valid mentor skills.
+
 ## Entry points
 
 - `src/main.py`: run the default 12-month allocation baseline.

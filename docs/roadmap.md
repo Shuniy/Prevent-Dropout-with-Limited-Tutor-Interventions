@@ -9,7 +9,7 @@ raw-source workflow no longer describe the current setup.
 | --- | --- | --- |
 | 1. Data foundation | Load retained CSVs; expose typed records; explore in Jupyter | Partial; synthetic student loading and typed records work, while the earlier data-service layer is not active in this tree |
 | 2. Baselines and population sampling | Reproduce course-failure baselines; sample whole anchor profiles within a split | Planned; check held-out metrics and lineage inheritance |
-| 3. Simulation | Small structured environment with observations, support delivery, resources and event logs | In progress; seeded 12-month mentor allocation enforces support type, monthly caseload, session limits and total cost; episode transitions remain planned |
+| 3. Simulation | Small structured environment with observations, support delivery, resources and event logs | In progress; seeded 12-month mentor allocation enforces support type, monthly caseload, session limits and total cost; the dialogue problem catalogue is reference-only until problems are explicitly added to students; episode transitions remain planned |
 | 4. Allocation and evaluation | Simple usual-support, random and rule-based policies; compare outcomes and resource use | In progress; random feasible allocation works, while comparison policies and outcome evaluation remain planned |
 | 5. Feedback and risk | Update estimated state from dated observations; fit and validate simulated-withdrawal risk | Planned; prevent future/hidden information leakage |
 | 6. Extended experiments | Fairness constraints, alternative simulated worlds, sensitivity analysis and optional language input | Planned; add complexity only after simpler comparisons work |
@@ -27,6 +27,11 @@ students are randomly shuffled each month with repeat eligibility across months,
 and per-session mentoring costs consume a total budget. Session duration is not
 modeled. Data validation remains in the data layer, while mutable episode
 transitions and support outcomes remain part of Stage 3.
+
+The synthetic dialogue manifest is available as a validated Stage 3 reference
+catalogue. It defines the current mentor support-type vocabulary and exposes sample
+problem/category lookups through `School`, but no problem or dialogue is assigned to
+a student yet. That link requires explicit future student problem data.
 
 ## Organization rules
 

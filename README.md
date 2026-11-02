@@ -10,7 +10,10 @@ students' eligibility or proof that mentoring prevents real school dropout.
 12-month random-allocation baseline. The simulator loads synthetic student profiles
 from CSV, creates configurable mentors, renews mentor capacity monthly, schedules
 five tutoring sessions per selected student, permits selection again in later
-months and charges per-session costs against one episode budget. Student-state
+months and charges per-session costs against one episode budget. It also loads the
+synthetic dialogue manifest as a reference catalogue of 6 problem categories, 22
+sample problems and 13 mentor support types. Problems and dialogues are not yet
+assigned to students or treated as delivered interventions. Student-state
 transitions, intervention effects, dropout outcomes, policy comparisons, risk
 prediction and language-based feedback are not implemented.
 
@@ -77,6 +80,22 @@ records containing month, support type, session count and cost are retained in
 `school.assignment_history`. `spent_budget`, `remaining_budget` and the mentors'
 current caseloads expose resource use after a run.
 
+### Dialogue problem reference catalogue
+
+`src/intervention/student_mentor_dialogues/manifest.csv` is loaded through
+`DialogueIndex`. It validates the transcript paths and exposes the authored category,
+problem, support-type and workflow-status metadata. `School.problem_categories`,
+`School.problem_references`, `School.support_type_references` and
+`School.problem_reference(problem_id)` make that catalogue available to school or
+future student-facing simulation code. Mentors may declare any of the 13 indexed
+support types in `Mentor.support_types`.
+
+The catalogue is reference data only. The current student CSV has no problem field,
+so the simulator does not infer a problem from grades, attendance or access proxies,
+does not attach a sample dialogue to a student and does not count a dialogue's
+support status as an offer, delivery or effect. A later simulation increment can
+connect an explicitly supplied student problem to this catalogue.
+
 ## Repository structure
 
 ```text
@@ -91,8 +110,10 @@ data/
 src/
   utils/constants.py        Default horizon, capacity, cost, budget and seed
   models/student.py         Student profile and simulation-input records
-  models/mentor.py          Mentor skills, monthly availability and caseload
-  models/school.py          Monthly allocation orchestration and event history
+  models/mentor.py          Indexed support skills, availability and caseload
+  models/school.py          Allocation plus the sample-problem reference catalogue
+  intervention/dialogues.py  Validated dialogue/category/problem index
+  intervention/student_mentor_dialogues/  Synthetic reference corpus and metadata
   utils/school.py           Student loading and mentor-allocation helpers
 tests/test_school.py         Allocation, cost and reproducibility checks
 tests/test_student_models.py Legacy model-schema checks; see known issue below
@@ -119,6 +140,7 @@ this workflow; repeating their provenance audit would require those inputs separ
 | `student_outcomes_reference.csv` | Evaluator-only historical course outcomes |
 | `subject_records_reference.csv` | 1,044 historical subject rows |
 | `split_manifest.csv` | Retained anchor split assignments |
+| `src/intervention/student_mentor_dialogues/manifest.csv` | Synthetic sample-problem and dialogue reference index; not linked to students |
 
 Higher-education tables and the variable dictionary remain reference material.
 They are not pooled with the school cohort or exposed through the current table allowlist.
@@ -145,6 +167,9 @@ flowchart LR
     A[Synthetic student CSV] --> B[CSV conversion]
     B --> C[StudentSimulation agents]
     D[Configurable defaults] --> E[Monthly mentor agents]
+    J[Dialogue manifest] -. reference categories, problems and support types .-> K[DialogueIndex]
+    K -. no current student assignment .-> C
+    K -. support-type vocabulary .-> E
     C --> F[Seeded monthly shuffle]
     E --> F
     F --> G[Skill, caseload, sessions and budget checks]
@@ -288,8 +313,9 @@ simulated withdrawal outcomes. After that, compare no-support, random and simple
 rule-based policies. Structured observations should work before optional LLM note
 extraction is introduced.
 
-Current verification: all eight tests in `tests/test_school.py` pass, including
-monthly capacity, support type, random repeat eligibility, budget limits and replay
-with the same seed. Full test discovery still has one known legacy failure because
+Current verification: all 11 tests in `tests/test_school.py` pass, including dialogue
+index integrity, reference-only problem handling, mentor support types, monthly
+capacity, random repeat eligibility, budget limits and replay with the same seed.
+Full test discovery still has one known legacy failure because
 `tests/test_student_models.py` imports the old name `SyntheticStudent`, while the
 current model is named `StudentSimulation`.
