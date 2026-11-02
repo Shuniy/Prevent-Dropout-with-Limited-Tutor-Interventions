@@ -1,0 +1,19 @@
+{
+  "seed": 20261102,
+  "intervention_types": 13,
+  "students": 130,
+  "attended_session_files": 390,
+  "total_timestamped_minutes": 17841,
+  "min_minutes": 30,
+  "max_minutes": 60,
+  "average_minutes": 45.75,
+  "student_histories_by_length": {
+    "1": 26,
+    "2": 26,
+    "3": 26,
+    "4": 26,
+    "5": 26
+  },
+  "validation_passed": true,
+  "issues": []
+}
