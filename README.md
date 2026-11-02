@@ -15,7 +15,9 @@ synthetic dialogue manifest as a reference catalogue of 6 problem categories, 22
 sample problems and 13 mentor support types. Problems and dialogues are not yet
 assigned to students or treated as delivered interventions. Student-state
 transitions, intervention effects, dropout outcomes, policy comparisons, risk
-prediction and language-based feedback are not implemented.
+prediction and language-based simulation feedback are not implemented. A separate
+longitudinal RAG prototype now analyses synthetic intervention histories with local
+Ollama; it does not change simulator state or assign intervention effects.
 
 Use [Guidance.md](Guidance.md) for function documentation and simple coding
 conventions, [the roadmap](docs/roadmap.md) for development order, and
@@ -96,6 +98,67 @@ does not attach a sample dialogue to a student and does not count a dialogue's
 support status as an offer, delivery or effect. A later simulation increment can
 connect an explicitly supplied student problem to this catalogue.
 
+### Longitudinal intervention RAG
+
+[intervention_rag.ipynb](notebooks/intervention_rag.ipynb) extends the single-session
+[reference notebook](notebooks/intervention_session_conclusion.ipynb). It reads the
+390 conversations under `src/intervention/student_mentor_intervention_histories`
+and keeps each of the 130 histories separate using its full relative folder path.
+Student folder names alone are not unique across intervention types.
+
+Install the project requirements, start local Ollama, and install the default model:
+
+```sh
+ollama pull qwen3.5:latest
+python -m src.intervention.rag \
+  01_transport_assessment/intervention_student_003 \
+  --through-session 3 \
+  --output results/intervention_rag/transport_through_3.json
+python -m unittest tests.test_intervention_rag -v
+```
+
+Use the notebook to inspect retrieval, choose a student, change the cutoff or ask
+a history question. `OLLAMA_BASE_URL` overrides the default local endpoint.
+`--root` accepts another transcript collection with the same directory layout and
+`**Mentor:**` / `**Student:**` paragraphs; no CSV manifest is needed.
+
+```mermaid
+flowchart LR
+    A[Spoken transcript turns] --> B[SQLite FTS5 BM25 index]
+    B --> C[Earlier passages for same history]
+    D[Full current conversation] --> E[Local Ollama]
+    C --> E
+    F[All earlier validated JSON findings] --> E
+    E --> G[Schema and quote validation]
+    G --> F
+    G --> H[JSON timeline and as-of conclusion]
+```
+
+Each recorded session is processed in order. Earlier calls cannot access later
+conversations. BM25 retrieves passages separately from every earlier session;
+validated JSON memory carries pending actions and evidence forward. Only spoken
+turns are used: CSV retrospective labels and Markdown classification headers never
+enter prompts. Rebuild the index and replay after adding or editing transcripts.
+The SQLite database stores passages; saved JSON stores the memory timeline, spoken-text
+hashes and retrieval provenance. Each run replays the selected history rather than
+reusing potentially stale generated summaries.
+
+Output includes `tracked_details`, intervention status/delivery, observed outcomes,
+session helpfulness, intervention helpfulness, next steps, uncertainties and exact
+session-numbered evidence. Delivery can be `null` when unknown. A pending request
+cannot establish delivered support or helpful intervention outcomes. Reported
+unresolved barriers can still be recorded without claiming a causal effect.
+Invalid generations receive at most two repair attempts; rejected responses never
+enter memory. Validation failures remain in the audit timeline, and exhausted
+attempts raise an error rather than saving an unvalidated conclusion.
+
+This is lexical retrieval, not embedding similarity search. Context is bounded by
+an explicit character budget; overflow raises an error. Schema and verbatim checks
+cannot verify whether a quote actually supports the model's interpretation. Review
+conclusions and evaluate independently authored histories before research use.
+Missing appointments never establish dropout, and synthetic changes are not causal
+effect estimates. This prototype remains separate from simulation feedback/risk.
+
 ## Repository structure
 
 ```text
@@ -114,8 +177,11 @@ src/
   models/school.py          Allocation plus the sample-problem reference catalogue
   intervention/dialogues.py  Validated dialogue/category/problem index
   intervention/student_mentor_dialogues/  Synthetic reference corpus and metadata
+  intervention/rag.py       Student-scoped retrieval, chronological memory and JSON extraction
+  intervention/student_mentor_intervention_histories/  Synthetic longitudinal sessions
   utils/school.py           Student loading and mentor-allocation helpers
 tests/test_school.py         Allocation, cost and reproducibility checks
+tests/test_intervention_rag.py Retrieval isolation, memory, evidence and output checks
 tests/test_student_models.py Legacy model-schema checks; see known issue below
 docs/                       Architecture, roadmap and research specification
 archive/                    Historical reports; not active implementation
@@ -313,9 +379,13 @@ simulated withdrawal outcomes. After that, compare no-support, random and simple
 rule-based policies. Structured observations should work before optional LLM note
 extraction is introduced.
 
-Current verification: all 11 tests in `tests/test_school.py` pass, including dialogue
-index integrity, reference-only problem handling, mentor support types, monthly
-capacity, random repeat eligibility, budget limits and replay with the same seed.
+Current verification: all 8 tests in `tests/test_school.py` and all 10 tests in
+`tests/test_intervention_rag.py` pass. These cover simulation capacity/budget/replay
+and RAG student isolation, chronology, memory continuity, header exclusion, schema,
+quote provenance and outcome evidence requirements.
+The new RAG notebook has also been executed end to end with local
+`qwen3.5:latest` on the three-session transport history selected in its configuration;
+the saved report includes validated findings and citation-repair audit entries.
 Full test discovery still has one known legacy failure because
 `tests/test_student_models.py` imports the old name `SyntheticStudent`, while the
 current model is named `StudentSimulation`.

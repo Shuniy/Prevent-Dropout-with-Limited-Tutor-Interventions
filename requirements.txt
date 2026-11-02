@@ -6,3 +6,4 @@ scikit-learn
 torch 
 torchvision
 tabulate
+jsonschema>=4.18,<5

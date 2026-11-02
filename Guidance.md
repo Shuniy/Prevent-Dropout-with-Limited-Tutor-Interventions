@@ -68,6 +68,44 @@ school/student-facing reference and its support types define valid mentor skills
 - `notebooks/exploratory_analysis.ipynb`: existing exploratory analysis.
 - `notebooks/dropout_baseline_analysis.ipynb`: existing baseline-analysis work.
 - `notebooks/school_university_common_features.ipynb`: feature comparison work.
+- `notebooks/intervention_rag.ipynb`: inspect retrieval and run longitudinal JSON extraction.
+- `python -m src.intervention.rag`: analyse one history with local Ollama.
+
+## Longitudinal intervention RAG
+
+`src.intervention.rag.load_sessions(root)` loads only spoken Mentor/Student turns
+from session Markdown. Full relative parent paths identify histories; never join
+by the repeated student folder name alone. Do not use CSV labels or header support
+types as extraction inputs. `SessionIndex.build(sessions)` atomically replaces
+SQLite FTS5 passages and refreshes the in-memory source catalogue; call it on every
+new index instance and after source changes. `retrieve(student_id, query,
+before_session)` filters by history and strictly earlier session before BM25
+ranking, retrieving up to two passages from each earlier session. Closing passages
+fill missing matches. Call `close()` when done.
+
+`InterventionRAG.analyse(student_id, through_session, question)` replays attended
+sessions in chronological order, supplying the current transcript, retrieved raw
+passages and all prior validated findings. It returns the final as-of conclusion
+plus the JSON memory timeline, spoken-text hashes and retrieved passages. It recomputes
+memory after edits rather than silently reusing stale output. A cutoff must name
+an existing attended session. Prompt overflow fails explicitly; model context and
+the character budget must be increased together for longer histories.
+
+`OllamaClient.generate(messages, schema)` uses local `/api/chat` structured output
+with the reference notebook's default model, `qwen3.5:latest`. `validate_conclusion`
+checks the full JSON schema, exact quotes against visible spoken evidence, delivery
+evidence and evidence prerequisites for outcome/helpfulness claims. These checks
+do not establish semantic entailment or causal effectiveness. Keep unresolved
+reported barriers distinct from unknown intervention effects; do not force all
+reported outcomes to unknown just because external delivery is unverified.
+Invalid generations receive at most two validation repair attempts. Never add
+rejected responses to memory; retain failure messages in the audit timeline and
+raise on exhaustion. Network/service failures propagate without model repair.
+
+The RAG prototype does not update School, risk scores or simulator effects. Use
+`tests/test_intervention_rag.py` for isolation, chronology, replay and provenance
+regressions. `jsonschema` is the only added dependency; retrieval uses standard
+library SQLite FTS5, with no embedding model download.
 
 ## Stage completion workflow
 

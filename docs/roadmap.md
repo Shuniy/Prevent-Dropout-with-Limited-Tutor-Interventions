@@ -35,6 +35,18 @@ a student yet. That link requires explicit future student problem data.
 
 ## Organization rules
 
+A separate language-input prototype is implemented in `src/intervention/rag.py`
+and `notebooks/intervention_rag.ipynb`, following the user's longitudinal-history
+request. It uses student-scoped SQLite BM25 retrieval plus chronological validated
+JSON memory, without CSV outcome labels or future sessions. It does not complete
+Stage 5 or 6: integrating extracted observations with simulator state, held-out
+semantic extraction evaluation and risk scoring remain planned. The next bounded
+RAG increment is independently authored continuity/negation/conflict evaluation
+before considering embedding retrieval or simulation integration.
+Verification covers ten focused RAG tests and an executed three-session local
+Ollama notebook example; this is implementation validation, not held-out evidence
+of extraction accuracy or intervention effectiveness.
+
 - Put input data in `data/`, settings in `configs/`, implementation in `src/`,
   checks in `tests/`, documentation in `docs/`, and run artifacts in `results/`.
 - Name modules after their responsibility; avoid stage runners, stage base classes
