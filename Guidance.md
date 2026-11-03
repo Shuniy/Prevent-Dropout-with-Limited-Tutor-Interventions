@@ -10,7 +10,8 @@ these documents aligned whenever behavior or interfaces change.
   Keep related enums together and teaching examples self-contained.
 - Give each class one responsibility. Student/mentor records hold domain state,
   School allocates resources and owns the monthly cycle and reports, Intervention
-  manages one programme, and RAG processes chronological findings.
+  manages one programme, SimpleLLM extracts all selected sessions in one call, and
+  optional RAG processes chronological findings session by session.
 - Pass dependencies explicitly. RAG receives its index and model client; tests
   replace the client with a small fake. Keep HTTP calls out of domain models.
 - Use plain functions for CSV loading, transcript parsing, findings validation,
@@ -32,6 +33,12 @@ programme per student per run. The full simulation allocates, processes results,
 evaluates all students and saves reports monthly before advancing the clock.
 Reserve the full planned dose at admission, charge recorded appointments, and release unused reservations for
 later allocation windows. Keep skills, caseload, session limits and budget checks.
+
+The default SimpleLLM sees all selected spoken sessions together, with no retrieval
+index or earlier generated memory. Keep the existing output fields and private
+session files, validating the complete response before saving any timeline entries.
+Its timeline is a retrospective reconstruction; only RAG enforces temporal isolation.
+Neither method may include sessions beyond the planned limit or source labels.
 
 RAG sees spoken turns, earlier passages from the same history, and earlier validated
 findings. No header labels, source profiles, future sessions or retrospective

@@ -6,13 +6,14 @@ reports. Intervention owns the confidential recorded programme and model analysi
 It does not import school or receive school domain objects or mutation callbacks.
 
 ```text
-main ── constructs index + client + Intervention
+main ── loads sessions + constructs client + Intervention
   │
   └─ School.run_simulation(intervention)
        ├─ monthly allocation and programme requests
        ├─ Intervention.simulate(immutable request)
        │    ├─ private history assignment and programme memory
-       │    └─ RAG → source index + explicit model client
+       │    └─ SimpleLLM → all selected sessions + explicit model client
+       │         (optional RAG → source index + per-session model calls)
        ├─ validate limited immutable result
        ├─ attendance, budget and runtime performance
        └─ monthly / student / final school reports
@@ -34,6 +35,7 @@ main ── constructs index + client + Intervention
 | `intervention/history_assignment.py` | Validate/catalogue histories and seeded selection |
 | `intervention/student_intervention_profile.py` | Private request/history binding, session progress, validated findings and errors |
 | `intervention/intervention.py` | Execute one programme and return an allowlisted result |
+| `intervention/simple_llm.py` | One structured extraction of all selected spoken sessions, with no retrieval |
 | `intervention/rag.py`, `session_index.py` | Chronological analysis and earlier-session retrieval |
 | `intervention/session.py`, `passage.py` | Source-history session and retrieved passage records |
 | `intervention/ollama_client.py` | Structured HTTP generation |
@@ -78,11 +80,16 @@ Intervention binds a coherent support-matched history to run/programme/pair iden
 and processes recorded sessions in order, up to the planned limit. Selection uses
 local NumPy generators from `utils.constants.create_rng`, reset for each fresh
 run; corpus reuse is permitted. Teaching examples share `DEFAULT_RNG`. Every
-programme gets fresh memory, including after mentor reassignment. Retrieval sees
-only earlier sessions of that source history. Prompts exclude headers, profiles,
-retrospective labels and future sessions. Invalid generation never enters memory.
-Valid earlier findings survive failure privately; recorded attendance is independent
-of extraction success. Missing compatible history returns an unavailable result.
+programme gets a fresh extraction, including after mentor reassignment. The default
+passes all selected sessions in one call without creating a retrieval index. It
+validates the complete timeline before persisting the existing private session files.
+The final timeline entry is the final conclusion. Timeline entries are retrospective
+reconstructions, with all selected sessions visible; the prompt requests findings as
+of each session but cannot enforce temporal isolation. Optional RAG retains its
+per-session calls, earlier-only retrieval/memory and partial valid findings on failure.
+Both exclude headers, profiles, retrospective labels and sessions beyond the planned
+limit. Recorded attendance is independent of extraction success. Missing compatible
+history returns an unavailable result.
 
 School receives only identity, counts, programme/analysis status and three enumerated
 outcome indicators. No transcripts, source paths, history IDs, private errors,
@@ -93,5 +100,5 @@ code must choose separate directories too. School uses only `simulate(request)` 
 the injected intervention and never inspects its private state.
 
 This is a module/report confidentiality boundary, not an OS access-control boundary.
-The standalone RAG command remains a private analysis/developer tool. Neither mode
+Standalone simple and RAG commands remain private analysis/developer tools. Neither mode
 estimates causal effectiveness or observed dropout.

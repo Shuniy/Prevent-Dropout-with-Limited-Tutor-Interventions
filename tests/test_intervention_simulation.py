@@ -68,8 +68,8 @@ class InterventionTests(unittest.TestCase):
         self.assertEqual(month_one[first_sid].after.support_sessions_completed,
                          self.student.support_sessions_completed + 2)
         self.assertEqual(school.current_month, 3)
-        self.assertEqual(len(self.client.contexts), 4)
-        self.assertEqual(self.client.contexts[2]["earlier_validated_memory"], [])
+        self.assertEqual(len(self.client.contexts), 2)
+        self.assertEqual(len(self.client.contexts[1]["sessions"]), 2)
         for record in report["students"].values():
             self.assertEqual(record["result"]["status"], "incomplete")
             self.assertEqual(record["result"]["planned_sessions"], 5)
@@ -152,7 +152,7 @@ class InterventionTests(unittest.TestCase):
                 index = SessionIndex()
                 self.addCleanup(index.close)
                 index.build(load_sessions(self.root))
-                intervention = Intervention(index, client, private_output_dir=private)
+                intervention = Intervention(index, client, method="rag", private_output_dir=private)
                 report = self.school(count=1).run_simulation(
                     intervention, output_dir=self.directory / failure / "public")
                 result = next(iter(report["students"].values()))["result"]
@@ -231,7 +231,8 @@ class InterventionTests(unittest.TestCase):
         class ImprovingClient(FakeClient):
             def generate(self, messages, schema):
                 result = super().generate(messages, schema)
-                result["outcome"]["attendance_improved"] = "yes"
+                for step in result["timeline"]:
+                    step["findings"]["outcome"]["attendance_improved"] = "yes"
                 return result
         school = self.school(count=1, num_months=2)
         baseline = asdict(school.students[0])
@@ -273,9 +274,10 @@ class InterventionTests(unittest.TestCase):
     def test_no_private_text_or_history_references_in_any_school_file(self):
         class SecretClient(FakeClient):
             def generate(self, messages, schema):
-                result = findings()
-                result["conclusion"] = "PRIVATE_SECRET"
-                result["next_steps"] = ["PRIVATE_SECRET"]
+                result = super().generate(messages, schema)
+                for step in result["timeline"]:
+                    step["findings"]["conclusion"] = "PRIVATE_SECRET"
+                    step["findings"]["next_steps"] = ["PRIVATE_SECRET"]
                 return result
         school = self.school(count=1)
         self.run_school(school, client=SecretClient(), private=True)
@@ -294,8 +296,8 @@ class InterventionTests(unittest.TestCase):
                         self.request(run_id="other_run"),
                         self.request(programme_id="reassigned", mentor_id="new_mentor")):
             controller.simulate(request)
-        self.assertEqual(len(self.client.contexts), 8)
-        self.assertTrue(all(self.client.contexts[n]["earlier_validated_memory"] == [] for n in (0, 2, 4, 6)))
+        self.assertEqual(len(self.client.contexts), 4)
+        self.assertTrue(all(len(context["sessions"]) == 2 for context in self.client.contexts))
 
     def test_zero_agents_and_default_twelve_months(self):
         for students, mentors in ((0, 0), (2, 0)):

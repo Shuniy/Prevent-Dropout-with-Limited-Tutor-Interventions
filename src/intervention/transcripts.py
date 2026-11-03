@@ -12,6 +12,33 @@ def spoken_turns(turns: tuple[str, ...] | list[str]) -> list[dict[str, str]]:
             for turn in turns]
 
 
+def group_sessions(sessions: list[Session]) -> dict[str, list[Session]]:
+    """Validate and order source histories without building a retrieval index."""
+    grouped: dict[str, list[Session]] = {}
+    for session in sessions:
+        if type(session.number) is not int or session.number < 1 or not session.turns:
+            raise ValueError("Sessions require a positive number and spoken turns")
+        history = grouped.setdefault(session.history_id, [])
+        if any(old.number == session.number for old in history):
+            raise ValueError("Duplicate session number within a source history")
+        history.append(session)
+    for history in grouped.values():
+        history.sort(key=lambda session: session.number)
+    return grouped
+
+
+def history_sessions(histories: dict[str, list[Session]], history_id: str,
+                     through_session: int | None = None) -> list[Session]:
+    if history_id not in histories:
+        raise ValueError(f"Unknown source history: {history_id}")
+    history = histories[history_id]
+    if through_session is not None:
+        if through_session not in {session.number for session in history}:
+            raise ValueError(f"Session {through_session} is not recorded for {history_id}")
+        history = [session for session in history if session.number <= through_session]
+    return list(history)
+
+
 def load_sessions(root: Path = HISTORIES) -> list[Session]:
     """Load only session Markdown; full relative parent paths are history IDs."""
     root = Path(root)

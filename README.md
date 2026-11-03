@@ -2,8 +2,10 @@
 
 School owns mentor allocation, a monthly simulation clock, student performance and
 school reports. Intervention runs a confidential synthetic programme using recorded
-mentor/student conversations and LLM/RAG analysis, returning only approved structured
+mentor/student conversations and all-sessions LLM extraction, returning only approved structured
 outcomes. The dependency direction is `main → school → intervention`.
+The default makes one model call per intervention without retrieval. The original
+session-by-session RAG remains available with `--method rag`.
 
 The default full simulation tracks every student for twelve months. Each student
 receives at most one programme with one mentor, with five total planned appointments.
@@ -35,6 +37,9 @@ ollama pull qwen3.5:latest
 # School simulation with local Ollama:
 python -m src.main --students 2 --mentors 1 --months 12 --sessions 5
 
+# Preserved session-by-session RAG simulation:
+python -m src.main --students 2 --mentors 1 --method rag
+
 # Allocation only; no model needed:
 python src/main.py --allocation-only --students 10 --mentors 2 --months 12
 
@@ -42,7 +47,12 @@ python src/main.py --allocation-only --students 10 --mentors 2 --months 12
 python -m src.main --students 1 --mentors 1 --sessions 1 \
   --output results/example_school --private-output results/example_private
 
-# Private/developer analysis of one history through its second session:
+# One-call private analysis of all sessions through the cutoff:
+python -m src.intervention.simple_llm \
+  01_transport_assessment/intervention_student_001 \
+  --through-session 2 --output results/private_simple/conclusion.json
+
+# Preserved RAG analysis of the same history:
 python -m src.intervention.rag \
   01_transport_assessment/intervention_student_001 \
   --through-session 2 --output results/private_history/conclusion.json
@@ -75,11 +85,13 @@ The CLI prints one final message and exits nonzero on configuration or model fai
    remaining budget. Reserve the entire planned dose for the month's admissions.
 3. Send immutable minimal requests to intervention. It binds a coherent randomly
    chosen support-matched history to the run/programme/student/mentor identity.
-4. Process at most the planned number of recorded sessions in order. RAG uses only
-   current spoken turns, earlier passages of that history and earlier validated
-   findings. Source profiles, headers, future sessions and retrospective labels
-   stay outside prompts. Each programme starts fresh memory, with corpus reuse
-   permitted and seeded selection reproducible with a deterministic model.
+4. Select at most the planned number of recorded sessions. By default, send all
+   selected spoken conversations in one call, without an index, retrieval or
+   previous LLM memory. The response contains a chronological findings timeline;
+   its final entry supplies the intervention conclusion. With `--method rag`,
+   retain the original one-call-per-session flow with earlier passages and validated
+   findings. Both exclude profiles, headers, sessions beyond the selected cutoff
+   and retrospective corpus labels. Seeded history selection is unchanged.
 5. School validates matching result identity and counts, rejects duplicate application,
    charges recorded sessions and releases unused reservations. Recorded attendance
    remains available when model analysis fails. Missing history returns zero attendance.
@@ -96,7 +108,7 @@ attendance improvement does not become an invented attendance percentage or grad
 increase. Unknown/conflicting/failed extraction leaves relevant measures unchanged and records
 why. There is no calibrated intervention score or trained predictive model.
 
-Python callers construct `Intervention(index, client, seed=...)` explicitly and call
+Python callers construct `Intervention(load_sessions(), client, seed=...)` explicitly and call
 `school.run_simulation(intervention, output_dir=...)` once; see the
 [contracts](docs/contracts.md) for a complete example. `school.allocate_programmes()`
 provides the old allocation-only operation and returns monthly maps. It reserves
@@ -168,12 +180,34 @@ example_private/
 ```
 
 Private session files contain detailed validated findings and identity/history data.
-The private final report can contain narrative conclusions and errors. Earlier valid
-sessions survive failed generation. School reports never link to this destination.
+The private final report can contain narrative conclusions and errors. The one-call
+method validates the entire timeline before saving any session files; failed
+generation leaves no partial session findings. In RAG mode, earlier valid sessions
+survive a later failed generation. School reports never link to this destination.
 Python callers must choose separate public/private destinations, as the CLI does.
-The standalone RAG command also writes private output. The findings schema checks
+Both standalone extraction commands write the same private report structure:
+`history_id`, `as_of_session`, `timeline`, `conclusion`. Existing school results and
+private file layouts retain their fields. The findings schema checks
 structure, not factual accuracy. Modules in one Python process do not provide an OS
 access-control boundary. Historical outputs are not migrated.
+
+### One-intervention comparison
+
+Run [intervention_extraction_evaluation.ipynb](notebooks/intervention_extraction_evaluation.ipynb)
+to compare both methods on the same three-session transport history with the same
+`qwen3.5:latest` model and question:
+
+```bash
+python -m jupyter nbconvert --to notebook --execute --inplace \
+  notebooks/intervention_extraction_evaluation.ipynb --ExecutePreprocessor.timeout=1800
+```
+
+The executed notebook and `outputs/intervention_extraction_evaluation/` retain both
+reports, call counts, elapsed time, prompt characters, outcome agreement and four
+transcript-based reference checks. This is one synthetic case, not an accuracy
+benchmark. Timing is a single sequential run with uncontrolled startup/cache effects.
+The simple timeline is reconstructed with all selected sessions visible; the prompt
+requests findings as of each session, but only RAG enforces earlier-session isolation.
 
 ## Code organization
 
@@ -183,7 +217,8 @@ package exports and plain functions for loading, need rules, validation and repo
 - `src/school/`: source records, runtime performance, mentors, assignments, allocation,
   the School facade, monthly simulation and school reports.
 - `src/intervention/`: immutable request/result boundary, private programme profiles,
-  history assignment, chronological RAG, index, transcripts and model client.
+  history assignment, one-call extraction, preserved chronological RAG, index,
+  transcripts and model client.
 - `src/utils/`: independent shared enums and constants.
 - `src/main.py`: CLI and explicit dependency construction.
 - `src/basic_examples/`: independent agent, Markov, MDP and CMDP demonstrations.

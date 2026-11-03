@@ -13,15 +13,19 @@
   school result application.
 - Coherent support-matched history assignment with local seeded selection,
   chronological SQLite retrieval, fresh programme memory and explicit model clients.
-- One generation attempt per session, schema validation, partial private findings
-  and separate programme/analysis statuses.
+- Default all-sessions LLM extraction with one generation per intervention, no
+  retrieval index and the existing timeline/conclusion and private output shapes.
+- Preserved optional session-by-session RAG (`--method rag`), schema validation,
+  partial private findings for RAG and separate programme/analysis statuses.
+- Executable one-intervention comparison notebook with saved live reports, call
+  counts, timings, outcome agreement and transcript-based reference checks.
 - School runtime performance and immutable monthly before/after evaluations;
   reported categorical outcomes remain separate from observed numeric metrics.
 - Monthly/student/final school JSON with an explicit result allowlist; optional
   private session/conclusion persistence to a separate destination.
 - Fresh run identities and reset of baseline performance, initial caseloads,
   accounting, results, snapshots and seeded selection.
-- Allocation-only CLI, private standalone RAG command and offline fake-client tests.
+- Allocation-only CLI, private standalone simple/RAG commands and offline fake-client tests.
 - Independent agent, Markov, MDP and CMDP examples without import side effects.
 
 ## Current checks

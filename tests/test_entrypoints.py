@@ -29,16 +29,38 @@ class EntrypointTests(unittest.TestCase):
             # Every support type uses the same tiny transcript fixture.
             from src.utils.constants import ALL_SUPPORT_TYPES
             for support in ALL_SUPPORT_TYPES:
-                write_history(root, f"{support}/student", count=1)
+                write_history(root, f"{support}/student", count=2)
             output = Path(directory) / "run"
             arguments = ["school-dropout", "--students", "1", "--mentors", "1",
                          "--history-root", str(root), "--output", str(output)]
             stream = io.StringIO()
-            with patch.object(sys, "argv", arguments), patch("src.main.OllamaClient", return_value=FakeClient()), contextlib.redirect_stdout(stream):
+            client = FakeClient()
+            with patch.object(sys, "argv", arguments), patch("src.main.OllamaClient", return_value=client), \
+                 patch("src.main.SessionIndex", side_effect=AssertionError("simple mode must not build an index")), \
+                 contextlib.redirect_stdout(stream):
                 main()
             report = json.loads((output / "final_report.json").read_text())
             self.assertEqual(report["status"], "finished")
             self.assertEqual(stream.getvalue().count("\n"), 1)
+            self.assertEqual(len(client.contexts), 1)
+            self.assertEqual(len(client.contexts[0]["sessions"]), 2)
+
+    def test_simulation_cli_preserves_optional_rag(self):
+        from src.utils.constants import ALL_SUPPORT_TYPES
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "histories"
+            for support in ALL_SUPPORT_TYPES:
+                write_history(root, f"{support}/student", count=2)
+            output = Path(directory) / "run"
+            arguments = ["school-dropout", "--students", "1", "--mentors", "1", "--method", "rag",
+                         "--history-root", str(root), "--output", str(output)]
+            client = FakeClient()
+            with patch.object(sys, "argv", arguments), patch("src.main.OllamaClient", return_value=client), \
+                 contextlib.redirect_stdout(io.StringIO()):
+                main()
+            self.assertEqual(json.loads((output / "final_report.json").read_text())["status"], "finished")
+            self.assertEqual(len(client.contexts), 2)
+            self.assertEqual(client.contexts[0]["earlier_validated_memory"], [])
 
     def test_standalone_rag_command_saves_a_cutoff_result(self):
         from src.intervention.rag import main as rag_main

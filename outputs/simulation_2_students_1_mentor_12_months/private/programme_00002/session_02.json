@@ -1,0 +1,56 @@
+{
+  "run_id": "7560fc61e4754893ad8cffc3d0d33ea4",
+  "programme_id": "7560fc61e4754893ad8cffc3d0d33ea4:SYN00001",
+  "month": 1,
+  "student_id": "SYN00001",
+  "mentor_id": "mentor-1",
+  "support_type": "device_access",
+  "planned_sessions": 5,
+  "history_id": "05_device_access/intervention_student_008",
+  "session_number": 2,
+  "findings": {
+    "session_summary": "The second session revisited the agreed plan to check school computer room availability, which the student reported completing. While this specific step was successful, the wider barrier regarding device access and data limitations remains unresolved. The student tested a low-bandwidth/paper-based task during the session; while smaller files opened, typing long answers remained awkward. The primary difficulty identified is uncertainty about repeating these steps independently without external guidance. The student emphasized that no external support (like free data or confirmed services) has been delivered yet and requested that family details remain private in summaries.",
+    "primary_concern": "Inability to complete school tasks due to persistent lack of mobile data, device access constraints, and uncertainty about repeating independent steps without teacher assistance.",
+    "tracked_details": [
+      {
+        "detail": "Data Availability",
+        "status": "unresolved"
+      },
+      {
+        "detail": "Service Eligibility/Confirmation",
+        "status": "pending"
+      },
+      {
+        "detail": "Exact Dates of Incidents",
+        "status": "unknown"
+      },
+      {
+        "detail": "Independent Repetition of Steps",
+        "status": "unresolved"
+      }
+    ],
+    "intervention": {
+      "type": "Mentoring Session",
+      "status": "completed",
+      "service_delivered": null
+    },
+    "outcome": {
+      "primary_barrier_resolved": "no",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "unknown"
+    },
+    "session_helpful": "yes",
+    "next_steps": [
+      "Ask whether the next assignment has an offline option.",
+      "Seek teacher explanation for procedures if stuck on independent steps.",
+      "Verify school policy or contact details before promising support."
+    ],
+    "uncertainties": [
+      "Whether free data is available.",
+      "Confirmation of specific support services.",
+      "Exact dates of recent technical failures.",
+      "Ability to repeat low-bandwidth tasks independently without help."
+    ],
+    "conclusion": "Progression across sessions shows the student successfully executing small, agreed-upon steps (checking computer room availability) but continues to face unresolved systemic barriers regarding data access and device limitations. The intervention remains helpful for planning but has not yet delivered external support or resolved the core technical constraints. Uncertainties regarding service confirmation and independent capability persist, requiring further verification of school resources before a definitive resolution can be reached."
+  }
+}

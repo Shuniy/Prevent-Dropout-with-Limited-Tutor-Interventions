@@ -1,4 +1,4 @@
-"""Public confidential-programme boundary; corpus and RAG are internal tools."""
+"""Public confidential-programme boundary; corpus and extractors are internal tools."""
 
 from .intervention import Intervention
 from .intervention_request import InterventionRequest

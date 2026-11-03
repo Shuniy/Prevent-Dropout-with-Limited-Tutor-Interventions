@@ -56,20 +56,18 @@ The public exports from `src.intervention` are `Intervention`,
 from src.school import School
 from src.intervention import Intervention
 from src.intervention.ollama_client import OllamaClient
-from src.intervention.session_index import SessionIndex
 from src.intervention.transcripts import load_sessions
 
-index = SessionIndex()
-try:
-    index.build(load_sessions())
-    programme = Intervention(index, OllamaClient(), seed=42)
-    report = School(num_students=2, num_mentors=1).run_simulation(programme)
-finally:
-    index.close()
+programme = Intervention(load_sessions(), OllamaClient(), seed=42)
+report = School(num_students=2, num_mentors=1).run_simulation(programme)
 ```
 
-`Intervention(index, client, seed=42, private_output_dir=None)` validates the source
-catalogue and owns programme state. A client provides `generate(messages, schema)`;
+`Intervention(index, client, seed=42, method="simple", private_output_dir=None)` validates the source
+catalogue and owns programme state. The first argument accepts a list of `Session`
+records or an existing `SessionIndex` for compatibility. Simple mode uses its raw
+sessions only. `method="rag"` requires a built `SessionIndex` and retains the original
+session-by-session analysis. The CLI defaults to simple and creates an index only
+for `--method rag`. A client provides `generate(messages, schema)`;
 no default model client is created inside intervention. Private persistence is off
 by default. A private output directory must be new or empty at construction and
 must be separate from public school output; the CLI checks that neither contains
@@ -110,11 +108,21 @@ attendance and zero actual cost, retaining the admission and preventing a second
 programme. Malformed histories fail before generation. Refunds can fund later
 months but never refill the same month's plan.
 
-## RAG and private artifacts
+## Extraction and private artifacts
 
 - `load_sessions(root)` reads spoken Mentor/Student turns only. `Session` has
   `history_id`, `number`, `turns`, and a joined `text` property. Corpus history ID
   and school student ID are separate concepts.
+- `SimpleLLM(sessions, client, max_prompt_chars=60000).analyse(history_id,
+  through_session=None, question=..., on_session=None)` sends all selected sessions
+  in one generation with no retrieval or prior generated memory. Its response must
+  contain exactly one findings entry per selected session in source order. The
+  entire response validates before callbacks or persistence. It returns the same
+  `history_id`, `as_of_session`, `timeline`, `conclusion` structure as RAG, deriving
+  the conclusion from the final entry. Oversize prompts fail before generation;
+  there is no truncation, retry or repair. Earlier timeline entries are retrospective
+  reconstructions and may be influenced by later selected sessions; only RAG enforces
+  strict temporal isolation. Sessions beyond the selected cutoff enter neither mode.
 - `SessionIndex().build(sessions)` builds SQLite FTS5 retrieval. An optional path
   persists a new index; callers close it after use. Old SQLite schemas are not
   migrated. Rebuilding replaces indexed passages.
@@ -129,14 +137,19 @@ months but never refill the same month's plan.
 - `OllamaClient(model=..., base_url=..., timeout=300, num_ctx=32768)` performs
   structured `/api/chat` generation. Invalid JSON/schema output raises `ValueError`;
   service failures raise `RuntimeError`. There are no retries/repair loops.
-- Valid findings are immediately retained and optionally saved before the next
-  session. A failed session is excluded from memory. Detailed errors stay private.
+- In RAG mode, valid findings are immediately retained and optionally saved before
+  the next session. A failed session is excluded from memory. In simple mode, any
+  invalid timeline fails the complete extraction with no partial session files.
+  Detailed errors stay private.
   `FINDINGS_SCHEMA` checks structure, not factual accuracy or causal claims.
 
 Optional private files are `programme_NNNNN/session_NN.json` (request identity,
 source history ID and detailed findings) and `private_report.json` (private history,
-error, public result and unrestricted final conclusion). Earlier valid sessions
-survive failure. School exports contain no path or link to these files.
+error, public result and unrestricted final conclusion). The file fields and names
+are shared by both methods. Earlier valid RAG sessions survive failure; simple mode
+saves session findings only after the single response validates. Recorded attendance
+and costs remain available if either extraction fails. School exports contain no path
+or link to these files.
 
 ## School output and failures
 

@@ -2,12 +2,14 @@
 
 from numpy.random import Generator
 from .session_index import SessionIndex
+from .session import Session
 from ..utils.constants import ALL_SUPPORT_TYPES
 
 
-def catalogue_histories(index: SessionIndex) -> dict[str, tuple[str, ...]]:
+def catalogue_histories(index: SessionIndex | dict[str, list[Session]]) -> dict[str, tuple[str, ...]]:
     catalogue: dict[str, list[str]] = {}
-    for history_id, history in sorted(index.sessions.items()):
+    histories = index.sessions if isinstance(index, SessionIndex) else index
+    for history_id, history in sorted(histories.items()):
         if [session.number for session in history] != list(range(1, len(history) + 1)):
             raise ValueError(f"History must have consecutive sessions starting at 1: {history_id}")
         folder = history_id.split("/", 1)[0]

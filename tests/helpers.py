@@ -26,10 +26,15 @@ class FakeClient:
     def generate(self, messages, schema):
         context = json.loads(messages[1]["content"])
         self.contexts.append(context)
-        if context["current_session_number"] == self.fail_at:
+        numbers = ([step["session_number"] for step in context["sessions"]]
+                   if "sessions" in context else [context["current_session_number"]])
+        if self.fail_at in numbers:
             if self.failure == "network":
                 raise RuntimeError("local model unavailable")
             return {}
+        if "sessions" in context:
+            return {"timeline": [{"session_number": number, "findings": findings()}
+                                 for number in numbers]}
         return findings()
 
 

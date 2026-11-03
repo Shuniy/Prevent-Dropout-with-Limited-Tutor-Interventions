@@ -11,15 +11,27 @@ from .intervention_request import InterventionRequest
 from .intervention_result import InterventionResult
 from .reports import write_report
 from .session_index import SessionIndex
+from .session import Session
+from .transcripts import group_sessions, history_sessions
 from .student_intervention_profile import StudentInterventionProfile
 
 
 class Intervention:
-    def __init__(self, index: SessionIndex, client, *, seed: int = SEED,
+    def __init__(self, index: SessionIndex | list[Session], client, *, seed: int = SEED,
+                 method: str = "simple",
                  private_output_dir: Path | None = None) -> None:
         from .rag import InterventionRAG
-        self._rag = InterventionRAG(index, client)
-        self._catalogue = catalogue_histories(index)
+        from .simple_llm import SimpleLLM
+        if method not in {"simple", "rag"}:
+            raise ValueError("method must be simple or rag")
+        if method == "rag" and not isinstance(index, SessionIndex):
+            raise ValueError("RAG requires a SessionIndex")
+        sessions = ([session for history in index.sessions.values() for session in history]
+                    if isinstance(index, SessionIndex) else index)
+        self._histories = group_sessions(sessions)
+        self._analyser = (InterventionRAG(index, client) if method == "rag"
+                          else SimpleLLM(sessions, client))
+        self._catalogue = catalogue_histories(self._histories)
         self._seed = seed
         self._random_by_run: dict[str, Generator] = {}
         self._programmes: dict[tuple[str, str], StudentInterventionProfile] = {}
@@ -47,7 +59,7 @@ class Intervention:
         if history_id is None:
             return InterventionResult(**fields, sessions_completed=0, status="unavailable",
                                       analysis_status="unavailable")
-        history = self._rag.index.history(history_id)[:request.planned_sessions]
+        history = history_sessions(self._histories, history_id)[:request.planned_sessions]
         profile.sessions_completed = len(history)
 
         def save_session(step: dict) -> None:
@@ -58,7 +70,7 @@ class Intervention:
 
         analysis = None
         try:
-            analysis = self._rag.analyse(history_id, history[-1].number, on_session=save_session)
+            analysis = self._analyser.analyse(history_id, history[-1].number, on_session=save_session)
         except (ValueError, RuntimeError) as exc:
             profile.error = str(exc)
         # Free text, exception text, paths and detailed findings stay private.

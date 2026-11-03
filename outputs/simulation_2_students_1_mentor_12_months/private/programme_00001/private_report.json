@@ -1,0 +1,64 @@
+{
+  "run_id": "7560fc61e4754893ad8cffc3d0d33ea4",
+  "programme_id": "7560fc61e4754893ad8cffc3d0d33ea4:SYN00002",
+  "month": 1,
+  "student_id": "SYN00002",
+  "mentor_id": "mentor-1",
+  "support_type": "wellbeing_checkin",
+  "planned_sessions": 5,
+  "history_id": "13_wellbeing_checkin/intervention_student_001",
+  "error": null,
+  "result": {
+    "run_id": "7560fc61e4754893ad8cffc3d0d33ea4",
+    "programme_id": "7560fc61e4754893ad8cffc3d0d33ea4:SYN00002",
+    "month": 1,
+    "student_id": "SYN00002",
+    "mentor_id": "mentor-1",
+    "support_type": "wellbeing_checkin",
+    "planned_sessions": 5,
+    "sessions_completed": 1,
+    "status": "incomplete",
+    "analysis_status": "completed",
+    "attendance_improved": "unknown",
+    "primary_barrier_resolved": "unknown",
+    "intervention_helpful": "unknown"
+  },
+  "conclusion": {
+    "session_summary": "The first mentoring session focused on establishing a collaborative approach where the student maintains control over shared details. The primary issue discussed is the difficulty balancing school responsibilities with other tasks, leading to exhaustion and uncertainty about routine changes. A practical exercise was attempted to identify manageable versus difficult moments in the school day; the student found quiet activities easier than managing multiple tasks simultaneously but remains unsure about repeating this alone.",
+    "primary_concern": "Balancing school workload with other responsibilities, causing exhaustion and difficulty participating in class.",
+    "tracked_details": [
+      {
+        "detail": "School attendance/participation",
+        "status": "reported"
+      },
+      {
+        "detail": "External support delivery",
+        "status": "pending"
+      }
+    ],
+    "intervention": {
+      "type": "Mentoring session focusing on practical planning and identifying manageable moments",
+      "status": "completed",
+      "service_delivered": null
+    },
+    "outcome": {
+      "primary_barrier_resolved": "unknown",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "unknown"
+    },
+    "session_helpful": "unknown",
+    "next_steps": [
+      "Student to attempt a smaller version of the identified routine step.",
+      "Notice one manageable moment and one difficult moment during the week.",
+      "Check with relevant school staff or review dated records regarding support eligibility before making formal requests.",
+      "If the planned step is unavailable, student will report this rather than marking it as completed."
+    ],
+    "uncertainties": [
+      "Whether the student can repeat the identified exercise alone.",
+      "Which specific part of the routine can currently be changed.",
+      "Confirmation of school records or support eligibility status.",
+      "Exact dates of recent incidents affecting the student's day."
+    ],
+    "conclusion": "The session progressed by validating the student's desire for practical, non-judgmental support and clarifying that no external services have been delivered yet. While the student agreed to try a smaller, adjustable routine step and noted that quiet activities are more manageable, significant uncertainties remain regarding eligibility checks, record verification, and the ability to execute plans independently. The session concluded with an agreement to keep private family details out of summaries and to distinguish between reported experiences and verified facts."
+  }
+}

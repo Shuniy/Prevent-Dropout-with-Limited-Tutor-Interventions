@@ -1,0 +1,137 @@
+{
+  "history_id": "01_transport_assessment/intervention_student_003",
+  "as_of_session": 3,
+  "model": "qwen3.5:latest",
+  "question": "What barriers remain, what happened to agreed actions, and is there evidence of delivered support or improvement?",
+  "generated_at_utc": "2026-11-03T18:51:41.941388+00:00",
+  "python_version": "3.10.19",
+  "num_ctx": 32768,
+  "temperature": 0,
+  "transcript_sha256": "7d2c1bb2bec11f1d10f72e41956fc7c7553697288cb74537c4ea43783331e958",
+  "reference": {
+    "primary_barrier_resolved": [
+      "no",
+      "partial"
+    ],
+    "attendance_improved": [
+      "unknown"
+    ],
+    "intervention_helpful": [
+      "unknown"
+    ],
+    "service_delivered": [
+      false,
+      null
+    ]
+  },
+  "reference_quotes": {
+    "initial_barrier": [
+      1,
+      "The route involves a crossing that makes me nervous."
+    ],
+    "first_action_done": [
+      2,
+      "Yes, I completed the specific step we agreed and made a note of what happened."
+    ],
+    "second_action_uncertain": [
+      3,
+      "I am not sure whether I did it exactly as planned."
+    ],
+    "barrier_persists": [
+      3,
+      "The difficulty is still present on some days."
+    ],
+    "outside_support_unproven": [
+      3,
+      "We talked and practiced, but extra help has not automatically been delivered."
+    ]
+  },
+  "results": [
+    {
+      "method": "rag",
+      "status": "completed",
+      "model_calls": 3,
+      "elapsed_seconds": 108.05,
+      "total_prompt_chars": 48835,
+      "primary_barrier_resolved": "no",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "unknown",
+      "service_delivered": null,
+      "reference_checks_passed": 4,
+      "reference_checks_total": 4,
+      "reference_checks": {
+        "primary_barrier_resolved": true,
+        "attendance_improved": true,
+        "intervention_helpful": true,
+        "service_delivered": true
+      }
+    },
+    {
+      "method": "simple",
+      "status": "completed",
+      "model_calls": 1,
+      "elapsed_seconds": 71.554,
+      "total_prompt_chars": 30733,
+      "primary_barrier_resolved": "no",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "unknown",
+      "service_delivered": null,
+      "reference_checks_passed": 4,
+      "reference_checks_total": 4,
+      "reference_checks": {
+        "primary_barrier_resolved": true,
+        "attendance_improved": true,
+        "intervention_helpful": true,
+        "service_delivered": true
+      }
+    }
+  ],
+  "outcome_agreement": {
+    "primary_barrier_resolved": true,
+    "attendance_improved": true,
+    "intervention_helpful": true
+  },
+  "measurements": {
+    "rag": {
+      "status": "completed",
+      "error": null,
+      "model_calls": 3,
+      "elapsed_seconds": 108.05,
+      "total_prompt_chars": 48835,
+      "calls": [
+        {
+          "prompt_chars": 15773,
+          "elapsed_seconds": 37.343
+        },
+        {
+          "prompt_chars": 14481,
+          "elapsed_seconds": 32.091
+        },
+        {
+          "prompt_chars": 18581,
+          "elapsed_seconds": 38.592
+        }
+      ]
+    },
+    "simple": {
+      "status": "completed",
+      "error": null,
+      "model_calls": 1,
+      "elapsed_seconds": 71.554,
+      "total_prompt_chars": 30733,
+      "calls": [
+        {
+          "prompt_chars": 30733,
+          "elapsed_seconds": 71.537
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "One synthetic intervention; no general accuracy or causal claim.",
+    "Four reference checks do not measure full narrative accuracy.",
+    "Single sequential run: cold-start and caching effects are uncontrolled.",
+    "Simple timeline is reconstructed with all selected sessions visible.",
+    "Schema validation checks structure, not semantic truth."
+  ]
+}

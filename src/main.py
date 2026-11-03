@@ -26,6 +26,8 @@ def main() -> None:
     parser.add_argument("--budget", type=float, default=10000)
     parser.add_argument("--seed", type=int, default=SEED)
     parser.add_argument("--model", default="qwen3.5:latest")
+    parser.add_argument("--method", choices=("simple", "rag"), default="simple",
+                        help="One all-sessions extraction (default) or session-by-session RAG")
     parser.add_argument("--history-root", type=Path)
     parser.add_argument("--output", type=Path, help="New or empty school report directory")
     parser.add_argument("--allocation-only", action="store_true", help="Allocate students without an LLM")
@@ -46,16 +48,21 @@ def main() -> None:
         public, private = output_dir.resolve(), args.private_output.resolve()
         if public == private or public in private.parents or private in public.parents:
             parser.exit(1, "Error: School and private intervention output directories must be separate\n")
-    index = SessionIndex()
+    index = None
     try:
-        index.build(load_sessions(args.history_root if args.history_root is not None else HISTORIES))
-        intervention = Intervention(index, OllamaClient(args.model), seed=args.seed,
+        sessions = load_sessions(args.history_root if args.history_root is not None else HISTORIES)
+        if args.method == "rag":
+            index = SessionIndex()
+            index.build(sessions)
+        intervention = Intervention(index if index is not None else sessions,
+                                    OllamaClient(args.model), seed=args.seed, method=args.method,
                                     private_output_dir=args.private_output)
         report = school.run_simulation(intervention, output_dir=output_dir)
     except (ValueError, RuntimeError, OSError) as exc:
         parser.exit(1, f"Error: {exc}\n")
     finally:
-        index.close()
+        if index is not None:
+            index.close()
     path = Path(report["output_dir"]) / "final_report.json"
     if report["status"] == "failed":
         parser.exit(1, f"Intervention failed: analysis failed for one or more programmes. Results: {path}\n")

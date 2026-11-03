@@ -1,0 +1,74 @@
+{
+  "run_id": "7560fc61e4754893ad8cffc3d0d33ea4",
+  "month": 10,
+  "spent_budget": 3.0,
+  "remaining_budget": 9997.0,
+  "assignments": [],
+  "results": [],
+  "evaluations": [
+    {
+      "month": 10,
+      "student_id": "SYN00001",
+      "before": {
+        "anchor_grade": 9,
+        "math_grade": null,
+        "attendance_fraction": 0.9178379883,
+        "engagement": 0.8011652565,
+        "enrolled": true,
+        "support_sessions_completed": 2,
+        "attendance_improved": "unknown",
+        "primary_barrier_resolved": "no",
+        "intervention_helpful": "unknown",
+        "evaluation_reason": "reported_outcomes_only; numeric_measures_unchanged; unknown_outcomes_unchanged:attendance_improved,intervention_helpful",
+        "need_score": 0.5,
+        "primary_support_type": "device_access"
+      },
+      "after": {
+        "anchor_grade": 9,
+        "math_grade": null,
+        "attendance_fraction": 0.9178379883,
+        "engagement": 0.8011652565,
+        "enrolled": true,
+        "support_sessions_completed": 2,
+        "attendance_improved": "unknown",
+        "primary_barrier_resolved": "no",
+        "intervention_helpful": "unknown",
+        "evaluation_reason": "reported_outcomes_only; numeric_measures_unchanged; unknown_outcomes_unchanged:attendance_improved,intervention_helpful",
+        "need_score": 0.5,
+        "primary_support_type": "device_access"
+      }
+    },
+    {
+      "month": 10,
+      "student_id": "SYN00002",
+      "before": {
+        "anchor_grade": 10,
+        "math_grade": null,
+        "attendance_fraction": 0.7920625644,
+        "engagement": 0.7805127216,
+        "enrolled": true,
+        "support_sessions_completed": 1,
+        "attendance_improved": "unknown",
+        "primary_barrier_resolved": "unknown",
+        "intervention_helpful": "unknown",
+        "evaluation_reason": "reported_outcomes_only; numeric_measures_unchanged; unknown_outcomes_unchanged:attendance_improved,primary_barrier_resolved,intervention_helpful",
+        "need_score": 0.6667,
+        "primary_support_type": "wellbeing_checkin"
+      },
+      "after": {
+        "anchor_grade": 10,
+        "math_grade": null,
+        "attendance_fraction": 0.7920625644,
+        "engagement": 0.7805127216,
+        "enrolled": true,
+        "support_sessions_completed": 1,
+        "attendance_improved": "unknown",
+        "primary_barrier_resolved": "unknown",
+        "intervention_helpful": "unknown",
+        "evaluation_reason": "reported_outcomes_only; numeric_measures_unchanged; unknown_outcomes_unchanged:attendance_improved,primary_barrier_resolved,intervention_helpful",
+        "need_score": 0.6667,
+        "primary_support_type": "wellbeing_checkin"
+      }
+    }
+  ]
+}
