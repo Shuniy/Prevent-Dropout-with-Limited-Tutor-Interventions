@@ -1,10 +1,10 @@
 import unittest
 from pathlib import Path
 
-from src.models.mentor import Mentor
-from src.models.mentor_availability import MentorAvailability
-from src.models.school import School
-from src.models.student_simulation import StudentSimulation
+from src.school.mentor import Mentor
+from src.school.mentor_availability import MentorAvailability
+from src.school.school import School
+from src.school.student_simulation import StudentSimulation
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -20,7 +20,7 @@ class SchoolSimulationTests(unittest.TestCase):
             sessions_per_student=1,
         )
 
-        assignments = school.run_simulation(support_type="tutoring")
+        assignments = school.allocate_programmes(support_type="tutoring")
 
         self.assertEqual(list(assignments), [1, 2, 3])
         self.assertEqual([len(month) for month in assignments.values()], [4, 1, 0])
@@ -85,7 +85,7 @@ class SchoolSimulationTests(unittest.TestCase):
             sessions_per_student=2,
         )
 
-        assignments = school.run_simulation(support_type="tutoring")
+        assignments = school.allocate_programmes(support_type="tutoring")
 
         self.assertEqual([len(month) for month in assignments.values()], [2, 1])
         self.assertTrue(
@@ -106,7 +106,7 @@ class SchoolSimulationTests(unittest.TestCase):
             students_per_mentor=2,
         )
 
-        assignments = school.run_simulation(support_type="tutoring")
+        assignments = school.allocate_programmes(support_type="tutoring")
 
         self.assertEqual(len(assignments), 12)
         self.assertEqual([len(month) for month in assignments.values()], [2] + [0] * 11)
@@ -124,7 +124,7 @@ class SchoolSimulationTests(unittest.TestCase):
     def test_students_are_not_reused_but_mentors_are(self) -> None:
         school = School(num_students=6, num_mentors=1, num_months=4,
                         students_per_mentor=3, sessions_per_student=1)
-        assignments = school.run_simulation()
+        assignments = school.allocate_programmes()
         self.assertEqual([len(month) for month in assignments.values()], [3, 3, 0, 0])
         self.assertEqual(len({a.student_id for a in school.assignment_history}), 6)
         self.assertEqual({a.mentor_id for a in school.assignment_history}, {"mentor-1"})
@@ -142,7 +142,7 @@ class SchoolSimulationTests(unittest.TestCase):
             budget=20.0,
         )
 
-        assignments = school.run_simulation(support_type="tutoring")
+        assignments = school.allocate_programmes(support_type="tutoring")
 
         self.assertEqual(len(assignments[1]), 2)
         self.assertEqual(school.spent_budget, 20.0)
@@ -157,8 +157,8 @@ class SchoolSimulationTests(unittest.TestCase):
             sessions_per_student=1,
         )
 
-        first_result = school.run_simulation(support_type="tutoring")
-        second_result = school.run_simulation(support_type="tutoring")
+        first_result = school.allocate_programmes(support_type="tutoring")
+        second_result = school.allocate_programmes(support_type="tutoring")
 
         self.assertEqual(second_result, first_result)
         self.assertEqual(len(school.assignment_history), 2)

@@ -1,9 +1,9 @@
 import unittest
 from dataclasses import fields, replace
 
-from src.models.student import Student
+from src.school.student import Student
 from src.utils.constants import DEFAULT_STUDENT_DATA_PATH
-from src.utils.school import load_students
+from src.school.loading import load_students
 
 
 class StudentModelTests(unittest.TestCase):

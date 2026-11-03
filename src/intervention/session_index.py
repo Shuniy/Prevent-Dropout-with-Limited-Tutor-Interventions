@@ -17,7 +17,7 @@ class SessionIndex:
         self.connection = sqlite3.connect(str(path))
         self.connection.execute(
             "CREATE VIRTUAL TABLE IF NOT EXISTS passages USING fts5("
-            "student_id UNINDEXED, session_number UNINDEXED, "
+            "history_id UNINDEXED, session_number UNINDEXED, "
             "chunk UNINDEXED, text)"
         )
         self.sessions: dict[str, list[Session]] = {}
@@ -32,9 +32,9 @@ class SessionIndex:
         for session in sessions:
             if session.number < 1 or not session.turns:
                 raise ValueError("Sessions require a positive number and spoken turns")
-            history = grouped.setdefault(session.student_id, [])
+            history = grouped.setdefault(session.history_id, [])
             if any(old.number == session.number for old in history):
-                raise ValueError("Duplicate session number within a student history")
+                raise ValueError("Duplicate session number within a source history")
             history.append(session)
         with self.connection:
             self.connection.execute("DELETE FROM passages")
@@ -44,22 +44,22 @@ class SessionIndex:
                     for chunk, start in enumerate(range(0, len(session.turns), turns_per_chunk)):
                         self.connection.execute(
                             "INSERT INTO passages VALUES (?, ?, ?, ?)",
-                            (session.student_id, session.number, chunk,
+                            (session.history_id, session.number, chunk,
                              "\n\n".join(session.turns[start:start + turns_per_chunk])),
                         )
         self.sessions = grouped
 
-    def history(self, student_id: str, through_session: int | None = None) -> list[Session]:
-        if student_id not in self.sessions:
-            raise ValueError(f"Unknown student history: {student_id}")
-        history = self.sessions[student_id]
+    def history(self, history_id: str, through_session: int | None = None) -> list[Session]:
+        if history_id not in self.sessions:
+            raise ValueError(f"Unknown source history: {history_id}")
+        history = self.sessions[history_id]
         if through_session is not None:
             if through_session not in {s.number for s in history}:
-                raise ValueError(f"Session {through_session} is not recorded for {student_id}")
+                raise ValueError(f"Session {through_session} is not recorded for {history_id}")
             history = [s for s in history if s.number <= through_session]
         return list(history)
 
-    def retrieve(self, student_id: str, query: str, before_session: int,
+    def retrieve(self, history_id: str, query: str, before_session: int,
                  per_session: int = 2) -> list[Passage]:
         """Retrieve matches from each earlier session, with a recency fallback.
 
@@ -68,7 +68,7 @@ class SessionIndex:
         """
         if per_session < 1:
             raise ValueError("per_session must be positive")
-        history = self.history(student_id)
+        history = self.history(history_id)
         terms = list(dict.fromkeys(re.findall(r"\w+", query.lower())))[:80]
         expression = " OR ".join('"' + term + '"' for term in terms)
         passages = []
@@ -79,15 +79,15 @@ class SessionIndex:
             if expression:
                 rows = self.connection.execute(
                     "SELECT chunk, text FROM passages WHERE passages MATCH ? "
-                    "AND student_id = ? AND session_number = ? "
+                    "AND history_id = ? AND session_number = ? "
                     "ORDER BY bm25(passages), CAST(chunk AS INTEGER) LIMIT ?",
-                    (expression, student_id, session.number, per_session),
+                    (expression, history_id, session.number, per_session),
                 ).fetchall()
             # Fill with the closing turns, where agreed actions usually occur.
             fallback = self.connection.execute(
-                "SELECT chunk, text FROM passages WHERE student_id = ? "
+                "SELECT chunk, text FROM passages WHERE history_id = ? "
                 "AND session_number = ? ORDER BY CAST(chunk AS INTEGER) DESC LIMIT ?",
-                (student_id, session.number, per_session),
+                (history_id, session.number, per_session),
             ).fetchall()
             seen = {row[0] for row in rows}
             for row in fallback:

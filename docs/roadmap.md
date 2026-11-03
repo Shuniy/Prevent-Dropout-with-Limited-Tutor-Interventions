@@ -2,45 +2,53 @@
 
 ## Working now
 
-- Typed CSV student loading, computed support needs, and separate mentor resources.
-- Monthly allocation baseline with repeat eligibility and resource limits.
-- Need-priority intervention allocation: one mentor and one programme per student.
-- Matching synthetic histories, up to the configured total appointment count.
-- SQLite retrieval from earlier sessions of the same history and chronological
-  structured findings through local Ollama.
-- One generation attempt per session, schema validation, immediate session saving,
-  partial-result preservation, and explicit failure status.
-- Planned-dose reservations, recorded-session costs, and unused-resource release.
-- Minimal session/student/run JSON, direct CLI entry points, and offline feature tests.
-- One production class per file; explicit dependencies and small helper functions.
-- Separate agent, Markov, MDP, and CMDP examples without import-time execution.
-
-The active workflow has no analytics, scores beyond allocation need severity,
-traceability metadata, citation validation, repair loops, or progress logging.
-The production allocator is a priority heuristic; optimization exists only in the
-independent teaching examples.
+- Separate `school` and confidential `intervention` modules, with explicit exports
+  and dependency direction `main → school → intervention`.
+- Typed source loading and shared need rules for baseline/current performance.
+- School-owned monthly allocation/intervention/evaluation/reporting, twelve months
+  by default, one mentor/programme per student and reusable monthly mentor capacity.
+- Planned-dose reservations, recorded-session charges and refunds available to
+  later months without refilling the current month.
+- Immutable request/result records, identity/count validation and exactly-once
+  school result application.
+- Coherent support-matched history assignment with local seeded selection,
+  chronological SQLite retrieval, fresh programme memory and explicit model clients.
+- One generation attempt per session, schema validation, partial private findings
+  and separate programme/analysis statuses.
+- School runtime performance and immutable monthly before/after evaluations;
+  reported categorical outcomes remain separate from observed numeric metrics.
+- Monthly/student/final school JSON with an explicit result allowlist; optional
+  private session/conclusion persistence to a separate destination.
+- Fresh run identities and reset of baseline performance, initial caseloads,
+  accounting, results, snapshots and seeded selection.
+- Allocation-only CLI, private standalone RAG command and offline fake-client tests.
+- Independent agent, Markov, MDP and CMDP examples without import side effects.
 
 ## Current checks
 
-Run `python -m unittest discover -s tests` for source records, needs, resource limits,
-priority, history isolation, chronology, findings, failures, entry points and examples.
-The suite uses a shared fake model and does not need Ollama. A live one-session CLI
-run checks the local model separately. The README contains setup and run commands.
+Use Python 3.12 or 3.13 and run `python -m unittest discover -s tests`. Tests cover
+source/current needs, resource limits, monthly feedback/refunds, no repeat admission,
+immutability, identity/count rejection, duplicate application, baseline preservation,
+confidential exports, history isolation/chronology, short/missing histories,
+unknown/failed analysis, reset/repeat, zero-agent runs, CLI modes and teaching examples.
+The shared fake client requires no live model. A live Ollama run is optional.
 
-## Future work — not implemented
+## Future work
 
-Numeric student-state transitions, simulated withdrawal, trained risk models,
-causal intervention effects, policy comparison, fairness constraints and research
-experiments remain separate future decisions. Do not introduce scaffolding for
-these into the current working workflow.
+Numeric state transitions and a calibrated intervention score need a separate
+specification: permitted fields, categorical mapping, scale, parameters, bounds,
+and unknown/failure behavior. School would own such transitions as explicit
+simulation assumptions. No numeric improvement is inferred from current findings.
 
-## Research references
+Programmes spanning school months require explicit session schedules and retained
+caseloads. Repeated programmes or reassignment require a separate eligibility policy
+and must not implicitly transfer private memory. Predictive-model training, simulated
+withdrawal, causal effect estimation, policy comparisons and fairness experiments
+remain separate future work. The production allocator remains a priority heuristic.
 
-Notebooks, datasets, corpus generators, archived outputs, and older research
-specifications remain preserved reference material. Their imports and result
-expectations may predate the current interfaces. They are not verification of the
-current code. See the README and `contracts.md` for active commands and behavior.
+## Preserved research material
 
-Missing appointments do not prove school dropout, and historical course failure
-is not observed dropout. Synthetic dialogue progress does not measure real-world
-intervention effectiveness.
+Source datasets, corpus generators, notebooks and archives have not moved. Historical
+imports/results may need updating before reuse. Research specifications describe
+possible future work, not the active interface. Missing appointments do not prove
+dropout; synthetic dialogue does not measure real-world intervention effects.

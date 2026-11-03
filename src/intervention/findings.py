@@ -27,9 +27,9 @@ FINDINGS_SCHEMA = object_schema({
         "service_delivered": {"type": ["boolean", "null"]},
     }),
     "outcome": object_schema({
-        "primary_barrier_resolved": choice("yes", "no", "partial", "unknown"),
-        "attendance_improved": choice("yes", "no", "partial", "unknown"),
-        "intervention_helpful": choice("yes", "no", "mixed", "unknown"),
+        "primary_barrier_resolved": choice("yes", "no", "partial", "unknown", "conflicting"),
+        "attendance_improved": choice("yes", "no", "partial", "unknown", "conflicting"),
+        "intervention_helpful": choice("yes", "no", "mixed", "unknown", "conflicting"),
     }),
     "session_helpful": choice("yes", "no", "mixed", "unknown"),
     "next_steps": {"type": "array", "items": {"type": "string"}},
@@ -46,6 +46,7 @@ A proposed or pending referral is not delivery. Keep service_delivered null when
 Do not infer diagnoses, eligibility, motives, dropout or causal effectiveness.
 Keep intervention_helpful unknown without explicit delivery and post-delivery information.
 Describe reported barrier or attendance changes separately from intervention effectiveness.
+Use conflicting for outcome indicators when inconsistent reports remain unresolved.
 Missing appointments do not establish dropout or refusal. Do not add overlapping counts.
 The final conclusion should describe progression across sessions and unresolved issues.
 """

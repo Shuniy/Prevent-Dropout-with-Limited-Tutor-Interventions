@@ -71,6 +71,21 @@ class EntrypointTests(unittest.TestCase):
             self.assertIn("Intervention failed", errors.getvalue())
             self.assertEqual(json.loads((output / "final_report.json").read_text())["status"], "failed")
 
+    def test_cli_rejects_equal_or_nested_private_output_before_generation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            public = Path(directory) / "public"
+            for private in (public, public / "private", public.parent):
+                arguments = ["school-dropout", "--students", "1", "--output", str(public),
+                             "--private-output", str(private)]
+                with patch.object(sys, "argv", arguments), \
+                     patch("src.main.OllamaClient") as client, \
+                     contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit) as failure:
+                        main()
+                self.assertEqual(failure.exception.code, 1)
+                client.assert_not_called()
+                self.assertFalse(public.exists())
+
     def test_invalid_configuration_has_a_concise_cli_error(self):
         result = subprocess.run([sys.executable, "-m", "src.main", "--months", "0"],
                                 capture_output=True, text=True)

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Session:
-    student_id: str
+    history_id: str
     number: int
     turns: tuple[str, ...]
 

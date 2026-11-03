@@ -1,18 +1,18 @@
 """Loading, validation, and feasibility helpers for the school simulation."""
 
-from .constants import (
+from ..utils.constants import (
     ALL_SUPPORT_TYPES, BOOLEAN_FIELDS, DEFAULT_STUDENT_DATA_PATH, INTEGER_FIELDS,
 )
-from .enums import SupportType
+from ..utils.enums import SupportType
 
 import csv
 from pathlib import Path
 from typing import Iterable
 
-from ..models.mentor import Mentor
-from ..models.mentor_availability import MentorAvailability
-from ..models.student import Student
-from ..models.student_simulation import StudentSimulation
+from .mentor import Mentor
+from .mentor_availability import MentorAvailability
+from .student import Student
+from .student_simulation import StudentSimulation
 
 
 def validate_configuration(

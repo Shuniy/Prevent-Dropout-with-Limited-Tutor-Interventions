@@ -9,7 +9,7 @@ these documents aligned whenever behavior or interfaces change.
 - Put each production class, including dataclasses, in its own snake-case file.
   Keep related enums together and teaching examples self-contained.
 - Give each class one responsibility. Student/mentor records hold domain state,
-  School allocates resources, the simulator coordinates a cohort, Intervention
+  School allocates resources and owns the monthly cycle and reports, Intervention
   manages one programme, and RAG processes chronological findings.
 - Pass dependencies explicitly. RAG receives its index and model client; tests
   replace the client with a small fake. Keep HTTP calls out of domain models.
@@ -23,21 +23,32 @@ these documents aligned whenever behavior or interfaces change.
 ## Working behavior to preserve
 
 The CSV loader reads supplied synthetic records without rewriting them. Optional
-unknown values remain `None`. Computed support needs live on Student; do not
-repeat their rules in allocation or reporting. Need severity drives admission,
+unknown values remain `None`. Source and runtime support needs use the shared
+school need rules; do not repeat those rules in allocation or reporting. Need severity drives admission,
 not a trained risk estimate.
 
-The monthly baseline permits repeat allocations across months. Intervention mode
-assigns one mentor and one programme per student. Reserve the full planned dose
-at admission, charge recorded appointments, and release unused reservations for
+Both allocation-only and full simulation assign one mentor and at most one
+programme per student per run. The full simulation allocates, processes results,
+evaluates all students and saves reports monthly before advancing the clock.
+Reserve the full planned dose at admission, charge recorded appointments, and release unused reservations for
 later allocation windows. Keep skills, caseload, session limits and budget checks.
 
 RAG sees spoken turns, earlier passages from the same history, and earlier validated
 findings. No header labels, source profiles, future sessions or retrospective
 outcomes enter prompts. Use one findings schema, one generation attempt per session,
 and save valid sessions immediately. Failed output does not enter memory. Keep
-partial results, clear errors and nonzero CLI failures. Findings never modify
-numeric need inputs or establish causal effects.
+partial results, clear private errors and nonzero CLI failures. School receives an
+immutable allowlisted result, never private narrative findings. Known reported
+outcomes and participation update runtime state; unknowns/conflicts/failures
+retain relevant measures with a reason. Numeric changes need an explicit school
+transition policy and never establish causal effects. Keep source data intact.
+
+The dependency direction is main -> school -> intervention. Intervention accepts
+immutable scalar requests, owns source history and private memory, and returns
+limited immutable results. It must not import school or receive school records or
+mutation callbacks. School alone validates identity/counts/duplicates and reconciles
+attendance, budget and performance. Keep optional private artifacts in a separate
+destination, with no paths or links in school exports.
 
 ## Tests and documentation
 

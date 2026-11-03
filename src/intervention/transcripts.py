@@ -13,7 +13,7 @@ def spoken_turns(turns: tuple[str, ...] | list[str]) -> list[dict[str, str]]:
 
 
 def load_sessions(root: Path = HISTORIES) -> list[Session]:
-    """Load only session Markdown; full relative parent paths are student IDs."""
+    """Load only session Markdown; full relative parent paths are history IDs."""
     root = Path(root)
     sessions = []
     for path in sorted(root.rglob("session_*.md")):
@@ -37,8 +37,8 @@ def load_sessions(root: Path = HISTORIES) -> list[Session]:
         ))
     if not sessions:
         raise ValueError(f"No session transcripts found in {root}")
-    identities = [(s.student_id, s.number) for s in sessions]
+    identities = [(s.history_id, s.number) for s in sessions]
     if len(identities) != len(set(identities)):
-        raise ValueError("Duplicate session number within a student history")
-    return sorted(sessions, key=lambda s: (s.student_id, s.number))
+        raise ValueError("Duplicate session number within a source history")
+    return sorted(sessions, key=lambda s: (s.history_id, s.number))
 

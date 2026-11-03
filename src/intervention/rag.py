@@ -20,13 +20,13 @@ class InterventionRAG:
         self.client = client
         self.max_prompt_chars = max_prompt_chars
 
-    def analyse(self, student_id: str, through_session: int | None = None,
+    def analyse(self, history_id: str, through_session: int | None = None,
                 question: str = "What changed, which actions remain pending, and what is the intervention outcome?",
                 *, on_session: Callable[[dict], None] | None = None) -> dict:
-        history = self.index.history(student_id, through_session)
+        history = self.index.history(history_id, through_session)
         timeline = []
         for current in history:
-            passages = self.index.retrieve(student_id, question + " " + current.text,
+            passages = self.index.retrieve(history_id, question + " " + current.text,
                                            before_session=current.number)
             context = {
                 "question": question,
@@ -53,13 +53,13 @@ class InterventionRAG:
             timeline.append(step)
             if on_session is not None:
                 on_session(step)
-        return {"student_id": student_id, "as_of_session": history[-1].number,
+        return {"history_id": history_id, "as_of_session": history[-1].number,
                 "timeline": timeline, "conclusion": timeline[-1]["findings"]}
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("student_id", help="Full relative history folder")
+    parser.add_argument("history_id", help="Full relative history folder")
     parser.add_argument("--root", type=Path, default=HISTORIES)
     parser.add_argument("--through-session", type=int)
     parser.add_argument("--question", default="What changed, which actions remain pending, and what is the intervention outcome?")
@@ -70,7 +70,7 @@ def main() -> None:
     try:
         index.build(load_sessions(args.root))
         report = InterventionRAG(index, OllamaClient(args.model)).analyse(
-            args.student_id, args.through_session, args.question)
+            args.history_id, args.through_session, args.question)
         write_report(args.output, report)
     except (ValueError, RuntimeError, OSError) as exc:
         parser.exit(1, f"Error: {exc}\n")

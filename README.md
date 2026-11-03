@@ -1,19 +1,15 @@
 # Student support simulation
 
-The working application loads synthetic student records, assigns mentors within skills,
-capacity and budget limits, and processes recorded mentor–student conversations using
-local Ollama. It saves structured session findings and final programme results.
+School owns mentor allocation, a monthly simulation clock, student performance and
+school reports. Intervention runs a confidential synthetic programme using recorded
+mentor/student conversations and LLM/RAG analysis, returning only approved structured
+outcomes. The dependency direction is `main → school → intervention`.
 
-There are two modes:
-
-- **Interventions:** one mentor and one programme per student, with five planned
-  appointments total by default. The highest support need selects a matching history.
-- **Allocation only:** needs-based feasible assignments, with each student allocated
-  once per run and mentors reusable in later months. No language model is used.
-
-The active workflow has no analytics, participation scores, audit metadata, citation
-handling, repair loops, or progress logs. Need severity remains because allocation uses it.
-The teaching examples are separate from the application.
+The default full simulation tracks every student for twelve months. Each student
+receives at most one programme with one mentor, with five total planned appointments.
+A programme is processed within its admission month. Mentors can serve other students
+in later months. School applies participation and reported outcomes without inventing
+numeric improvements or changing original source records.
 
 ## Setup and commands
 
@@ -26,10 +22,8 @@ python -m pip install -r requirements.txt
 python -m pip install --no-deps -e .
 ```
 
-The requirements also include packages used by the preserved research notebooks.
-SQLite FTS5 provides text retrieval; no embedding model is needed.
-
-Start Ollama and install the default model:
+The requirements include dependencies for preserved research notebooks. SQLite FTS5
+provides retrieval; no embedding model is needed. For live generation:
 
 ```bash
 ollama serve
@@ -37,92 +31,71 @@ ollama serve
 ollama pull qwen3.5:latest
 ```
 
-Run a small intervention programme:
-
 ```bash
-python -m src.main --students 2 --mentors 1 --sessions 5
-```
+# School simulation with local Ollama:
+python -m src.main --students 2 --mentors 1 --months 12 --sessions 5
 
-Equivalent entry points are `python src/main.py` and, after installation,
-`school-dropout`. With no arguments, the CLI uses 10 students, 2 mentors, 12 allocation
-months, 5 sessions per student, capacity 10, budget 10000, and seed 42.
-
-```bash
-# No Ollama needed:
+# Allocation only; no model needed:
 python src/main.py --allocation-only --students 10 --mentors 2 --months 12
 
-# A short intervention; the output directory must be new or empty:
-python -m src.main --students 1 --mentors 1 --sessions 1 --output results/example
+# Public school reports, with optional private findings stored separately:
+python -m src.main --students 1 --mentors 1 --sessions 1 \
+  --output results/example_school --private-output results/example_private
 
-# Analyze one recorded history directly, through its second session:
+# Private/developer analysis of one history through its second session:
 python -m src.intervention.rag \
   01_transport_assessment/intervention_student_001 \
-  --through-session 2 --output results/history/conclusion.json
+  --through-session 2 --output results/private_history/conclusion.json
 
-# Offline feature tests:
+# Offline feature tests, including teaching examples:
 python -m unittest discover -s tests
 ```
 
-Use `--model` to select another installed model and `OLLAMA_BASE_URL` to change the
-local service URL. The intervention CLI accepts `--history-root`, `--output`,
-`--students`, `--mentors`, `--months`, `--sessions`, `--capacity`, `--budget`, and
-`--seed`. It prints one final message. Model or configuration failures exit nonzero
-with a short error. Individual extraction failures are also saved in final results.
+Equivalent application entry points are `python src/main.py`, `python -m src.main`,
+and, after installation, `school-dropout`. Defaults: 10 students, 2 mentors,
+12 months, 5 total sessions per programme, mentor capacity 10, budget 10000, seed 42.
+Use `--history-root` for another corpus, `--model` for another installed model, and
+`OLLAMA_BASE_URL` for a different local endpoint. `--output` must be new or empty.
+`--private-output` is optional and must be new/empty and separate from school output;
+equal or nested destinations are rejected. Private findings are not saved by default.
+The CLI prints one final message and exits nonzero on configuration or model failure.
 
-## Complete working workflow
+## Monthly school workflow
 
-```mermaid
-flowchart TD
-    A[Synthetic student CSV] --> B[Load typed student records]
-    B --> C[Calculate ranked support needs]
-    C --> D[Allocate a suitable mentor]
-    R[Mentor skills, monthly capacity and budget] --> D
-    D --> E[Select a matching recorded history]
-    E --> F[Read current spoken session]
-    P[Earlier passages and earlier findings] --> F
-    F --> G[Ollama structured findings]
-    G --> H[Validate schema and save session JSON]
-    H --> P
-    H --> I[Student final report]
-    E --> J[Count recorded appointments and reconcile costs]
-    J --> I
-    I --> K[Run final report]
-```
+1. Read current performance, save a before snapshot and compute ranked support needs
+   using the shared baseline/current rules. Need severity determines priority;
+   seeded shuffling breaks ties.
+2. Allocate suitable mentors using skills, caseload, monthly session limits and
+   remaining budget. Reserve the entire planned dose for the month's admissions.
+3. Send immutable minimal requests to intervention. It binds a coherent randomly
+   chosen support-matched history to the run/programme/student/mentor identity.
+4. Process at most the planned number of recorded sessions in order. RAG uses only
+   current spoken turns, earlier passages of that history and earlier validated
+   findings. Source profiles, headers, future sessions and retrospective labels
+   stay outside prompts. Each programme starts fresh memory, with corpus reuse
+   permitted and seeded selection reproducible with a deterministic model.
+5. School validates matching result identity and counts, rejects duplicate application,
+   charges recorded sessions and releases unused reservations. Recorded attendance
+   remains available when model analysis fails. Missing history returns zero attendance.
+6. Update school-owned participation and known reported outcomes, record after
+   snapshots and save the monthly report before advancing the clock. Refunds can
+   fund later months; the same month is never refilled.
+7. Save student summaries and the final school report after the final month.
 
-1. **Load students.** The loader reads the requested prefix of
-   `data/synthetic/populations/synthetic_student_population.csv`. CSV values become
-   `StudentSimulation` records. Missing optional values remain `None`; input files
-   are never changed. Python callers can supply their own students and mentors.
-2. **Calculate support needs.** Student properties compute current hypothetical
-   needs. The highest severity chooses the support type; concern names break ties
-   within one profile. Student priority ties use a seeded shuffle.
-3. **Allocate mentors.** The school checks skills, caseload, session capacity, and
-   remaining budget. It reserves the full planned programme dose. Generated mentors
-   can provide all supported types; supplied mentors retain their own skills.
-   `school.run_simulation()` creates the complete plan before
-   `school.run_interventions(...)` processes it. Intervention does not reset or
-   change allocations. Call `run_simulation()` explicitly to start a new run.
-4. **Match a history.** A seeded choice selects a history from the corresponding
-   support folder. Each student starts at most one programme per run and retains
-   the assigned mentor. A missing history or unavailable resources leaves the
-   student explicitly unassigned.
-5. **Process sessions in order.** Only spoken Mentor/Student turns are loaded from
-   Markdown. SQLite retrieves passages from the same history's earlier sessions.
-   The current conversation and earlier validated findings go to the model.
-   Dataset profiles, corpus header labels and future sessions stay outside prompts.
-6. **Validate and save.** One model call generates each session's findings. One
-   schema checks their structure before saving and adding them to memory. There
-   are no automatic repairs. Invalid JSON, invalid findings, model failure, or
-   prompt overflow stops that student's extraction and preserves earlier session
-   files. Other students can continue.
-7. **Reconcile and finish.** Actual recorded appointments determine attendance and
-   cost, even when model processing fails. Unused reservations are refunded;
-   refunds do not admit additional students or change the saved allocation plan.
-   Student reports and the final run report are saved.
+All students remain in monthly tracking, including unassigned students and those
+whose programme has finished. A student never starts a second programme in a run.
+Source grades, demographics and `initial_*` assumptions remain unchanged. Current
+metrics, mentoring participation and reported outcomes are separate. A reported
+attendance improvement does not become an invented attendance percentage or grade
+increase. Unknown/conflicting/failed extraction leaves relevant measures unchanged and records
+why. There is no calibrated intervention score or trained predictive model.
 
-A programme fits within one allocation month; session duration and weekly state
-transitions are not modeled. Capacity renews monthly. The allocation-only mode
-charges the planned dose and does not claim that sessions were completed.
+Python callers construct `Intervention(index, client, seed=...)` explicitly and call
+`school.run_simulation(intervention, output_dir=...)` once; see the
+[contracts](docs/contracts.md) for a complete example. `school.allocate_programmes()`
+provides the old allocation-only operation and returns monthly maps. It reserves
+planned costs without claiming completed attendance. `reset()` restores baseline
+performance, initial mentor caseloads and run accounting under a fresh run ID.
 
 ### Support rules
 
@@ -144,70 +117,78 @@ anchor/math grade when math is available, and clipped to `[0, 1]`.
 | Financial need explicitly verified | Family finances | 0.75 |
 | No condition met | Routine tutoring check-in | 0 |
 
-## Saved results
+## Saved results and confidentiality
 
-Default intervention output goes into a new directory under
-`results/intervention_simulation/`. Student directory numbers are storage names;
-JSON contains the actual student ID.
+School reports default to a fresh directory under `results/intervention_simulation/`:
 
 ```text
 run_.../
+  month_01.json
+  ...
+  month_12.json
   final_report.json
   student_00001/
-    session_01.json
-    session_02.json
     final_report.json
 ```
 
-A session file has this structure; `findings` contains the full structured result:
+School retains only limited immutable intervention results: run/programme/pair IDs,
+month, support, planned/recorded counts, programme/analysis status, and reported
+attendance change, barrier resolution and helpfulness. Exports use an explicit field
+allowlist. They contain no transcripts, history IDs/paths, retrieved passages,
+private errors, detailed session memory or free-text conclusions.
 
-```json
-{
-  "student_id": "SYN00001",
-  "mentor_id": "mentor_001",
-  "session_number": 1,
-  "findings": {"session_summary": "...", "primary_concern": "..."}
-}
+| School report | Contents |
+| --- | --- |
+| Monthly | Identity, costs, that month's admissions/results and all student before/after evaluations |
+| Student final | Student ID, limited `result` or null, unassigned reason and monthly evaluations |
+| Run final | Run ID, months, status, output directory, costs, assignments and student summaries |
+
+Programme `status` is `completed`, `incomplete` (short recorded history) or
+`unavailable` (no compatible history). `analysis_status` is independently `completed`,
+`failed` or `unavailable`. Failed/unavailable analysis returns unknown outcomes.
+A fully attended programme can have failed analysis. Run status is `failed` if any
+analysis failed, otherwise `finished`; short or unavailable histories alone do not
+cause extraction failure. A student who was never admitted has `result: null` and
+an explicit resource/budget reason. Missing history preserves its admission with
+zero cost and attendance.
+
+Optional private persistence uses another directory:
+
+```text
+example_private/
+  programme_00001/
+    session_01.json
+    private_report.json
 ```
 
-Findings include `session_summary`, `primary_concern`, `tracked_details`,
-`intervention`, `outcome`, `session_helpful`, `next_steps`, `uncertainties`, and
-`conclusion`. The schema is in `src/intervention/findings.py`. Validation checks
-structure; it does not verify factual accuracy or causal claims.
-
-| Result | Contents |
-| --- | --- |
-| Session | Student/mentor IDs, session number, findings |
-| Student final | IDs, support type, planned/recorded sessions, status, assignment, final findings, error |
-| Unassigned student | Student fields above, null assignment/conclusion, and `unassigned_reason` |
-| Run final | Status, output directory, assignments, student results, spent and remaining budget |
-| Standalone RAG | History ID, final session number, findings timeline, final conclusion |
-
-Student status is `completed`, `incomplete`, `unassigned`, or `report_failed`.
-Run status is `finished` or `failed`; unassigned or short programmes alone do not
-mean extraction failure. A failed extraction has a null final conclusion; earlier
-valid findings remain in session files. Existing output directories are protected
-from accidental reuse. Existing historical results are not migrated.
+Private session files contain detailed validated findings and identity/history data.
+The private final report can contain narrative conclusions and errors. Earlier valid
+sessions survive failed generation. School reports never link to this destination.
+Python callers must choose separate public/private destinations, as the CLI does.
+The standalone RAG command also writes private output. The findings schema checks
+structure, not factual accuracy. Modules in one Python process do not provide an OS
+access-control boundary. Historical outputs are not migrated.
 
 ## Code organization
 
-Production classes have one file each. Examples and related enums remain grouped.
+Production classes/dataclasses each have their own snake-case file, with explicit
+package exports and plain functions for loading, need rules, validation and reporting.
 
-- `src/models/`: `Student`, `StudentSimulation`, `StudentInterventionProfile`,
-  `Mentor`, `MentorAvailability`, `MentorAssignment`, and `School`, each in the
-  matching snake-case module.
-- `src/utils/school.py`: CSV conversion, mentor construction, and allocation checks.
-- `src/intervention/`: separate `Session`, `Passage`, `SessionIndex`, `OllamaClient`,
-  `InterventionRAG`, and `Intervention` modules. Plain functions handle transcript
-  reading, findings validation, result writing, and cohort orchestration.
-- `src/main.py`: command-line arguments and direct workflow execution.
-- `src/basic_examples/`: independent agent, Markov, MDP, and CMDP demonstrations.
-- `tests/`: small feature tests with a shared fake model; no live service required.
+- `src/school/`: source records, runtime performance, mentors, assignments, allocation,
+  the School facade, monthly simulation and school reports.
+- `src/intervention/`: immutable request/result boundary, private programme profiles,
+  history assignment, chronological RAG, index, transcripts and model client.
+- `src/utils/`: independent shared enums and constants.
+- `src/main.py`: CLI and explicit dependency construction.
+- `src/basic_examples/`: independent agent, Markov, MDP and CMDP demonstrations.
+- `tests/`: offline feature tests with a shared fake client.
 
-Classes own one responsibility, dependencies are passed explicitly, and the model
-client can be replaced in tests. No abstract framework or scoring wrapper is used.
-See [architecture](docs/architecture.md), [interfaces](docs/contracts.md), and
-[implementation guidance](Guidance.md) for details.
+School-specific loading/validation helpers moved from `src.utils.school` to
+`src.school.loading`; imports use `src.school`, with no legacy `src.models` alias.
+Cohort orchestration moved from intervention to school. There are no school objects
+or mutation callbacks in intervention. See [architecture](docs/architecture.md),
+[contracts](docs/contracts.md), [roadmap](docs/roadmap.md) and
+[implementation guidance](Guidance.md).
 
 ## Teaching examples and research material
 
