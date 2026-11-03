@@ -101,7 +101,9 @@ free text. Failed/unavailable analysis returns unknown indicators. A fully atten
 programme can have failed analysis. Recorded attendance and charges remain intact
 when generation fails. No exception/model text leaves through the public result.
 
-History selection is a seeded choice with replacement within the requested support.
+History selection is a seeded NumPy choice with replacement within the requested support.
+School and intervention streams are created by `utils.constants.create_rng(seed)`;
+they remain independent of the shared `DEFAULT_RNG` used by teaching examples.
 A coherent consecutive history starts at session 1 and is used up to the planned
 limit; no appointments are fabricated. Missing compatible history produces zero
 attendance and zero actual cost, retaining the admission and preventing a second

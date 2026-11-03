@@ -4,14 +4,12 @@ if __package__ in (None, ""):
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.utils.constants import EXAMPLE_SEED
+from src.utils.constants import DEFAULT_RNG as rng
 from src.utils.enums import StudentState, MentorActions
 
 # simulate 100 students over 12 months with a simple Markov decision process model for dropout behavior
 
-import numpy as np
 
-rng = np.random.default_rng(EXAMPLE_SEED)  # set a random seed for reproducibility
 
 
 class Student:

@@ -13,7 +13,7 @@ from src.intervention import Intervention
 from src.intervention.ollama_client import OllamaClient
 from src.intervention.session_index import SessionIndex
 from src.intervention.transcripts import load_sessions
-from src.utils.constants import HISTORIES, SIMULATION_RESULTS
+from src.utils.constants import HISTORIES, SIMULATION_RESULTS, SEED
 
 
 def main() -> None:
@@ -24,7 +24,7 @@ def main() -> None:
     parser.add_argument("--sessions", type=int, default=5, help="Total planned appointments per student")
     parser.add_argument("--capacity", type=int, default=10, help="Students per mentor per allocation window")
     parser.add_argument("--budget", type=float, default=10000)
-    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--seed", type=int, default=SEED)
     parser.add_argument("--model", default="qwen3.5:latest")
     parser.add_argument("--history-root", type=Path)
     parser.add_argument("--output", type=Path, help="New or empty school report directory")

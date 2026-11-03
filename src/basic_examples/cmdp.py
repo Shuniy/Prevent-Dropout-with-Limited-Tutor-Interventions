@@ -4,7 +4,7 @@ if __package__ in (None, ""):
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.utils.constants import EXAMPLE_SEED
+from src.utils.constants import DEFAULT_RNG as rng
 from src.utils.enums import CMDPStudentState as StudentState, CMDPMentorActions as MentorActions
 
 # simulate 100 students over 12 months with a constrained Markov decision process model for dropout behavior
@@ -12,7 +12,6 @@ from src.utils.enums import CMDPStudentState as StudentState, CMDPMentorActions 
 import numpy as np
 from scipy.optimize import linprog
 
-rng = np.random.default_rng(EXAMPLE_SEED)  # set a random seed for reproducibility
 
 
 class School:

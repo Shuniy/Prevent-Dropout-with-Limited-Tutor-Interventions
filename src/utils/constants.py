@@ -9,7 +9,12 @@ import numpy as np
 # seed etc
 SEED = 42
 SEEDS = [42, 123, 456, 789, 101112]
-DEFAULT_RNG = np.random.default_rng(SEED)
+def create_rng(seed: int = SEED) -> np.random.Generator:
+    """Create an independent seeded stream for a reproducible simulation run."""
+    return np.random.default_rng(seed)
+
+
+DEFAULT_RNG = create_rng()
 
 # default simulation parameters
 DEFAULT_NUMBER_OF_STUDENTS = 1000

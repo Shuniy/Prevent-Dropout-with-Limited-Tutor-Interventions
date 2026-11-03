@@ -1,6 +1,6 @@
 """Validate coherent source histories and select with a local seeded RNG."""
 
-import random
+from numpy.random import Generator
 from .session_index import SessionIndex
 from ..utils.constants import ALL_SUPPORT_TYPES
 
@@ -19,6 +19,6 @@ def catalogue_histories(index: SessionIndex) -> dict[str, tuple[str, ...]]:
 
 
 def select_history(catalogue: dict[str, tuple[str, ...]], support: str,
-                   rng: random.Random) -> str | None:
+                   rng: Generator) -> str | None:
     histories = catalogue.get(support, ())
-    return rng.choice(histories) if histories else None
+    return histories[int(rng.integers(len(histories)))] if histories else None

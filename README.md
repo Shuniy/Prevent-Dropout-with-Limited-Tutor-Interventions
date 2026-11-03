@@ -54,6 +54,12 @@ python -m unittest discover -s tests
 Equivalent application entry points are `python src/main.py`, `python -m src.main`,
 and, after installation, `school-dropout`. Defaults: 10 students, 2 mentors,
 12 months, 5 total sessions per programme, mentor capacity 10, budget 10000, seed 42.
+
+Randomness uses NumPy generators configured in `src/utils/constants.py`. Teaching
+examples share `DEFAULT_RNG`; school and intervention runs use independent streams
+from `create_rng(seed)` so resets and explicit seeds remain reproducible. NumPy
+selection changes the sequences previously produced by Python’s `random` module.
+Historical corpus generators retain their original RNGs.
 Use `--history-root` for another corpus, `--model` for another installed model, and
 `OLLAMA_BASE_URL` for a different local endpoint. `--output` must be new or empty.
 `--private-output` is optional and must be new/empty and separate from school output;

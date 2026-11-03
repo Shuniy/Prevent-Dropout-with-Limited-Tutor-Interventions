@@ -7,7 +7,6 @@ from .monthly_evaluation import MonthlyEvaluation
 from .performance import snapshot
 from .reports import final_report, monthly_report, write_report
 
-
 def run_simulation(school, intervention, *, output_dir: Path | None = None,
                    support_type=None) -> dict:
     output_dir = Path(output_dir) if output_dir is not None else SIMULATION_RESULTS / f"run_{uuid4().hex}"

@@ -2,7 +2,9 @@
 
 from dataclasses import asdict
 from pathlib import Path
-import random
+from numpy.random import Generator
+
+from ..utils.constants import SEED, create_rng
 
 from .history_assignment import catalogue_histories, select_history
 from .intervention_request import InterventionRequest
@@ -13,13 +15,13 @@ from .student_intervention_profile import StudentInterventionProfile
 
 
 class Intervention:
-    def __init__(self, index: SessionIndex, client, *, seed: int = 42,
+    def __init__(self, index: SessionIndex, client, *, seed: int = SEED,
                  private_output_dir: Path | None = None) -> None:
         from .rag import InterventionRAG
         self._rag = InterventionRAG(index, client)
         self._catalogue = catalogue_histories(index)
         self._seed = seed
-        self._random_by_run: dict[str, random.Random] = {}
+        self._random_by_run: dict[str, Generator] = {}
         self._programmes: dict[tuple[str, str], StudentInterventionProfile] = {}
         self._private_output_dir = Path(private_output_dir) if private_output_dir is not None else None
         if self._private_output_dir is not None:
@@ -32,7 +34,9 @@ class Intervention:
         key = (request.run_id, request.programme_id)
         if key in self._programmes:
             raise ValueError("programme has already started")
-        rng = self._random_by_run.setdefault(request.run_id, random.Random(self._seed))
+        if request.run_id not in self._random_by_run:
+            self._random_by_run[request.run_id] = create_rng(self._seed)
+        rng = self._random_by_run[request.run_id]
         history_id = select_history(self._catalogue, request.support_type, rng)
         profile = StudentInterventionProfile(request, history_id)
         self._programmes[key] = profile

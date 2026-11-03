@@ -1,6 +1,5 @@
 """A small, configurable agent-based mentor allocation simulation."""
 
-import random
 from dataclasses import replace
 from .mentor_assignment import MentorAssignment
 from pathlib import Path
@@ -19,6 +18,7 @@ from ..utils.constants import (
     DEFAULT_NUMBER_OF_STUDENTS,
     DEFAULT_NUMBER_OF_STUDENTS_PER_MENTOR,
     SEED,
+    create_rng,
 )
 
 from .mentor import Mentor
@@ -75,7 +75,7 @@ class School:
         self.students_per_mentor = students_per_mentor
         self.support_type = support_type
         self.seed = seed
-        self._rng = random.Random(seed)
+        self._rng = create_rng(seed)
 
         self.students = (
             list(students)
@@ -266,7 +266,7 @@ class School:
         self.monthly_assignments.clear()
         self.spent_budget = 0.0
         self._sessions_used.clear()
-        self._rng.seed(self.seed)
+        self._rng = create_rng(self.seed)
         self.run_id = uuid4().hex
         self.current_month = 1
         self.performance = {s.student_id: initial_performance(s) for s in self.students}
