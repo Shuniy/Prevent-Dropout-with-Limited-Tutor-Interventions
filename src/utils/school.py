@@ -1,7 +1,7 @@
 """Loading, validation, and feasibility helpers for the school simulation."""
 
 from .constants import (
-    ALL_SUPPORT_TYPES, BOOLEAN_FIELDS, DEFAULT_STUDENT_DATA_PATH, INTEGER_FIELDS, PROJECT_ROOT,
+    ALL_SUPPORT_TYPES, BOOLEAN_FIELDS, DEFAULT_STUDENT_DATA_PATH, INTEGER_FIELDS,
 )
 from .enums import SupportType
 
@@ -9,12 +9,10 @@ import csv
 from pathlib import Path
 from typing import Iterable
 
-try:
-    from ..models.mentor import Mentor, MentorAvailability
-    from ..models.student import Student, StudentSimulation
-except ImportError:  # Support running ``python src/main.py`` directly.
-    from models.mentor import Mentor, MentorAvailability
-    from models.student import Student, StudentSimulation
+from ..models.mentor import Mentor
+from ..models.mentor_availability import MentorAvailability
+from ..models.student import Student
+from ..models.student_simulation import StudentSimulation
 
 
 def validate_configuration(

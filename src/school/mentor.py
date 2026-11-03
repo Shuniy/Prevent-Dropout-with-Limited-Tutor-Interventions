@@ -1,30 +1,10 @@
 """Synthetic mentor resources used by the allocation simulation."""
 
 from dataclasses import dataclass, field
+from .mentor_availability import MentorAvailability
 
-try:
-    from ..utils.enums import SupportType
-    from ..utils.constants import ALL_SUPPORT_TYPES
-except ImportError:  # Direct script entry point.
-    from utils.enums import SupportType
-    from utils.constants import ALL_SUPPORT_TYPES
-
-
-@dataclass(frozen=True)
-class MentorAvailability:
-    """A mentor's resource limits for one simulation step."""
-
-    step: int
-    available_hours: float
-    max_sessions: int
-
-    def __post_init__(self) -> None:
-        if self.step < 0:
-            raise ValueError("step must be non-negative")
-        if self.available_hours < 0:
-            raise ValueError("available_hours must be non-negative")
-        if self.max_sessions < 0:
-            raise ValueError("max_sessions must be non-negative")
+from ..utils.enums import SupportType
+from ..utils.constants import ALL_SUPPORT_TYPES
 
 
 @dataclass
@@ -99,10 +79,9 @@ class Mentor:
         support_type: SupportType,
         step: int,
         *,
-        program_id: str | None = None,
         required_hours: float = 0.0,
     ) -> bool:
-        """Check skill, programme, caseload, and step-resource feasibility."""
+        """Check skill, caseload, and step-resource feasibility."""
 
         if required_hours < 0:
             raise ValueError("required_hours must be non-negative")

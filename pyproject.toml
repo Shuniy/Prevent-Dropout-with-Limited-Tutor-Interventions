@@ -10,7 +10,7 @@ requires-python = ">=3.12,<3.14"
 dynamic = ["dependencies"]
 
 [project.scripts]
-school-dropout = "src.cli:main"
+school-dropout = "src.main:main"
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}

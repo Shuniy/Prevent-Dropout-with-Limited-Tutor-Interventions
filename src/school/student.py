@@ -1,11 +1,8 @@
 """Plain student models matching the processed and synthetic CSV schemas."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-try:
-    from ..utils.enums import SupportType
-except ImportError:  # Direct script entry point.
-    from utils.enums import SupportType
+from ..utils.enums import SupportType
 
 
 @dataclass
@@ -72,19 +69,7 @@ class Student:
 
     @property
     def learning_gap(self) -> float:
-        """
-        As per analysis of the dataset, the average anchor grade is 11.39 and the average math grade is 10.94
-        Average anchor grade across all schools: 11.39
-        Average math grade across all schools: 10.94
-        Average anchor grade by math and anchor combined (when math_grade1_0_20 is not null):
-        11.513054830287206
-        let's say using learning gap as a proxy for performance, where learning gap is defined as (10 - anchor_grade1_0_20) / 10, capped between 0 and 1
-        
-        Calculate the learning gap based on the average of anchor_grade1_0_20 and math_grade1_0_20.
-        If math_grade1_0_20 is None, only anchor_grade1_0_20 is used for the calculation.
-        The learning gap is normalized to a value between 0 and 1, where 0 indicates no learning gap and 1 indicates the maximum learning gap.
-        
-        """
+        """Grade shortfall below 10, normalized to [0, 1]."""
         grades = [self.anchor_grade1_0_20]
 
         if self.math_grade1_0_20 is not None:
@@ -147,44 +132,3 @@ class Student:
     def primary_support_type(self) -> SupportType:
         """Support addressing the highest need; ties use the concern name."""
         return self.need_profile[0]["support_type"]
-
-    @property
-    def initial_scores(self) -> dict[str, float | None]:
-        """Numeric inputs and support priority, keeping dropout risk unknown."""
-        return {
-            "learning_gap_0_1": self.learning_gap,
-            "attendance_fraction_assumed": getattr(self, "initial_attendance_fraction_assumed", None),
-            "engagement_assumed": getattr(self, "initial_engagement_assumed", None),
-            "support_priority_0_1": self.need_score,
-            "school_dropout_risk": None,
-        }
-
-
-@dataclass
-class StudentSimulation(Student):
-    initial_attendance_fraction_assumed: float
-    initial_engagement_assumed: float
-    weeks_since_offer: int
-    support_sessions_completed: int
-    enrolled_initial_assumed: bool
-    financial_need_verified: bool | None
-
-
-@dataclass
-class StudentInterventionProfile:
-    """One simulated programme, kept separate from the source CSV record.
-
-    Problems and priority scores are declared scenario rules, not diagnoses or
-    predicted school-dropout risk. Numeric inputs are not changed by LLM findings.
-    """
-
-    student_id: str
-    dataset_profile: dict
-    initial_scores: dict[str, float | None]
-    problems: list[dict]
-    planned_sessions: int
-    mentor_id: str | None = None
-    history_id: str | None = None
-    sessions_completed: int = 0
-    status: str = "unassigned"
-    session_reports: list[dict] = field(default_factory=list)

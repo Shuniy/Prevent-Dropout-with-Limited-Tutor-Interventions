@@ -27,11 +27,17 @@ class Student:
         if rng.random() < dropout_probability:
             self.is_dropout = True
 
-students = [Student(rng.uniform(0.5, 1.0)) for _ in range(100)]  # initialize students with random motivation
-# simulate 12 months
-for month in range(1, 13):
-    for student in students:
-        student.step()
+def main():
+    students = [Student(rng.uniform(0.5, 1.0)) for _ in range(100)]  # initialize students with random motivation
+    # simulate 12 months
+    for month in range(1, 13):
+        for student in students:
+            student.step()
 
-    num_dropouts = sum(student.is_dropout for student in students)
-    print(f"Month {month}: {num_dropouts} students dropped out.")
+        num_dropouts = sum(student.is_dropout for student in students)
+
+    print(f"Dropped out: {num_dropouts}")
+
+
+if __name__ == "__main__":
+    main()

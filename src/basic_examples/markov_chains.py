@@ -41,10 +41,13 @@ class School:
     def simulate(self, num_steps):
         for step in range(num_steps):
             self.step()
-            state_counts = self.count_states()
-            print(f"Step {step + 1}: {state_counts[StudentState.ACTIVE]} active, "
-                  f"{state_counts[StudentState.AT_RISK]} at risk, "
-                  f"{state_counts[StudentState.DROPPED_OUT]} dropped out.")
+        return self.count_states()
 
-school = School(num_students=100, transition_matrix=[[0.8, 0.15, 0.05], [0.1, 0.7, 0.2], [0.0, 0.0, 1.0]])
-school.simulate(num_steps=12)
+
+def main():
+    school = School(num_students=100, transition_matrix=[[0.8, 0.15, 0.05], [0.1, 0.7, 0.2], [0.0, 0.0, 1.0]])
+    print(school.simulate(num_steps=12))
+
+
+if __name__ == "__main__":
+    main()

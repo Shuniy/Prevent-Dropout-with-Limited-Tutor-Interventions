@@ -1,9 +1,10 @@
 import unittest
 from pathlib import Path
 
-from src.models.mentor import Mentor, MentorAvailability
+from src.models.mentor import Mentor
+from src.models.mentor_availability import MentorAvailability
 from src.models.school import School
-from src.models.student import StudentSimulation
+from src.models.student_simulation import StudentSimulation
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -19,13 +20,13 @@ class SchoolSimulationTests(unittest.TestCase):
             sessions_per_student=1,
         )
 
-        assignments = school.run_simulation()
+        assignments = school.run_simulation(support_type="tutoring")
 
         self.assertEqual(list(assignments), [1, 2, 3])
-        self.assertTrue(all(len(month) == 4 for month in assignments.values()))
-        self.assertEqual([mentor.current_caseload for mentor in school.mentors], [2, 2])
-        self.assertEqual(len(school.unassigned_student_ids), 1)
-        self.assertEqual(len(school.assignment_history), 12)
+        self.assertEqual([len(month) for month in assignments.values()], [4, 1, 0])
+        self.assertEqual([mentor.current_caseload for mentor in school.mentors], [0, 0])
+        self.assertEqual(len(school.unassigned_student_ids), 0)
+        self.assertEqual(len(school.assignment_history), 5)
 
     def test_students_are_loaded_and_converted_from_synthetic_csv(self) -> None:
         school = School(num_students=1, num_mentors=0)
@@ -84,9 +85,9 @@ class SchoolSimulationTests(unittest.TestCase):
             sessions_per_student=2,
         )
 
-        assignments = school.run_simulation()
+        assignments = school.run_simulation(support_type="tutoring")
 
-        self.assertTrue(all(len(month) == 2 for month in assignments.values()))
+        self.assertEqual([len(month) for month in assignments.values()], [2, 1])
         self.assertTrue(
             all(
                 mentor_id == "tutor"
@@ -94,23 +95,23 @@ class SchoolSimulationTests(unittest.TestCase):
                 for mentor_id in month.values()
             )
         )
-        self.assertEqual(tutoring_mentor.current_caseload, 2)
+        self.assertEqual(tutoring_mentor.current_caseload, 1)
         self.assertEqual(liaison_mentor.current_caseload, 0)
-        self.assertEqual(school.spent_budget, 8.0)
+        self.assertEqual(school.spent_budget, 6.0)
 
-    def test_default_run_allocates_five_tutoring_sessions_for_twelve_months(self) -> None:
+    def test_plan_allocates_each_student_once_with_five_sessions(self) -> None:
         school = School(
             num_students=2,
             num_mentors=1,
             students_per_mentor=2,
         )
 
-        assignments = school.run_simulation()
+        assignments = school.run_simulation(support_type="tutoring")
 
         self.assertEqual(len(assignments), 12)
-        self.assertTrue(all(len(month) == 2 for month in assignments.values()))
-        self.assertEqual(len(school.assignment_history), 24)
-        self.assertEqual(school.spent_budget, 120.0)
+        self.assertEqual([len(month) for month in assignments.values()], [2] + [0] * 11)
+        self.assertEqual(len(school.assignment_history), 2)
+        self.assertEqual(school.spent_budget, 10.0)
         self.assertTrue(
             all(
                 assignment.sessions == 5
@@ -120,26 +121,15 @@ class SchoolSimulationTests(unittest.TestCase):
             )
         )
 
-    def test_students_are_random_each_month_and_can_be_repeated(self) -> None:
-        school = School(
-            num_students=6,
-            num_mentors=1,
-            num_months=4,
-            students_per_mentor=3,
-            sessions_per_student=1,
-            seed=42,
-        )
-
+    def test_students_are_not_reused_but_mentors_are(self) -> None:
+        school = School(num_students=6, num_mentors=1, num_months=4,
+                        students_per_mentor=3, sessions_per_student=1)
         assignments = school.run_simulation()
-        monthly_student_sets = [set(month) for month in assignments.values()]
-        assignment_counts: dict[str, int] = {}
-        for student_ids in monthly_student_sets:
-            self.assertEqual(len(student_ids), 3)
-            for student_id in student_ids:
-                assignment_counts[student_id] = assignment_counts.get(student_id, 0) + 1
-
-        self.assertGreater(len(set(map(frozenset, monthly_student_sets))), 1)
-        self.assertGreater(max(assignment_counts.values()), 1)
+        self.assertEqual([len(month) for month in assignments.values()], [3, 3, 0, 0])
+        self.assertEqual(len({a.student_id for a in school.assignment_history}), 6)
+        self.assertEqual({a.mentor_id for a in school.assignment_history}, {"mentor-1"})
+        self.assertEqual({a.support_type for a in school.assignment_history},
+                         {s.primary_support_type for s in school.students})
 
     def test_budget_limits_monthly_assignments(self) -> None:
         school = School(
@@ -152,7 +142,7 @@ class SchoolSimulationTests(unittest.TestCase):
             budget=20.0,
         )
 
-        assignments = school.run_simulation()
+        assignments = school.run_simulation(support_type="tutoring")
 
         self.assertEqual(len(assignments[1]), 2)
         self.assertEqual(school.spent_budget, 20.0)
@@ -167,12 +157,12 @@ class SchoolSimulationTests(unittest.TestCase):
             sessions_per_student=1,
         )
 
-        first_result = school.run_simulation()
-        second_result = school.run_simulation()
+        first_result = school.run_simulation(support_type="tutoring")
+        second_result = school.run_simulation(support_type="tutoring")
 
         self.assertEqual(second_result, first_result)
-        self.assertEqual(len(school.assignment_history), 4)
-        self.assertEqual(school.mentors[0].current_caseload, 2)
+        self.assertEqual(len(school.assignment_history), 2)
+        self.assertEqual(school.mentors[0].current_caseload, 0)
 
 
 if __name__ == "__main__":

@@ -85,7 +85,6 @@ class School:
             delta = max(abs(new_values[state] - self.values[state]) for state in StudentState)
             self.values = new_values
             if delta < tolerance:
-                print(f"Converged after {iteration + 1} iterations")
                 break
 
     def step(self, student):
@@ -124,20 +123,16 @@ class School:
             state_counts[student.state] += 1
         return state_counts
 
-    def print_results(self, month,counts):
-        print(
-        f"Month {month}: "
-        f"Active={counts[StudentState.ACTIVE]}, "
-        f"At Risk={counts[StudentState.AT_RISK]}, "
-        f"Dropped Out={counts[StudentState.DROPPED_OUT]}"
-    )
-
     def run(self, num_students=100, num_steps=12):
         self.get_values_iteration()
-        print("Values after value iteration:", self.values)
         self.simulate(num_students, num_steps)
-        for month, counts in self.results.items():
-            self.print_results(month, counts)
+        return self.results
 
-school = School()
-school.run(num_students=100, num_steps=12)
+
+def main():
+    school = School()
+    print(school.run(num_students=100, num_steps=12)[12])
+
+
+if __name__ == "__main__":
+    main()

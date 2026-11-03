@@ -1,72 +1,34 @@
 """A small, configurable agent-based mentor allocation simulation."""
 
 import random
-from dataclasses import dataclass, replace
+from dataclasses import replace
+from .mentor_assignment import MentorAssignment
 from pathlib import Path
 from typing import Iterable
 
-try:
-    from ..utils.constants import (
-        DEFAULT_BUDGET,
-        DEFAULT_MENTOR_COST_PER_SESSION,
-        DEFAULT_NUMBER_OF_MENTORS,
-        DEFAULT_NUMBER_OF_MONTHS,
-        DEFAULT_NUMBER_OF_SESSIONS_PER_STUDENT,
-        DEFAULT_NUMBER_OF_STUDENTS,
-        DEFAULT_NUMBER_OF_STUDENTS_PER_MENTOR,
-        SEED,
-    )
-except ImportError:
-    from utils.constants import (
-        DEFAULT_BUDGET,
-        DEFAULT_MENTOR_COST_PER_SESSION,
-        DEFAULT_NUMBER_OF_MENTORS,
-        DEFAULT_NUMBER_OF_MONTHS,
-        DEFAULT_NUMBER_OF_SESSIONS_PER_STUDENT,
-        DEFAULT_NUMBER_OF_STUDENTS,
-        DEFAULT_NUMBER_OF_STUDENTS_PER_MENTOR,
-        SEED,
-    )
+from ..utils.constants import (
+    DEFAULT_BUDGET,
+    DEFAULT_MENTOR_COST_PER_SESSION,
+    DEFAULT_NUMBER_OF_MENTORS,
+    DEFAULT_NUMBER_OF_MONTHS,
+    DEFAULT_NUMBER_OF_SESSIONS_PER_STUDENT,
+    DEFAULT_NUMBER_OF_STUDENTS,
+    DEFAULT_NUMBER_OF_STUDENTS_PER_MENTOR,
+    SEED,
+)
 
-try:
-    from .mentor import Mentor
-    from ..utils.enums import SupportType
-    from ..utils.constants import DEFAULT_STUDENT_DATA_PATH
-    from .student import Student
-    from ..utils.school import (
-        create_mentors,
-        existing_assignments,
-        load_students,
-        mentor_can_take,
-        validate_configuration,
-        validate_unique_ids,
-    )
-except ImportError:  # Support running ``python src/main.py`` directly.
-    from models.mentor import Mentor
-    from utils.enums import SupportType
-    from utils.constants import DEFAULT_STUDENT_DATA_PATH
-    from models.student import Student
-    from utils.school import (
-        create_mentors,
-        existing_assignments,
-        load_students,
-        mentor_can_take,
-        validate_configuration,
-        validate_unique_ids,
-    )
-
-
-@dataclass(frozen=True)
-class MentorAssignment:
-    """One mentor allocation made by the school."""
-
-    student_id: str
-    mentor_id: str
-    support_type: SupportType
-    month: int
-    sessions: int
-    cost_units: float
-    completed_sessions: int | None = None
+from .mentor import Mentor
+from ..utils.enums import SupportType
+from ..utils.constants import DEFAULT_STUDENT_DATA_PATH
+from .student import Student
+from ..utils.school import (
+    create_mentors,
+    existing_assignments,
+    load_students,
+    mentor_can_take,
+    validate_configuration,
+    validate_unique_ids,
+)
 
 
 class School:
@@ -160,14 +122,14 @@ class School:
         student_support_types: dict[str, SupportType] | None = None,
         excluded_student_ids: set[str] | None = None,
         preferred_mentor_ids: dict[str, str] | None = None,
-        prioritize_by_need: bool = False,
+        prioritize_by_need: bool = True,
     ) -> list[MentorAssignment]:
         """Allocate students within mentor skills, capacity, sessions and budget.
 
         With ``prioritize_by_need``, highest Student.need_score goes first and
         seeded shuffling breaks ties. Support defaults to the student's primary
         need unless a caller supplies per-student or shared support explicitly.
-        The default retains the random, shared-support baseline.
+        Students already allocated in this run are never allocated again.
         """
 
         if month < 1 or month > self.num_months:
@@ -180,7 +142,6 @@ class School:
                     mentor.release_student(student_id)
 
         self._school_assigned_student_ids.clear()
-        self.assignments = existing_assignments(self.students, self.mentors)
 
         selected_support_type = support_type or self.support_type
         required_sessions = self.sessions_per_student
@@ -253,7 +214,9 @@ class School:
             self.assignment_history.append(assignment)
             new_assignments.append(assignment)
 
-        self.monthly_assignments[month] = dict(self.assignments)
+        self.monthly_assignments[month] = {
+            assignment.student_id: assignment.mentor_id for assignment in new_assignments
+        }
         return new_assignments
 
     def run_simulation(
@@ -261,12 +224,20 @@ class School:
         *,
         support_type: SupportType | None = None,
     ) -> dict[int, dict[str, str]]:
-        """Run all configured months and return assignments grouped by month."""
+        """Plan one programme per student, by need, reusing mentors monthly.
 
+        Calling this explicitly starts a new allocation run. Intervention consumes
+        this plan without resetting it or admitting additional students.
+        """
         self.reset()
-
+        preferred = dict(self.assignments)
+        for mentor in self.mentors:
+            for student_id in list(mentor.current_student_ids):
+                if student_id in preferred:
+                    mentor.release_student(student_id)
+        self.assignments.clear()
         for month in range(1, self.num_months + 1):
-            self.step(month, support_type=support_type)
+            self.step(month, support_type=support_type, preferred_mentor_ids=preferred)
         return {
             month: dict(assignments)
             for month, assignments in self.monthly_assignments.items()
@@ -313,13 +284,10 @@ class School:
         return recorded
 
     def run_interventions(self, **kwargs) -> dict:
-        """Run one feature-matched RAG programme per student; save JSON reports.
+        """Replay the existing school allocation plan; save JSON reports.
 
         See ``src.intervention.simulation.run_interventions`` for output, corpus
         and client options. Five sessions total is the default programme length.
         """
-        try:
-            from ..intervention.simulation import run_interventions
-        except ImportError:  # Direct ``python src/main.py`` entry point.
-            from intervention.simulation import run_interventions
+        from ..intervention.simulation import run_interventions
         return run_interventions(self, **kwargs)

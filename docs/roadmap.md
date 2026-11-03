@@ -1,99 +1,46 @@
-# Development roadmap
+# Implementation status and next work
 
-Stages describe the order of implementation, not Python files or classes. Finish
-and verify one useful increment before adding the next. Keep the detailed research
-requirements in `CODEX_IMPLEMENTATION_PROMPT_v2.md` as reference; its old paths and
-raw-source workflow no longer describe the current setup.
+## Working now
 
-| Stage | Deliverable | Status / completion check |
-| --- | --- | --- |
-| 1. Data foundation | Load retained CSVs; expose typed records; explore in Jupyter | Partial; synthetic student loading and typed records work, while the earlier data-service layer is not active in this tree |
-| 2. Baselines and population sampling | Reproduce course-failure baselines; sample whole anchor profiles within a split | Planned; check held-out metrics and lineage inheritance |
-| 3. Simulation | Small structured environment with observations, support delivery, resources and event logs | In progress; seeded 12-month mentor allocation enforces support type, monthly caseload, session limits and total cost; feature-based scenario concerns now select one RAG history per student with five appointments total, actual-session costs and JSON reports; numeric transitions remain planned |
-| 4. Allocation and evaluation | Simple usual-support, random and rule-based policies; compare outcomes and resource use | In progress; random baseline and model-derived need-priority allocation work; outcome-policy comparisons remain planned |
-| 5. Feedback and risk | Update estimated state from dated observations; fit and validate simulated-withdrawal risk | Planned; prevent future/hidden information leakage |
-| 6. Extended experiments | Fairness constraints, alternative simulated worlds, sensitivity analysis and optional language input | Planned; add complexity only after simpler comparisons work |
+- Typed CSV student loading, computed support needs, and separate mentor resources.
+- Monthly allocation baseline with repeat eligibility and resource limits.
+- Need-priority intervention allocation: one mentor and one programme per student.
+- Matching synthetic histories, up to the configured total appointment count.
+- SQLite retrieval from earlier sessions of the same history and chronological
+  structured findings through local Ollama.
+- One generation attempt per session, schema validation, immediate session saving,
+  partial-result preservation, and explicit failure status.
+- Planned-dose reservations, recorded-session costs, and unused-resource release.
+- Minimal session/student/run JSON, direct CLI entry points, and offline feature tests.
+- One production class per file; explicit dependencies and small helper functions.
+- Separate agent, Markov, MDP, and CMDP examples without import-time execution.
 
-The first simulation increment should use structured observations and non-risk
-policies. Any unavailable risk score must remain explicitly unavailable. Later
-stages must continue to distinguish historical course failure, assumed simulation
-withdrawal and real school dropout.
+The active workflow has no analytics, scores beyond allocation need severity,
+traceability metadata, citation validation, repair loops, or progress logging.
+The production allocator is a priority heuristic; optimization exists only in the
+independent teaching examples.
 
-The data foundation includes `Student` and `StudentSimulation` schema models.
-The first Stage 3 increment loads student agents from the synthetic population,
-adds configurable mentor agents and runs deterministic monthly assignments for a
-12-month default schedule. Each assigned student receives five sessions per month;
-students are randomly shuffled each month with repeat eligibility across months,
-and per-session mentoring costs consume a total budget. Session duration is not
-modeled. Data validation remains in the data layer, while mutable episode
-transitions and support outcomes remain part of Stage 3.
+## Current checks
 
-The next Stage 3 increment now connects CSV-derived hypothetical concerns to
-synthetic longitudinal intervention histories. `School.run_interventions()` assigns
-one mentor and one programme per student, defaults to five appointments total, and
-uses the recorded source length for participation. It writes each validated session
-immediately plus student and cohort final JSON. Generated mentors are assumed
-generalists; custom skills, monthly capacity and budget are enforced. The existing
-monthly allocation-only baseline remains available separately.
+Run `python -m unittest discover -s tests` for source records, needs, resource limits,
+priority, history isolation, chronology, findings, failures, entry points and examples.
+The suite uses a shared fake model and does not need Ollama. A live one-session CLI
+run checks the local model separately. The README contains setup and run commands.
 
-Feature rules now live in computed `Student.need_profile`, `need_score`,
-`primary_support_type` and `initial_scores` properties. Intervention allocation
-serves higher need first, breaks score ties with a seeded shuffle, and matches
-the primary support to mentor skills within existing resource limits. The
-standalone `School.step(..., prioritize_by_need=True)` supports the same behavior;
-the random monthly baseline remains available. A need-priority heuristic is not
-a CMDP optimizer.
+## Future work — not implemented
 
-Feature rules, initial scores and concerns are declared simulation assumptions.
-No numeric treatment effects or school-dropout labels are inferred. The CMDP wrapper
-reports appointment participation only. Dated structured observations, numeric
-state transitions and meaningful outcome-policy comparisons remain the next bounded
-simulation work.
+Numeric student-state transitions, simulated withdrawal, trained risk models,
+causal intervention effects, policy comparison, fairness constraints and research
+experiments remain separate future decisions. Do not introduce scaffolding for
+these into the current working workflow.
 
-## Organization rules
+## Research references
 
-The longitudinal pipeline in `src/intervention/rag.py` and
-`notebooks/intervention_rag.ipynb` supplies history-scoped SQLite BM25 retrieval,
-chronological validated JSON memory and local Ollama extraction. It is now invoked
-by `src/intervention/simulation.py` for feature-matched replay. Dataset scores,
-retrospective CSV labels and future sessions do not enter extraction prompts.
-This does not complete Stage 5 or 6: state feedback, learned risk and held-out
-semantic extraction evaluation remain planned. Independently authored histories
-are still needed before making research accuracy claims.
+Notebooks, datasets, corpus generators, archived outputs, and older research
+specifications remain preserved reference material. Their imports and result
+expectations may predate the current interfaces. They are not verification of the
+current code. See the README and `contracts.md` for active commands and behavior.
 
-Verification: all 40 source-model, baseline, RAG and intervention tests pass under
-full unittest discovery. These cover computed needs, score thresholds and
-missingness, limited-budget priority, specialist matching, reproducibility, and five-total-session scheduling, partial source
-participation, actual costs, mentor continuity, no second programme, deterministic
-replay, shortfalls, immediate persistence, extraction failures and participation
-scoring. The local Ollama two-student seed-7 smoke run also completed with six
-validated session reports (five plus one), no citation repairs and actual cost six.
-Synthetic replay is not evidence of real intervention effectiveness.
-
-- Put input data in `data/`, settings in `configs/`, implementation in `src/`,
-  checks in `tests/`, documentation in `docs/`, and run artifacts in `results/`.
-- Name modules after their responsibility; avoid stage runners, stage base classes
-  and empty folders for future work.
-- Prefer functions and small records. Add classes only for meaningful state or a
-  useful shared interface. Keep existing data validation where it prevents mistakes.
-- Keep a single current run guide in the root README. Historical completion logs
-  belong in `archive/` and do not prove that the current code passed.
-
-The removed raw downloads are not restored. The current foundation validates the
-retained generated package internally. Repeating the original raw-data audit would
-require those original inputs separately.
-
-Use [Guidance.md](../Guidance.md) for readable pandas/NumPy conventions and function
-documentation. Update it and the README, including workflow diagrams, with every
-implemented stage. Notebooks explain analysis; reusable functions belong in `src/`.
-
-## Notebook-first organization
-
-The supplied layout is adapted in [architecture.md](architecture.md). Data now
-lives in processed, synthetic and external subdirectories; tests mirror source
-responsibilities. `src/main.py` runs the small RAG intervention example by default; `--allocation-only`
-runs the monthly baseline. Numeric state/outcome transitions remain planned.
-
-The assigned student–mentor session lifecycle now lives in
-`src/intervention/intervention.py`. The cohort simulator delegates each programme
-to this controller and retains allocation, resource reconciliation and aggregation.
+Missing appointments do not prove school dropout, and historical course failure
+is not observed dropout. Synthetic dialogue progress does not measure real-world
+intervention effectiveness.

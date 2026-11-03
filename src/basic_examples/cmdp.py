@@ -118,24 +118,11 @@ class School:
             state_counts[student.state] += 1
         return state_counts
 
-    def print_results(self, month,counts):
-        print(
-        f"Month {month}: "
-        f"Active={counts[StudentState.ACTIVE]}, "
-        f"At Risk={counts[StudentState.AT_RISK]}, "
-        f"Dropped Out={counts[StudentState.DROPPED_OUT]}"
-    )
-
     def run(self, num_students=100, num_steps=12):
         policy, expected_sessions, objective = self.solve_cmdp(
-            num_students=num_students, num_months=num_steps, sessions_per_month=10
-        )
-        print(f"Optimal expected discounted reward across {num_students} students: {objective:.3f}")
-        print("Expected sessions per month:", np.round(expected_sessions, 2))
-        print("Month 1 P(support | Active, At Risk):", np.round(policy[0, :2, 0], 3))
-        print("Month | Active | At risk | Dropped | Sessions")
-        for result in self.simulate(policy, num_students, 10):
-            print(f"{result[0]:>5} | {result[1]:>6} | {result[2]:>7} | {result[3]:>7} | {result[4]:>8}")
+            num_students, num_steps, self.sessions_per_month)
+        results = self.simulate(policy, num_students, self.sessions_per_month)
+        return results, expected_sessions, objective
 
     def solve_cmdp(self, num_students=100, num_months=12, sessions_per_month=10):
         """Optimize expected resource use via state-action occupancy measures.
@@ -223,5 +210,11 @@ class School:
         objective = -num_students * result.fun
         return policy, expected_sessions, objective
 
-school = School()
-school.run(num_students=100, num_steps=12)
+def main():
+    school = School()
+    results, sessions, reward = school.run(num_students=100, num_steps=12)
+    print(f"Expected reward: {reward:.3f}; final state: {results[-1]}")
+
+
+if __name__ == "__main__":
+    main()

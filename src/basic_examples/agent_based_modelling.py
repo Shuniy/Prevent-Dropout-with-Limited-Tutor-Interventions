@@ -47,8 +47,13 @@ class School:
     def simulate(self, months):
         for month in range(months):
             self.step()
-            print(f"Month {month + 1}: {self.get_dropout_count()} students dropped out.")
+        return self.get_dropout_count()
 
 
-school = School(num_students=100)
-school.simulate(months=12)
+def main():
+    school = School(num_students=100)
+    print(f"Dropped out: {school.simulate(months=12)}")
+
+
+if __name__ == "__main__":
+    main()
