@@ -119,10 +119,12 @@ months but never refill the same month's plan.
   through_session=None, question=..., on_session=None)` sends all selected sessions
   in one generation with no retrieval or prior generated memory. Each session carries
   a one-based conversation position, a readable chronology label, earlier source
-  session numbers, metadata and speaker-labeled utterances. The prompt requires
+  session numbers, metadata and speaker-labeled utterances with absolute one-based turn numbers. The prompt requires
   cumulative evaluation using only the current and earlier conversations. Its response must
   contain exactly one findings entry per selected session in source order. The
-  entire response validates before callbacks or persistence. It returns the same
+  entire response passes JSON, source and per-entry semantic validation before callbacks
+  or persistence. Each entry adds one separate model review call using an as-of
+  source prefix. It returns the same
   `history_id`, `as_of_session`, `timeline`, `conclusion` structure as RAG, deriving
   the conclusion from the final entry. Oversize prompts fail before generation;
   there is no truncation, retry or repair. Earlier timeline entries are retrospective
@@ -135,9 +137,14 @@ months but never refill the same month's plan.
   a cutoff must refer to a recorded session.
 - `retrieve(history_id, query, before_session, per_session=2)` returns passages
   only from earlier sessions of that history, with matching and closing passages.
+  `Passage.first_turn_number` and `turns` preserve absolute citation offsets.
 - `InterventionRAG(index, client, max_prompt_chars=60000).analyse(history_id,
   through_session=None, question=..., on_session=None)` processes one generation
-  per session with fresh invocation memory. Returns `history_id`, `as_of_session`,
+  per session plus one semantic review, with fresh invocation memory. Context includes
+  `source_backed_actions` independently of retrieval: original wording/owner/timing,
+  original source turn/date and a `status_history` of accepted reported statuses and
+  source turns. This history is built from accepted findings and original source turns,
+  never reconstructed from generated narrative summaries. Returns `history_id`, `as_of_session`,
   `timeline`, and full `conclusion`. This is a private/developer interface.
 - `OllamaClient(model=..., base_url=..., timeout=300, num_ctx=32768)` performs
   structured `/api/chat` generation. Invalid JSON/schema output raises `ValueError`;
@@ -146,14 +153,51 @@ months but never refill the same month's plan.
   the next session. A failed session is excluded from memory. In simple mode, any
   invalid timeline fails the complete extraction with no partial session files.
   Detailed errors stay private.
-  `FINDINGS_SCHEMA` checks structure, not factual accuracy or causal claims.
+  `FINDINGS_SCHEMA` and `validate_findings` check JSON structure. Both evaluators then
+  require `validate_semantics`: deterministic provenance/identity checks and a separate
+  model review of source entailment, action scope, components and narrative consistency.
+  Nonempty review issues, invalid review JSON, unavailable review or budget overflow
+  reject the session; there is no retry/repair. Model review remains fallible.
+
+### Findings version 2
+
+- `schema_version=2` is required; historical version 1 findings are not migrated.
+- Every `actions` entry has `action_id`, `original_action`, `responsible_person`,
+  `agreed_on`, `due_date`, `original_evidence`, `status` and `status_evidence`.
+  IDs are `<history_id>:s<original session number>:a<positive ordinal>` and are reused
+  across snapshots. Original fields are immutable. All actions, including completed
+  ones, carry forward. Changes need current-session evidence. Quotes retain original
+  wording; agreement dates match source metadata (null when absent), and due dates
+  preserve literal original timing (null when unspecified).
+- `not_started`: explicit no work begun without a missed checkpoint;
+  `attempted`: effort without a completed required part; `partially_completed`: some
+  required work done, full scope outstanding; `completed`: all agreed work explicitly
+  done; `not_completed`: explicit failure, abandonment or not done at a checkpoint;
+  `unknown`: missing, ambiguous or conflicting progress. Partial work stays partial;
+  review/rehearsal/discussion cannot complete the task reviewed. A review agreed as
+  its own action can complete independently. Agreement alone gives unknown.
+- `intervention.intended_intervention` contains `type`, `status`, `component_ids`
+  and `evidence`. The referenced IDs define the intended support scope.
+  `direct_activities` have separate IDs/descriptions/evidence and statuses `proposed`,
+  `delivered`, `not_delivered`, `unknown`, `conflicting`. `external_support` components
+  have statuses `requested`, `pending`, `received`, `not_received`, `declined`,
+  `unknown`, `conflicting`. There is no aggregate `service_delivered` boolean.
+  Completing the intended intervention requires delivery of all intended components;
+  known intervention helpfulness additionally requires subsequent explicit feedback.
+- Evidence references contain `history_id`, `session_number`, `turn_number` and
+  `quote`, a verbatim substring of the cited utterance. Quotes are checked against
+  original sources within the current prefix, never generated memory or future sources.
+  Known action/component/detail statuses need evidence. `outcome_evidence` mirrors
+  `outcome`; known outcomes and session helpfulness require their cited evidence.
+  Source quotes alone are insufficient: semantic review checks that they entail each
+  claim, preserve unresolved conflicts and agree with the narrative.
 
 Optional private files are `programme_NNNNN/session_NN.json` (request identity,
 source history ID and detailed findings) and `private_report.json` (private history,
 error, public result and unrestricted final conclusion). The file fields and names
 are shared by both methods. Earlier valid RAG sessions survive failure; simple mode
-saves session findings only after the single response validates. Recorded attendance
-and costs remain available if either extraction fails. School exports contain no path
+saves session findings only after the response and every semantic review pass.
+Recorded attendance and costs remain available if either extraction fails. School exports contain no path
 or link to these files.
 
 ## School output and failures

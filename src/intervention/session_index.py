@@ -48,6 +48,7 @@ class SessionIndex:
                              "\n\n".join(session.turns[start:start + turns_per_chunk])),
                         )
         self.sessions = grouped
+        self.turns_per_chunk = turns_per_chunk
 
     def history(self, history_id: str, through_session: int | None = None) -> list[Session]:
         if history_id not in self.sessions:
@@ -94,6 +95,8 @@ class SessionIndex:
                 if len(rows) < per_session and row[0] not in seen:
                     rows.append(row)
                     seen.add(row[0])
-            passages.extend(Passage(session.number, text)
-                            for chunk, text in sorted(rows, key=lambda row: int(row[0])))
+            for chunk, text in sorted(rows, key=lambda row: int(row[0])):
+                start = int(chunk) * self.turns_per_chunk
+                passages.append(Passage(session.number, text, start + 1,
+                                        session.turns[start:start + self.turns_per_chunk]))
         return passages

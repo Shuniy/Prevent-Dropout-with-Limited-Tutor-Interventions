@@ -46,18 +46,20 @@ Explicit completion of a relevant in-session intervention activity can establish
 direct support delivery. For external support, require explicit evidence of receipt.
 An inquiry, request or referral does not establish delivery.
 
-Track the intended intervention separately from individual support activities wherever
-the output schema permits. Completing preparatory assistance does not establish delivery
-of a separate intended external service.
+The schema separates intervention.intended_intervention, direct_activities and
+external_support. Give each activity/request a unique component_id, retaining its ID
+across sessions. intended_intervention.component_ids identifies exactly which components
+constitute the intended support. Do not substitute preparatory activity for that support.
+Use a separate component for each distinct service or activity discussed.
 
-If direct activity occurred but external support remains pending, distinguish the
-delivered activity from the pending external request. When intervention.type represents
-the delivered activity, name that activity there and describe the pending external
-support separately in tracked_details. Follow the supplied schema's field definitions.
-
-Keep service_delivered null when delivery is unknown. Use false only when evidence
-explicitly supports non-delivery for the relevant service and timeframe. State that
-delivery was not established rather than claiming non-delivery without evidence.
+For direct_activities use proposed, delivered, not_delivered, unknown or conflicting.
+For external_support use requested, pending, received, not_received, declined, unknown
+or conflicting. An application submitted is direct assistance if explicitly performed;
+the requested service remains pending until receipt is explicitly reported. Evidence
+must support each component and its timeframe. Use unknown when delivery is unspecified;
+not_delivered/not_received require explicit evidence of non-delivery/non-receipt.
+Intended status completed requires delivery of every intended component; delivery alone
+need not establish completion of an ongoing programme. Cite evidence for intended status.
 
 OUTCOMES AND HELPFULNESS
 
@@ -73,7 +75,7 @@ Differences across time are not automatically contradictions.
 A later explicit correction may update a prior account in the current cumulative
 assessment. Otherwise, preserve the conflict rather than silently choosing a version.
 
-Keep intervention_helpful unknown unless the intended support was explicitly delivered
+Keep intervention_helpful unknown unless all intended components were explicitly delivered or received
 and subsequent information addresses its usefulness or effect.
 
 Explicit participant feedback attributing usefulness to delivered support can establish
@@ -100,6 +102,69 @@ longer mentioned.
 
 Keep narrative claims consistent with structured indicators. Do not represent
 reported, unverified information as independently confirmed.
+
+ACTION TRACKING AND COMPLETION
+
+Track the original agreed action separately from activities
+performed to review, discuss, rehearse or attempt it.
+
+Do not classify an agreed action as completed merely because:
+- The student attempted part of it.
+- The mentor reviewed progress.
+- The student practised the task during a session.
+- A related but different task was completed.
+- The action was mentioned again in a later session.
+
+A partially completed action must remain partial unless new
+evidence establishes full completion.
+
+When reporting an action's status, distinguish the status of
+the original action from any new follow-up action.
+
+If the narrative describes incomplete work, the structured
+completion indicator must not claim full completion.
+
+Use the actions array for every agreed action, including completed actions. Preserve the
+original_action as a verbatim substring from its original agreement utterance, citing that
+utterance in original_evidence. Use action_id "<history_id>:s<original session_number>:a<N>"
+with a positive, unique per-origin-session ordinal. Reuse the ID forever; reviewing or
+modifying scope creates a distinct action rather than overwriting the original agreement.
+Do not duplicate actions in tracked_details. Retain original responsibility (null if
+unspecified), agreed_on (original source session metadata date, otherwise null), and
+due_date (literal original timing, e.g. "by Friday", otherwise null). Do not invent dates.
+
+Define status consistently for the ORIGINAL agreed scope:
+- not_started: explicit report that no work has begun, without a missed checkpoint.
+- attempted: explicit effort, with no required part established as completed.
+- partially_completed: some required work completed, with the full scope still outstanding.
+- completed: explicit evidence that all work in the agreed scope was completed.
+- not_completed: explicit failure, abandonment, or report that the action was not done
+  at the relevant checkpoint. A missed deadline alone, without a report, is insufficient.
+- unknown: no progress report, ambiguous progress or unresolved conflicting reports.
+
+Agreement alone gives unknown, not not_started. Cite status_evidence for every known status.
+For an explicit "I have not started" without a missed checkpoint use not_started; explicit
+"I did not do it by the deadline" is not_completed. Reported partial progress remains
+partially_completed at a checkpoint. An unsuccessful attempt is attempted unless explicit
+failure/abandonment establishes not_completed. Preserve disagreement in uncertainties and
+cite both accounts with status unknown. A later explicit correction may resolve it.
+Carry every prior action forward with its original fields. Silence preserves its last
+reported status/evidence; it does not imply a fresh report. Change status/evidence only
+when the current session supplies evidence. A completed review is its own activity and
+cannot complete the task reviewed. Never narrow the original scope to make it completed.
+
+SOURCE EVIDENCE AND SCHEMA VERSION 2
+
+Set schema_version to 2. Each evidence citation includes history_id, source session_number,
+one-based turn_number and a verbatim quote substring of that speaker's utterance.
+Cite only the current or earlier supplied sources. Evidence must entail the claim rather
+than merely mention its topic. Preserve all source identifiers, including gaps.
+Cite evidence for known tracked details, intended status, component status, all known
+outcome fields via outcome_evidence, and session_helpful via session_helpful_evidence.
+Unknown values may have empty evidence lists. Do not use generated summary text as a quote.
+Keep all narrative fields consistent with actions, support components and outcome values.
+Findings undergo source checks and an independent semantic review before acceptance.
+
 
 OUTPUT
 
@@ -170,7 +235,7 @@ For conversation 1, use only conversation 1.
 For conversation 2, use conversations 1 and 2.
 Continue this rule for every subsequent conversation.
 
-Never use a later disclosure, correction or completed action to rewrite an earlier
+For every timeline entry, never use later disclosures, corrections or completed actions to rewrite an earlier
 timeline entry. Earlier entries represent what was supported by the evidence available
 at that point.
 
@@ -196,11 +261,14 @@ RAG_SYSTEM_PROMPT = SYSTEM_PROMPT + """
 INPUT AND TASK: CURRENT-SESSION INTERVENTION EVALUATION
 
 The user supplies:
+- history_id: the source history identifier used in citations and action IDs.
 - question: the evaluation question.
 - current_session_number: the source identifier of the session being evaluated.
 - current_session_metadata: recorded context, when available.
 - current_conversation: the complete ordered Mentor and Student utterances.
-- earlier_validated_memory: previous model findings that passed structural validation.
+- earlier_validated_memory: previous findings that passed JSON, source and semantic checks.
+- source_backed_actions: pinned action records, original source turns/dates and status_history
+  containing reported statuses and their source evidence; supplied independently of retrieval.
 - retrieved_prior_passages: selected excerpts from earlier sessions of the same student.
 
 The current conversation is the authoritative source for what was said in the current
@@ -225,6 +293,12 @@ Evaluate the intervention cumulatively through the current session.
 7. Describe supported next steps and cumulative intervention status.
 
 EVIDENCE PRIORITY AND MEMORY
+
+Use source_backed_actions to retain original action wording, identity, dates and reported
+status across sessions, even when ranked retrieval omits their passages. status_history
+preserves prior reports rather than overwriting them with generated summaries. Every prior
+action must remain in the current actions array. Original source turns take precedence over
+summary memory. Current reports update the current status without erasing older reports.
 
 Use direct source conversations and retrieved source passages to check previous
 model findings whenever relevant evidence is available.

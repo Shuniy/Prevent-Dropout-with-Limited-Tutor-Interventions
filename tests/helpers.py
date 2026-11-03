@@ -6,12 +6,19 @@ from pathlib import Path
 
 def findings():
     return {
+        "schema_version": 2,
         "session_summary": "The task remains difficult.",
         "primary_concern": "learning_gap",
-        "tracked_details": [{"detail": "Practice task", "status": "pending"}],
-        "intervention": {"type": "tutoring", "status": "active", "service_delivered": None},
+        "tracked_details": [],
+        "actions": [],
+        "intervention": {"intended_intervention": {"type": "", "status": "unknown",
+                         "component_ids": [], "evidence": []},
+                         "direct_activities": [], "external_support": []},
         "outcome": {"primary_barrier_resolved": "unknown", "attendance_improved": "unknown",
                     "intervention_helpful": "unknown"},
+        "outcome_evidence": {"primary_barrier_resolved": [], "attendance_improved": [],
+                             "intervention_helpful": []},
+        "session_helpful_evidence": [],
         "session_helpful": "unknown", "next_steps": ["Practice one example"],
         "uncertainties": ["Later progress is unknown"], "conclusion": "Practice is still needed.",
     }
@@ -20,11 +27,15 @@ def findings():
 class FakeClient:
     def __init__(self, fail_at=None, failure="invalid"):
         self.contexts = []
+        self.reviews = []
         self.fail_at = fail_at
         self.failure = failure
 
     def generate(self, messages, schema):
         context = json.loads(messages[1]["content"])
+        if context.get("task") == "semantic_review":
+            self.reviews.append(context)
+            return {"issues": []}
         self.contexts.append(context)
         numbers = ([step["session_number"] for step in context["sessions"]]
                    if "sessions" in context else [context["current_session_number"]])

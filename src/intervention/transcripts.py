@@ -6,10 +6,11 @@ from .session import Session
 from ..utils.constants import HISTORIES
 
 
-def spoken_turns(turns: tuple[str, ...] | list[str]) -> list[dict[str, str]]:
+def spoken_turns(turns: tuple[str, ...] | list[str], *, first_turn_number: int = 1) -> list[dict]:
     """Represent each spoken turn with its speaker and utterance."""
-    return [{"speaker": turn.split(": ", 1)[0], "utterance": turn.split(": ", 1)[1]}
-            for turn in turns]
+    return [{"turn_number": number, "speaker": turn.split(": ", 1)[0],
+             "utterance": turn.split(": ", 1)[1]}
+            for number, turn in enumerate(turns, start=first_turn_number)]
 
 
 def group_sessions(sessions: list[Session]) -> dict[str, list[Session]]:

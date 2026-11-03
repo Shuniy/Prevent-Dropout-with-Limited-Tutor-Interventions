@@ -38,8 +38,9 @@ main ── loads sessions + constructs client + Intervention
 | `intervention/simple_llm.py` | One structured extraction of all selected spoken sessions, with no retrieval |
 | `intervention/rag.py`, `session_index.py` | Chronological analysis and earlier-session retrieval |
 | `intervention/session.py`, `passage.py` | Source-history session and retrieved passage records |
+| `intervention/semantic_validation.py` | Source/identity checks, pinned action evidence and separate model semantic review |
 | `intervention/ollama_client.py` | Structured HTTP generation |
-| `intervention/transcripts.py`, `findings.py`, `reports.py` | Transcript parsing, findings validation and private persistence |
+| `intervention/transcripts.py`, `findings.py`, `reports.py` | Transcript parsing, JSON validation and private persistence |
 
 Each production class/dataclass has its own file. Both module packages export their
 public records and facade explicitly. Shared enums/constants have no school service
@@ -82,11 +83,18 @@ local NumPy generators from `utils.constants.create_rng`, reset for each fresh
 run; corpus reuse is permitted. Teaching examples share `DEFAULT_RNG`. Every
 programme gets a fresh extraction, including after mentor reassignment. The default
 passes all selected sessions in one call without creating a retrieval index. It
-validates the complete timeline before persisting the existing private session files.
+validates the complete timeline and each entry's semantics before persisting private session files.
 The final timeline entry is the final conclusion. Timeline entries are retrospective
 reconstructions, with all selected sessions visible; the prompt requests findings as
 of each session but cannot enforce temporal isolation. Optional RAG retains its
 per-session calls, earlier-only retrieval/memory and partial valid findings on failure.
+Each entry adds an independent review call after JSON and deterministic source checks.
+Review uses only an as-of source prefix and rejects unsupported/contradictory findings;
+it remains a fallible model judgment. RAG pins original action evidence with source dates
+and reported status history separately from retrieved excerpts and generated summaries.
+Findings version 2 tracks immutable action IDs/original wording, evidence-backed progress,
+intended component IDs, direct activity and external service status independently.
+A completed review cannot complete its underlying action; requested support is not receipt.
 Both receive allowlisted descriptive headers (intervention type, date, stage) alongside
 spoken turns. Profiles, retrospective outcome labels and sessions beyond the planned
 limit are excluded. Simple session records explicitly identify conversation positions

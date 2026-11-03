@@ -89,8 +89,9 @@ The CLI prints one final message and exits nonzero on configuration or model fai
    selected spoken conversations in one call, without an index, retrieval or
    previous LLM memory. The response contains a chronological findings timeline;
    its final entry supplies the intervention conclusion. With `--method rag`,
-   retain the original one-call-per-session flow with earlier passages and validated
-   findings. Both exclude profiles, headers, sessions beyond the selected cutoff
+   extract once per session with earlier passages, source-backed actions and validated
+   findings. Both modes run an additional semantic review per timeline entry.
+   Both exclude profiles, sessions beyond the selected cutoff
    and retrospective corpus labels. Seeded history selection is unchanged.
 5. School validates matching result identity and counts, rejects duplicate application,
    charges recorded sessions and releases unused reservations. Recorded attendance
@@ -180,16 +181,44 @@ example_private/
 ```
 
 Private session files contain detailed validated findings and identity/history data.
-The private final report can contain narrative conclusions and errors. The one-call
-method validates the entire timeline before saving any session files; failed
-generation leaves no partial session findings. In RAG mode, earlier valid sessions
-survive a later failed generation. School reports never link to this destination.
+The private final report can contain narrative conclusions and errors. The simple
+method validates the entire timeline, including semantic reviews, before saving any
+session files; a rejected generation or review leaves no partial session findings.
+In RAG mode, earlier valid sessions survive a later failed generation or review.
+School reports never link to this destination.
 Python callers must choose separate public/private destinations, as the CLI does.
 Both standalone extraction commands write the same private report structure:
 `history_id`, `as_of_session`, `timeline`, `conclusion`. Existing school results and
-private file layouts retain their fields. The findings schema checks
-structure, not factual accuracy. Modules in one Python process do not provide an OS
-access-control boundary. Historical outputs are not migrated.
+private file layouts retain their outer fields. Findings now use `schema_version: 2`;
+old findings are incompatible and historical outputs are not migrated.
+
+Each agreed action has a stable ID (`<history_id>:s<origin-session>:a<ordinal>`), verbatim
+original wording, owner, original session/date, literal due date and source-cited status.
+Statuses mean: `not_started` (explicitly no work begun), `attempted` (effort without a
+completed required part), `partially_completed` (some required work done), `completed`
+(all agreed work done), `not_completed` (explicit failure/abandonment or not done at a
+checkpoint), and `unknown` (unspecified/ambiguous/conflicting progress). Agreement alone
+leaves progress unknown. A completed review cannot complete the task being reviewed.
+
+`intervention` separates `intended_intervention` (with intended `component_ids`),
+`direct_activities` and `external_support`. Each activity/service has its own ID,
+status and evidence. Preparing an application can be delivered direct assistance while
+the requested service remains pending. The old `service_delivered` field is removed.
+Known outcomes and session helpfulness also require source citations.
+
+After JSON validation, deterministic checks verify verbatim quotes, source history,
+session/turn numbers, as-of cutoff, immutable action fields, status transitions and
+scoped delivery requirements. A separate model call checks evidence entailment and
+narrative/indicator consistency; rejection or malformed review fails analysis without
+repair or retry. This adds one review call per session to both methods. Model review
+remains fallible and does not establish independently verified facts or causal effects.
+
+RAG pins original action turns and dated status reports in `source_backed_actions`,
+independently of ranked passage retrieval. Earlier findings remain provisional summary
+memory. Original evidence and prior reported statuses survive later updates in the
+accepted timeline; silence preserves the last report. Oversized evidence fails the
+prompt budget check rather than dropping action records. Modules in one Python process
+do not provide an OS access-control boundary.
 
 ### One-intervention comparison
 
@@ -204,8 +233,9 @@ python -m jupyter nbconvert --to notebook --execute --inplace \
 
 The executed notebook and `outputs/intervention_extraction_evaluation/` retain both
 reports, exact model requests (prompts, input context and schemas), call counts, elapsed
-time, prompt characters, outcome agreement and four
-transcript-based reference checks. This is one synthetic case, not an accuracy
+time, prompt characters, outcome agreement and three
+transcript-based reference checks. Historical saved results use the earlier schema
+and four-check rubric; rerunning uses version 2 and includes semantic review calls. This is one synthetic case, not an accuracy
 benchmark. Timing is a single sequential run with uncontrolled startup/cache effects.
 Each method receives the recorded intervention type, date and stage alongside spoken
 turns. Simple inputs label each conversation position and its earlier sessions explicitly.
@@ -225,11 +255,14 @@ question and source history; method order alternates between cases. Outputs unde
 transcript hashes and spoken reference evidence, exact requests, raw responses,
 validated reports and per-method measurements. Existing measurements are retained
 when resuming, including failures; changed inputs or settings require a new output
-directory. The run makes 52 model calls, with one generation attempt per call.
+directory. A complete run now makes 130 model calls: 52 extraction calls and
+78 per-session semantic reviews, with one attempt per call. The manifest includes
+the findings schema and review contract to prevent resuming older runs with new semantics.
 
 Three narrow final-field checks cover barrier persistence, unknown attendance
 improvement and positive session feedback. Delivery, intervention helpfulness and
-action chronology require separate semantic review. This template-generated sample
+action chronology also undergo the runtime semantic review; the narrow reference
+checks remain separate from that model-based review. This template-generated sample
 supports comparison across support types, not generalization to real student records.
 See the [completed evaluation](outputs/intervention_type_evaluation/evaluation.md)
 for aggregate and per-type results, with source-linked semantic review examples.

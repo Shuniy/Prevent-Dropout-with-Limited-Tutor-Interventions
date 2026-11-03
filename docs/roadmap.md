@@ -15,7 +15,14 @@
   chronological SQLite retrieval, fresh programme memory and explicit model clients.
 - Default all-sessions LLM extraction with one generation per intervention, no
   retrieval index and the existing timeline/conclusion and private output shapes.
-- Preserved optional session-by-session RAG (`--method rag`), schema validation,
+- Version 2 findings with stable action identity, six explicit completion statuses,
+  original source wording/dates and cited progress reports. Intended support, direct
+  activity and requested external support are separate components.
+- Deterministic evidence/identity checks after JSON validation, plus one separate
+  model semantic review per entry before acceptance. Review remains fallible.
+- RAG pins source-backed actions and historical status reports independently of
+  retrieval; generated summaries remain provisional.
+- Preserved optional session-by-session RAG (`--method rag`),
   partial private findings for RAG and separate programme/analysis statuses.
 - Executable one-intervention comparison notebook with saved live reports, call
   counts, timings, outcome agreement and transcript-based reference checks.
@@ -35,6 +42,9 @@ source/current needs, resource limits, monthly feedback/refunds, no repeat admis
 immutability, identity/count rejection, duplicate application, baseline preservation,
 confidential exports, history isolation/chronology, short/missing histories,
 unknown/failed analysis, reset/repeat, zero-agent runs, CLI modes and teaching examples.
+Evidence regressions cover immutable actions, source/cutoff errors, partial work,
+review-versus-task rejection, scoped delivery/helpfulness, missing citations, malformed
+reviews, rejection before persistence and action evidence retained without retrieval.
 The shared fake client requires no live model. A live Ollama run is optional.
 
 ## Future work

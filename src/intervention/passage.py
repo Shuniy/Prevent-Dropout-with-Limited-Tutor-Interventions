@@ -7,3 +7,5 @@ from dataclasses import dataclass
 class Passage:
     session_number: int
     text: str
+    first_turn_number: int = 1
+    turns: tuple[str, ...] = ()

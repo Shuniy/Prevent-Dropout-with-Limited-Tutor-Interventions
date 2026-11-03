@@ -231,9 +231,18 @@ class InterventionTests(unittest.TestCase):
         class ImprovingClient(FakeClient):
             def generate(self, messages, schema):
                 result = super().generate(messages, schema)
+                if "issues" in result:
+                    return result
+                context = json.loads(messages[1]["content"])
                 for step in result["timeline"]:
                     step["findings"]["outcome"]["attendance_improved"] = "yes"
+                    step["findings"]["outcome_evidence"]["attendance_improved"] = [{
+                        "history_id": context["history_id"], "session_number": 1,
+                        "turn_number": 3, "quote": "My attendance has improved this week.",
+                    }]
                 return result
+        path = self.root / "02_tutoring/student/session_01_initial.md"
+        path.write_text(path.read_text() + "\n**Student:** My attendance has improved this week.\n")
         school = self.school(count=1, num_months=2)
         baseline = asdict(school.students[0])
         self.run_school(school, client=ImprovingClient())
@@ -275,6 +284,8 @@ class InterventionTests(unittest.TestCase):
         class SecretClient(FakeClient):
             def generate(self, messages, schema):
                 result = super().generate(messages, schema)
+                if "issues" in result:
+                    return result
                 for step in result["timeline"]:
                     step["findings"]["conclusion"] = "PRIVATE_SECRET"
                     step["findings"]["next_steps"] = ["PRIVATE_SECRET"]

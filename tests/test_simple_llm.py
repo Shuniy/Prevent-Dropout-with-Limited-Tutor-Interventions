@@ -31,7 +31,7 @@ class SimpleLLMTests(unittest.TestCase):
         context = self.client.contexts[0]
         self.assertEqual([s["session_number"] for s in context["sessions"]], [1, 2])
         self.assertEqual(context["sessions"][0]["conversation"],
-                         [{"speaker": "Student", "utterance": "I need help with fractions."}])
+                         [{"turn_number": 1, "speaker": "Student", "utterance": "I need help with fractions."}])
         self.assertEqual(context["record_scope"], {"first_supplied_session": 1,
                          "last_supplied_session": 2, "session_count": 2})
         self.assertEqual([s["conversation_position"] for s in context["sessions"]], [1, 2])
@@ -55,7 +55,7 @@ class SimpleLLMTests(unittest.TestCase):
         self.assertEqual(context["sessions"][0]["metadata"], {
             "intervention_type": "Tutoring", "date": "2026-09-10", "stage": "Initial session"})
         self.assertEqual(context["sessions"][1]["metadata"], {})
-        system = generate.call_args.args[0][0]["content"]
+        system = generate.call_args_list[0].args[0][0]["content"]
         self.assertIn("school-support intervention", system)
         self.assertIn("never use later disclosures", system)
 

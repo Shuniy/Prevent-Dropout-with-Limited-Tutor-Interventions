@@ -10,6 +10,7 @@ from .ollama_client import OllamaClient
 from .prompts import DEFAULT_QUESTION, RAG_SYSTEM_PROMPT
 from .reports import write_report
 from .session_index import SessionIndex
+from .semantic_validation import source_backed_actions, validate_semantics
 from .transcripts import load_sessions, spoken_turns
 from ..utils.constants import HISTORIES, RAG_RESULTS
 
@@ -26,16 +27,20 @@ class InterventionRAG:
                 *, on_session: Callable[[dict], None] | None = None) -> dict:
         history = self.index.history(history_id, through_session)
         timeline = []
-        for current in history:
+        for position, current in enumerate(history):
             passages = self.index.retrieve(history_id, question + " " + current.text,
                                            before_session=current.number)
             context = {
+                "history_id": history_id,
                 "question": question,
                 "current_session_number": current.number,
                 "current_session_metadata": current.metadata,
                 "earlier_validated_memory": timeline,
+                "source_backed_actions": source_backed_actions(timeline, history[:position]),
                 "retrieved_prior_passages": [
-                    {"session_number": passage.session_number, "text": passage.text}
+                    {"session_number": passage.session_number, "text": passage.text,
+                     "metadata": next(s.metadata for s in history if s.number == passage.session_number),
+                     "conversation": spoken_turns(passage.turns, first_turn_number=passage.first_turn_number)}
                     for passage in passages
                 ],
                 "current_conversation": spoken_turns(current.turns),
@@ -49,6 +54,9 @@ class InterventionRAG:
             try:
                 findings = self.client.generate(messages, FINDINGS_SCHEMA)
                 validate_findings(findings)
+                validate_semantics(findings, history[:position + 1], context["source_backed_actions"],
+                                   self.client, self.max_prompt_chars,
+                                   prior_passages=context["retrieved_prior_passages"])
             except ValueError as exc:
                 raise ValueError(f"Session {current.number}: {exc}") from exc
             step = {"session_number": current.number, "findings": findings}

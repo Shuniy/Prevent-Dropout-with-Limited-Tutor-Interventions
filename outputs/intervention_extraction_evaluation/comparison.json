@@ -3,7 +3,7 @@
   "as_of_session": 3,
   "model": "qwen3.5:latest",
   "question": "What barriers remain, what happened to agreed actions, and is there evidence of delivered support or improvement?",
-  "generated_at_utc": "2026-11-03T20:10:24.516682+00:00",
+  "generated_at_utc": "2026-11-03T21:21:01.490447+00:00",
   "python_version": "3.14.8",
   "num_ctx": 32768,
   "temperature": 0,
@@ -51,8 +51,8 @@
       "method": "rag",
       "status": "completed",
       "model_calls": 3,
-      "elapsed_seconds": 133.376,
-      "total_prompt_chars": 74643,
+      "elapsed_seconds": 127.358,
+      "total_prompt_chars": 75852,
       "primary_barrier_resolved": "no",
       "attendance_improved": "unknown",
       "intervention_helpful": "unknown",
@@ -70,8 +70,8 @@
       "method": "simple",
       "status": "completed",
       "model_calls": 1,
-      "elapsed_seconds": 83.235,
-      "total_prompt_chars": 38631,
+      "elapsed_seconds": 84.705,
+      "total_prompt_chars": 39530,
       "primary_barrier_resolved": "no",
       "attendance_improved": "unknown",
       "intervention_helpful": "unknown",
@@ -96,20 +96,20 @@
       "status": "completed",
       "error": null,
       "model_calls": 3,
-      "elapsed_seconds": 133.376,
-      "total_prompt_chars": 74643,
+      "elapsed_seconds": 127.358,
+      "total_prompt_chars": 75852,
       "calls": [
         {
-          "prompt_chars": 23984,
-          "elapsed_seconds": 45.37
+          "prompt_chars": 24883,
+          "elapsed_seconds": 44.297
         },
         {
-          "prompt_chars": 23218,
-          "elapsed_seconds": 39.628
+          "prompt_chars": 23613,
+          "elapsed_seconds": 38.281
         },
         {
-          "prompt_chars": 27441,
-          "elapsed_seconds": 48.339
+          "prompt_chars": 27356,
+          "elapsed_seconds": 44.726
         }
       ]
     },
@@ -117,12 +117,12 @@
       "status": "completed",
       "error": null,
       "model_calls": 1,
-      "elapsed_seconds": 83.235,
-      "total_prompt_chars": 38631,
+      "elapsed_seconds": 84.705,
+      "total_prompt_chars": 39530,
       "calls": [
         {
-          "prompt_chars": 38631,
-          "elapsed_seconds": 83.197
+          "prompt_chars": 39530,
+          "elapsed_seconds": 84.677
         }
       ]
     }

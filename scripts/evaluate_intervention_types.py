@@ -17,19 +17,21 @@ from time import perf_counter
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from src.intervention.findings import validate_findings
+from src.intervention.findings import FINDINGS_SCHEMA, validate_findings
 from src.intervention.ollama_client import OllamaClient
 from src.intervention.prompts import RAG_SYSTEM_PROMPT, SIMPLE_SYSTEM_PROMPT
 from src.intervention.rag import InterventionRAG
 from src.intervention.reports import write_report
 from src.intervention.session_index import SessionIndex
 from src.intervention.simple_llm import SimpleLLM
+from src.intervention.semantic_validation import REVIEW_PROMPT, REVIEW_SCHEMA
 from src.intervention.transcripts import group_sessions, load_sessions
 from src.utils.constants import HISTORIES
 
 OUTPUT = ROOT / "outputs/intervention_type_evaluation"
 MODEL = "qwen3.5:latest"
 QUESTION = "What barriers remain, what happened to agreed actions, and is there evidence of delivered support or improvement?"
+DELIVERY_FIELDS = ("intended_status", "direct_activity_statuses", "external_support_statuses")
 
 
 def reply(session, question):
@@ -130,7 +132,11 @@ def run_method(history, method, destination, reference):
     if report is not None and not error:
         f = report["conclusion"]
         values = {**f["outcome"], "session_helpful": f["session_helpful"],
-                  "service_delivered": f["intervention"]["service_delivered"]}
+                  "intended_status": f["intervention"]["intended_intervention"]["status"],
+                  "direct_activity_statuses": {c["component_id"]: c["status"]
+                                               for c in f["intervention"]["direct_activities"]},
+                  "external_support_statuses": {c["component_id"]: c["status"]
+                                                for c in f["intervention"]["external_support"]}}
         checks = {key: values[key] in allowed for key, allowed in reference["final_reference"].items()}
         result.update(final_values=values, reference_checks=checks,
                       reference_checks_passed=sum(checks.values()), reference_checks_total=len(checks))
@@ -168,7 +174,9 @@ def summarize_results():
     summary["completed_pairs"] = len(pairs)
     summary["final_field_agreement_counts"] = {
         key: sum(p["rag"]["final_values"][key] == p["simple"]["final_values"][key] for p in pairs)
-        for key in ("primary_barrier_resolved", "attendance_improved", "intervention_helpful", "service_delivered", "session_helpful")
+        # Generated component IDs are local to a method; comparing their raw maps
+        # across methods would mistake ID differences for delivery disagreement.
+        for key in ("primary_barrier_resolved", "attendance_improved", "intervention_helpful", "intended_status", "session_helpful")
     }
     if pairs:
         rag_time = sum(p["rag"]["elapsed_seconds"] for p in pairs)
@@ -181,11 +189,16 @@ def summarize_results():
     write_report(OUTPUT / "summary.json", summary)
     fields = ["history_id", "method", "status", "elapsed_seconds", "model_calls", "total_prompt_chars",
               "reference_checks_passed", "primary_barrier_resolved", "attendance_improved",
-              "intervention_helpful", "service_delivered", "session_helpful"]
+              "intervention_helpful", *DELIVERY_FIELDS, "session_helpful"]
     with (OUTPUT / "comparison.csv").open("w", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=fields, extrasaction="ignore")
         writer.writeheader()
-        writer.writerows({**r, **r.get("final_values", {})} for r in results)
+        for result in results:
+            row = {**result, **result.get("final_values", {})}
+            for key in DELIVERY_FIELDS[1:]:
+                if key in row:
+                    row[key] = json.dumps(row[key], sort_keys=True)
+            writer.writerow(row)
     return summary
 
 
@@ -199,6 +212,8 @@ def main():
         "python_version": platform.python_version(),
         "selection": "Lexicographically first complete exactly-three-session history per support type.",
         "system_prompts": {"rag": RAG_SYSTEM_PROMPT, "simple": SIMPLE_SYSTEM_PROMPT},
+        "findings_schema": FINDINGS_SCHEMA,
+        "semantic_review": {"prompt": REVIEW_PROMPT, "schema": REVIEW_SCHEMA},
         "cases": [{"history_id": key,
                    "transcript_sha256": hashlib.sha256(json.dumps([
                        {"number": s.number, "turns": s.turns, "metadata": s.metadata}

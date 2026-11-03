@@ -1,4 +1,4 @@
-"""Extract a complete intervention timeline in one call, without retrieval."""
+"""Extract a timeline in one call without retrieval, then review each source prefix."""
 
 import argparse
 import json
@@ -13,6 +13,7 @@ from .ollama_client import OllamaClient
 from .prompts import DEFAULT_QUESTION, SIMPLE_SYSTEM_PROMPT
 from .reports import write_report
 from .session import Session
+from .semantic_validation import source_backed_actions, validate_semantics
 from .transcripts import group_sessions, history_sessions, load_sessions, spoken_turns
 from ..utils.constants import HISTORIES, PROJECT_ROOT
 
@@ -38,6 +39,7 @@ class SimpleLLM:
             "minItems": len(history), "maxItems": len(history),
         }})
         context = {
+            "history_id": history_id,
             "task": "Evaluate this student's school-support intervention across the supplied sessions.",
             "question": question,
             "record_scope": {"first_supplied_session": numbers[0],
@@ -68,6 +70,16 @@ class SimpleLLM:
         timeline = response["timeline"]
         if [step["session_number"] for step in timeline] != numbers:
             raise ValueError("Invalid timeline: sessions must appear exactly once in source order")
+        for position, step in enumerate(timeline):
+            sources = history[:position + 1]
+            previous_actions = source_backed_actions(timeline[:position], sources)
+            try:
+                validate_semantics(step["findings"], sources, previous_actions,
+                                   self.client, self.max_prompt_chars,
+                                   prior_passages=[{"session_number": s.number, "text": s.text}
+                                                   for s in sources[:-1]])
+            except ValueError as exc:
+                raise ValueError(f"Session {step['session_number']}: {exc}") from exc
         # Validate the entire response before retaining or persisting any findings.
         if on_session is not None:
             for step in timeline:
