@@ -6,18 +6,15 @@ simulation benchmark comparing support policies, resource use, access and simula
 enrollment. It is a research project, not a deployed system for deciding real
 students' eligibility or proof that mentoring prevents real school dropout.
 
-**Current implementation:** typed student and mentor models plus a reproducible
-12-month random-allocation baseline. The simulator loads synthetic student profiles
-from CSV, creates configurable mentors, renews mentor capacity monthly, schedules
-five tutoring sessions per selected student, permits selection again in later
-months and charges per-session costs against one episode budget. It also loads the
-synthetic dialogue manifest as a reference catalogue of 6 problem categories, 22
-sample problems and 13 mentor support types. Problems and dialogues are not yet
-assigned to students or treated as delivered interventions. Student-state
-transitions, intervention effects, dropout outcomes, policy comparisons, risk
-prediction and language-based simulation feedback are not implemented. A separate
-longitudinal RAG prototype now analyses synthetic intervention histories with local
-Ollama; it does not change simulator state or assign intervention effects.
+**Current implementation:** typed CSV-backed students, configurable mentors, the
+original monthly random-allocation baseline, and a feature-matched intervention
+simulation using the existing local Ollama RAG pipeline. Intervention mode creates
+an initial profile and transparent support-priority scores, assigns one mentor and
+one synthetic history per student, and saves validated JSON after every recorded
+session plus student and cohort final reports. Each student has **five planned
+sessions total** by default, with no second programme in later months. A source
+history may record fewer appointments. Numeric treatment effects, school-dropout
+prediction and retention dynamics remain unimplemented.
 
 Use [Guidance.md](Guidance.md) for function documentation and simple coding
 conventions, [the roadmap](docs/roadmap.md) for development order, and
@@ -34,12 +31,29 @@ python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 python -m pip install -e .
-python src/main.py
-python -m unittest tests.test_school -v
+python -m unittest discover -s tests -v
 ```
 
-No external service, model credentials or LLM is needed for the current baseline.
-`src/main.py` executes the default simulation without writing output files.
+The default command runs a small **10-student, 2-mentor** intervention example.
+Start local Ollama with `qwen3.5:latest` installed first:
+
+```sh
+ollama pull qwen3.5:latest
+python src/main.py --students 2 --mentors 1 --seed 7
+python -m unittest discover -s tests -v
+```
+
+Reports go to a new timestamped folder under `results/intervention_simulation/`.
+`--output` selects a new or empty directory; previous reports are protected from
+overwriting. `--model`, `--sessions`, `--months`, `--capacity`, `--budget`, `--seed`
+and `--history-root` configure the run. `OLLAMA_BASE_URL` changes the local endpoint.
+No new dependencies are needed beyond the existing RAG requirements.
+
+The original language-free monthly baseline is still available:
+
+```sh
+python src/main.py --allocation-only --students 1000 --mentors 10
+```
 
 The small agent-based allocation model can be run independently. By default it
 loads a configurable number of student agents from
@@ -82,21 +96,103 @@ records containing month, support type, session count and cost are retained in
 `school.assignment_history`. `spent_budget`, `remaining_budget` and the mentors'
 current caseloads expose resource use after a run.
 
-### Dialogue problem reference catalogue
+### Feature-matched intervention simulation
 
-`src/intervention/student_mentor_dialogues/manifest.csv` is loaded through
-`DialogueIndex`. It validates the transcript paths and exposes the authored category,
-problem, support-type and workflow-status metadata. `School.problem_categories`,
-`School.problem_references`, `School.support_type_references` and
-`School.problem_reference(problem_id)` make that catalogue available to school or
-future student-facing simulation code. Mentors may declare any of the 13 indexed
-support types in `Mentor.support_types`.
+```python
+from src.models.school import School
 
-The catalogue is reference data only. The current student CSV has no problem field,
-so the simulator does not infer a problem from grades, attendance or access proxies,
-does not attach a sample dialogue to a student and does not count a dialogue's
-support status as an offer, delivery or effect. A later simulation increment can
-connect an explicitly supplied student problem to this catalogue.
+school = School(num_students=10, num_mentors=2, seed=42)
+report = school.run_interventions()  # Uses the existing local Ollama client.
+profiles = school.intervention_profiles
+```
+
+`School.run_simulation()` retains the original monthly allocation behavior above.
+`School.run_interventions()` starts a fresh run and uses the same seeded allocation,
+mentor skills, monthly capacity and episode budget. Each admitted student retains
+one mentor throughout their programme and is excluded from all later allocations.
+Caller-supplied initial mentor assignments are honored when feasible. Generated
+mentors are assumed generalists across the 13 support types; custom mentor skills
+remain hard constraints. Students without feasible resources get an explicit
+unassigned report. Allocation months are admission windows: all appointments of a
+programme are replayed within its assigned window, without modeling session duration.
+
+`create_profile(student)` records the source fields and initial learning gap,
+assumed attendance, assumed engagement and support priority. Missing values remain
+unknown, including financial need and school-dropout risk. The highest-severity
+feature rule chooses the support type; ties use the problem name. These are
+**declared hypothetical scenario rules**, not observed diagnoses or a trained risk
+model. Dataset inputs and scores are not changed by language-model findings.
+
+| Dataset feature / threshold | Simulated concern / support |
+| --- | --- |
+| Initially not enrolled (assumed) | Return to learning / reentry support |
+| Learning gap > 0 or prior course failures | Learning gap / tutoring |
+| Assumed attendance < 0.85 | Attendance routine / attendance planning |
+| No home internet | Digital access / device access; ownership remains unknown |
+| Travel category >= 3 | Long journey / transport assessment; entitlement remains unknown |
+| Study-time category = 1 | Study routine / homework support |
+| Family relationship rating <= 2 | Family communication / family liaison |
+| Self-rated health <= 2 | Wellbeing check-in; no diagnosis inferred |
+| Assumed engagement < 0.6 | Participation opportunities / peer support; isolation remains unknown |
+| Verified financial need = true | Family finances |
+| No threshold met | Routine learning check-in / tutoring |
+
+Severity formulas are in `src/intervention/simulation.py` (`feature_rules_v1`).
+The learning-gap calculation uses the available anchor and math grades. Support
+priority is the maximum problem severity in [0, 1], never a dropout probability.
+No poverty, hunger, language need or learning disability is inferred from proxies.
+
+A separate seeded draw selects one history within the primary support type from
+`student_mentor_intervention_histories`. The simulator **replays existing spoken
+conversations**; it does not generate personalized dialogue. A history can be
+reused for different simulated students. Dataset-derived concerns remain separate
+from transcript-reported details, and secondary concerns are retained in reports.
+The number of source appointments defines simulated participation: the corpus has
+one to five recorded appointments per history. Missing appointments have unknown
+reasons and never establish school dropout. Retrospective CSV labels and future
+sessions are excluded from RAG prompts.
+
+`Intervention` in `src/intervention/intervention.py` now organizes each assigned
+student–mentor programme. The simulator creates it with the shared RAG service,
+student profile, student output folder and allocation month, then calls
+`start_intervention(student, mentor)`. It verifies the pair, runs the initial and
+follow-up sessions in one chronological pass, writes each validated session, and
+returns the student's final report. The simulator reconciles actual attendance,
+adds assignment accounting, saves the student final JSON and aggregates the cohort.
+A started profile cannot be run again; a fresh simulation creates fresh profiles.
+The first session starts with empty memory; subsequent sessions receive earlier
+validated findings and retrieved evidence through the same RAG call.
+
+Whole programmes reserve session capacity and budget at admission. After replay,
+only recorded appointments are charged and unused reservations are released for
+later admission windows. `MentorAssignment.sessions` is the planned dose;
+`completed_sessions` is recorded attendance and `cost_units` is its actual cost.
+The allocation-only baseline continues charging all scheduled appointments.
+
+Each run writes:
+
+```text
+results/intervention_simulation/run_<timestamp>/
+  final_report.json                 Cohort summary, configuration, assignments and students
+  student_00001/
+    session_01.json                 Profile, scores, concerns, spoken turns, validated findings
+    session_02.json                 Earlier-memory retrieval and citation provenance included
+    final_report.json               Final as-of conclusion and programme participation
+```
+
+Student folders use safe sequence numbers; every report includes the original
+student ID, mentor ID and full source history ID. Session reports are saved as soon
+as validation succeeds. One chronological RAG pass carries earlier validated memory
+forward, without repeated LLM calls for previous sessions. Final reports distinguish
+`completed`, `incomplete`, `unassigned` and `report_failed`; completed means the
+planned appointment count was recorded, not that a barrier was resolved. Extraction
+failures preserve earlier validated reports, mark the cohort run failed and cause
+the CLI to exit nonzero. An unvalidated final conclusion is never substituted.
+
+`SchoolCMDPEnvironment.run_interventions()` also records a participation score:
+recorded appointments / planned appointments for the whole cohort, including
+unassigned students. This is not a retention, risk or treatment-benefit score.
+The wrapper remains a constrained simulation coordinator, not an optimized CMDP.
 
 ### Longitudinal intervention RAG
 
@@ -153,16 +249,18 @@ enter memory. Validation failures remain in the audit timeline, and exhausted
 attempts raise an error rather than saving an unvalidated conclusion.
 
 This is lexical retrieval, not embedding similarity search. Context is bounded by
-an explicit character budget; overflow raises an error. Schema and verbatim checks
-cannot verify whether a quote actually supports the model's interpretation. Review
+an explicit character budget; overflow raises an error. The model selects prompt-scoped evidence IDs; Python resolves them to exact
+source words and session numbers before validating the public report schema.
+This prevents merged utterances and punctuation changes from corrupting quotes.
+Schema and verbatim checks cannot verify whether a quote actually supports the model's interpretation. Review
 conclusions and evaluate independently authored histories before research use.
 Missing appointments never establish dropout, and synthetic changes are not causal
-effect estimates. This prototype remains separate from simulation feedback/risk.
+effect estimates. Intervention mode uses this extraction pipeline without numeric state/risk feedback.
 
 ## Repository structure
 
 ```text
-src/main.py                 Minimal simulation entry point
+src/main.py                 Intervention CLI, allocation-only option and CMDP coordinator
 pyproject.toml              Package metadata (legacy console target is not active)
 data/
   processed/students/       Source-anchor profiles
@@ -172,17 +270,19 @@ data/
   external/                 Historical outcomes, reference tables, dictionary
 src/
   utils/constants.py        Default horizon, capacity, cost, budget and seed
-  models/student.py         Student profile and simulation-input records
-  models/mentor.py          Indexed support skills, availability and caseload
-  models/school.py          Allocation plus the sample-problem reference catalogue
-  intervention/dialogues.py  Validated dialogue/category/problem index
+  models/student.py         Source records and separate intervention profiles
+  models/mentor.py          Support skills, availability and caseload
+  models/school.py          Allocation, programme reservations and actual-session costs
+  intervention/simulation.py Feature rules, history assignment, accounting and cohort reports
+  intervention/intervention.py Student–mentor programme lifecycle and session reports
   intervention/student_mentor_dialogues/  Synthetic reference corpus and metadata
   intervention/rag.py       Student-scoped retrieval, chronological memory and JSON extraction
   intervention/student_mentor_intervention_histories/  Synthetic longitudinal sessions
   utils/school.py           Student loading and mentor-allocation helpers
 tests/test_school.py         Allocation, cost and reproducibility checks
 tests/test_intervention_rag.py Retrieval isolation, memory, evidence and output checks
-tests/test_student_models.py Legacy model-schema checks; see known issue below
+tests/test_intervention_simulation.py Feature matching, participation, resources and reports
+tests/test_student_models.py CSV-schema and derived-property checks
 docs/                       Architecture, roadmap and research specification
 archive/                    Historical reports; not active implementation
 Guidance.md                 Function guide and implementation conventions
@@ -206,10 +306,10 @@ this workflow; repeating their provenance audit would require those inputs separ
 | `student_outcomes_reference.csv` | Evaluator-only historical course outcomes |
 | `subject_records_reference.csv` | 1,044 historical subject rows |
 | `split_manifest.csv` | Retained anchor split assignments |
-| `src/intervention/student_mentor_dialogues/manifest.csv` | Synthetic sample-problem and dialogue reference index; not linked to students |
+| `src/intervention/student_mentor_dialogues/manifest.csv` | Separate synthetic single-session reference material |
 
 Higher-education tables and the variable dictionary remain reference material.
-They are not pooled with the school cohort or exposed through the current table allowlist.
+They are not pooled with the school cohort or exposed through the current simulation loader.
 Supported cohorts are `fixture`, `primary` and `sensitivity` (all 674 anchors).
 Supported splits are `train`, `validation` and `test`.
 
@@ -230,27 +330,27 @@ learning-gap proxies are computed properties rather than constructor parameters.
 
 ```mermaid
 flowchart LR
-    A[Synthetic student CSV] --> B[CSV conversion]
-    B --> C[StudentSimulation agents]
-    D[Configurable defaults] --> E[Monthly mentor agents]
-    J[Dialogue manifest] -. reference categories, problems and support types .-> K[DialogueIndex]
-    K -. no current student assignment .-> C
-    K -. support-type vocabulary .-> E
-    C --> F[Seeded monthly shuffle]
-    E --> F
-    F --> G[Skill, caseload, sessions and budget checks]
-    G --> H[Monthly assignments]
-    H --> I[Assignment history and resource totals]
+    A[Synthetic student CSV] --> B[Typed source profiles]
+    B --> C[Feature concerns and initial scores]
+    C --> D[Seeded feasible allocation once per student]
+    M[Mentor skills, capacity and budget] --> D
+    D --> E[Matching synthetic intervention history]
+    E --> F[Chronological RAG and validated memory]
+    F --> G[Immediate session JSON reports]
+    G --> H[Student and cohort final JSON]
+    E --> I[Recorded appointment count]
+    I --> J[Actual cost and participation totals]
+    J --> H
 ```
 
-Selection is without replacement within a month. At the next month all students,
-including previously selected students, return to the eligible random pool. Mentor
-caseload and session capacity renew monthly; the total episode budget does not.
+The allocation-only baseline independently renews eligibility each month. The
+intervention mode excludes students after their first programme. Both respect
+mentor capacities and one episode budget.
 
 ## Project specification
 
 The following describes the intended complete system. The typed models and random
-monthly allocation baseline above are implemented; student dynamics and outcome
+monthly allocation baseline and feature-matched RAG replay above are implemented; student dynamics and outcome
 evaluation remain planned. The detailed
 [research specification](docs/CODEX_IMPLEMENTATION_PROMPT_v2.md) retains additional
 acceptance cases; its old source paths and preparation stages are historical.
@@ -373,19 +473,21 @@ Simulation results describe the assumed worlds, not real-world causal effects.
 | 5. Feedback and risk | Planned | Replayable state updates and independently validated simulated-risk scores |
 | 6. Extended experiments | Planned | Fairness, alternative worlds, uncertainty and optional note-extraction comparisons |
 
-The next simulation milestone is mutable monthly student state plus support-delivery
-events: sessions completed, attendance/engagement transitions and clearly labelled
-simulated withdrawal outcomes. After that, compare no-support, random and simple
-rule-based policies. Structured observations should work before optional LLM note
-extraction is introduced.
+The next simulation milestone is dated structured observations and explicit numeric
+state transitions, followed by no-support and rule-based policy comparisons. The
+current feature-matched replay produces evidence-backed qualitative reports and
+participation counts, without inventing intervention effects or dropout outcomes.
 
-Current verification: all 8 tests in `tests/test_school.py` and all 10 tests in
-`tests/test_intervention_rag.py` pass. These cover simulation capacity/budget/replay
-and RAG student isolation, chronology, memory continuity, header exclusion, schema,
-quote provenance and outcome evidence requirements.
-The new RAG notebook has also been executed end to end with local
-`qwen3.5:latest` on the three-session transport history selected in its configuration;
-the saved report includes validated findings and citation-repair audit entries.
-Full test discovery still has one known legacy failure because
-`tests/test_student_models.py` imports the old name `SyntheticStudent`, while the
-current model is named `StudentSimulation`.
+Current verification: all 35 tests pass under `python -m unittest discover -s tests -v`.
+They cover source models, baseline allocation, RAG chronology/provenance, feature
+rules, five-session total doses, incomplete participation, actual cost accounting,
+mentor continuity, resource shortfalls, repeat runs, immediate session persistence,
+extraction failures and the CMDP participation score.
+
+The two-student local Ollama smoke run (`--students 2 --mentors 1 --seed 7`) also
+completed end to end with `qwen3.5:latest`: one five-session programme, one
+one-session incomplete programme, six validated session reports, no citation
+repairs and six mentoring cost units. The saved cohort artifact is
+`results/intervention_simulation/evidence_ids_seed_7/final_report.json` (generated
+results are git-ignored). This verifies replay/reporting, not semantic extraction
+accuracy or intervention effectiveness.

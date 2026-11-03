@@ -1,81 +1,88 @@
 # Current architecture
 
-The active implementation is a small, language-free monthly allocation baseline.
-It loads synthetic student profiles, creates or accepts mentor agents and records
-feasible tutoring assignments over a configurable horizon. A separate dialogue
-index exposes sample problem categories and mentor support types as reference data;
-it does not assign problems or dialogues to students.
+Two modes share typed CSV profiles, mentor resources and seeded allocation:
+
+- `School.run_simulation()` is the original language-free monthly baseline. Students
+  may be selected again in later months and all scheduled sessions are charged.
+- `School.run_interventions()` gives each student one feature-matched programme,
+  with five planned appointments total by default, and replays recorded conversations
+  through the existing local Ollama RAG pipeline.
 
 ```text
-synthetic student CSV
-        │
-        ▼
-src/utils/school.py ── conversion, validation and feasibility helpers
-        │
-        ├── StudentSimulation agents
-        └── default Mentor agents
-                    │
-                    ▼
-             src/models/school.py
-             monthly seeded allocation
-                    │
-                    ├── monthly_assignments
-                    ├── assignment_history
-                    └── spent/remaining budget
-
-dialogue manifest ──► src/intervention/dialogues.py
-                     validated reference catalogue
-                              │
-                              ├── 6 categories / 22 sample problems
-                              ├── 13 mentor support types
-                              └── School lookup properties only
+synthetic student CSV → utils/school.py → StudentSimulation source records
+                                              │
+                              intervention/simulation.py
+                           feature rules and initial profiles
+                                              │
+                               models/school.py allocation
+                            skill, capacity and budget checks
+                                              │
+                       one student → one mentor → one history
+                                              │
+                            intervention/intervention.py
+                         student–mentor programme controller
+                                              │
+                                    intervention/rag.py
+                        spoken turns, earlier retrieval and memory
+                                              │
+                             validated session JSON immediately
+                                              │
+                       student final reports → cohort final report
 ```
 
 ## Active responsibilities
 
-- `src/models/student.py` defines immutable-input-style student profile records and
-  derived access/learning-gap properties. It does not yet hold evolving monthly
-  state or an assigned problem.
-- `src/models/mentor.py` defines mentor skills, monthly session availability,
-  active caseload and per-session cost. Its support-type vocabulary covers all
-  support types represented by the dialogue catalogue.
-- `src/models/school.py` owns episode state and the monthly allocation loop. It
-  shuffles students reproducibly, selects feasible mentors, records assignments and
-  renews mentor caseload between months. It also exposes the sample problem catalogue
-  without joining it to student records.
-- `src/intervention/dialogues.py` validates the canonical dialogue manifest and
-  provides category, problem, support-type and transcript lookups.
-- `src/utils/school.py` loads CSV rows, converts values, validates configuration and
-  IDs, creates default mentors and checks assignment feasibility.
-- `src/utils/constants.py` holds the default seed, 12-month horizon, population size,
-  mentor capacity, five-session dose, per-session cost and total budget.
-- `tests/test_school.py` verifies loading, monthly capacity, support-type matching,
-  random repeat eligibility, costs, budget limits and deterministic replay.
+- `models/student.py`: source records and derived access/learning properties, plus a
+  separate `StudentInterventionProfile`. The CSV record stays unchanged during replay.
+- `models/mentor.py`: support skills, monthly session limits, caseload and session cost.
+  Generated mentors are assumed generalists; caller-supplied skills stay enforced.
+- `models/school.py`: seeded allocation, run reset, programme reservation, recorded
+  attendance reconciliation, baseline and intervention entry points.
+- `utils/school.py`: CSV conversion, configuration/ID validation, mentor creation and
+  feasibility checks.
+- `intervention/simulation.py`: versioned feature rules, initial scores, seeded history
+  selection, attendance accounting and student/cohort final JSON writing.
+- `intervention/intervention.py`: assigned-pair validation, one programme lifecycle,
+  chronological RAG orchestration, immediate session persistence and final student
+  report construction; also provides the shared atomic JSON writer.
+- `intervention/rag.py`: student-history-scoped SQLite FTS5 retrieval, chronological
+  validated memory, local structured Ollama output, quote/schema checks and bounded
+  repair. The model selects evidence IDs; Python copies exact source quotes into
+  the unchanged report schema. Its optional callback persists each validated result immediately.
+- `main.py`: CLI and `SchoolCMDPEnvironment`, retaining monthly baseline progress and
+  exposing intervention participation as recorded/cohort-planned appointments.
+- `tests/`: source schema, baseline feasibility, RAG provenance and intervention checks.
 
-## Current resource semantics
+## Intervention semantics
 
-- Sampling is without replacement inside one month.
-- A student selected previously remains eligible in later months.
-- Mentor caseload and session limits renew every month.
-- The episode budget is shared across all months and does not renew.
-- Session duration is not modeled.
-- Allocation records scheduled support; it does not yet prove delivery or benefit.
-- Dialogue problems and statuses are reference metadata, not student state or
-  simulation events.
+The primary concern is chosen by the highest severity among explicit hypothetical
+feature rules. Initial scores include learning gap, assumed attendance/engagement,
+support priority and an unavailable school-dropout risk. These are not trained risk
+estimates. Rules select one corpus support type; a seeded draw selects a complete
+history within that type. Secondary concerns stay in the profile. No concern means
+a routine learning check-in. Missing matching histories or resources produce explicit
+unassigned reports, rather than unrelated support.
 
-## Planned growth
+One programme runs within its allocation month. Each student retains its mentor
+and never starts another programme during the same run. Full doses reserve monthly
+session capacity and budget before replay. Only source-recorded appointments are
+charged; unused reservations become available in subsequent allocation windows.
+A history may be reused for multiple simulated students, each with fresh RAG memory.
 
-Add the next responsibilities only when they become executable:
+The corpus supplies one to five appointments. Fewer recorded appointments means an
+incomplete programme with unknown reasons, not school dropout or refusal. Extraction
+uses spoken turns, earlier passages and earlier validated findings only. Profiles,
+retrospective CSV outcomes and later conversations are excluded from extraction
+prompts. Findings may describe reported changes but never modify numeric scores or
+create treatment effects.
 
-| Planned responsibility | Suggested location |
-| --- | --- |
-| Mutable monthly student state and support-delivery events | `src/environment/` |
-| Attendance, engagement and withdrawal transitions | `src/environment/` |
-| No-support and rule-based allocation policies | `src/policies/` |
-| Metrics and paired policy comparisons | `src/evaluation/` |
-| Structured dated observations and estimated state | `src/state_estimation/` |
-| Optional note generation/extraction and LLM evaluation | `src/language/` |
+Every validated session is saved before the next generation. Source hashes,
+retrieval passages and validation failures remain auditable. Failed extraction
+preserves earlier reports and makes the CLI exit nonzero. Final JSON contains both
+administrative programme participation and evidence-backed qualitative conclusions.
 
-The LLM layer comes after structured observations and policy baselines work. It may
-extract supported facts from authorized notes, but it must not bypass resource
-checks, directly mutate the simulator or invent intervention effects.
+## Remaining work
+
+Dated state updates, numeric dynamics, simulated withdrawal, learned risk, causal
+intervention effects, policy comparisons and optimized CMDP planning remain planned.
+The current CMDP wrapper coordinates a constrained run and reports participation.

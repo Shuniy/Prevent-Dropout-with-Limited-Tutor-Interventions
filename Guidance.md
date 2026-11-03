@@ -47,23 +47,69 @@ CSV conversion, configuration/ID validation, default mentor construction and
 assignment-feasibility checks live in `src.utils.school` so the model class stays
 focused on monthly simulation state and orchestration.
 
-## Dialogue and problem references
+## Feature-matched intervention simulation
 
-`src.intervention.dialogues.DialogueIndex` reads the canonical synthetic dialogue
-manifest. Use its category, problem, support-type and session queries instead of
-duplicating those labels in simulation code. `School` exposes this catalogue through
-`problem_categories`, `problem_references`, `support_type_references` and
-`problem_reference(problem_id)`.
+`School.run_interventions(root=..., output_dir=..., client=...)` starts a fresh,
+seeded intervention run using `src.intervention.simulation.run_interventions`.
+`School.run_simulation()` keeps the original repeated monthly allocation baseline.
+The new mode excludes a student after their first programme, keeps one mentor and
+plans five appointments **total**, configurable by `sessions_per_student`.
 
-The dialogue problems are samples, not current student attributes. Do not infer or
-randomly assign them to student profiles, and do not interpret dialogue support
-statuses as simulated offers, delivery or effects. A future increment may attach an
-explicitly supplied problem to a student. Until then, the catalogue is available for
-school/student-facing reference and its support types define valid mentor skills.
+`create_profile(student)` creates a separate `StudentInterventionProfile` with the
+source fields, initial scores and ranked hypothetical concerns. Rules and severity
+formulas are versioned as `feature_rules_v1`; see the README's threshold table.
+The highest-priority concern chooses the support type. Keep unknown financial need
+and dropout risk unknown; do not turn proxies into verified need or diagnoses.
+Dataset scores remain fixed when RAG reports qualitative changes.
+
+The simulator selects a seeded history within the matching support folder and
+replays its existing spoken turns. It never rewrites source data or fabricates
+additional appointments to reach the planned dose. Corpus histories have one to five
+recorded appointments; missing appointments have unknown reasons, not school-dropout
+labels. Generated mentors are assumed generalists; custom skills and initially
+supplied mentor assignments remain constraints. Full programme doses are reserved
+at admission, actual recorded appointments are charged afterward, and unused
+reservations become available for later allocation windows. A programme is replayed
+inside one window; duration and weekly state transitions are not modeled.
+
+`School.step` accepts per-student support types, exclusions and preferred mentors.
+`reset()` clears school-owned run state. `record_intervention_attendance` replaces
+a planned assignment with its recorded count and actual cost, releasing unused
+reservations. Do not equate `MentorAssignment.sessions` (planned) with
+`completed_sessions` (recorded). The allocation-only baseline still charges the
+planned dose and leaves completion unknown.
+
+`Intervention(rag, profile, output_dir, allocation_month=1, progress=None)` in
+`src/intervention/intervention.py` owns one assigned programme.
+`start_intervention(student, mentor)` verifies the assigned pair and fresh profile,
+runs initial/follow-up sessions once, persists validated session JSON and returns
+the final student report. The profile must already contain mentor/history IDs and
+the mentor must have the student in its caseload. Do not start the same profile
+again. `simulation.py` keeps feature rules, seeded history selection, school
+attendance/budget reconciliation and final student/cohort persistence. Its
+`write_report` import remains available, with the shared atomic JSON writer now
+implemented in `intervention.py`. The initial session needs no separate LLM call:
+it is the first callback of the chronological RAG pass, with empty prior memory.
+
+`InterventionRAG.analyse(..., on_session=callback)` calls the callback immediately
+after each successful validation. The `Intervention` controller uses it to write `session_NN.json`
+with the source profile, scores, concerns, mentor, spoken turns, findings, hashes,
+retrieval provenance and repair audit. One RAG pass carries prior validated memory
+forward; do not invoke full replay again for each session. Final reports are written
+per student and for the cohort, including incomplete, unassigned and failed cases.
+Use a new/empty output directory so older session files cannot survive a shorter run.
+Extraction failure preserves earlier validated reports and saves no unvalidated
+conclusion. The CLI exits nonzero for failed extraction.
+
+`SchoolCMDPEnvironment.run_interventions()` reports recorded appointments divided
+by the cohort's planned appointments as a participation score, including unassigned
+students in the denominator. It does not optimize a CMDP or estimate treatment benefit.
 
 ## Entry points
 
-- `src/main.py`: run the default 12-month allocation baseline.
+- `src/main.py`: run the default 10-student/2-mentor Ollama intervention simulation.
+- `python src/main.py --allocation-only`: run the language-free monthly baseline.
+- `tests/test_intervention_simulation.py`: matching, participation, resources and reports.
 - `tests/test_school.py`: focused executable checks for the implemented simulation.
 - `notebooks/exploratory_analysis.ipynb`: existing exploratory analysis.
 - `notebooks/dropout_baseline_analysis.ipynb`: existing baseline-analysis work.
@@ -74,7 +120,9 @@ school/student-facing reference and its support types define valid mentor skills
 ## Longitudinal intervention RAG
 
 `src.intervention.rag.load_sessions(root)` loads only spoken Mentor/Student turns
-from session Markdown. Full relative parent paths identify histories; never join
+from session Markdown. Prompts represent each spoken turn as a separate
+speaker/utterance object so quote boundaries stay explicit. Full relative parent
+paths identify histories; never join
 by the repeated student folder name alone. Do not use CSV labels or header support
 types as extraction inputs. `SessionIndex.build(sessions)` atomically replaces
 SQLite FTS5 passages and refreshes the in-memory source catalogue; call it on every
@@ -92,7 +140,11 @@ an existing attended session. Prompt overflow fails explicitly; model context an
 the character budget must be increased together for longer histories.
 
 `OllamaClient.generate(messages, schema)` uses local `/api/chat` structured output
-with the reference notebook's default model, `qwen3.5:latest`. `validate_conclusion`
+with the reference notebook's default model, `qwen3.5:latest`.
+`GENERATION_SCHEMA` asks the model to select prompt-scoped evidence IDs.
+Python resolves IDs to exact single-utterance quotes and original session numbers;
+unknown IDs are rejected. Earlier memory is copied when adding IDs, never mutated.
+`CONCLUSION_SCHEMA` and saved report fields remain unchanged. `validate_conclusion`
 checks the full JSON schema, exact quotes against visible spoken evidence, delivery
 evidence and evidence prerequisites for outcome/helpfulness claims. These checks
 do not establish semantic entailment or causal effectiveness. Keep unresolved
@@ -102,7 +154,8 @@ Invalid generations receive at most two validation repair attempts. Never add
 rejected responses to memory; retain failure messages in the audit timeline and
 raise on exhaustion. Network/service failures propagate without model repair.
 
-The RAG prototype does not update School, risk scores or simulator effects. Use
+The intervention simulator records RAG findings alongside fixed input profiles;
+it does not turn qualitative statements into numeric risk or treatment effects. Use
 `tests/test_intervention_rag.py` for isolation, chronology, replay and provenance
 regressions. `jsonschema` is the only added dependency; retrieval uses standard
 library SQLite FTS5, with no embedding model download.

@@ -1,58 +1,108 @@
 # Current interfaces
 
-This document describes interfaces that exist in the active code. More elaborate
-policy, environment, evaluator and language contracts remain planned.
+## Source records and resources
 
-## Student input
+`load_students(path, num_students)` converts a deterministic CSV prefix to
+`StudentSimulation` records. Blank nullable values remain `None`; the source is
+never modified. `Student` also works when assumed attendance/engagement are absent.
+`School` rejects duplicate student/mentor IDs and invalid resource configurations.
 
-`src.utils.school.load_students(path, num_students)` reads a deterministic prefix
-of the synthetic population CSV and returns `StudentSimulation` records. It converts
-required integer, float, boolean and nullable fields without modifying the source
-file. Duplicate student IDs are rejected when a `School` is created.
+A `Mentor` declares its ID, support skills, active-student limit, monthly availability,
+current student IDs and session cost. Generated mentors are assumed generalists over
+all 13 support types. Explicit mentor skills and existing caseloads are honored.
 
-The supplied synthetic rows inherit source profiles and are not independent
-observations. Blank financial need and observed dropout values remain unknown.
+## Original allocation mode
 
-## Mentor input
+`School.run_simulation()` returns `dict[int, dict[str, str]]`, mapping allocation
+month to student IDs and mentor IDs. Students can be selected again in later months.
+`School.step(month)` returns new `MentorAssignment` records. Optional
+`student_support_types`, `excluded_student_ids` and `preferred_mentor_ids` support
+programme matching without replacing feasibility checks.
 
-A `Mentor` declares:
+A `MentorAssignment` contains student, mentor, support type, month, planned `sessions`,
+`cost_units`, and nullable `completed_sessions`. In allocation-only mode costs apply
+to all scheduled sessions and completion is unknown. `spent_budget` and
+`remaining_budget` expose the episode totals.
 
-- `mentor_id`;
-- supported intervention types;
-- maximum active students;
-- availability and maximum sessions by month;
-- current student IDs;
-- per-session mentoring cost.
+## Intervention mode
 
-Custom mentors may be supplied to `School`. Otherwise helpers create default
-tutoring mentors for every configured month.
+`create_profile(student, planned_sessions=5)` returns a separate
+`StudentInterventionProfile` with the source record, initial numeric scores and
+ranked hypothetical feature-derived concerns. It does not mutate the source model.
+Scores include learning gap, nullable assumed attendance/engagement, explicit support
+priority, and `school_dropout_risk=None`. Severity rules are `feature_rules_v1`.
 
-## School configuration
+`School.run_interventions(root=HISTORIES, output_dir=None, client=None, progress=None)`:
 
-`School(...)` accepts configurable students, mentors, CSV path, number of months,
-budget, per-session mentor cost, sessions per student, students per mentor, support
-type and random seed. Invalid negative resources and duplicate IDs are rejected.
+1. Starts a fresh seeded run and calculates profiles.
+2. Assigns each student at most one mentor/programme, using its primary concern.
+3. Selects one seeded source history within the matching support type.
+4. Creates an `Intervention` controller per assigned student; replays up to
+   `sessions_per_student` attended source appointments, default five total, through
+   the existing chronological RAG.
+5. Immediately writes every validated session, then student and cohort final JSON.
 
-## Simulation result
+An initial caller-supplied mentor is retained when feasible. Whole doses reserve
+capacity/budget at admission. `record_intervention_attendance(assignment, count)`
+sets actual completion/cost and releases unused reservations. The programme stays
+inside its admission month; unused resources are available in later windows.
+Students without matching histories, eligible mentors, capacity or budget receive
+explicit unassigned reports. No second programme is started in later months.
 
-`School.run_simulation()` returns:
+The returned JSON dictionary is also available through `school.intervention_report`;
+`school.intervention_profiles` maps dataset student IDs to profile objects.
+After intervention replay, `school.assignments` includes all assigned programme
+students, while `monthly_assignments` retains their admission windows.
+`reset()` clears school-owned allocations, accounting and intervention run state.
 
-```python
-dict[int, dict[str, str]]  # month -> student_id -> mentor_id
-```
+`Intervention(rag, profile, output_dir, allocation_month=1, progress=None)` organizes
+one programme. `start_intervention(student, mentor)` requires matching profile IDs,
+a selected history, a positive planned dose, an active mentor caseload assignment
+and a fresh profile. It rejects repeated starts. It writes validated session files
+and returns the final student dictionary (without resource accounting).
+The simulator calls `School.record_intervention_attendance`, attaches `assignment`,
+and writes the final student JSON. Thus the public school/cohort report schema is
+unchanged. The empty `first_session` stub is replaced by the first iteration of the
+single chronological RAG pass; later sessions retain its validated memory.
 
-`School.assignment_history` contains detailed `MentorAssignment` records with the
-student, mentor, support type, month, sessions and cost. `spent_budget` and
-`remaining_budget` expose episode-level accounting.
+## Report artifacts
 
-The same student cannot be assigned twice within one month. Students are shuffled
-without replacement each month and may be selected again in later months. Mentor
-skill, monthly caseload, monthly session capacity and remaining episode budget are
-hard constraints.
+A new timestamped output directory is the default; a supplied directory must be
+empty. Sequence-numbered student folders avoid interpreting student IDs as paths.
 
-## Not implemented yet
+- `student_NNNNN/session_NN.json`: student/mentor/history IDs, allocation month,
+  source profile, initial scores, assigned concerns, spoken turns, validated findings,
+  evidence, source hash, retrieved passages and validation repair failures.
+- `student_NNNNN/final_report.json`: profile, assignment, planned/recorded counts,
+  unrecorded appointment numbers, accumulated session reports and final conclusion.
+- `final_report.json`: configuration, seed, rule version, assumptions, assignment
+  records, all student reports, participation counts and budget totals.
 
-The current contracts do not represent support acceptance, cancellation, actual
-delivery, attendance or engagement transitions, simulated withdrawal, re-entry,
-risk scores, policy observations, teacher notes or LLM extraction. Those interfaces
-should be introduced with the corresponding executable stage, not as empty APIs.
+Student statuses are `completed`, `incomplete`, `unassigned` or `report_failed`.
+Completion means the appointment dose was recorded, never barrier resolution.
+School dropout remains unknown. The model sees no retrospective attendance labels
+or future conversations. Profile concerns are simulation assumptions; transcript
+findings are separate reported evidence. No qualitative finding changes numeric
+scores or supplies a treatment-effect estimate.
+
+Extraction errors preserve validated session files, save a failed student report
+with no unvalidated final conclusion, and mark the cohort run failed. The CLI exits
+nonzero. Recorded source attendance and its cost are retained even if extraction
+fails. RAG generation/repair remains bounded by the existing validation contract.
+
+`InterventionRAG.analyse(..., on_session=callback)` invokes the callback exactly once
+per validated session. Prior session generation is not repeated to save the next
+session report. The model returns prompt-scoped evidence IDs using `GENERATION_SCHEMA`. Python
+resolves them to exact source words/session numbers, rejects unknown IDs, and
+validates the unchanged public `CONCLUSION_SCHEMA`. Existing callers without a
+callback keep the same report structure.
+
+`SchoolCMDPEnvironment.run_interventions()` adds `participation_completion_score`,
+recorded appointments divided by cohort-planned appointments, including unassigned
+students. This is an operational participation score, not retention or effectiveness.
+
+## Not implemented
+
+The current interfaces do not implement numeric attendance/engagement transitions,
+withdrawal/re-entry dynamics, learned risk, causal support effects, optimized CMDP
+policies or semantic accuracy guarantees for LLM conclusions.

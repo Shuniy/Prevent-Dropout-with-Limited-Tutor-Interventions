@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 from src.intervention.rag import (
-    HISTORIES, InterventionRAG, Session, SessionIndex, load_sessions, validate_conclusion,
+    HISTORIES, InterventionRAG, Session, SessionIndex, load_sessions, map_evidence, validate_conclusion,
 )
 
 
@@ -23,6 +23,13 @@ def finding(number, quote):
         "uncertainties": ["Delivery unverified"], "conclusion": "No delivery evidence.",
         "evidence": evidence,
     }
+
+
+def generated_finding(context, evidence_id=None):
+    """A model response selects a source ID rather than rewriting its words."""
+    turn = context["current_conversation"][0]
+    result = finding(context["current_session_number"], turn["utterance"])
+    return map_evidence(result, lambda evidence: {"evidence_id": evidence_id or turn["evidence_id"]})
 
 
 class RAGTests(unittest.TestCase):
@@ -84,9 +91,7 @@ class RAGTests(unittest.TestCase):
             def generate(self, messages, schema):
                 context = json.loads(messages[1]["content"])
                 calls.append(context)
-                number = context["current_session_number"]
-                quote = context["current_conversation"].split(": ", 1)[1]
-                return finding(number, quote)
+                return generated_finding(context)
 
         report = InterventionRAG(self.index, Client()).analyse("transport/student_001", 3)
         self.assertEqual(report["as_of_session"], 3)
@@ -98,6 +103,27 @@ class RAGTests(unittest.TestCase):
         # audit report, outside the extraction prompt.
         self.assertNotIn('"source"', json.dumps(calls))
         self.assertEqual(report["timeline"][0]["sha256"], self.sessions[0].digest)
+        self.assertIn("evidence_id", json.dumps(calls[1]["earlier_validated_memory"]))
+        self.assertNotIn("evidence_id", json.dumps(report))
+
+    def test_source_ids_preserve_punctuation_and_single_utterance_boundaries(self):
+        utterance = "For today’s work, check the authorised support office."
+        self.index.build([Session("s", 1, "1.md", (
+            f"Mentor: {utterance}", "Student: I can ask tomorrow."))])
+
+        class Client:
+            model = "test"
+
+            def generate(self, messages, schema):
+                context = json.loads(messages[1]["content"])
+                result = generated_finding(context)
+                result["conclusion"] = f"The barrier remains (evidence {context['current_conversation'][0]['evidence_id']})."
+                return result
+
+        report = InterventionRAG(self.index, Client()).analyse("s")
+        self.assertEqual(report["conclusion"]["evidence"], [{"session_number": 1, "quote": utterance}])
+        self.assertNotIn("Student:", report["conclusion"]["evidence"][0]["quote"])
+        self.assertEqual(report["conclusion"]["conclusion"], "The barrier remains.")
 
     def test_schema_quotes_and_unsupported_helpfulness_are_rejected(self):
         good = finding(1, "I cannot pay bus fares.")
@@ -134,13 +160,14 @@ class RAGTests(unittest.TestCase):
 
             def generate(self, messages, schema):
                 self.calls += 1
-                return finding(1, "invented quote" if self.calls == 1 else "I cannot pay bus fares.")
+                context = json.loads(messages[1]["content"])
+                return generated_finding(context, "e99999" if self.calls == 1 else None)
 
         client = Client()
         report = InterventionRAG(self.index, client).analyse("transport/student_001", 1)
         self.assertEqual(client.calls, 2)
         self.assertEqual(len(report["timeline"][0]["validation_failures"]), 1)
-        self.assertNotIn("invented quote", json.dumps(report["conclusion"]))
+        self.assertNotIn("e99999", json.dumps(report["conclusion"]))
         with self.assertRaisesRegex(ValueError, "after 1 attempts"):
             InterventionRAG(self.index, Client(), validation_retries=0).analyse("transport/student_001", 1)
 

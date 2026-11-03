@@ -1,7 +1,7 @@
 """A small, configurable agent-based mentor allocation simulation."""
 
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Iterable
 
@@ -64,6 +64,7 @@ class MentorAssignment:
     month: int
     sessions: int
     cost_units: float
+    completed_sessions: int | None = None
 
 
 class School:
@@ -128,11 +129,14 @@ class School:
 
         validate_unique_ids(self.students, self.mentors)
         self.assignments = existing_assignments(self.students, self.mentors)
+        self._initial_mentor_assignments = dict(self.assignments)
         self.assignment_history: list[MentorAssignment] = []
         self.monthly_assignments: dict[int, dict[str, str]] = {}
         self.spent_budget = 0.0
         self._school_assigned_student_ids: set[str] = set()
         self._sessions_used: dict[tuple[str, int], int] = {}
+        self.intervention_profiles: dict = {}
+        self.intervention_report: dict | None = None
 
     @property
     def remaining_budget(self) -> float:
@@ -151,6 +155,9 @@ class School:
         month: int,
         *,
         support_type: SupportType | None = None,
+        student_support_types: dict[str, SupportType] | None = None,
+        excluded_student_ids: set[str] | None = None,
+        preferred_mentor_ids: dict[str, str] | None = None,
     ) -> list[MentorAssignment]:
         """Allocate students for one month and return the new assignments."""
 
@@ -174,16 +181,27 @@ class School:
         self._rng.shuffle(students_this_month)
 
         for student in students_this_month:
-            if student.student_id in self.assignments:
+            if student.student_id in self.assignments or (
+                excluded_student_ids is not None
+                and student.student_id in excluded_student_ids
+            ):
                 continue
+
+            requested_support = (
+                student_support_types[student.student_id]
+                if student_support_types is not None else selected_support_type
+            )
 
             eligible_mentors = [
                 mentor
                 for mentor in self.mentors
-                if mentor_can_take(
+                if (not preferred_mentor_ids
+                    or student.student_id not in preferred_mentor_ids
+                    or mentor.mentor_id == preferred_mentor_ids[student.student_id])
+                and mentor_can_take(
                     mentor,
                     student_id=student.student_id,
-                    support_type=selected_support_type,
+                    support_type=requested_support,
                     month=month,
                     required_sessions=required_sessions,
                     sessions_used=self._sessions_used.get(
@@ -213,7 +231,7 @@ class School:
             assignment = MentorAssignment(
                 student_id=student.student_id,
                 mentor_id=mentor.mentor_id,
-                support_type=selected_support_type,
+                support_type=requested_support,
                 month=month,
                 sessions=required_sessions,
                 cost_units=assignment_cost,
@@ -231,18 +249,7 @@ class School:
     ) -> dict[int, dict[str, str]]:
         """Run all configured months and return assignments grouped by month."""
 
-        for mentor in self.mentors:
-            for student_id in list(mentor.current_student_ids):
-                if student_id in self._school_assigned_student_ids:
-                    mentor.release_student(student_id)
-
-        self._school_assigned_student_ids.clear()
-        self.assignments = existing_assignments(self.students, self.mentors)
-        self.assignment_history.clear()
-        self.monthly_assignments.clear()
-        self.spent_budget = 0.0
-        self._sessions_used.clear()
-        self._rng.seed(self.seed)
+        self.reset()
 
         for month in range(1, self.num_months + 1):
             self.step(month, support_type=support_type)
@@ -250,3 +257,55 @@ class School:
             month: dict(assignments)
             for month, assignments in self.monthly_assignments.items()
         }
+
+    def reset(self) -> None:
+        """Reset school-owned allocations and accounting for a fresh run."""
+
+        for mentor in self.mentors:
+            for student_id in list(mentor.current_student_ids):
+                if student_id in self._school_assigned_student_ids:
+                    mentor.release_student(student_id)
+
+        self._school_assigned_student_ids.clear()
+        mentors_by_id = {mentor.mentor_id: mentor for mentor in self.mentors}
+        for student_id, mentor_id in self._initial_mentor_assignments.items():
+            mentor = mentors_by_id[mentor_id]
+            if student_id not in mentor.current_student_ids:
+                mentor.assign_student(student_id)
+        self.assignments = existing_assignments(self.students, self.mentors)
+        self.assignment_history.clear()
+        self.monthly_assignments.clear()
+        self.spent_budget = 0.0
+        self._sessions_used.clear()
+        self._rng.seed(self.seed)
+        self.intervention_profiles.clear()
+        self.intervention_report = None
+
+    def record_intervention_attendance(
+        self, assignment: MentorAssignment, completed_sessions: int,
+    ) -> MentorAssignment:
+        """Charge recorded attendance and release unused programme reservations."""
+        if not 0 <= completed_sessions <= assignment.sessions:
+            raise ValueError("completed sessions must be within the scheduled programme")
+        position = self.assignment_history.index(assignment)
+        if assignment.completed_sessions is not None:
+            raise ValueError("attendance has already been recorded")
+        cost = assignment.cost_units * completed_sessions / assignment.sessions
+        self.spent_budget -= assignment.cost_units - cost
+        key = (assignment.mentor_id, assignment.month)
+        self._sessions_used[key] -= assignment.sessions - completed_sessions
+        recorded = replace(assignment, completed_sessions=completed_sessions, cost_units=cost)
+        self.assignment_history[position] = recorded
+        return recorded
+
+    def run_interventions(self, **kwargs) -> dict:
+        """Run one feature-matched RAG programme per student; save JSON reports.
+
+        See ``src.intervention.simulation.run_interventions`` for output, corpus
+        and client options. Five sessions total is the default programme length.
+        """
+        try:
+            from ..intervention.simulation import run_interventions
+        except ImportError:  # Direct ``python src/main.py`` entry point.
+            from intervention.simulation import run_interventions
+        return run_interventions(self, **kwargs)

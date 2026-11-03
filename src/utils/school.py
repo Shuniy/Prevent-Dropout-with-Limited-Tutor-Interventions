@@ -5,10 +5,10 @@ from pathlib import Path
 from typing import Iterable
 
 try:
-    from ..models.mentor import Mentor, MentorAvailability, SupportType
+    from ..models.mentor import ALL_SUPPORT_TYPES, Mentor, MentorAvailability, SupportType
     from ..models.student import Student, StudentSimulation
 except ImportError:  # Support running ``python src/main.py`` directly.
-    from models.mentor import Mentor, MentorAvailability, SupportType
+    from models.mentor import ALL_SUPPORT_TYPES, Mentor, MentorAvailability, SupportType
     from models.student import Student, StudentSimulation
 
 
@@ -156,13 +156,15 @@ def create_mentors(
     support_type: SupportType,
     cost_units_per_session: float,
 ) -> list[Mentor]:
-    """Create default mentor agents with session capacity for every month."""
+    """Create assumed generalist mentors with capacity for every month."""
 
+    if support_type not in ALL_SUPPORT_TYPES:
+        raise ValueError(f"unknown mentor support type: {support_type}")
     max_sessions = students_per_mentor * sessions_per_student
     return [
         Mentor(
             mentor_id=f"mentor-{index + 1}",
-            support_types=[support_type],
+            support_types=list(ALL_SUPPORT_TYPES),
             max_active_students=students_per_mentor,
             availability_by_step=[
                 MentorAvailability(

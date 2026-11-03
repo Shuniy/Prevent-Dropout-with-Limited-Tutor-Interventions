@@ -1,6 +1,6 @@
 """Plain student models matching the processed and synthetic CSV schemas."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -97,3 +97,23 @@ class StudentSimulation(Student):
     support_sessions_completed: int
     enrolled_initial_assumed: bool
     financial_need_verified: bool | None
+
+
+@dataclass
+class StudentInterventionProfile:
+    """One simulated programme, kept separate from the source CSV record.
+
+    Problems and priority scores are declared scenario rules, not diagnoses or
+    predicted school-dropout risk. Numeric inputs are not changed by LLM findings.
+    """
+
+    student_id: str
+    dataset_profile: dict
+    initial_scores: dict[str, float | None]
+    problems: list[dict]
+    planned_sessions: int
+    mentor_id: str | None = None
+    history_id: str | None = None
+    sessions_completed: int = 0
+    status: str = "unassigned"
+    session_reports: list[dict] = field(default_factory=list)
