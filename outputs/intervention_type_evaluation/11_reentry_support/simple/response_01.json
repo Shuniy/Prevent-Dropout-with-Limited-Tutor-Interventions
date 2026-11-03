@@ -1,0 +1,115 @@
+{
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial session focused on establishing a safe space for the student to discuss school re-entry without sharing private family details. The main barrier identified was uncertainty regarding school procedures and home circumstances affecting attendance.",
+        "primary_concern": "Uncertainty about school procedures and inability to plan ahead due to home situation changes.",
+        "tracked_details": [
+          {
+            "detail": "Agreed next step: Check the first-week timetable with a named school contact.",
+            "status": "pending"
+          },
+          {
+            "detail": "Student preference: Keep private family details out of records/shared information.",
+            "status": "unresolved"
+          }
+        ],
+        "intervention": {
+          "type": "Re-entry Support",
+          "status": "inquiry_planned",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to attempt checking the timetable with a school contact.",
+          "Mentor to verify if external support eligibility has been checked."
+        ],
+        "uncertainties": [
+          "Whether the student can complete the between-session task without private details hindering progress.",
+          "Status of any external support applications (none confirmed)."
+        ],
+        "conclusion": "The session established a plan to check the timetable. No external support was delivered or confirmed. The main barrier (uncertainty) remains unresolved as the student noted the wider barrier has not disappeared. Evidence supports that the mentoring activity occurred, but attendance improvement is unknown."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up session where the student reported partial completion of the previous task (started checking timetable but did not finish). The main concern persisted with fluctuating difficulty depending on the day.",
+        "primary_concern": "Uncertainty and inconsistent ability to manage school tasks due to home circumstances.",
+        "tracked_details": [
+          {
+            "detail": "Previous task: Check timetable with school office.",
+            "status": "completed"
+          },
+          {
+            "detail": "New agreed step: Ask one subject teacher which work should come first.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Re-entry Support",
+          "status": "inquiry_planned",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to ask a subject teacher about prioritizing work.",
+          "Mentor to continue supporting without assuming full resolution."
+        ],
+        "uncertainties": [
+          "Whether the student can complete the new task given schedule constraints.",
+          "Availability of school office or teachers for support requests."
+        ],
+        "conclusion": "The previous task was partially completed but not fully finished. The main barrier (uncertainty) remains unresolved. No external support was delivered. Evidence supports that the mentoring session occurred and provided some clarity, but attendance improvement is unknown."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Follow-up session where the student reported completing the specific step agreed in Session 2 (asking a subject teacher about work priority). The wider barrier remains present on some days.",
+        "primary_concern": "Uncertainty and inconsistent ability to manage school tasks due to home circumstances.",
+        "tracked_details": [
+          {
+            "detail": "Previous task: Ask one subject teacher which work should come first.",
+            "status": "completed"
+          },
+          {
+            "detail": "New agreed step: Rehearse asking for help after an absence in one class.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Re-entry Support",
+          "status": "inquiry_planned",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to rehearse asking for help after an absence in one class.",
+          "Mentor to continue supporting without assuming full resolution."
+        ],
+        "uncertainties": [
+          "Whether the student can complete the new task given schedule constraints.",
+          "Availability of school office or teachers for support requests."
+        ],
+        "conclusion": "The previous task was completed. The main barrier (uncertainty) remains unresolved as the student noted the wider barrier has not disappeared. No external support was delivered. Evidence supports that the mentoring session occurred and provided some clarity, but attendance improvement is unknown."
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "session_summary": "Follow-up session focused on reviewing a partially completed between-session task, practicing a specific language activity in-session, and clarifying that external support remains pending. The student reported uneven progress with the main barrier persisting.",
+  "primary_concern": "Struggle with writing complete sentences, linking words, and uncertainty regarding when to use formal language.",
+  "tracked_details": [
+    {
+      "detail": "Review of between-session task (writing down two instruction words).",
+      "status": "completed"
+    },
+    {
+      "detail": "External support eligibility check/service availability.",
+      "status": "pending"
+    },
+    {
+      "detail": "Agreed between-session task: Write down two instruction words that appear in class.",
+      "status": "completed"
+    }
+  ],
+  "intervention": {
+    "type": "Language Support",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "unknown"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Student to attempt the two-sentence frame in one lesson.",
+    "Mentor and student to identify a specific school contact to verify eligibility or confirm support availability."
+  ],
+  "uncertainties": [
+    "Whether external support services are available or approved.",
+    "Exact dates of recent incidents affecting attendance or work completion.",
+    "Whether the agreed between-session task will be completed given time constraints."
+  ],
+  "conclusion": "The follow-up session reviewed a partially completed task and delivered a language practice activity in-session. The student reported uneven progress, indicating the main barrier (writing/formal language) remains unresolved. External support delivery remains unverified and pending. Evidence supports that the session was helpful for clarifying steps, but does not establish causal effectiveness of the intervention on the main barrier or attendance."
+}

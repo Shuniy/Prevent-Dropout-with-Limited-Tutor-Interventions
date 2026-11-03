@@ -1,0 +1,147 @@
+{
+  "history_id": "12_school_meals/intervention_student_003",
+  "as_of_session": 3,
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial session focused on identifying uncertainty regarding school meal options as the main barrier. The student expressed a need for practical steps rather than judgmental support.",
+        "primary_concern": "Uncertainty about available food options at school and inability to plan ahead due to lack of information.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Note which days lunch access is difficult.",
+            "status": "pending"
+          },
+          {
+            "detail": "External support request: Check school policy/catering staff about choices.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "School Meals",
+          "status": "not_discussed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to note difficult days; Mentor to verify if external inquiry is needed before next session."
+        ],
+        "uncertainties": [
+          "Whether the student can complete the logging task alone.",
+          "Exact dates of missed meals remain uncertain."
+        ],
+        "conclusion": "The session established the main barrier (uncertainty about food options) and a small step (logging difficulties). No external support was delivered. The agreed task remains pending."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up session where the student reported partial completion of the logging task but struggled with scheduling. The main barrier (uncertainty) persisted.",
+        "primary_concern": "Continued uncertainty affecting some school days; difficulty completing the agreed logging step due to schedule constraints.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Note which days lunch access is difficult.",
+            "status": "completed"
+          },
+          {
+            "detail": "External support request: Ask catering staff about choices.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "School Meals",
+          "status": "not_discussed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to ask catering staff about access procedure; Mentor to support if stuck."
+        ],
+        "uncertainties": [
+          "Whether the student can successfully contact catering staff without help.",
+          "Confirmation of specific meal options remains pending."
+        ],
+        "conclusion": "The logging task was attempted but not fully finished. The main barrier remains unresolved. No external support regarding meals has been delivered or confirmed."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Third follow-up session where the student reported uneven progress (one day better, one worse). The agreed task of asking catering staff was not completed. A new step to check office requirements was proposed.",
+        "primary_concern": "Uneven progress; uncertainty persists; inability to confirm meal options or access procedures.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Ask catering staff about correct access procedure.",
+            "status": "completed"
+          },
+          {
+            "detail": "External support request: Check office for required documents/steps.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "School Meals",
+          "status": "not_discussed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to check office for required documents; Mentor to wait for record."
+        ],
+        "uncertainties": [
+          "Whether the student can complete the office check before school ends.",
+          "Confirmation of meal options remains pending."
+        ],
+        "conclusion": "The session highlighted that while small steps (logging, asking staff) are attempted, they are often incomplete due to scheduling or uncertainty. The main barrier (uncertainty about food access) remains unresolved. No external support has been delivered."
+      }
+    }
+  ],
+  "conclusion": {
+    "session_summary": "Third follow-up session where the student reported uneven progress (one day better, one worse). The agreed task of asking catering staff was not completed. A new step to check office requirements was proposed.",
+    "primary_concern": "Uneven progress; uncertainty persists; inability to confirm meal options or access procedures.",
+    "tracked_details": [
+      {
+        "detail": "Agreed between-session task: Ask catering staff about correct access procedure.",
+        "status": "completed"
+      },
+      {
+        "detail": "External support request: Check office for required documents/steps.",
+        "status": "pending"
+      }
+    ],
+    "intervention": {
+      "type": "School Meals",
+      "status": "not_discussed",
+      "service_delivered": null
+    },
+    "outcome": {
+      "primary_barrier_resolved": "no",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "unknown"
+    },
+    "session_helpful": "yes",
+    "next_steps": [
+      "Student to check office for required documents; Mentor to wait for record."
+    ],
+    "uncertainties": [
+      "Whether the student can complete the office check before school ends.",
+      "Confirmation of meal options remains pending."
+    ],
+    "conclusion": "The session highlighted that while small steps (logging, asking staff) are attempted, they are often incomplete due to scheduling or uncertainty. The main barrier (uncertainty about food access) remains unresolved. No external support has been delivered."
+  }
+}

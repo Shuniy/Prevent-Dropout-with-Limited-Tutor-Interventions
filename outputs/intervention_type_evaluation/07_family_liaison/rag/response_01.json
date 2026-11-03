@@ -1,0 +1,39 @@
+{
+  "session_summary": "Initial Family Liaison session focused on clarifying communication barriers and establishing a cautious next step.",
+  "primary_concern": "Late or hard-to-understand notices affecting school attendance/participation; uncertainty about contact formats.",
+  "tracked_details": [
+    {
+      "detail": "Student reported missing a meeting date due to paper letter issues.",
+      "status": "reported"
+    },
+    {
+      "detail": "Uncertainty regarding alternative contact formats (e.g., voicemail vs. phone log).",
+      "status": "pending"
+    },
+    {
+      "detail": "Agreed between-session task: Ask guardian which contact time works best.",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Family Liaison",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "unknown"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Student to ask guardian about preferred contact times.",
+    "Check school office availability for alternative contact formats."
+  ],
+  "uncertainties": [
+    "Whether alternative contact formats exist.",
+    "Availability of the school office for follow-up.",
+    "Actual receipt of any external support services (none confirmed)."
+  ],
+  "conclusion": "This initial session established a supportive environment where the student felt heard but did not receive external service delivery. The main barrier (communication uncertainty) remains unresolved as no alternative contact format was confirmed. An agreed action (asking guardian about timing) is pending. Evidence supports that the session itself was helpful in clarifying steps, but it does not establish improvement in the school barrier or attendance."
+}

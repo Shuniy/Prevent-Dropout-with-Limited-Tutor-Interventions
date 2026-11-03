@@ -1,0 +1,35 @@
+{
+  "session_summary": "Initial Re-entry Support session focused on establishing a manageable first step (checking timetable) while respecting student privacy regarding family details. No external support delivered.",
+  "primary_concern": "Uncertainty about school procedures and managing work after absence; desire for practical, non-judgmental help without sharing private home details.",
+  "tracked_details": [
+    {
+      "detail": "Agreed between-session task: Student to check the timetable with the school office on a manageable day.",
+      "status": "pending"
+    },
+    {
+      "detail": "Student preference for small, adjustable steps rather than comprehensive solutions immediately.",
+      "status": "reported"
+    }
+  ],
+  "intervention": {
+    "type": "Re-entry Support",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "yes"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Student to attempt checking the timetable with school office.",
+    "Mentor to review student's report on whether the step was completed and any barriers encountered."
+  ],
+  "uncertainties": [
+    "Whether external support eligibility has been checked or confirmed.",
+    "Exact dates of absence (student reports uncertainty).",
+    "Whether the agreed between-session task will be completed."
+  ],
+  "conclusion": "The session established a clear, small-scale action plan (checking timetable) which the student found helpful. The main barrier (uncertainty and need for practical help) remains partially unresolved as external support eligibility is unconfirmed and family details are withheld. No external service was delivered; only the mentoring activity occurred. Improvement in attendance or work completion cannot be assessed yet as this is the initial session."
+}

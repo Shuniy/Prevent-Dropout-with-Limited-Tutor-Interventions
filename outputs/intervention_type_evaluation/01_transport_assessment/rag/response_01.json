@@ -1,0 +1,48 @@
+{
+  "session_summary": "Initial session focused on establishing a safe, practical framework for addressing transport anxiety. The mentor and student identified the main barrier as uncertainty regarding an approved alternative route and anxiety about a specific crossing. A between-session task was agreed upon (recording journey times), but no external support (e.g., formal transport assessment or route verification) has been delivered yet.",
+  "primary_concern": "Transport safety and route uncertainty",
+  "tracked_details": [
+    {
+      "detail": "Main barrier: Uncertainty about whether an approved alternative route exists; anxiety regarding a specific crossing point.",
+      "status": "unresolved"
+    },
+    {
+      "detail": "Intended intervention: Transport Assessment to identify safer routes or entitlements.",
+      "status": "pending"
+    },
+    {
+      "detail": "Delivered activity: Mapping the usual route and identifying difficult points (connection) during the session.",
+      "status": "completed"
+    },
+    {
+      "detail": "Agreed between-session task: Record two actual journey times before the next meeting.",
+      "status": "pending"
+    },
+    {
+      "detail": "Student preference: School-based next steps rather than home-based solutions; avoiding sharing private family details in records.",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Transport Assessment",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "unknown"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Verify status of transport entitlement or alternative route approval.",
+    "Student to attempt recording journey times as agreed.",
+    "Review recorded data and adjust plan (school-based step) in next session."
+  ],
+  "uncertainties": [
+    "Whether an approved alternative route exists.",
+    "Availability of external support services.",
+    "Exact dates for service availability."
+  ],
+  "conclusion": "The initial session successfully established a collaborative, non-judgmental approach. While the mentor and student mapped the current route difficulties during the meeting (delivered activity), the primary intended intervention (formal Transport Assessment/Route Verification) remains pending with no evidence of receipt. The main barrier (uncertainty about the route) persists. The agreed between-session task (recording journey times) is pending. Evidence does not support improvement in the main barrier or attendance yet, as this is the first session."
+}

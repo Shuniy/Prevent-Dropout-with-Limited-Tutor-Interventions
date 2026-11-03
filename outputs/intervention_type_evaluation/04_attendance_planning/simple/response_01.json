@@ -1,0 +1,109 @@
+{
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial session focused on establishing boundaries regarding home privacy and identifying the specific school barrier: arriving late due to incorrect classroom locations caused by timetable discrepancies.",
+        "primary_concern": "Uncertainty about room changes and displayed timetables leading to lateness and missed instruction.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Attendance Planning",
+          "status": "not_discussed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Compare recollection with attendance office record (pending)"
+        ],
+        "uncertainties": [
+          "Who updates the displayed timetable",
+          "Exact dates of absences vs. memory"
+        ],
+        "conclusion": "The session established a practical focus on school-based steps while respecting student privacy. An activity was attempted (comparing recollection with records), but no external support was delivered. The main barrier regarding timetable uncertainty remains unresolved, and the agreed task to compare records is pending."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up session where the student reported completing the specific step of comparing recollection with the attendance office record. The wider barrier persists.",
+        "primary_concern": "The uncertainty regarding timetables and planning remains; home duties still cause delays.",
+        "tracked_details": [
+          {
+            "detail": "Comparison of recollection with attendance office record",
+            "status": "completed"
+          },
+          {
+            "detail": "Agreed between-session task (morning adjustment)",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Attendance Planning",
+          "status": "not_discussed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "partial",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Try morning adjustment on two school days (pending)"
+        ],
+        "uncertainties": [
+          "Who updates the displayed timetable",
+          "Whether home duties can be managed to prevent delays"
+        ],
+        "conclusion": "The student completed the specific task of checking records, reporting that while this step was done, the wider difficulty persists. The barrier has not disappeared. A new agreed action (morning adjustment) is pending. No external support was delivered."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Follow-up session where the student reported starting but not finishing the morning adjustment task due to schedule constraints. A new activity (drafting a message for disruption) was practiced in-session.",
+        "primary_concern": "Uncertainty and planning difficulties persist; home duties continue to interfere with the agreed steps.",
+        "tracked_details": [
+          {
+            "detail": "Morning adjustment on two school days",
+            "status": "unresolved"
+          },
+          {
+            "detail": "Drafting a message for disruption",
+            "status": "completed"
+          }
+        ],
+        "intervention": {
+          "type": "Attendance Planning",
+          "status": "not_discussed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "partial",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Confirm correct contact and practice using it (pending)"
+        ],
+        "uncertainties": [
+          "Who updates the displayed timetable",
+          "Availability of school office for confirmation",
+          "Ability to repeat steps alone"
+        ],
+        "conclusion": "The student attempted the morning adjustment but did not complete the full step, citing schedule constraints. The main barrier remains unresolved. An in-session activity (drafting a message) was completed, providing direct support delivery within the session, though external support remains undelivered. The intervention is ongoing with pending actions."
+      }
+    }
+  ]
+}

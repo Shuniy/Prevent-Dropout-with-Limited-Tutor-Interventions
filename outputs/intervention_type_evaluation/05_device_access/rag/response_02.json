@@ -1,0 +1,43 @@
+{
+  "session_summary": "Follow-up session focused on reviewing a failed between-session task (checking computer room availability) and delivering an in-session activity testing low-bandwidth/paper-based alternatives. The student reported uneven progress, citing home/school timing constraints as barriers to the previous plan. A new small step was agreed: checking for offline assignment options.",
+  "primary_concern": "Reliable device access for homework due to shared household resources and lack of confirmed school support eligibility.",
+  "tracked_details": [
+    {
+      "detail": "Between-session task: Check school computer room availability or a smaller version of the step.",
+      "status": "completed"
+    },
+    {
+      "detail": "External support inquiry: Checking school device-loan rules and eligibility.",
+      "status": "pending"
+    },
+    {
+      "detail": "Agreed activity: Testing low-bandwidth or paper-based version of one task in-session.",
+      "status": "completed"
+    },
+    {
+      "detail": "Between-session task: Ask whether the next assignment has an offline option.",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Device Access",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "yes"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Ask whether the next assignment has an offline option.",
+    "Check school device-loan rules and eligibility."
+  ],
+  "uncertainties": [
+    "School device-loan eligibility status.",
+    "Whether the student can access the computer room independently or needs teacher assistance.",
+    "Whether the student can repeat the low-bandwidth/paper-based step alone outside of session."
+  ],
+  "conclusion": "The intended external support (device loan) remains pending with no evidence of delivery. The previous between-session task was not completed due to timing constraints, but a new in-session activity was delivered and found useful by the student. The main barrier of reliable device access remains unresolved. Pending actions include checking school policies and attempting a smaller offline-option step."
+}

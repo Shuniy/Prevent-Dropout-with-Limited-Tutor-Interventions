@@ -1,4 +1,4 @@
-"""Read spoken transcript turns, excluding headers and labels."""
+"""Read spoken turns and allowlisted descriptive session headers."""
 
 from pathlib import Path
 import re
@@ -58,9 +58,17 @@ def load_sessions(root: Path = HISTORIES) -> list[Session]:
         )
         if not turns:
             raise ValueError(f"No spoken turns found in {path}")
+        # Read only descriptive headers before the conversation, never outcome notes.
+        header = text.split("##", 1)[0]
+        metadata = {}
+        for label, key in (("Intervention type", "intervention_type"),
+                           ("Date", "date"), ("Stage", "stage")):
+            value = re.search(rf"^\*\*{label}:\*\*[ \t]*([^\n]+)", header, re.MULTILINE)
+            if value:
+                metadata[key] = value.group(1).strip()
         sessions.append(Session(
             path.parent.relative_to(root).as_posix(), int(match[1]),
-            turns,
+            turns, **metadata,
         ))
     if not sessions:
         raise ValueError(f"No session transcripts found in {root}")

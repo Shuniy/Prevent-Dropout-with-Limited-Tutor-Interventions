@@ -1,0 +1,40 @@
+{
+  "session_summary": "Follow-up wellbeing check-in where the student reported failure to complete the previous between-session task due to home/school timing conflicts. A new, smaller grounding/pause routine was practiced in-session and agreed as a realistic next step. The student clarified that participation does not equal external support delivery or problem resolution.",
+  "primary_concern": "Uncertainty about whether the lack of interest/engagement is temporary; difficulty planning due to unclear circumstances; failure to complete previous monitoring task.",
+  "tracked_details": [
+    {
+      "detail": "Agreed between-session task from Session 1: Notice one manageable and one difficult moment.",
+      "status": "completed"
+    },
+    {
+      "detail": "New agreed between-session task: Try a brief grounding/pause routine during one stressful school moment.",
+      "status": "pending"
+    },
+    {
+      "detail": "Student request to keep private family details out of summaries and avoid assuming the problem is resolved.",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Wellbeing Check-in",
+    "status": "completed",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "yes"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Student to attempt the agreed pause routine during one stressful school moment.",
+    "Clarify which parts of the support plan are confirmed versus proposed.",
+    "Monitor if student gets stuck and requires teacher assistance for procedures."
+  ],
+  "uncertainties": [
+    "Whether the lack of interest in activities is temporary or persistent.",
+    "Confirmation status of external school records or eligibility checks (student indicates none known).",
+    "Causal link between delivered check-in support and any future improvement in attendance or engagement."
+  ],
+  "conclusion": "The wellbeing check-in was delivered as a supportive conversation, establishing rapport and identifying a practical monitoring task. The student found the session helpful for clarifying options but explicitly noted that external support has not been automatically delivered. Uncertainty regarding the nature of the problem remains unresolved, and no evidence yet supports improvement in attendance or engagement."
+}

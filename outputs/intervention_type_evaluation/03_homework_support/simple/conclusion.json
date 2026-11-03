@@ -1,0 +1,151 @@
+{
+  "history_id": "03_homework_support/intervention_student_003",
+  "as_of_session": 3,
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial session focused on establishing a practical plan for homework management. The student identified uncertainty about teacher acceptance of late work and difficulty prioritizing multiple tasks as the main barrier.",
+        "primary_concern": "Uncertainty regarding which teachers accept late submissions and inability to prioritize tasks when deadlines overlap.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Check two deadlines and bring confirmed dates.",
+            "status": "pending"
+          },
+          {
+            "detail": "External support request: Verification of school policy or service eligibility.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Homework Support",
+          "status": "inquiry_planned",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to check two deadlines and bring confirmed dates.",
+          "Mentor to verify if external support eligibility can be checked."
+        ],
+        "uncertainties": [
+          "Whether a specific external service is available or approved.",
+          "Which teachers accept late submissions."
+        ],
+        "conclusion": "The session established a plan to organize deadlines. No external support was delivered; only the mentoring activity occurred. The main barrier (uncertainty about submission rules) remains unresolved pending school verification."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up session where the student reported failure to complete the agreed between-session task due to home/school timing difficulties. A new in-session activity was practiced.",
+        "primary_concern": "Inability to complete the previous plan due to external circumstances; uncertainty remains about school processes.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Check two deadlines and bring confirmed dates.",
+            "status": "unresolved"
+          },
+          {
+            "detail": "New agreed step: Break the most urgent task into three small steps (practiced in session).",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Homework Support",
+          "status": "inquiry_planned",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to attempt the first two steps of breaking down tasks at agreed times.",
+          "Mentor to continue checking options for external support."
+        ],
+        "uncertainties": [
+          "Whether the previous task was completed (student reported no).",
+          "Availability of external services."
+        ],
+        "conclusion": "The student did not complete the previous between-session task. A new activity (breaking tasks into steps) was practiced in session but its effectiveness outside the room is unverified. External support remains pending."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Follow-up session where the student reported completing the specific step agreed in the previous session (breaking tasks into steps) and noting what happened. A new activity regarding asking for clarification was practiced.",
+        "primary_concern": "The wider school problem persists despite completing a specific small step; uncertainty about external support remains.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Attempt the first two steps of breaking down tasks.",
+            "status": "completed"
+          },
+          {
+            "detail": "New agreed step: Ask one teacher for clarification and note the reply.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Homework Support",
+          "status": "inquiry_planned",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to ask one teacher for clarification and note the reply.",
+          "Mentor to continue verifying external support eligibility."
+        ],
+        "uncertainties": [
+          "Whether the wider school problem is solvable with current interventions.",
+          "Availability of external services."
+        ],
+        "conclusion": "The student completed a specific homework management step but noted that the wider barrier remains. External support has not been delivered or confirmed. The intervention continues to focus on small, manageable steps while external verification is pending."
+      }
+    }
+  ],
+  "conclusion": {
+    "session_summary": "Follow-up session where the student reported completing the specific step agreed in the previous session (breaking tasks into steps) and noting what happened. A new activity regarding asking for clarification was practiced.",
+    "primary_concern": "The wider school problem persists despite completing a specific small step; uncertainty about external support remains.",
+    "tracked_details": [
+      {
+        "detail": "Agreed between-session task: Attempt the first two steps of breaking down tasks.",
+        "status": "completed"
+      },
+      {
+        "detail": "New agreed step: Ask one teacher for clarification and note the reply.",
+        "status": "pending"
+      }
+    ],
+    "intervention": {
+      "type": "Homework Support",
+      "status": "inquiry_planned",
+      "service_delivered": null
+    },
+    "outcome": {
+      "primary_barrier_resolved": "no",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "unknown"
+    },
+    "session_helpful": "yes",
+    "next_steps": [
+      "Student to ask one teacher for clarification and note the reply.",
+      "Mentor to continue verifying external support eligibility."
+    ],
+    "uncertainties": [
+      "Whether the wider school problem is solvable with current interventions.",
+      "Availability of external services."
+    ],
+    "conclusion": "The student completed a specific homework management step but noted that the wider barrier remains. External support has not been delivered or confirmed. The intervention continues to focus on small, manageable steps while external verification is pending."
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "session_summary": "Initial mentoring session focused on establishing a practical plan to address writing difficulties without relying on unconfirmed external support.",
+  "primary_concern": "Difficulty completing written paragraphs due to running out of time and getting muddled when rewriting; uncertainty about external support availability.",
+  "tracked_details": [
+    {
+      "detail": "Main barrier identified as time management during writing tasks and uncertainty regarding external service delivery.",
+      "status": "unresolved"
+    },
+    {
+      "detail": "Intended intervention: Tutoring support to build one clear paragraph through slowed-down practice.",
+      "status": "planned"
+    },
+    {
+      "detail": "Agreed between-session task: Try two similar examples and mark where stuck, provided it fits the student's schedule.",
+      "status": "pending"
+    },
+    {
+      "detail": "External support request: Student indicated need for another option if delays continue; no external service confirmed as delivered or approved.",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Tutoring",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "unknown"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Student to attempt two similar examples between sessions.",
+    "Mentor to verify external support availability if delays persist."
+  ],
+  "uncertainties": [
+    "Exact dates of the incident affecting the day are uncertain.",
+    "Whether external support will be available or approved remains unknown.",
+    "Student's ability to complete the between-session task alone is uncertain."
+  ],
+  "conclusion": "The initial session established a practical tutoring approach and agreed on a small-scale between-session task. While the mentoring activity itself was useful for clarifying steps, no external support has been delivered yet, and the main barrier of time management during writing remains unresolved pending further attempts and potential external assistance."
+}

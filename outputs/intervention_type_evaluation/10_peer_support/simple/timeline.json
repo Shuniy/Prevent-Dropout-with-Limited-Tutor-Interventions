@@ -1,0 +1,114 @@
+[
+  {
+    "session_number": 1,
+    "findings": {
+      "session_summary": "Initial session focused on establishing a practical plan for social connection amidst timetable uncertainty. The student requested support that was not judgmental and preferred school-based steps.",
+      "primary_concern": "Social isolation due to friend moving classes and timetable uncertainty; difficulty planning ahead.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task: Notice one setting where the student feels included.",
+          "status": "pending"
+        },
+        {
+          "detail": "Request for external support or specific school-based intervention (e.g., pastoral lead contact).",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Peer Support",
+        "status": "completed",
+        "service_delivered": null
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to notice one inclusive setting.",
+        "Clarify external support eligibility/delivery."
+      ],
+      "uncertainties": [
+        "Permanence of timetable change.",
+        "Whether external support will be delivered."
+      ],
+      "conclusion": "The session established a clear, small-scale task (noticing an inclusive setting) but did not deliver external support. The main barrier (social isolation/uncertainty) remains unresolved as the student noted the wider barrier had not disappeared after the activity. Evidence supports that the mentoring meeting occurred and was helpful for clarifying steps, but no external service was delivered."
+    }
+  },
+  {
+    "session_number": 2,
+    "findings": {
+      "session_summary": "Follow-up session reviewed progress on the agreed task. The student reported completing the specific step of noticing an inclusive setting but noted the wider school problem persisted unevenly.",
+      "primary_concern": "Uneven progress; difficulty persists on some days despite completing the small step.",
+      "tracked_details": [
+        {
+          "detail": "Completion of between-session task: Noticing one inclusive setting.",
+          "status": "completed"
+        },
+        {
+          "detail": "Agreed next step: Rehearse a low-pressure introduction or group-work request.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Peer Support",
+        "status": "completed",
+        "service_delivered": null
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Try a smaller version of group interaction.",
+        "Reschedule if planned time unavailable."
+      ],
+      "uncertainties": [
+        "Whether the wider school problem is fully solved.",
+        "Availability of external support options."
+      ],
+      "conclusion": "The student successfully completed the agreed task from Session 1, reporting it helped with planning but did not solve the wider barrier. The intervention remains helpful for structuring steps, but the main barrier (school difficulty) persists unevenly. No external support was delivered; only mentoring activities occurred."
+    }
+  },
+  {
+    "session_number": 3,
+    "findings": {
+      "session_summary": "Final follow-up session reviewed the rehearsed introduction/group-work request. The student reported completing this step but emphasized that the wider problem remains unsolved and requires a plan for difficult days.",
+      "primary_concern": "Uncertainty about repeating steps alone; need for a robust plan when things are difficult.",
+      "tracked_details": [
+        {
+          "detail": "Completion of between-session task: Rehearse/try low-pressure group interaction.",
+          "status": "completed"
+        },
+        {
+          "detail": "Agreed next step: Check how to contact the school pastoral lead.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Peer Support",
+        "status": "completed",
+        "service_delivered": null
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Contact school pastoral lead.",
+        "Develop backup plan for difficult days."
+      ],
+      "uncertainties": [
+        "Exact dates of difficulties.",
+        "Availability of external services (pastoral lead).",
+        "Whether the timetable change is permanent."
+      ],
+      "conclusion": "The student completed the agreed task of trying a small group interaction. While this step was successful, the main barrier remains unresolved as the student explicitly stated the wider problem is not automatically solved. The intervention has been consistently helpful for clarifying steps and managing expectations, but no external support has been delivered. Uncertainty regarding service availability and specific dates persists."
+    }
+  }
+]

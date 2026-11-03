@@ -5,8 +5,9 @@ import json
 from pathlib import Path
 from typing import Callable
 
-from .findings import FINDINGS_SCHEMA, SYSTEM_PROMPT, validate_findings
+from .findings import FINDINGS_SCHEMA, validate_findings
 from .ollama_client import OllamaClient
+from .prompts import DEFAULT_QUESTION, RAG_SYSTEM_PROMPT
 from .reports import write_report
 from .session_index import SessionIndex
 from .transcripts import load_sessions, spoken_turns
@@ -21,7 +22,7 @@ class InterventionRAG:
         self.max_prompt_chars = max_prompt_chars
 
     def analyse(self, history_id: str, through_session: int | None = None,
-                question: str = "What changed, which actions remain pending, and what is the intervention outcome?",
+                question: str = DEFAULT_QUESTION,
                 *, on_session: Callable[[dict], None] | None = None) -> dict:
         history = self.index.history(history_id, through_session)
         timeline = []
@@ -31,6 +32,7 @@ class InterventionRAG:
             context = {
                 "question": question,
                 "current_session_number": current.number,
+                "current_session_metadata": current.metadata,
                 "earlier_validated_memory": timeline,
                 "retrieved_prior_passages": [
                     {"session_number": passage.session_number, "text": passage.text}
@@ -39,7 +41,7 @@ class InterventionRAG:
                 "current_conversation": spoken_turns(current.turns),
             }
             messages = [
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": RAG_SYSTEM_PROMPT},
                 {"role": "user", "content": json.dumps(context, ensure_ascii=False)},
             ]
             if len(json.dumps(messages)) + len(json.dumps(FINDINGS_SCHEMA)) > self.max_prompt_chars:
@@ -62,7 +64,7 @@ def main() -> None:
     parser.add_argument("history_id", help="Full relative history folder")
     parser.add_argument("--root", type=Path, default=HISTORIES)
     parser.add_argument("--through-session", type=int)
-    parser.add_argument("--question", default="What changed, which actions remain pending, and what is the intervention outcome?")
+    parser.add_argument("--question", default=DEFAULT_QUESTION)
     parser.add_argument("--model", default="qwen3.5:latest")
     parser.add_argument("--output", type=Path, default=RAG_RESULTS / "conclusion.json")
     args = parser.parse_args()

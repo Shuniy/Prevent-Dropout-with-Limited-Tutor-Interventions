@@ -1,0 +1,132 @@
+[
+  {
+    "session_number": 1,
+    "findings": {
+      "session_summary": "Initial mentoring session focused on establishing a practical plan to address writing difficulties without relying on unconfirmed external support.",
+      "primary_concern": "Difficulty completing written paragraphs due to running out of time and getting muddled when rewriting; uncertainty about external support availability.",
+      "tracked_details": [
+        {
+          "detail": "Main barrier identified as time management during writing tasks and uncertainty regarding external service delivery.",
+          "status": "unresolved"
+        },
+        {
+          "detail": "Intended intervention: Tutoring support to build one clear paragraph through slowed-down practice.",
+          "status": "planned"
+        },
+        {
+          "detail": "Agreed between-session task: Try two similar examples and mark where stuck, provided it fits the student's schedule.",
+          "status": "pending"
+        },
+        {
+          "detail": "External support request: Student indicated need for another option if delays continue; no external service confirmed as delivered or approved.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Tutoring",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt two similar examples between sessions.",
+        "Mentor to verify external support availability if delays persist."
+      ],
+      "uncertainties": [
+        "Exact dates of the incident affecting the day are uncertain.",
+        "Whether external support will be available or approved remains unknown.",
+        "Student's ability to complete the between-session task alone is uncertain."
+      ],
+      "conclusion": "The initial session established a practical tutoring approach and agreed on a small-scale between-session task. While the mentoring activity itself was useful for clarifying steps, no external support has been delivered yet, and the main barrier of time management during writing remains unresolved pending further attempts and potential external assistance."
+    }
+  },
+  {
+    "session_number": 2,
+    "findings": {
+      "session_summary": "Follow-up session focused on reviewing the previous between-session task, which was not fully completed due to scheduling constraints. The mentor and student practiced a specific tutoring step in-session. The student clarified that external support remains pending and has not been delivered. The main barrier of time management during writing persists.",
+      "primary_concern": "Difficulty completing written paragraphs due to running out of time; uncertainty regarding the availability or delivery of external support.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task (try two similar examples and mark where stuck) from Session 1.",
+          "status": "unresolved"
+        },
+        {
+          "detail": "Intended intervention: Tutoring support to build one clear paragraph through slowed-down practice.",
+          "status": "planned"
+        },
+        {
+          "detail": "External support request: Student indicated need for another option if delays continue; no external service confirmed as delivered or approved.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Tutoring",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt writing one worked example in own words between sessions.",
+        "Mentor to verify external support availability if delays persist."
+      ],
+      "uncertainties": [
+        "Exact dates of the incident affecting the day are uncertain.",
+        "Whether external support will be available or approved remains unknown.",
+        "Student's ability to complete the between-session task alone is uncertain."
+      ],
+      "conclusion": "The follow-up session reviewed the previous plan, which was not fully completed. A tutoring activity was practiced in-session, establishing direct support delivery for that specific step. However, the intended external support remains pending and undelivered. The main barrier of time management during writing tasks remains unresolved. Evidence supports that the mentoring session itself was helpful for clarifying steps, but it does not establish that the external support was delivered or that the primary barrier has improved."
+    }
+  },
+  {
+    "session_number": 3,
+    "findings": {
+      "session_summary": "Session 3 reviewed the completion status of the between-session task from Session 2, which was partially attempted but not finished due to scheduling constraints. A new tutoring activity (practicing a problem with different numbers) was completed in-session. The student clarified that while the immediate activity was useful, the wider barrier regarding time management and uncertainty remains unresolved. External support remains pending.",
+      "primary_concern": "Difficulty completing written paragraphs due to running out of time and getting muddled when rewriting; uncertainty about external support availability.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task (bring one attempt from class for review) from Session 2.",
+          "status": "unresolved"
+        },
+        {
+          "detail": "Intended intervention: Tutoring support to build one clear paragraph through slowed-down practice.",
+          "status": "completed"
+        },
+        {
+          "detail": "External support request: Student indicated need for another option if delays continue; no external service confirmed as delivered or approved.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Tutoring",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to bring one attempt from class for review between sessions.",
+        "Mentor to verify external support availability if delays persist."
+      ],
+      "uncertainties": [
+        "Exact dates of the incident affecting the day are uncertain.",
+        "Whether external support will be available or approved remains unknown.",
+        "Student's ability to complete the between-session task alone is uncertain."
+      ],
+      "conclusion": "The current session established that a specific tutoring activity was delivered in-session, distinguishing this from the pending external support which has not been received. The agreed between-session task from the previous session remains unresolved due to time constraints. While the student found the in-session practice useful for clarifying options, the main barrier of time management during writing tasks persists. Evidence supports that the mentoring session was helpful but does not establish that the primary barrier has improved or that external support has been delivered."
+    }
+  }
+]

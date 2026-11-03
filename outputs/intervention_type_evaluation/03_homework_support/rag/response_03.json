@@ -1,0 +1,35 @@
+{
+  "session_summary": "Session 3 delivered an in-session activity rehearsing how to ask a teacher for clarification on instructions. The student explicitly distinguished between this completed practice and the delivery of external support, noting that uncertainty about teacher acceptance policies remains unresolved. A new between-session task was agreed: to attempt asking one teacher for clarification and note the reply.",
+  "primary_concern": "Uncertainty regarding teacher acceptance of late submissions and variable ability to complete homework due to home/school circumstances.",
+  "tracked_details": [
+    {
+      "detail": "Agreed between-session task: Ask one teacher for clarification on instructions and note the reply.",
+      "status": "pending"
+    },
+    {
+      "detail": "External support inquiry: Verify which teacher accepts late submissions or check school policy regarding deadlines.",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Homework Support",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "yes"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Student to attempt asking one teacher for clarification and note the reply.",
+    "Mentor and student to review whether the external support request (policy check) can proceed or if an alternative plan is needed."
+  ],
+  "uncertainties": [
+    "Whether the external school support (policy check) will be approved or delivered.",
+    "Exact timing for checking deadlines before the next appointment.",
+    "Whether the student can complete the between-session task given home/school constraints."
+  ],
+  "conclusion": "The session successfully delivered a preparatory activity (rehearsing how to ask for clarification) which the student found helpful for clarity. However, the intended external support (verifying teacher acceptance policies) has not been delivered yet and remains pending. The main barrier of uncertainty regarding task completion persists but is being managed through the agreed plan to check specific deadlines and clarify instructions."
+}

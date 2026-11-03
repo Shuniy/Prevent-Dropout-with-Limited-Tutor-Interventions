@@ -1,0 +1,22 @@
+{
+  "requests_audited": 52,
+  "timeline_entries_validated": 78,
+  "paired_histories": 13,
+  "checks": [
+    "Transcript hashes match current source",
+    "Exact prompts and question match manifest",
+    "Complete source conversations and descriptive metadata match requests",
+    "Raw responses match validated saved reports",
+    "Timeline entries ordered and final conclusion equals final findings",
+    "RAG retrieval contains only earlier source passages",
+    "RAG memory equals preceding generated findings",
+    "Prompt character totals recompute exactly"
+  ],
+  "resume_check": "All 26 existing measurements retained; numeric summary unchanged; no model calls repeated.",
+  "offline_tests": {
+    "run": 56,
+    "passed": 55,
+    "failed": 1,
+    "failure": "test_sparse_source_numbers_keep_position_separate_and_pass_metadata expects old prompt phrase never use later disclosures"
+  }
+}

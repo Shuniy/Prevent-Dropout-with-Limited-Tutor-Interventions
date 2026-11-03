@@ -1,0 +1,55 @@
+{
+  "session_summary": "Session 3 focused on reviewing the status of an agreed between-session task (checking an alternative departure) and conducting a new in-session activity to list school transport-assistance contacts. The student reported uncertainty regarding whether they completed the previous task exactly as planned, noting they did not write down what happened for a specific difficult day. A new activity was attempted within the session (listing contacts), which the student found useful but noted they could not yet repeat alone. The main barrier remains unresolved.",
+  "primary_concern": "Transport safety and route uncertainty",
+  "tracked_details": [
+    {
+      "detail": "Main barrier: Uncertainty about whether an approved alternative route exists; anxiety regarding a specific crossing point.",
+      "status": "unresolved"
+    },
+    {
+      "detail": "Intended intervention: Transport Assessment to identify safer routes or entitlements.",
+      "status": "pending"
+    },
+    {
+      "detail": "Delivered activity: Listing available school transport-assistance or route-advice contacts during the session.",
+      "status": "completed"
+    },
+    {
+      "detail": "Agreed between-session task: Ask the support office what evidence an assessment would require.",
+      "status": "pending"
+    },
+    {
+      "detail": "Previous agreed task status: Check alternative departure and write down practicality (unclear completion).",
+      "status": "pending"
+    },
+    {
+      "detail": "Student preference: School-based next steps rather than home-based solutions; avoiding sharing private family details in records.",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Transport Assessment",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "unknown"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Student to ask the support office what evidence an assessment would require.",
+    "Review whether the student can independently repeat the contact-listing activity.",
+    "Address uncertainty regarding the completion of the previous between-session task (alternative departure check).",
+    "Verify status of transport entitlement or alternative route approval."
+  ],
+  "uncertainties": [
+    "Whether an approved alternative route exists.",
+    "Availability of external support services.",
+    "Exact dates for service availability.",
+    "Whether the student completed the previous between-session task (checking alternative departure).",
+    "Student's ability to independently repeat the in-session activity without mentor support."
+  ],
+  "conclusion": "The third session successfully delivered a new activity (listing contacts) and clarified that the previous between-session task (checking an alternative departure) was not explicitly confirmed as completed. The student reported that the main barrier (route uncertainty) persists and affects some school days. While the in-session practice of listing contacts was helpful, the intended external intervention (Transport Assessment) remains pending with no evidence of receipt. Evidence does not support improvement in the primary barrier or attendance. Uncertainty remains regarding the completion of prior tasks and the availability of external services."
+}

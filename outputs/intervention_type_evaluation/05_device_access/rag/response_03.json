@@ -1,0 +1,35 @@
+{
+  "session_summary": "Session 3 focused on reviewing a completed between-session task (checking for offline assignment options) and planning an inquiry into school device-loan rules. The student successfully executed the agreed small step but noted that this did not resolve the wider barrier of reliable device access. A new between-session task was agreed: to request the current device-support procedure from the school office, with a contingency plan if the office is unavailable.",
+  "primary_concern": "Reliable device access for homework due to shared household resources and lack of confirmed school support eligibility.",
+  "tracked_details": [
+    {
+      "detail": "Between-session task: Ask whether the next assignment has an offline option.",
+      "status": "completed"
+    },
+    {
+      "detail": "External support inquiry: Requesting current device-support procedure from school office.",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Device Access",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "yes"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Request the current device-support procedure from the school office.",
+    "Plan a backup step if the school office is unavailable."
+  ],
+  "uncertainties": [
+    "School device-loan eligibility status.",
+    "Whether the student can access the computer room independently or needs teacher assistance.",
+    "Whether the student can repeat the low-bandwidth/paper-based step alone outside of session."
+  ],
+  "conclusion": "The intended external support (device loan) remains pending with no evidence of delivery. The previous between-session task regarding offline options was completed, providing a partial workaround but not resolving the main barrier. The student found the session helpful for clarifying steps and managing uncertainty. Pending actions include checking school policies via a specific inquiry to the authorized contact."
+}

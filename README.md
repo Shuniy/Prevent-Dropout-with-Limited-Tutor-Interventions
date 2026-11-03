@@ -203,11 +203,36 @@ python -m jupyter nbconvert --to notebook --execute --inplace \
 ```
 
 The executed notebook and `outputs/intervention_extraction_evaluation/` retain both
-reports, call counts, elapsed time, prompt characters, outcome agreement and four
+reports, exact model requests (prompts, input context and schemas), call counts, elapsed
+time, prompt characters, outcome agreement and four
 transcript-based reference checks. This is one synthetic case, not an accuracy
 benchmark. Timing is a single sequential run with uncontrolled startup/cache effects.
+Each method receives the recorded intervention type, date and stage alongside spoken
+turns. Simple inputs label each conversation position and its earlier sessions explicitly.
 The simple timeline is reconstructed with all selected sessions visible; the prompt
 requests findings as of each session, but only RAG enforces earlier-session isolation.
+
+### Comparison across support types
+
+```bash
+python scripts/evaluate_intervention_types.py
+```
+
+This paired evaluation selects the first complete three-session history per support
+type in sorted order (13 histories, 39 sessions). Both methods use the same model,
+question and source history; method order alternates between cases. Outputs under
+`outputs/intervention_type_evaluation/` include a manifest with exact prompts,
+transcript hashes and spoken reference evidence, exact requests, raw responses,
+validated reports and per-method measurements. Existing measurements are retained
+when resuming, including failures; changed inputs or settings require a new output
+directory. The run makes 52 model calls, with one generation attempt per call.
+
+Three narrow final-field checks cover barrier persistence, unknown attendance
+improvement and positive session feedback. Delivery, intervention helpfulness and
+action chronology require separate semantic review. This template-generated sample
+supports comparison across support types, not generalization to real student records.
+See the [completed evaluation](outputs/intervention_type_evaluation/evaluation.md)
+for aggregate and per-type results, with source-linked semantic review examples.
 
 ## Code organization
 

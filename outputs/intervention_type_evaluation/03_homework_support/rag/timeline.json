@@ -1,0 +1,116 @@
+[
+  {
+    "session_number": 1,
+    "findings": {
+      "session_summary": "Initial mentoring session focused on establishing a practical homework support plan. The student identified difficulty finishing tasks due to uncertainty about teacher acceptance of late work. A specific activity was completed in-session: creating a simple list of current tasks and due dates, which the student found useful for visualizing options. An external request (checking school policy/teacher availability) remains pending.",
+      "primary_concern": "Student starts homework but rarely finishes everything; uncertainty regarding teacher acceptance of late submissions hinders planning.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task: Check two deadlines and bring confirmed dates to the next meeting.",
+          "status": "pending"
+        },
+        {
+          "detail": "External support inquiry: Verify which teacher accepts late submissions or check school policy regarding deadlines.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Homework Support",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "yes"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt checking two deadlines and recording confirmed dates.",
+        "Mentor and student to review the list of tasks and due dates at the next session.",
+        "Address pending external support request regarding teacher acceptance policies."
+      ],
+      "uncertainties": [
+        "Whether external school support (policy check) will be approved or delivered.",
+        "Exact timing for checking deadlines before the next appointment."
+      ],
+      "conclusion": "The session successfully delivered a preparatory activity (task list creation) which the student found helpful. However, the intended external support (verifying teacher acceptance policies) has not been delivered yet and remains pending. The main barrier of uncertainty regarding task completion persists but is being managed through the agreed plan to check specific deadlines."
+    }
+  },
+  {
+    "session_number": 2,
+    "findings": {
+      "session_summary": "Follow-up session focused on reviewing a missed between-session task (checking deadlines) and practicing breaking down an urgent task into smaller steps. The student explicitly distinguished between the in-session activity (practicing steps) and external support delivery, noting that no external service was received yet.",
+      "primary_concern": "Uncertainty regarding teacher acceptance of late submissions and variable ability to complete homework due to home/school circumstances.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task: Check two deadlines and bring confirmed dates.",
+          "status": "pending"
+        },
+        {
+          "detail": "External support inquiry: Verify which teacher accepts late submissions or check school policy regarding deadlines.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Homework Support",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "yes"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt the first two steps of breaking down an urgent task at the agreed time.",
+        "Mentor and student to review whether the external support request (policy check) can proceed or if an alternative plan is needed."
+      ],
+      "uncertainties": [
+        "Whether the external school support (policy check) will be approved or delivered.",
+        "Exact timing for checking deadlines before the next appointment.",
+        "Whether the student can complete the between-session task given home/school constraints."
+      ],
+      "conclusion": "The session delivered a preparatory activity (practicing breaking down tasks) which the student found helpful for clarity, but this does not establish delivery of the intended external support. The main barrier of uncertainty regarding task completion persists. The agreed between-session task to check deadlines was not completed by the student due to timing difficulties. External support remains pending and undelivered. Evidence supports that the session itself was helpful, but it does not confirm improvement in homework submission or resolution of the policy uncertainty."
+    }
+  },
+  {
+    "session_number": 3,
+    "findings": {
+      "session_summary": "Session 3 delivered an in-session activity rehearsing how to ask a teacher for clarification on instructions. The student explicitly distinguished between this completed practice and the delivery of external support, noting that uncertainty about teacher acceptance policies remains unresolved. A new between-session task was agreed: to attempt asking one teacher for clarification and note the reply.",
+      "primary_concern": "Uncertainty regarding teacher acceptance of late submissions and variable ability to complete homework due to home/school circumstances.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task: Ask one teacher for clarification on instructions and note the reply.",
+          "status": "pending"
+        },
+        {
+          "detail": "External support inquiry: Verify which teacher accepts late submissions or check school policy regarding deadlines.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Homework Support",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "yes"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt asking one teacher for clarification and note the reply.",
+        "Mentor and student to review whether the external support request (policy check) can proceed or if an alternative plan is needed."
+      ],
+      "uncertainties": [
+        "Whether the external school support (policy check) will be approved or delivered.",
+        "Exact timing for checking deadlines before the next appointment.",
+        "Whether the student can complete the between-session task given home/school constraints."
+      ],
+      "conclusion": "The session successfully delivered a preparatory activity (rehearsing how to ask for clarification) which the student found helpful for clarity. However, the intended external support (verifying teacher acceptance policies) has not been delivered yet and remains pending. The main barrier of uncertainty regarding task completion persists but is being managed through the agreed plan to check specific deadlines and clarify instructions."
+    }
+  }
+]

@@ -1,0 +1,153 @@
+{
+  "history_id": "08_language_support/intervention_student_001",
+  "as_of_session": 3,
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial session focused on establishing a practical approach to language support. The student identified difficulty writing complete sentences and using formal language as the main barrier.",
+        "primary_concern": "Struggle to write complete sentences and uncertainty regarding when to use formal language.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Write down two instruction words that appear in class.",
+            "status": "pending"
+          },
+          {
+            "detail": "External support eligibility check requested but not confirmed.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Language Support",
+          "status": "inquiry_planned",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Attempt the agreed between-session task.",
+          "Check school policy or contact for eligibility confirmation."
+        ],
+        "uncertainties": [
+          "Whether external support is available.",
+          "Exact dates of specific incidents."
+        ],
+        "conclusion": "The session established a practical, small-step plan. The intended external support was not delivered; only the mentoring activity occurred. The main barrier remains unresolved, and the between-session task is pending."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up session reviewed the previous plan. The student reported starting but not finishing the agreed task due to schedule constraints.",
+        "primary_concern": "Uneven progress; difficulty persists on some days due to scheduling conflicts.",
+        "tracked_details": [
+          {
+            "detail": "Review of between-session task (writing instruction words).",
+            "status": "completed"
+          },
+          {
+            "detail": "Agreed new between-session task: Try the two-sentence frame in one lesson.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Language Support",
+          "status": "inquiry_planned",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Attempt the two-sentence frame in one lesson.",
+          "Continue checking on external support availability."
+        ],
+        "uncertainties": [
+          "Whether the school office is available for assistance.",
+          "Confirmation of external service delivery."
+        ],
+        "conclusion": "The student attempted but did not complete the between-session task. The main barrier remains present. No external support was delivered; only mentoring activities occurred. The intervention is ongoing with pending external requests."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Third follow-up session. The student reported uneven progress and difficulty completing the agreed task due to schedule constraints.",
+        "primary_concern": "The wider barrier has not disappeared; uncertainty remains about school processes and external support availability.",
+        "tracked_details": [
+          {
+            "detail": "Review of between-session task (two-sentence frame).",
+            "status": "completed"
+          },
+          {
+            "detail": "Agreed new between-session task: Highlight action and date in the next notice.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Language Support",
+          "status": "inquiry_planned",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Attempt the smaller version of the task (highlighting action and date).",
+          "Seek teacher explanation if needed for procedures."
+        ],
+        "uncertainties": [
+          "Whether external support is available.",
+          "Confirmation of school office availability.",
+          "Exact dates of incidents."
+        ],
+        "conclusion": "The student attempted but did not fully complete the between-session task. The main barrier remains unresolved. No external support was delivered; only mentoring activities occurred. The intervention continues with pending external requests and ongoing scheduling challenges."
+      }
+    }
+  ],
+  "conclusion": {
+    "session_summary": "Third follow-up session. The student reported uneven progress and difficulty completing the agreed task due to schedule constraints.",
+    "primary_concern": "The wider barrier has not disappeared; uncertainty remains about school processes and external support availability.",
+    "tracked_details": [
+      {
+        "detail": "Review of between-session task (two-sentence frame).",
+        "status": "completed"
+      },
+      {
+        "detail": "Agreed new between-session task: Highlight action and date in the next notice.",
+        "status": "pending"
+      }
+    ],
+    "intervention": {
+      "type": "Language Support",
+      "status": "inquiry_planned",
+      "service_delivered": null
+    },
+    "outcome": {
+      "primary_barrier_resolved": "no",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "unknown"
+    },
+    "session_helpful": "yes",
+    "next_steps": [
+      "Attempt the smaller version of the task (highlighting action and date).",
+      "Seek teacher explanation if needed for procedures."
+    ],
+    "uncertainties": [
+      "Whether external support is available.",
+      "Confirmation of school office availability.",
+      "Exact dates of incidents."
+    ],
+    "conclusion": "The student attempted but did not fully complete the between-session task. The main barrier remains unresolved. No external support was delivered; only mentoring activities occurred. The intervention continues with pending external requests and ongoing scheduling challenges."
+  }
+}

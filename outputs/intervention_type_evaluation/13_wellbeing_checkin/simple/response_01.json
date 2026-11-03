@@ -1,0 +1,123 @@
+{
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial wellbeing check-in establishing the student's uncertainty about school difficulties and preference for practical, non-judgmental support.",
+        "primary_concern": "Uncertainty regarding the cause of reduced interest in activities and difficulty planning ahead; student fears being misunderstood as unwilling to attend or that issues are fixed.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Notice one manageable moment and one difficult moment this week.",
+            "status": "pending"
+          },
+          {
+            "detail": "External support request: Check school policy/eligibility for additional help.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Wellbeing Check-in",
+          "status": "completed",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to attempt noticing manageable/difficult moments.",
+          "Mentor and student to verify school policy details before promising external support."
+        ],
+        "uncertainties": [
+          "Whether the difficulty is temporary or persistent.",
+          "Confirmation of eligibility for external services."
+        ],
+        "conclusion": "The session established a supportive relationship and a small, realistic monitoring task. No external support was delivered; both remain pending due to lack of confirmed eligibility or policy details. The student's main barrier (uncertainty) remains unresolved as the cause is not yet confirmed."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up session where the agreed monitoring task was not completed due to home/school timing difficulties. A new grounding/pause routine was practiced in-session.",
+        "primary_concern": "Uneven progress; inability to complete the previous between-session task due to external circumstances (home/school timing).",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Notice/manageable moment and difficult moment.",
+            "status": "completed"
+          },
+          {
+            "detail": "New agreed task: Practice a brief grounding/pause routine during one stressful school moment.",
+            "status": "pending"
+          },
+          {
+            "detail": "External support request: Check school policy/eligibility.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Wellbeing Check-in",
+          "status": "completed",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to attempt the pause routine during a stressful moment.",
+          "Continue checking on external support eligibility."
+        ],
+        "uncertainties": [
+          "Whether the student can repeat the pause routine alone outside the session.",
+          "Availability of school office for support requests."
+        ],
+        "conclusion": "The previous monitoring task was not completed, attributed to timing difficulties. A new in-session activity (grounding/pause) was practiced but its real-world application remains unverified. External support remains pending. The main barrier persists as the student reports uneven days and continued difficulty planning."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Third follow-up session where the pause routine was started but not finished due to schedule constraints. The student requests a school-based next step.",
+        "primary_concern": "The wider barrier has not disappeared; the pause routine was partially attempted but interrupted by schedule issues.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Try the chosen pause during one stressful school moment.",
+            "status": "completed"
+          },
+          {
+            "detail": "New agreed task: Check when a trusted adult is available and rehearse a help request.",
+            "status": "pending"
+          },
+          {
+            "detail": "External support request: Check school policy/eligibility.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Wellbeing Check-in",
+          "status": "completed",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to check trusted adult availability.",
+          "Mentor and student to verify school policy details."
+        ],
+        "uncertainties": [
+          "Whether the pause routine can be completed without schedule conflicts.",
+          "Confirmation of external support eligibility."
+        ],
+        "conclusion": "The intervention continues with small, adjusted steps. The agreed pause task was attempted but not fully completed, indicating ongoing scheduling barriers. External support remains undelivered and unconfirmed. The main barrier (uncertainty/difficulty managing school days) remains unresolved despite consistent in-session practice."
+      }
+    }
+  ]
+}

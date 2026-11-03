@@ -1,0 +1,35 @@
+{
+  "session_summary": "Follow-up session focused on reviewing a missed between-session task (checking deadlines) and practicing breaking down an urgent task into smaller steps. The student explicitly distinguished between the in-session activity (practicing steps) and external support delivery, noting that no external service was received yet.",
+  "primary_concern": "Uncertainty regarding teacher acceptance of late submissions and variable ability to complete homework due to home/school circumstances.",
+  "tracked_details": [
+    {
+      "detail": "Agreed between-session task: Check two deadlines and bring confirmed dates.",
+      "status": "pending"
+    },
+    {
+      "detail": "External support inquiry: Verify which teacher accepts late submissions or check school policy regarding deadlines.",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Homework Support",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "yes"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Student to attempt the first two steps of breaking down an urgent task at the agreed time.",
+    "Mentor and student to review whether the external support request (policy check) can proceed or if an alternative plan is needed."
+  ],
+  "uncertainties": [
+    "Whether the external school support (policy check) will be approved or delivered.",
+    "Exact timing for checking deadlines before the next appointment.",
+    "Whether the student can complete the between-session task given home/school constraints."
+  ],
+  "conclusion": "The session delivered a preparatory activity (practicing breaking down tasks) which the student found helpful for clarity, but this does not establish delivery of the intended external support. The main barrier of uncertainty regarding task completion persists. The agreed between-session task to check deadlines was not completed by the student due to timing difficulties. External support remains pending and undelivered. Evidence supports that the session itself was helpful, but it does not confirm improvement in homework submission or resolution of the policy uncertainty."
+}

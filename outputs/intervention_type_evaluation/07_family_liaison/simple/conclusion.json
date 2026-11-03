@@ -1,0 +1,149 @@
+{
+  "history_id": "07_family_liaison/intervention_student_001",
+  "as_of_session": 3,
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial Family Liaison session focused on identifying barriers to communication (late notices, missed meetings) and planning a small step to map contact channels.",
+        "primary_concern": "Uncertainty about school communication formats and difficulty understanding/noticing notices.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Ask guardian which contact time works best.",
+            "status": "pending"
+          },
+          {
+            "detail": "Activity: Mapping school communication channels tried.",
+            "status": "completed"
+          }
+        ],
+        "intervention": {
+          "type": "Family Liaison",
+          "status": "not_discussed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Ask guardian about contact timing"
+        ],
+        "uncertainties": [
+          "Exact dates of missed contacts",
+          "Availability of alternative contact formats"
+        ],
+        "conclusion": "The session established a plan to map communication channels. The main barrier (uncertainty about contact methods) remains unresolved as the student prefers small, adjustable steps. No external support was delivered; only mentoring activities occurred."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up session reviewed the previous plan. The agreed task regarding the guardian was not confirmed as completed.",
+        "primary_concern": "The difficulty persists on some days; uncertainty remains about whether external support is available or delivered.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Ask guardian which contact time works best.",
+            "status": "pending"
+          },
+          {
+            "detail": "Activity: Rehearsing a short explanation of the student's school need.",
+            "status": "completed"
+          }
+        ],
+        "intervention": {
+          "type": "Family Liaison",
+          "status": "not_discussed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Try one manageable thing and record what happened"
+        ],
+        "uncertainties": [
+          "Whether the guardian contact was made",
+          "Availability of external services"
+        ],
+        "conclusion": "The student reported uncertainty about completing the previous task. The main barrier (uncertainty and difficulty planning) remains unresolved. No external support was delivered; only in-session rehearsal occurred."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Third follow-up session. The student explicitly stated they could not complete the agreed step due to home/school timing difficulties.",
+        "primary_concern": "Uneven progress; difficulty persists on some days. Uncertainty about service availability remains.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Ask liaison office to confirm contact or try a smaller school-based step.",
+            "status": "pending"
+          },
+          {
+            "detail": "Activity: Preparing a contact request for appropriate staff member.",
+            "status": "completed"
+          }
+        ],
+        "intervention": {
+          "type": "Family Liaison",
+          "status": "not_discussed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Ask liaison office to confirm contact status"
+        ],
+        "uncertainties": [
+          "Exact dates of missed contacts",
+          "Whether a service is available",
+          "Completion of guardian contact task"
+        ],
+        "conclusion": "The student explicitly reported failure to complete the agreed step. The main barrier (uncertainty and practical difficulty) remains unresolved. No external support was delivered; only mentoring activities occurred. Evidence supports that the intervention has not yet resulted in improved attendance or resolved the primary communication barrier."
+      }
+    }
+  ],
+  "conclusion": {
+    "session_summary": "Third follow-up session. The student explicitly stated they could not complete the agreed step due to home/school timing difficulties.",
+    "primary_concern": "Uneven progress; difficulty persists on some days. Uncertainty about service availability remains.",
+    "tracked_details": [
+      {
+        "detail": "Agreed between-session task: Ask liaison office to confirm contact or try a smaller school-based step.",
+        "status": "pending"
+      },
+      {
+        "detail": "Activity: Preparing a contact request for appropriate staff member.",
+        "status": "completed"
+      }
+    ],
+    "intervention": {
+      "type": "Family Liaison",
+      "status": "not_discussed",
+      "service_delivered": null
+    },
+    "outcome": {
+      "primary_barrier_resolved": "no",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "unknown"
+    },
+    "session_helpful": "yes",
+    "next_steps": [
+      "Ask liaison office to confirm contact status"
+    ],
+    "uncertainties": [
+      "Exact dates of missed contacts",
+      "Whether a service is available",
+      "Completion of guardian contact task"
+    ],
+    "conclusion": "The student explicitly reported failure to complete the agreed step. The main barrier (uncertainty and practical difficulty) remains unresolved. No external support was delivered; only mentoring activities occurred. Evidence supports that the intervention has not yet resulted in improved attendance or resolved the primary communication barrier."
+  }
+}

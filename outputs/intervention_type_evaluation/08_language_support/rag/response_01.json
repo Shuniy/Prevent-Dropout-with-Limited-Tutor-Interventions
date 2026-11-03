@@ -1,0 +1,35 @@
+{
+  "session_summary": "Initial mentoring session focused on establishing a practical approach to language support without confirming external service eligibility. The student reported difficulty writing complete sentences and using formal language correctly.",
+  "primary_concern": "Struggle with writing complete sentences, linking words, and uncertainty regarding when to use formal language in school contexts.",
+  "tracked_details": [
+    {
+      "detail": "Agreed between-session task: Write down two instruction words that appear in class.",
+      "status": "pending"
+    },
+    {
+      "detail": "External support eligibility check (school record or service availability).",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Language Support",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "unknown"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Student to attempt writing down two instruction words before the next session.",
+    "Mentor and student to identify a specific school contact to verify eligibility or confirm support availability."
+  ],
+  "uncertainties": [
+    "Whether external support services are available or approved.",
+    "Exact dates of recent incidents affecting attendance or work completion.",
+    "Whether the agreed between-session task will be completed given time constraints."
+  ],
+  "conclusion": "The initial session established a collaborative, non-judgmental approach. A specific language activity was attempted and found useful by the student, but external support delivery remains unverified. The main barrier (writing/formal language) persists as unresolved pending further intervention or eligibility confirmation."
+}

@@ -1,0 +1,151 @@
+{
+  "history_id": "06_family_finances/intervention_student_002",
+  "as_of_session": 3,
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial session focused on establishing boundaries regarding household privacy and identifying the main barrier: travel costs adding to household expenses, leading to missed bus fare and walking. The student reported uncertainty about household budget details.",
+        "primary_concern": "Travel cost adds to other household expenses; uncertainty about household budget details.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: List specific school costs to ask the support office about.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Family Finances",
+          "status": "not_discussed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to list specific school costs.",
+          "Check right contact before promising support."
+        ],
+        "uncertainties": [
+          "Exact dates of missed work are uncertain.",
+          "Whether a service is available remains uncertain.",
+          "Household budget details are unknown."
+        ],
+        "conclusion": "The session established the main barrier (travel costs/uncertainty) and agreed on a preparatory task (listing school costs). No external support was delivered. The student reported that having an example made the first step clearer, but the wider problem remains unresolved. Evidence does not establish delivery of any external service."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up session where the student reported uncertainty about completing the agreed task (listing school costs). The main concern persisted, affecting some school days. A new focus was placed on identifying a trusted adult for consent-sensitive contact.",
+        "primary_concern": "Uncertainty makes it hard to plan ahead; problem affects some school days but not consistently.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: List specific school costs.",
+            "status": "pending"
+          },
+          {
+            "detail": "New agreed step: Agree with a trusted adult how a support inquiry should be made.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Family Finances",
+          "status": "not_discussed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Agree with a trusted adult how a support inquiry should be made.",
+          "Try a smaller version of the step first."
+        ],
+        "uncertainties": [
+          "Whether the previous task was completed exactly as planned is unclear.",
+          "Household budget details remain unknown.",
+          "Exact dates of difficult days are uncertain."
+        ],
+        "conclusion": "The student expressed uncertainty about completing the previous task. The main barrier (uncertainty/planning) persists. A new action was agreed: agreeing with a trusted adult on how to make a support inquiry. No external support was delivered. Evidence supports that the session was helpful for clarifying steps, but does not establish causal effectiveness or delivery of outside help."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Follow-up session where the student reported completing the specific step agreed in Session 2 (agreeing with a trusted adult). The wider school problem remains unsolved. The student noted that an inquiry is not approval or delivery of assistance.",
+        "primary_concern": "The wider school problem is not automatically solved; uncertainty makes planning hard.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Agree with a trusted adult how a support inquiry should be made.",
+            "status": "completed"
+          },
+          {
+            "detail": "New agreed step: Ask the school office for written eligibility guidance.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Family Finances",
+          "status": "not_discussed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Ask the school office for written eligibility guidance.",
+          "Try a smaller version of the step first."
+        ],
+        "uncertainties": [
+          "Whether external support has been delivered remains unknown (student explicitly states 'so far we are discussing and checking options; I have not received that extra support').",
+          "Household budget details remain unknown.",
+          "Exact dates of difficult days are uncertain."
+        ],
+        "conclusion": "The student reported completing the agreed step regarding the trusted adult. However, the main barrier (school problem/eligibility) remains unresolved. No external support has been delivered or received. Evidence supports that the mentoring session was helpful for clarifying steps and managing expectations about what an inquiry entails, but does not establish that the intervention caused improvement in attendance or resolved the financial barrier."
+      }
+    }
+  ],
+  "conclusion": {
+    "session_summary": "Follow-up session where the student reported completing the specific step agreed in Session 2 (agreeing with a trusted adult). The wider school problem remains unsolved. The student noted that an inquiry is not approval or delivery of assistance.",
+    "primary_concern": "The wider school problem is not automatically solved; uncertainty makes planning hard.",
+    "tracked_details": [
+      {
+        "detail": "Agreed between-session task: Agree with a trusted adult how a support inquiry should be made.",
+        "status": "completed"
+      },
+      {
+        "detail": "New agreed step: Ask the school office for written eligibility guidance.",
+        "status": "pending"
+      }
+    ],
+    "intervention": {
+      "type": "Family Finances",
+      "status": "not_discussed",
+      "service_delivered": null
+    },
+    "outcome": {
+      "primary_barrier_resolved": "no",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "unknown"
+    },
+    "session_helpful": "yes",
+    "next_steps": [
+      "Ask the school office for written eligibility guidance.",
+      "Try a smaller version of the step first."
+    ],
+    "uncertainties": [
+      "Whether external support has been delivered remains unknown (student explicitly states 'so far we are discussing and checking options; I have not received that extra support').",
+      "Household budget details remain unknown.",
+      "Exact dates of difficult days are uncertain."
+    ],
+    "conclusion": "The student reported completing the agreed step regarding the trusted adult. However, the main barrier (school problem/eligibility) remains unresolved. No external support has been delivered or received. Evidence supports that the mentoring session was helpful for clarifying steps and managing expectations about what an inquiry entails, but does not establish that the intervention caused improvement in attendance or resolved the financial barrier."
+  }
+}

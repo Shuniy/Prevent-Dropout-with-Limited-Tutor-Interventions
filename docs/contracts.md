@@ -110,12 +110,17 @@ months but never refill the same month's plan.
 
 ## Extraction and private artifacts
 
-- `load_sessions(root)` reads spoken Mentor/Student turns only. `Session` has
-  `history_id`, `number`, `turns`, and a joined `text` property. Corpus history ID
+- `load_sessions(root)` reads spoken Mentor/Student turns and allowlisted descriptive
+  headers: intervention type, date and stage. `Session` has `history_id`, `number`,
+  `turns`, optional `intervention_type`/`date`/`stage`, a `metadata` dictionary property
+  and a joined spoken-only `text` property. Prewritten outcome notes are excluded. Corpus history ID
   and school student ID are separate concepts.
 - `SimpleLLM(sessions, client, max_prompt_chars=60000).analyse(history_id,
   through_session=None, question=..., on_session=None)` sends all selected sessions
-  in one generation with no retrieval or prior generated memory. Its response must
+  in one generation with no retrieval or prior generated memory. Each session carries
+  a one-based conversation position, a readable chronology label, earlier source
+  session numbers, metadata and speaker-labeled utterances. The prompt requires
+  cumulative evaluation using only the current and earlier conversations. Its response must
   contain exactly one findings entry per selected session in source order. The
   entire response validates before callbacks or persistence. It returns the same
   `history_id`, `as_of_session`, `timeline`, `conclusion` structure as RAG, deriving

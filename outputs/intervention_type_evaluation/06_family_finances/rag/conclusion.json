@@ -1,0 +1,171 @@
+{
+  "history_id": "06_family_finances/intervention_student_002",
+  "as_of_session": 3,
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial session focused on establishing a safe space for the student to discuss barriers related to travel costs and household expenses without judgment. The mentor facilitated an activity to separate known school-related costs from unverified household details.",
+        "primary_concern": "Travel costs adding to household expenses, leading to missed bus fare and walking instead; uncertainty regarding household budget details and support eligibility.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Student to list specific school costs to inquire about with the support office.",
+            "status": "pending"
+          },
+          {
+            "detail": "Verification of household budget details and support eligibility.",
+            "status": "unresolved"
+          }
+        ],
+        "intervention": {
+          "type": "Family Finances",
+          "status": "inquiry_planned",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "yes"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to attempt listing specific school costs.",
+          "Mentor to verify support eligibility and budget details in subsequent sessions."
+        ],
+        "uncertainties": [
+          "Exact dates of missed work are uncertain.",
+          "Availability of external support services is unconfirmed.",
+          "Whether the student can complete the between-session task without teacher assistance."
+        ],
+        "conclusion": "The initial session was helpful in clarifying the main barrier (travel costs/uncertainty) and establishing a cautious plan. No external service was delivered; only an inquiry was planned. The student's reported difficulty remains unresolved pending verification of support eligibility and completion of the between-session task."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up session focused on reviewing the status of the between-session task (listing school costs) and practicing a new step regarding consent-sensitive contact with a trusted adult. The mentor facilitated an in-session activity to model the contact process, but no external support was delivered or verified.",
+        "primary_concern": "Uncertainty regarding household budget details, support eligibility, and the specific school processes required to access help; the main barrier remains unresolved as the student reports fluctuating difficulty depending on how well they can plan ahead.",
+        "tracked_details": [
+          {
+            "detail": "Between-session task from Session 1: Student to list specific school costs to inquire with the support office.",
+            "status": "pending"
+          },
+          {
+            "detail": "Agreed between-session task for Session 2: Student to attempt a smaller version of contacting a trusted adult regarding support inquiry procedures.",
+            "status": "pending"
+          },
+          {
+            "detail": "In-session activity: Practicing the step of identifying a trusted adult and planning a consent-sensitive contact using an example.",
+            "status": "completed"
+          }
+        ],
+        "intervention": {
+          "type": "Family Finances",
+          "status": "inquiry_planned",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "yes"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to attempt contacting a trusted adult regarding support inquiry procedures (smaller version).",
+          "Mentor and student to verify if the school process is confirmed before promising further support.",
+          "Check dated records or bring written replies from the support office in the next session."
+        ],
+        "uncertainties": [
+          "Whether the student completed the between-session task of listing specific school costs.",
+          "Exact dates of missed work remain uncertain.",
+          "Availability and approval status of external support services.",
+          "Whether the student can complete the new between-session task without teacher assistance."
+        ],
+        "conclusion": "The session was helpful in clarifying steps for contacting a trusted adult, but the intended intervention (external support delivery) remains undelivered. The main barrier regarding financial uncertainty and eligibility verification is unresolved. Evidence supports that the mentoring activity occurred, but it does not establish that external support was received or that attendance improved."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Session 3 reviewed the completion of a specific between-session task (agreeing on how to make a support inquiry with a trusted adult) and practiced reviewing public assistance routes without promising eligibility. The student reported that while the small step was completed, the wider school problem remains unresolved due to uncertainty about household budget details and the need to confirm school processes before promising support.",
+        "primary_concern": "Uncertainty regarding household budget details, support eligibility, and the specific school processes required to access help; the main barrier remains unresolved as the student reports fluctuating difficulty depending on how well they can plan ahead.",
+        "tracked_details": [
+          {
+            "detail": "Between-session task from Session 2: Student to agree with a trusted adult how a support inquiry should be made (smaller version).",
+            "status": "completed"
+          },
+          {
+            "detail": "In-session activity: Reviewing publicly described assistance routes without promising eligibility.",
+            "status": "completed"
+          },
+          {
+            "detail": "Between-session task for Session 3: Student to ask the school office for written eligibility guidance (smaller version).",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Family Finances",
+          "status": "inquiry_planned",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "yes"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to attempt asking the school office for written eligibility guidance.",
+          "Mentor and student to verify if the school process is confirmed before promising further support."
+        ],
+        "uncertainties": [
+          "Whether the student completed the between-session task of listing specific school costs from Session 1.",
+          "Exact dates of missed work remain uncertain.",
+          "Availability and approval status of external support services.",
+          "Whether the student can complete the new between-session task without teacher assistance."
+        ],
+        "conclusion": "The session was helpful in clarifying steps for contacting a trusted adult and reviewing public assistance information. The intended intervention (external support delivery) remains undelivered as no external service was received or verified. The main barrier regarding financial uncertainty and eligibility verification is unresolved. Evidence supports that the mentoring activity occurred, but it does not establish that external support was received or that attendance improved."
+      }
+    }
+  ],
+  "conclusion": {
+    "session_summary": "Session 3 reviewed the completion of a specific between-session task (agreeing on how to make a support inquiry with a trusted adult) and practiced reviewing public assistance routes without promising eligibility. The student reported that while the small step was completed, the wider school problem remains unresolved due to uncertainty about household budget details and the need to confirm school processes before promising support.",
+    "primary_concern": "Uncertainty regarding household budget details, support eligibility, and the specific school processes required to access help; the main barrier remains unresolved as the student reports fluctuating difficulty depending on how well they can plan ahead.",
+    "tracked_details": [
+      {
+        "detail": "Between-session task from Session 2: Student to agree with a trusted adult how a support inquiry should be made (smaller version).",
+        "status": "completed"
+      },
+      {
+        "detail": "In-session activity: Reviewing publicly described assistance routes without promising eligibility.",
+        "status": "completed"
+      },
+      {
+        "detail": "Between-session task for Session 3: Student to ask the school office for written eligibility guidance (smaller version).",
+        "status": "pending"
+      }
+    ],
+    "intervention": {
+      "type": "Family Finances",
+      "status": "inquiry_planned",
+      "service_delivered": false
+    },
+    "outcome": {
+      "primary_barrier_resolved": "no",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "yes"
+    },
+    "session_helpful": "yes",
+    "next_steps": [
+      "Student to attempt asking the school office for written eligibility guidance.",
+      "Mentor and student to verify if the school process is confirmed before promising further support."
+    ],
+    "uncertainties": [
+      "Whether the student completed the between-session task of listing specific school costs from Session 1.",
+      "Exact dates of missed work remain uncertain.",
+      "Availability and approval status of external support services.",
+      "Whether the student can complete the new between-session task without teacher assistance."
+    ],
+    "conclusion": "The session was helpful in clarifying steps for contacting a trusted adult and reviewing public assistance information. The intended intervention (external support delivery) remains undelivered as no external service was received or verified. The main barrier regarding financial uncertainty and eligibility verification is unresolved. Evidence supports that the mentoring activity occurred, but it does not establish that external support was received or that attendance improved."
+  }
+}

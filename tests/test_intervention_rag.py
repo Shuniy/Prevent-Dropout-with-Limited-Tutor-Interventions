@@ -67,11 +67,20 @@ class RAGTests(unittest.TestCase):
             root = Path(directory)
             write_history(root)
             path = root / "02_tutoring/student/session_01_initial.md"
-            path.write_text(path.read_text().replace("Practice task 1", "First line\nPractice task 1"))
+            path.write_text(path.read_text().replace("Practice task 1", "First line\nPractice task 1")
+                            .replace("# History", "# History\n**Date:** 2026-09-10\n**Stage:** Initial session")
+                            + "\n## Outcome notes\n**Outcome:** OUTCOME_SECRET\n")
             sessions = load_sessions(root)
         self.assertEqual(len(sessions), 2)
         self.assertIn("First line\nPractice task 1", sessions[0].text)
         self.assertNotIn("HEADER_SECRET", sessions[0].text)
+        self.assertEqual(sessions[0].metadata, {"intervention_type": "HEADER_SECRET",
+                         "date": "2026-09-10", "stage": "Initial session"})
+        client = FakeClient()
+        self.index.build(sessions)
+        InterventionRAG(self.index, client).analyse("02_tutoring/student", 1)
+        self.assertEqual(client.contexts[0]["current_session_metadata"], sessions[0].metadata)
+        self.assertNotIn("OUTCOME_SECRET", json.dumps(client.contexts))
 
 
 if __name__ == "__main__":

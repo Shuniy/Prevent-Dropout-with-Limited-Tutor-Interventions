@@ -1,0 +1,113 @@
+[
+  {
+    "session_number": 1,
+    "findings": {
+      "session_summary": "Initial session focused on establishing a practical plan for writing difficulties. The student identified 'running out of time when rewriting' and 'muddled paragraphs' as the main barrier.",
+      "primary_concern": "Writing difficulty due to time constraints and lack of examples.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task: Try two similar examples and mark where stuck.",
+          "status": "pending"
+        },
+        {
+          "detail": "External support request (implied tutoring/extra help).",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Tutoring",
+        "status": "not_discussed",
+        "service_delivered": null
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Attempt agreed between-session task.",
+        "Check availability of external support."
+      ],
+      "uncertainties": [
+        "Exact dates of incidents.",
+        "Availability of external support services."
+      ],
+      "conclusion": "The session established a plan to practice writing steps. The intended external support was not delivered; it remains pending. The main barrier (time management/writing) was identified but not resolved. Evidence supports that the mentoring activity occurred, but no improvement in the barrier or attendance is reported yet."
+    }
+  },
+  {
+    "session_number": 2,
+    "findings": {
+      "session_summary": "Follow-up session reviewed the previous task. The student reported starting but not finishing the agreed step due to schedule constraints.",
+      "primary_concern": "Continued difficulty with writing and time management; external support still pending.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task: Try two similar examples and mark where stuck.",
+          "status": "completed"
+        },
+        {
+          "detail": "External support request (implied tutoring/extra help).",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Tutoring",
+        "status": "not_discussed",
+        "service_delivered": null
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Attempt new between-session task: Write one worked example in own words.",
+        "Check availability of external support."
+      ],
+      "uncertainties": [
+        "Exact dates of incidents.",
+        "Availability of external support services."
+      ],
+      "conclusion": "The student completed the previous task partially but did not finish it fully. The main barrier remains unresolved. External support is still pending. Evidence supports that the mentoring activity occurred and was helpful for clarifying steps, but no causal link to improvement in the barrier or attendance is established."
+    }
+  },
+  {
+    "session_number": 3,
+    "findings": {
+      "session_summary": "Third follow-up session. The student reported starting but not finishing the new task (writing one worked example) due to schedule constraints.",
+      "primary_concern": "The wider barrier has not disappeared; difficulty persists on some days.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task: Write one worked example in own words.",
+          "status": "completed"
+        },
+        {
+          "detail": "External support request (implied tutoring/extra help).",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Tutoring",
+        "status": "not_discussed",
+        "service_delivered": null
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Attempt new between-session task: Bring one attempt from class for review.",
+        "Check availability of external support."
+      ],
+      "uncertainties": [
+        "Exact dates of incidents.",
+        "Availability of external support services."
+      ],
+      "conclusion": "The student completed the previous task partially but did not finish it fully. The main barrier remains unresolved. External support is still pending. Evidence supports that the mentoring activity occurred and was helpful for clarifying steps, but no causal link to improvement in the barrier or attendance is established."
+    }
+  }
+]

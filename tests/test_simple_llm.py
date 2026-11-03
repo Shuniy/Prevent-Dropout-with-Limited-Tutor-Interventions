@@ -32,11 +32,32 @@ class SimpleLLMTests(unittest.TestCase):
         self.assertEqual([s["session_number"] for s in context["sessions"]], [1, 2])
         self.assertEqual(context["sessions"][0]["conversation"],
                          [{"speaker": "Student", "utterance": "I need help with fractions."}])
-        self.assertEqual(set(context), {"question", "sessions"})
+        self.assertEqual(context["record_scope"], {"first_supplied_session": 1,
+                         "last_supplied_session": 2, "session_count": 2})
+        self.assertEqual([s["conversation_position"] for s in context["sessions"]], [1, 2])
+        self.assertEqual([s["prior_session_numbers"] for s in context["sessions"]], [[], [1]])
+        self.assertIn("first supplied conversation", context["sessions"][0]["chronology_label"])
+        self.assertEqual(context["sessions"][1]["chronology_label"], "Conversation 2 of 2")
         self.assertNotIn("SECRET", json.dumps(context))
         self.assertEqual(set(report), {"history_id", "as_of_session", "timeline", "conclusion"})
         self.assertEqual(saved, report["timeline"])
         self.assertEqual(report["conclusion"], report["timeline"][-1]["findings"])
+
+    def test_sparse_source_numbers_keep_position_separate_and_pass_metadata(self):
+        sessions = [Session("s", 5, ("Student: Later progress.",)),
+                    Session("s", 2, ("Student: Initial difficulty.",),
+                            intervention_type="Tutoring", date="2026-09-10", stage="Initial session")]
+        with patch.object(self.client, "generate", wraps=self.client.generate) as generate:
+            SimpleLLM(sessions, self.client).analyse("s")
+        context = self.client.contexts[0]
+        self.assertEqual([s["session_number"] for s in context["sessions"]], [2, 5])
+        self.assertEqual(context["sessions"][1]["prior_session_numbers"], [2])
+        self.assertEqual(context["sessions"][0]["metadata"], {
+            "intervention_type": "Tutoring", "date": "2026-09-10", "stage": "Initial session"})
+        self.assertEqual(context["sessions"][1]["metadata"], {})
+        system = generate.call_args.args[0][0]["content"]
+        self.assertIn("school-support intervention", system)
+        self.assertIn("never use later disclosures", system)
 
     def test_bad_history_cutoff_and_budget_fail_before_generation(self):
         for history, cutoff in [("missing", None), ("tutoring/student", 4)]:

@@ -1,0 +1,152 @@
+{
+  "history_id": "09_learning_access/intervention_student_004",
+  "as_of_session": 3,
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial session establishing the main barrier as visual access to the board (copying wrong numbers) and uncertainty about seat changes. The student requested practical steps rather than judgmental support.",
+        "primary_concern": "Visual access to the board and uncertainty regarding seat arrangements.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Note one lesson where the obstacle occurs.",
+            "status": "pending"
+          },
+          {
+            "detail": "Request to check school policy/contacts regarding seat changes or clearer copies.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Learning Access",
+          "status": "inquiry_planned",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to attempt noting one lesson with the obstacle.",
+          "Mentor/Student to identify relevant school contact for seat/copy requests."
+        ],
+        "uncertainties": [
+          "Exact dates of incidents are uncertain.",
+          "Whether external services (seat change, clearer copies) are available or approved is unknown.",
+          "Completion of the between-session task is pending verification."
+        ],
+        "conclusion": "The session established the barrier and a small preparatory task. No external support was delivered. The main barrier remains unresolved, and the agreed action to note the obstacle is pending completion."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up session where the student reported starting but not finishing the between-session task due to schedule constraints. The main concern persisted.",
+        "primary_concern": "Visual access and uncertainty remain; the agreed task was partially attempted but incomplete.",
+        "tracked_details": [
+          {
+            "detail": "Attempt to note one lesson with the obstacle.",
+            "status": "completed"
+          },
+          {
+            "detail": "Agreed between-session task: Ask whether a clearer copy can be provided in one class.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Learning Access",
+          "status": "inquiry_planned",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to attempt asking for a clearer copy in one class.",
+          "Continue monitoring the main barrier."
+        ],
+        "uncertainties": [
+          "Whether the request for a clearer copy will be approved or feasible remains unknown.",
+          "Completion of the new task is pending verification."
+        ],
+        "conclusion": "The student attempted the previous task but did not complete it fully. A new task regarding clearer copies was proposed. No external support was delivered. The main barrier persists, and the status of the requested school adjustment remains uncertain."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Third follow-up session where the student reported that the difficulty is still present on some days. The previous task regarding clearer copies was not finished.",
+        "primary_concern": "Visual access and uncertainty remain; the main barrier has not disappeared.",
+        "tracked_details": [
+          {
+            "detail": "Attempt to ask for a clearer copy in one class.",
+            "status": "completed"
+          },
+          {
+            "detail": "Agreed between-session task: Ask relevant teacher what adjustments are feasible.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Learning Access",
+          "status": "inquiry_planned",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to ask the relevant teacher what adjustments are feasible.",
+          "Continue monitoring the main barrier."
+        ],
+        "uncertainties": [
+          "Whether the request for a clearer copy or seat change will be approved remains unknown.",
+          "Completion of the new task is pending verification."
+        ],
+        "conclusion": "The student reported that the difficulty persists on some days. The previous task was attempted but not fully completed. A new task regarding asking teachers about feasible adjustments was proposed. No external support was delivered. The main barrier remains unresolved, and the status of the requested school adjustment remains uncertain."
+      }
+    }
+  ],
+  "conclusion": {
+    "session_summary": "Third follow-up session where the student reported that the difficulty is still present on some days. The previous task regarding clearer copies was not finished.",
+    "primary_concern": "Visual access and uncertainty remain; the main barrier has not disappeared.",
+    "tracked_details": [
+      {
+        "detail": "Attempt to ask for a clearer copy in one class.",
+        "status": "completed"
+      },
+      {
+        "detail": "Agreed between-session task: Ask relevant teacher what adjustments are feasible.",
+        "status": "pending"
+      }
+    ],
+    "intervention": {
+      "type": "Learning Access",
+      "status": "inquiry_planned",
+      "service_delivered": null
+    },
+    "outcome": {
+      "primary_barrier_resolved": "no",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "unknown"
+    },
+    "session_helpful": "yes",
+    "next_steps": [
+      "Student to ask the relevant teacher what adjustments are feasible.",
+      "Continue monitoring the main barrier."
+    ],
+    "uncertainties": [
+      "Whether the request for a clearer copy or seat change will be approved remains unknown.",
+      "Completion of the new task is pending verification."
+    ],
+    "conclusion": "The student reported that the difficulty persists on some days. The previous task was attempted but not fully completed. A new task regarding asking teachers about feasible adjustments was proposed. No external support was delivered. The main barrier remains unresolved, and the status of the requested school adjustment remains uncertain."
+  }
+}

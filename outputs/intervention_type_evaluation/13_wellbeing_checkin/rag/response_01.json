@@ -1,0 +1,36 @@
+{
+  "session_summary": "Initial wellbeing check-in session focused on establishing a supportive, non-judgmental environment and identifying practical steps for managing school difficulties. The student expressed uncertainty about whether their lack of interest in activities is temporary and requested clear instructions rather than guessing.",
+  "primary_concern": "Student reports feeling less interested in usual activities (e.g., staying quiet at lunch) and worries this is affecting school performance. Uncertainty about the duration/nature of the problem hinders planning.",
+  "tracked_details": [
+    {
+      "detail": "Agreed between-session task: Notice one manageable moment and one difficult moment during the school week.",
+      "status": "pending"
+    },
+    {
+      "detail": "Student requests to keep private family details out of summaries and avoid assuming the problem is resolved.",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Wellbeing Check-in",
+    "status": "completed",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "yes"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Student to attempt the agreed task of noticing manageable and difficult moments.",
+    "Clarification needed on which parts of the support plan are confirmed versus proposed.",
+    "Monitor if student gets stuck and requires teacher assistance for procedures."
+  ],
+  "uncertainties": [
+    "Whether the lack of interest in activities is temporary or persistent.",
+    "Confirmation status of external school records or eligibility checks (student indicates none known).",
+    "Causal link between delivered check-in support and any future improvement in attendance or engagement."
+  ],
+  "conclusion": "The initial wellbeing check-in was delivered as a supportive conversation, establishing rapport and identifying a practical monitoring task. The student found the session helpful for clarifying options but explicitly noted that external support has not been automatically delivered. Uncertainty regarding the nature of the problem remains unresolved, and no evidence yet supports improvement in attendance or engagement."
+}

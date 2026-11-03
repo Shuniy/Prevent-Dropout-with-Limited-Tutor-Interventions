@@ -1,0 +1,35 @@
+{
+  "session_summary": "Initial session focused on establishing a practical, school-based plan for attendance issues (specifically arriving late due to room changes). The student requested privacy regarding home details. A specific activity was attempted: creating a day-by-day timeline of attendance/lateness based on recollection. The student noted they could remember three days but not exact dates for all absences.",
+  "primary_concern": "Arriving late and going to the wrong classroom due to timetable discrepancies (uncertainty about who updates displayed timetables).",
+  "tracked_details": [
+    {
+      "detail": "Agreed between-session task: Compare recollection with attendance office record (or a smaller version first).",
+      "status": "pending"
+    },
+    {
+      "detail": "Student preference for school-based steps rather than home-based ones.",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Attendance Planning",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "yes"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Student to attempt a smaller version of the record-comparison task.",
+    "Check school policy or contact regarding timetable updates before promising further support."
+  ],
+  "uncertainties": [
+    "Exact dates of absences are unclear (student relies on recollection).",
+    "External support eligibility has not been confirmed.",
+    "Whether the proposed timeline activity will be completed as agreed."
+  ],
+  "conclusion": "This was Session 1. The intended intervention is 'Attendance Planning'. A specific activity (timeline creation) occurred, but external support delivery remains unconfirmed (service_delivered: false). The main barrier (timetable confusion/lateness) remains unresolved. The student found the session helpful for clarifying steps but explicitly stated the wider barrier has not disappeared. Pending actions include checking attendance records and verifying who manages timetable updates."
+}

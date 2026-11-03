@@ -1,0 +1,126 @@
+[
+  {
+    "session_number": 1,
+    "findings": {
+      "session_summary": "Initial session focused on establishing a practical, school-based plan for attendance issues (specifically arriving late due to room changes). The student requested privacy regarding home details. A specific activity was attempted: creating a day-by-day timeline of attendance/lateness based on recollection. The student noted they could remember three days but not exact dates for all absences.",
+      "primary_concern": "Arriving late and going to the wrong classroom due to timetable discrepancies (uncertainty about who updates displayed timetables).",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task: Compare recollection with attendance office record (or a smaller version first).",
+          "status": "pending"
+        },
+        {
+          "detail": "Student preference for school-based steps rather than home-based ones.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Attendance Planning",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "yes"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt a smaller version of the record-comparison task.",
+        "Check school policy or contact regarding timetable updates before promising further support."
+      ],
+      "uncertainties": [
+        "Exact dates of absences are unclear (student relies on recollection).",
+        "External support eligibility has not been confirmed.",
+        "Whether the proposed timeline activity will be completed as agreed."
+      ],
+      "conclusion": "This was Session 1. The intended intervention is 'Attendance Planning'. A specific activity (timeline creation) occurred, but external support delivery remains unconfirmed (service_delivered: false). The main barrier (timetable confusion/lateness) remains unresolved. The student found the session helpful for clarifying steps but explicitly stated the wider barrier has not disappeared. Pending actions include checking attendance records and verifying who manages timetable updates."
+    }
+  },
+  {
+    "session_number": 2,
+    "findings": {
+      "session_summary": "Session 2 focused on reviewing the completion of the agreed between-session task (comparing recollection with attendance records) and attempting a new activity: identifying one realistic morning adjustment. The student confirmed completing the record-comparison step but noted that while this specific action was done, the wider barrier regarding timetable uncertainty and planning difficulties remains unresolved. A new in-session activity involved discussing packing earlier to mitigate home duty delays. The student requested slowing down the pace and emphasized that external details (like who updates timetables) remain unconfirmed.",
+      "primary_concern": "Uncertainty about school timetables, room changes, and home duties causing lateness; the wider barrier has not disappeared despite completing specific planning steps.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task: Compare recollection with attendance office record (or a smaller version first).",
+          "status": "completed"
+        },
+        {
+          "detail": "Student preference for school-based steps rather than home-based ones.",
+          "status": "pending"
+        },
+        {
+          "detail": "Agreed between-session task: Try the morning adjustment (packing earlier) on two school days.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Attendance Planning",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "yes"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt the morning adjustment on two school days.",
+        "Check school policy or contact regarding timetable updates before promising further support."
+      ],
+      "uncertainties": [
+        "Exact dates of absences are unclear (student relies on recollection).",
+        "External support eligibility has not been confirmed.",
+        "Whether the proposed timeline activity will be completed as agreed.",
+        "Who specifically updates the displayed timetables remains unconfirmed."
+      ],
+      "conclusion": "In Session 2, the student explicitly reported completing the agreed between-session task of comparing recollection with attendance records. However, this completion did not resolve the main barrier; the student noted the difficulty persists on some days. A new activity was attempted in-session: identifying a morning adjustment (packing earlier). The student acknowledged home duties could still delay them. Evidence supports that the mentoring session itself was helpful for clarifying steps and respecting constraints, but it does not establish that external support was delivered or that attendance improved. Pending actions include trying the morning adjustment on two days and verifying who manages timetable updates. Uncertainty remains regarding the exact nature of the timetable discrepancies and whether home duties are a primary factor."
+    }
+  },
+  {
+    "session_number": 3,
+    "findings": {
+      "session_summary": "Session 3 focused on reviewing the completion of the agreed between-session task (morning adjustment) and attempting a new activity: drafting a message for the school regarding arrival disruptions. The student reported starting but not finishing the morning adjustment step due to schedule constraints. A new in-session activity involved practicing the drafting of a communication message. The student emphasized slowing down the pace and maintaining privacy regarding home details. Evidence supports that the mentoring session itself was helpful for clarifying steps and respecting constraints, but it does not establish that external support was delivered or that attendance improved.",
+      "primary_concern": "Uncertainty about school timetables, room changes, and home duties causing lateness; the wider barrier has not disappeared despite completing specific planning steps.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task: Try the morning adjustment (packing earlier) on two school days.",
+          "status": "completed"
+        },
+        {
+          "detail": "Student preference for school-based steps rather than home-based ones.",
+          "status": "pending"
+        },
+        {
+          "detail": "Agreed between-session task: Confirm the correct contact and practice using it (drafting a message).",
+          "status": "completed"
+        }
+      ],
+      "intervention": {
+        "type": "Attendance Planning",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "yes"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt the drafted message step on one or two days.",
+        "Check school policy or contact regarding timetable updates before promising further support."
+      ],
+      "uncertainties": [
+        "Exact dates of absences are unclear (student relies on recollection).",
+        "External support eligibility has not been confirmed.",
+        "Whether the proposed timeline activity will be completed as agreed.",
+        "Who specifically updates the displayed timetables remains unconfirmed."
+      ],
+      "conclusion": "In Session 3, the student explicitly reported starting but not finishing the agreed between-session task of trying the morning adjustment. However, a new activity (drafting a message for the school) was completed in-session. The main barrier regarding timetable uncertainty and planning difficulties remains unresolved. Evidence supports that the mentoring session itself was helpful for clarifying steps and respecting constraints, but it does not establish that external support was delivered or that attendance improved. Pending actions include trying the drafted message step on one or two days and verifying who manages timetable updates."
+    }
+  }
+]

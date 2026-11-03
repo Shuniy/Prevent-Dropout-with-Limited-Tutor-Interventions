@@ -1,0 +1,39 @@
+{
+  "session_summary": "Follow-up session focused on reviewing the previous between-session task, which was not fully completed due to scheduling constraints. The mentor and student practiced a specific tutoring step in-session. The student clarified that external support remains pending and has not been delivered. The main barrier of time management during writing persists.",
+  "primary_concern": "Difficulty completing written paragraphs due to running out of time; uncertainty regarding the availability or delivery of external support.",
+  "tracked_details": [
+    {
+      "detail": "Agreed between-session task (try two similar examples and mark where stuck) from Session 1.",
+      "status": "unresolved"
+    },
+    {
+      "detail": "Intended intervention: Tutoring support to build one clear paragraph through slowed-down practice.",
+      "status": "planned"
+    },
+    {
+      "detail": "External support request: Student indicated need for another option if delays continue; no external service confirmed as delivered or approved.",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Tutoring",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "unknown"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Student to attempt writing one worked example in own words between sessions.",
+    "Mentor to verify external support availability if delays persist."
+  ],
+  "uncertainties": [
+    "Exact dates of the incident affecting the day are uncertain.",
+    "Whether external support will be available or approved remains unknown.",
+    "Student's ability to complete the between-session task alone is uncertain."
+  ],
+  "conclusion": "The follow-up session reviewed the previous plan, which was not fully completed. A tutoring activity was practiced in-session, establishing direct support delivery for that specific step. However, the intended external support remains pending and undelivered. The main barrier of time management during writing tasks remains unresolved. Evidence supports that the mentoring session itself was helpful for clarifying steps, but it does not establish that the external support was delivered or that the primary barrier has improved."
+}

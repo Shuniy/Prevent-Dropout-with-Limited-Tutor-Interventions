@@ -1,0 +1,153 @@
+{
+  "history_id": "01_transport_assessment/intervention_student_003",
+  "as_of_session": 3,
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial Transport Assessment session focused on identifying barriers to school attendance related to a specific route crossing. The student expressed nervousness and uncertainty about an approved alternative route.",
+        "primary_concern": "Uncertainty regarding the existence of an approved alternative route and anxiety about a specific road crossing.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Record two actual journey times before the next meeting.",
+            "status": "pending"
+          },
+          {
+            "detail": "Request for school-based support or route verification.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Mentoring session / Route mapping exercise",
+          "status": "completed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "yes"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to record journey times.",
+          "Clarification of route status."
+        ],
+        "uncertainties": [
+          "Whether an approved alternative route exists.",
+          "Verification of external support eligibility."
+        ],
+        "conclusion": "The mentoring session occurred and was deemed useful for clarifying steps. The student completed a mapping exercise in-session but did not receive external transport support. The main barrier (route uncertainty) remains unresolved, and the agreed between-session task is pending."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up session reviewing the completion of the journey time recording task. The student confirmed completing the specific step but noted the wider problem persists.",
+        "primary_concern": "Persistence of uncertainty and lack of a consistent plan despite completing the agreed task.",
+        "tracked_details": [
+          {
+            "detail": "Review of completed between-session task (recording journey times).",
+            "status": "completed"
+          },
+          {
+            "detail": "New agreed task: Check an alternative departure and write down practicality.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Mentoring session / Comparison of recorded times with timetable",
+          "status": "completed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "yes"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Check alternative departure times.",
+          "Seek teacher explanation if stuck."
+        ],
+        "uncertainties": [
+          "Whether an approved alternative route exists.",
+          "Consistency of the student's ability to manage without external support."
+        ],
+        "conclusion": "The agreed task from Session 1 was completed, but this did not resolve the main barrier. The wider issue (route uncertainty) remains unresolved. A new task regarding alternative departures was assigned. External support delivery remains unverified."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Final follow-up session where the student expressed uncertainty about completing the previous between-session task (checking alternative departure). The main concern persists.",
+        "primary_concern": "Uncertainty about completing tasks independently and continued presence of the school difficulty on some days.",
+        "tracked_details": [
+          {
+            "detail": "Review of previous task (checking alternative departure).",
+            "status": "unknown"
+          },
+          {
+            "detail": "New agreed task: Ask support office for evidence requirements for assessment.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Mentoring session / Practicing contact listing",
+          "status": "completed",
+          "service_delivered": null
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "yes"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Ask support office for assessment evidence requirements.",
+          "Seek teacher explanation if procedure is unclear."
+        ],
+        "uncertainties": [
+          "Completion status of the previous between-session task.",
+          "Existence of an approved alternative route.",
+          "Whether external support has been delivered or verified."
+        ],
+        "conclusion": "The mentoring session occurred and was helpful. The student reported uncertainty about completing the prior task, leaving its completion status unknown. The main barrier remains unresolved. No external support delivery was established. The intervention continues with a focus on clarifying procedures and seeking school-based steps."
+      }
+    }
+  ],
+  "conclusion": {
+    "session_summary": "Final follow-up session where the student expressed uncertainty about completing the previous between-session task (checking alternative departure). The main concern persists.",
+    "primary_concern": "Uncertainty about completing tasks independently and continued presence of the school difficulty on some days.",
+    "tracked_details": [
+      {
+        "detail": "Review of previous task (checking alternative departure).",
+        "status": "unknown"
+      },
+      {
+        "detail": "New agreed task: Ask support office for evidence requirements for assessment.",
+        "status": "pending"
+      }
+    ],
+    "intervention": {
+      "type": "Mentoring session / Practicing contact listing",
+      "status": "completed",
+      "service_delivered": null
+    },
+    "outcome": {
+      "primary_barrier_resolved": "no",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "yes"
+    },
+    "session_helpful": "yes",
+    "next_steps": [
+      "Ask support office for assessment evidence requirements.",
+      "Seek teacher explanation if procedure is unclear."
+    ],
+    "uncertainties": [
+      "Completion status of the previous between-session task.",
+      "Existence of an approved alternative route.",
+      "Whether external support has been delivered or verified."
+    ],
+    "conclusion": "The mentoring session occurred and was helpful. The student reported uncertainty about completing the prior task, leaving its completion status unknown. The main barrier remains unresolved. No external support delivery was established. The intervention continues with a focus on clarifying procedures and seeking school-based steps."
+  }
+}

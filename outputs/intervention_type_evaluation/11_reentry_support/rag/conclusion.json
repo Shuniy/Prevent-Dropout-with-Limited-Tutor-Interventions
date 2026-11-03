@@ -1,0 +1,168 @@
+{
+  "history_id": "11_reentry_support/intervention_student_007",
+  "as_of_session": 3,
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial Re-entry Support session focused on establishing a manageable first step (checking timetable) while respecting student privacy regarding family details. No external support delivered.",
+        "primary_concern": "Uncertainty about school procedures and managing work after absence; desire for practical, non-judgmental help without sharing private home details.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Student to check the timetable with the school office on a manageable day.",
+            "status": "pending"
+          },
+          {
+            "detail": "Student preference for small, adjustable steps rather than comprehensive solutions immediately.",
+            "status": "reported"
+          }
+        ],
+        "intervention": {
+          "type": "Re-entry Support",
+          "status": "inquiry_planned",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "yes"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to attempt checking the timetable with school office.",
+          "Mentor to review student's report on whether the step was completed and any barriers encountered."
+        ],
+        "uncertainties": [
+          "Whether external support eligibility has been checked or confirmed.",
+          "Exact dates of absence (student reports uncertainty).",
+          "Whether the agreed between-session task will be completed."
+        ],
+        "conclusion": "The session established a clear, small-scale action plan (checking timetable) which the student found helpful. The main barrier (uncertainty and need for practical help) remains partially unresolved as external support eligibility is unconfirmed and family details are withheld. No external service was delivered; only the mentoring activity occurred. Improvement in attendance or work completion cannot be assessed yet as this is the initial session."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up Re-entry Support session where the mentor and student reviewed a previous task (checking timetable) which was partially attempted but not completed due to scheduling difficulties. The main barrier of uncertainty regarding school procedures and managing work remains unresolved, though the student identified a manageable sub-step (asking one subject teacher for priority). A new in-session activity (sorting missed work into categories) was practiced together, providing direct support delivery within the session.",
+        "primary_concern": "Uncertainty about school procedures, fluctuating ability to manage workload, and privacy concerns regarding family details. The student reports that the difficulty is inconsistent ('worse some days than others') and explicitly states they do not want to share all private family details.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task from Session 1: Student to check timetable with school office.",
+            "status": "completed"
+          },
+          {
+            "detail": "New agreed between-session task: Student to ask one subject teacher which work should come first.",
+            "status": "pending"
+          },
+          {
+            "detail": "In-session activity: Practicing sorting missed work into urgent, useful, and later categories.",
+            "status": "completed"
+          }
+        ],
+        "intervention": {
+          "type": "Re-entry Support",
+          "status": "inquiry_planned",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "yes"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to attempt asking one subject teacher for work priority.",
+          "Mentor to review student's report on whether the step was completed and any barriers encountered."
+        ],
+        "uncertainties": [
+          "Whether external support eligibility has been checked or confirmed.",
+          "Exact dates of absence (student reports uncertainty).",
+          "Whether the new agreed task will be completed.",
+          "Whether the in-session activity can be successfully repeated alone by the student."
+        ],
+        "conclusion": "The session established a clear, small-scale action plan (asking one subject teacher) which the student found helpful. The main barrier (uncertainty and need for practical help) remains partially unresolved as external support eligibility is unconfirmed and family details are withheld. No external service was delivered; only the mentoring activity occurred. Improvement in attendance or work completion cannot be assessed yet as this is a follow-up session with no new data on those metrics."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Session 3 focused on reviewing the completion of a specific agreed task (asking one subject teacher for work priority) and rehearsing how to request help without sharing private family details. The student confirmed completing the specific step but noted that the wider barrier remains unresolved. An in-session activity was conducted to rehearse phrasing a help request, which the student found useful for reducing confusion. No external support services were delivered or received.",
+        "primary_concern": "Uncertainty about school procedures and managing workload; desire for practical help without sharing private family details.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task from Session 2: Student to ask one subject teacher which work should come first.",
+            "status": "completed"
+          },
+          {
+            "detail": "In-session activity: Rehearsing how to phrase a help request without private details.",
+            "status": "completed"
+          },
+          {
+            "detail": "Agreed between-session task for next session: Student to attempt using the agreed help request in one class (subject to schedule).",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Re-entry Support",
+          "status": "inquiry_planned",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "yes"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to attempt using the agreed help request in one class.",
+          "Mentor to review student's report on whether the step was completed and any barriers encountered."
+        ],
+        "uncertainties": [
+          "Whether external support eligibility has been checked or confirmed.",
+          "Exact dates of absence (student reports uncertainty).",
+          "Whether the new agreed task will be completed."
+        ],
+        "conclusion": "The session established that a specific small-scale action (asking one teacher) was completed, providing some relief to the immediate workload management barrier. However, the main barrier regarding overall uncertainty and managing work on difficult days remains partially unresolved as external support eligibility is unconfirmed and family details are withheld. The in-session rehearsal of requesting help was delivered and found helpful by the student. No external service was delivered; only the mentoring activity occurred. Improvement in attendance or broader work completion cannot be assessed yet."
+      }
+    }
+  ],
+  "conclusion": {
+    "session_summary": "Session 3 focused on reviewing the completion of a specific agreed task (asking one subject teacher for work priority) and rehearsing how to request help without sharing private family details. The student confirmed completing the specific step but noted that the wider barrier remains unresolved. An in-session activity was conducted to rehearse phrasing a help request, which the student found useful for reducing confusion. No external support services were delivered or received.",
+    "primary_concern": "Uncertainty about school procedures and managing workload; desire for practical help without sharing private family details.",
+    "tracked_details": [
+      {
+        "detail": "Agreed between-session task from Session 2: Student to ask one subject teacher which work should come first.",
+        "status": "completed"
+      },
+      {
+        "detail": "In-session activity: Rehearsing how to phrase a help request without private details.",
+        "status": "completed"
+      },
+      {
+        "detail": "Agreed between-session task for next session: Student to attempt using the agreed help request in one class (subject to schedule).",
+        "status": "pending"
+      }
+    ],
+    "intervention": {
+      "type": "Re-entry Support",
+      "status": "inquiry_planned",
+      "service_delivered": false
+    },
+    "outcome": {
+      "primary_barrier_resolved": "no",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "yes"
+    },
+    "session_helpful": "yes",
+    "next_steps": [
+      "Student to attempt using the agreed help request in one class.",
+      "Mentor to review student's report on whether the step was completed and any barriers encountered."
+    ],
+    "uncertainties": [
+      "Whether external support eligibility has been checked or confirmed.",
+      "Exact dates of absence (student reports uncertainty).",
+      "Whether the new agreed task will be completed."
+    ],
+    "conclusion": "The session established that a specific small-scale action (asking one teacher) was completed, providing some relief to the immediate workload management barrier. However, the main barrier regarding overall uncertainty and managing work on difficult days remains partially unresolved as external support eligibility is unconfirmed and family details are withheld. The in-session rehearsal of requesting help was delivered and found helpful by the student. No external service was delivered; only the mentoring activity occurred. Improvement in attendance or broader work completion cannot be assessed yet."
+  }
+}

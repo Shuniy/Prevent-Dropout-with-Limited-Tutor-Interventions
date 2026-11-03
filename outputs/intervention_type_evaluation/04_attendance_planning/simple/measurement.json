@@ -1,0 +1,29 @@
+{
+  "method": "simple",
+  "status": "completed",
+  "error": null,
+  "elapsed_seconds": 75.8,
+  "model_calls": 1,
+  "calls": [
+    {
+      "prompt_chars": 40857,
+      "elapsed_seconds": 75.788
+    }
+  ],
+  "total_prompt_chars": 40857,
+  "valid_saved_entries": 3,
+  "final_values": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "partial",
+    "intervention_helpful": "unknown",
+    "session_helpful": "yes",
+    "service_delivered": null
+  },
+  "reference_checks": {
+    "primary_barrier_resolved": true,
+    "attendance_improved": false,
+    "session_helpful": true
+  },
+  "reference_checks_passed": 2,
+  "reference_checks_total": 3
+}

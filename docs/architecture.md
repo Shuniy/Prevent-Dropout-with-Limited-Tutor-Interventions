@@ -87,8 +87,10 @@ The final timeline entry is the final conclusion. Timeline entries are retrospec
 reconstructions, with all selected sessions visible; the prompt requests findings as
 of each session but cannot enforce temporal isolation. Optional RAG retains its
 per-session calls, earlier-only retrieval/memory and partial valid findings on failure.
-Both exclude headers, profiles, retrospective labels and sessions beyond the planned
-limit. Recorded attendance is independent of extraction success. Missing compatible
+Both receive allowlisted descriptive headers (intervention type, date, stage) alongside
+spoken turns. Profiles, retrospective outcome labels and sessions beyond the planned
+limit are excluded. Simple session records explicitly identify conversation positions
+and earlier source session numbers; prompts live in `intervention/prompts.py`. Recorded attendance is independent of extraction success. Missing compatible
 history returns an unavailable result.
 
 School receives only identity, counts, programme/analysis status and three enumerated

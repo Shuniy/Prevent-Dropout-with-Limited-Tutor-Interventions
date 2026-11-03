@@ -3,11 +3,11 @@
   "as_of_session": 3,
   "model": "qwen3.5:latest",
   "question": "What barriers remain, what happened to agreed actions, and is there evidence of delivered support or improvement?",
-  "generated_at_utc": "2026-11-03T18:51:41.941388+00:00",
-  "python_version": "3.10.19",
+  "generated_at_utc": "2026-11-03T20:10:24.516682+00:00",
+  "python_version": "3.14.8",
   "num_ctx": 32768,
   "temperature": 0,
-  "transcript_sha256": "7d2c1bb2bec11f1d10f72e41956fc7c7553697288cb74537c4ea43783331e958",
+  "transcript_sha256": "324c2fa4b8b1936084c367e92af6d5cc9b808947b8130608057c5012c9217d77",
   "reference": {
     "primary_barrier_resolved": [
       "no",
@@ -51,12 +51,12 @@
       "method": "rag",
       "status": "completed",
       "model_calls": 3,
-      "elapsed_seconds": 108.05,
-      "total_prompt_chars": 48835,
+      "elapsed_seconds": 133.376,
+      "total_prompt_chars": 74643,
       "primary_barrier_resolved": "no",
       "attendance_improved": "unknown",
       "intervention_helpful": "unknown",
-      "service_delivered": null,
+      "service_delivered": false,
       "reference_checks_passed": 4,
       "reference_checks_total": 4,
       "reference_checks": {
@@ -70,12 +70,12 @@
       "method": "simple",
       "status": "completed",
       "model_calls": 1,
-      "elapsed_seconds": 71.554,
-      "total_prompt_chars": 30733,
+      "elapsed_seconds": 83.235,
+      "total_prompt_chars": 38631,
       "primary_barrier_resolved": "no",
       "attendance_improved": "unknown",
       "intervention_helpful": "unknown",
-      "service_delivered": null,
+      "service_delivered": false,
       "reference_checks_passed": 4,
       "reference_checks_total": 4,
       "reference_checks": {
@@ -96,20 +96,20 @@
       "status": "completed",
       "error": null,
       "model_calls": 3,
-      "elapsed_seconds": 108.05,
-      "total_prompt_chars": 48835,
+      "elapsed_seconds": 133.376,
+      "total_prompt_chars": 74643,
       "calls": [
         {
-          "prompt_chars": 15773,
-          "elapsed_seconds": 37.343
+          "prompt_chars": 23984,
+          "elapsed_seconds": 45.37
         },
         {
-          "prompt_chars": 14481,
-          "elapsed_seconds": 32.091
+          "prompt_chars": 23218,
+          "elapsed_seconds": 39.628
         },
         {
-          "prompt_chars": 18581,
-          "elapsed_seconds": 38.592
+          "prompt_chars": 27441,
+          "elapsed_seconds": 48.339
         }
       ]
     },
@@ -117,12 +117,12 @@
       "status": "completed",
       "error": null,
       "model_calls": 1,
-      "elapsed_seconds": 71.554,
-      "total_prompt_chars": 30733,
+      "elapsed_seconds": 83.235,
+      "total_prompt_chars": 38631,
       "calls": [
         {
-          "prompt_chars": 30733,
-          "elapsed_seconds": 71.537
+          "prompt_chars": 38631,
+          "elapsed_seconds": 83.197
         }
       ]
     }

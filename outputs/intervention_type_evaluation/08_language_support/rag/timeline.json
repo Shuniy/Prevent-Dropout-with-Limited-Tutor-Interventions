@@ -1,0 +1,124 @@
+[
+  {
+    "session_number": 1,
+    "findings": {
+      "session_summary": "Initial mentoring session focused on establishing a practical approach to language support without confirming external service eligibility. The student reported difficulty writing complete sentences and using formal language correctly.",
+      "primary_concern": "Struggle with writing complete sentences, linking words, and uncertainty regarding when to use formal language in school contexts.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task: Write down two instruction words that appear in class.",
+          "status": "pending"
+        },
+        {
+          "detail": "External support eligibility check (school record or service availability).",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Language Support",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt writing down two instruction words before the next session.",
+        "Mentor and student to identify a specific school contact to verify eligibility or confirm support availability."
+      ],
+      "uncertainties": [
+        "Whether external support services are available or approved.",
+        "Exact dates of recent incidents affecting attendance or work completion.",
+        "Whether the agreed between-session task will be completed given time constraints."
+      ],
+      "conclusion": "The initial session established a collaborative, non-judgmental approach. A specific language activity was attempted and found useful by the student, but external support delivery remains unverified. The main barrier (writing/formal language) persists as unresolved pending further intervention or eligibility confirmation."
+    }
+  },
+  {
+    "session_number": 2,
+    "findings": {
+      "session_summary": "Follow-up session focused on reviewing a partially completed between-session task, practicing a specific language activity in-session, and clarifying that external support remains pending. The student reported uneven progress with the main barrier persisting.",
+      "primary_concern": "Struggle with writing complete sentences, linking words, and uncertainty regarding when to use formal language.",
+      "tracked_details": [
+        {
+          "detail": "Review of between-session task (writing down two instruction words).",
+          "status": "completed"
+        },
+        {
+          "detail": "External support eligibility check/service availability.",
+          "status": "pending"
+        },
+        {
+          "detail": "Agreed between-session task: Write down two instruction words that appear in class.",
+          "status": "completed"
+        }
+      ],
+      "intervention": {
+        "type": "Language Support",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt the two-sentence frame in one lesson.",
+        "Mentor and student to identify a specific school contact to verify eligibility or confirm support availability."
+      ],
+      "uncertainties": [
+        "Whether external support services are available or approved.",
+        "Exact dates of recent incidents affecting attendance or work completion.",
+        "Whether the agreed between-session task will be completed given time constraints."
+      ],
+      "conclusion": "The follow-up session reviewed a partially completed task and delivered a language practice activity in-session. The student reported uneven progress, indicating the main barrier (writing/formal language) remains unresolved. External support delivery remains unverified and pending. Evidence supports that the session was helpful for clarifying steps, but does not establish causal effectiveness of the intervention on the main barrier or attendance."
+    }
+  },
+  {
+    "session_number": 3,
+    "findings": {
+      "session_summary": "Session 3 reviewed uneven progress on language barriers, confirmed partial completion of a between-session task (two-sentence frame), and delivered an in-session language activity. The student reported that the main barrier persists despite some manageable steps.",
+      "primary_concern": "Struggle with writing complete sentences, linking words, and uncertainty regarding when to use formal language.",
+      "tracked_details": [
+        {
+          "detail": "Review of between-session task (two-sentence frame in one lesson).",
+          "status": "completed"
+        },
+        {
+          "detail": "External support eligibility check/service availability.",
+          "status": "pending"
+        },
+        {
+          "detail": "Agreed between-session task: Write down two instruction words that appear in class.",
+          "status": "completed"
+        }
+      ],
+      "intervention": {
+        "type": "Language Support",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt highlighting the action and date in the next notice.",
+        "Mentor and student to identify a specific school contact to verify eligibility or confirm support availability."
+      ],
+      "uncertainties": [
+        "Whether external support services are available or approved.",
+        "Exact dates of recent incidents affecting attendance or work completion.",
+        "Whether the agreed between-session task will be completed given time constraints."
+      ],
+      "conclusion": "The current session delivered a language practice activity in-room, establishing direct support delivery for that specific task. The student reported uneven progress and confirmed that the wider barrier (writing/formal language) remains unresolved. While the session was helpful for clarifying steps and managing expectations about what constitutes 'completion' versus external service delivery, evidence does not establish causal effectiveness of the intervention on the main barrier or attendance. External support eligibility remains pending."
+    }
+  }
+]

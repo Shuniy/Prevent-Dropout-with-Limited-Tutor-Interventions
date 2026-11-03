@@ -1,0 +1,51 @@
+{
+  "planned_cases": 13,
+  "recorded_method_results": 26,
+  "methods": {
+    "rag": {
+      "completed_cases": 13,
+      "failed_cases": 0,
+      "unrun_cases": 0,
+      "total_model_calls": 39,
+      "total_elapsed_seconds": 1491.91,
+      "mean_elapsed_seconds": 114.762,
+      "median_elapsed_seconds": 119.966,
+      "total_prompt_chars": 982879,
+      "reference_checks_passed": 38,
+      "planned_reference_checks": 39,
+      "final_check_passes": {
+        "primary_barrier_resolved": 12,
+        "attendance_improved": 13,
+        "session_helpful": 13
+      }
+    },
+    "simple": {
+      "completed_cases": 13,
+      "failed_cases": 0,
+      "unrun_cases": 0,
+      "total_model_calls": 13,
+      "total_elapsed_seconds": 1029.485,
+      "mean_elapsed_seconds": 79.191,
+      "median_elapsed_seconds": 81.651,
+      "total_prompt_chars": 537434,
+      "reference_checks_passed": 38,
+      "planned_reference_checks": 39,
+      "final_check_passes": {
+        "primary_barrier_resolved": 13,
+        "attendance_improved": 12,
+        "session_helpful": 13
+      }
+    }
+  },
+  "completed_pairs": 13,
+  "final_field_agreement_counts": {
+    "primary_barrier_resolved": 12,
+    "attendance_improved": 12,
+    "intervention_helpful": 6,
+    "service_delivered": 2,
+    "session_helpful": 13
+  },
+  "simple_elapsed_reduction_percent": 31.0,
+  "simple_prompt_char_reduction_percent": 45.32,
+  "simple_faster_pairs": 13
+}

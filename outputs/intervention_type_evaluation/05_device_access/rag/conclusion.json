@@ -1,0 +1,166 @@
+{
+  "history_id": "05_device_access/intervention_student_001",
+  "as_of_session": 3,
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial session focused on establishing trust and mapping current device access barriers. The student reported sharing a phone at home, leading to uncertainty about homework completion when siblings need the device.",
+        "primary_concern": "Reliable device access for homework due to shared household resources and lack of confirmed school support eligibility.",
+        "tracked_details": [
+          {
+            "detail": "Agreed activity: Mapping available devices, connections, and school resources.",
+            "status": "completed"
+          },
+          {
+            "detail": "Between-session task: Check school computer room availability or a smaller version of the step.",
+            "status": "pending"
+          },
+          {
+            "detail": "External support inquiry: Checking school device-loan rules and eligibility.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Device Access",
+          "status": "inquiry_planned",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "yes"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Verify school computer room availability.",
+          "Check school device-loan rules."
+        ],
+        "uncertainties": [
+          "School device-loan eligibility status.",
+          "Whether the student can access the computer room independently or needs teacher assistance."
+        ],
+        "conclusion": "The session successfully delivered a mapping activity to clarify current access limitations. The intended external support (device loan) remains pending as no confirmation of eligibility was found. The student reported that the session was helpful for clarifying steps, but the main barrier of reliable device access remains unresolved. Pending actions include checking school policies and attempting a smaller version of the computer room step."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up session focused on reviewing a failed between-session task (checking computer room availability) and delivering an in-session activity testing low-bandwidth/paper-based alternatives. The student reported uneven progress, citing home/school timing constraints as barriers to the previous plan. A new small step was agreed: checking for offline assignment options.",
+        "primary_concern": "Reliable device access for homework due to shared household resources and lack of confirmed school support eligibility.",
+        "tracked_details": [
+          {
+            "detail": "Between-session task: Check school computer room availability or a smaller version of the step.",
+            "status": "completed"
+          },
+          {
+            "detail": "External support inquiry: Checking school device-loan rules and eligibility.",
+            "status": "pending"
+          },
+          {
+            "detail": "Agreed activity: Testing low-bandwidth or paper-based version of one task in-session.",
+            "status": "completed"
+          },
+          {
+            "detail": "Between-session task: Ask whether the next assignment has an offline option.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Device Access",
+          "status": "inquiry_planned",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "yes"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Ask whether the next assignment has an offline option.",
+          "Check school device-loan rules and eligibility."
+        ],
+        "uncertainties": [
+          "School device-loan eligibility status.",
+          "Whether the student can access the computer room independently or needs teacher assistance.",
+          "Whether the student can repeat the low-bandwidth/paper-based step alone outside of session."
+        ],
+        "conclusion": "The intended external support (device loan) remains pending with no evidence of delivery. The previous between-session task was not completed due to timing constraints, but a new in-session activity was delivered and found useful by the student. The main barrier of reliable device access remains unresolved. Pending actions include checking school policies and attempting a smaller offline-option step."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Session 3 focused on reviewing a completed between-session task (checking for offline assignment options) and planning an inquiry into school device-loan rules. The student successfully executed the agreed small step but noted that this did not resolve the wider barrier of reliable device access. A new between-session task was agreed: to request the current device-support procedure from the school office, with a contingency plan if the office is unavailable.",
+        "primary_concern": "Reliable device access for homework due to shared household resources and lack of confirmed school support eligibility.",
+        "tracked_details": [
+          {
+            "detail": "Between-session task: Ask whether the next assignment has an offline option.",
+            "status": "completed"
+          },
+          {
+            "detail": "External support inquiry: Requesting current device-support procedure from school office.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Device Access",
+          "status": "inquiry_planned",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "no",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "yes"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Request the current device-support procedure from the school office.",
+          "Plan a backup step if the school office is unavailable."
+        ],
+        "uncertainties": [
+          "School device-loan eligibility status.",
+          "Whether the student can access the computer room independently or needs teacher assistance.",
+          "Whether the student can repeat the low-bandwidth/paper-based step alone outside of session."
+        ],
+        "conclusion": "The intended external support (device loan) remains pending with no evidence of delivery. The previous between-session task regarding offline options was completed, providing a partial workaround but not resolving the main barrier. The student found the session helpful for clarifying steps and managing uncertainty. Pending actions include checking school policies via a specific inquiry to the authorized contact."
+      }
+    }
+  ],
+  "conclusion": {
+    "session_summary": "Session 3 focused on reviewing a completed between-session task (checking for offline assignment options) and planning an inquiry into school device-loan rules. The student successfully executed the agreed small step but noted that this did not resolve the wider barrier of reliable device access. A new between-session task was agreed: to request the current device-support procedure from the school office, with a contingency plan if the office is unavailable.",
+    "primary_concern": "Reliable device access for homework due to shared household resources and lack of confirmed school support eligibility.",
+    "tracked_details": [
+      {
+        "detail": "Between-session task: Ask whether the next assignment has an offline option.",
+        "status": "completed"
+      },
+      {
+        "detail": "External support inquiry: Requesting current device-support procedure from school office.",
+        "status": "pending"
+      }
+    ],
+    "intervention": {
+      "type": "Device Access",
+      "status": "inquiry_planned",
+      "service_delivered": false
+    },
+    "outcome": {
+      "primary_barrier_resolved": "no",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "yes"
+    },
+    "session_helpful": "yes",
+    "next_steps": [
+      "Request the current device-support procedure from the school office.",
+      "Plan a backup step if the school office is unavailable."
+    ],
+    "uncertainties": [
+      "School device-loan eligibility status.",
+      "Whether the student can access the computer room independently or needs teacher assistance.",
+      "Whether the student can repeat the low-bandwidth/paper-based step alone outside of session."
+    ],
+    "conclusion": "The intended external support (device loan) remains pending with no evidence of delivery. The previous between-session task regarding offline options was completed, providing a partial workaround but not resolving the main barrier. The student found the session helpful for clarifying steps and managing uncertainty. Pending actions include checking school policies via a specific inquiry to the authorized contact."
+  }
+}

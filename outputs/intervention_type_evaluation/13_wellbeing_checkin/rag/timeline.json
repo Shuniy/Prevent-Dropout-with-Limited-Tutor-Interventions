@@ -1,0 +1,127 @@
+[
+  {
+    "session_number": 1,
+    "findings": {
+      "session_summary": "Initial wellbeing check-in session focused on establishing a supportive, non-judgmental environment and identifying practical steps for managing school difficulties. The student expressed uncertainty about whether their lack of interest in activities is temporary and requested clear instructions rather than guessing.",
+      "primary_concern": "Student reports feeling less interested in usual activities (e.g., staying quiet at lunch) and worries this is affecting school performance. Uncertainty about the duration/nature of the problem hinders planning.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task: Notice one manageable moment and one difficult moment during the school week.",
+          "status": "pending"
+        },
+        {
+          "detail": "Student requests to keep private family details out of summaries and avoid assuming the problem is resolved.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Wellbeing Check-in",
+        "status": "completed",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "yes"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt the agreed task of noticing manageable and difficult moments.",
+        "Clarification needed on which parts of the support plan are confirmed versus proposed.",
+        "Monitor if student gets stuck and requires teacher assistance for procedures."
+      ],
+      "uncertainties": [
+        "Whether the lack of interest in activities is temporary or persistent.",
+        "Confirmation status of external school records or eligibility checks (student indicates none known).",
+        "Causal link between delivered check-in support and any future improvement in attendance or engagement."
+      ],
+      "conclusion": "The initial wellbeing check-in was delivered as a supportive conversation, establishing rapport and identifying a practical monitoring task. The student found the session helpful for clarifying options but explicitly noted that external support has not been automatically delivered. Uncertainty regarding the nature of the problem remains unresolved, and no evidence yet supports improvement in attendance or engagement."
+    }
+  },
+  {
+    "session_number": 2,
+    "findings": {
+      "session_summary": "Follow-up wellbeing check-in where the student reported failure to complete the previous between-session task due to home/school timing conflicts. A new, smaller grounding/pause routine was practiced in-session and agreed as a realistic next step. The student clarified that participation does not equal external support delivery or problem resolution.",
+      "primary_concern": "Uncertainty about whether the lack of interest/engagement is temporary; difficulty planning due to unclear circumstances; failure to complete previous monitoring task.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task from Session 1: Notice one manageable and one difficult moment.",
+          "status": "completed"
+        },
+        {
+          "detail": "New agreed between-session task: Try a brief grounding/pause routine during one stressful school moment.",
+          "status": "pending"
+        },
+        {
+          "detail": "Student request to keep private family details out of summaries and avoid assuming the problem is resolved.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Wellbeing Check-in",
+        "status": "completed",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "yes"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt the agreed pause routine during one stressful school moment.",
+        "Clarify which parts of the support plan are confirmed versus proposed.",
+        "Monitor if student gets stuck and requires teacher assistance for procedures."
+      ],
+      "uncertainties": [
+        "Whether the lack of interest in activities is temporary or persistent.",
+        "Confirmation status of external school records or eligibility checks (student indicates none known).",
+        "Causal link between delivered check-in support and any future improvement in attendance or engagement."
+      ],
+      "conclusion": "The wellbeing check-in was delivered as a supportive conversation, establishing rapport and identifying a practical monitoring task. The student found the session helpful for clarifying options but explicitly noted that external support has not been automatically delivered. Uncertainty regarding the nature of the problem remains unresolved, and no evidence yet supports improvement in attendance or engagement."
+    }
+  },
+  {
+    "session_number": 3,
+    "findings": {
+      "session_summary": "Session 3 was a follow-up wellbeing check-in where the student reported partial completion of the previous between-session task (starting but not finishing the pause routine due to scheduling conflicts). The main barrier remains the uncertainty about the nature/duration of the problem and conflicting home/school timing constraints. A new in-session activity involved rehearsing a help request with a trusted school adult, which the student found useful for clarifying options but noted that the wider barrier has not disappeared. No external support was delivered or confirmed.",
+      "primary_concern": "Uncertainty about whether the lack of interest/engagement is temporary; difficulty planning due to unclear circumstances and timing conflicts; partial completion of agreed tasks.",
+      "tracked_details": [
+        {
+          "detail": "Agreed between-session task from Session 2: Try a brief grounding/pause routine during one stressful school moment.",
+          "status": "completed"
+        },
+        {
+          "detail": "New agreed between-session task: Check when the trusted adult is available and rehearse a help request.",
+          "status": "pending"
+        },
+        {
+          "detail": "Student request to keep private family details out of summaries and avoid assuming the problem is resolved.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Wellbeing Check-in",
+        "status": "completed",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "yes"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt checking the trusted adult's availability and rehearsing a help request.",
+        "Clarify which parts of the support plan are confirmed versus proposed.",
+        "Monitor if student gets stuck and requires teacher assistance for procedures."
+      ],
+      "uncertainties": [
+        "Whether the lack of interest in activities is temporary or persistent.",
+        "Confirmation status of external school records or eligibility checks (student indicates none known).",
+        "Causal link between delivered check-in support and any future improvement in attendance or engagement."
+      ],
+      "conclusion": "The wellbeing check-in was delivered as a supportive conversation, establishing rapport and identifying practical steps. The student found the session helpful for clarifying options but explicitly noted that external support has not been automatically delivered. Uncertainty regarding the nature of the problem remains unresolved, and no evidence yet supports improvement in attendance or engagement."
+    }
+  }
+]

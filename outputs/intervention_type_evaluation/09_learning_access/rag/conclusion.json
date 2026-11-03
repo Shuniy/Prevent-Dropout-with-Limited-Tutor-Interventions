@@ -1,0 +1,174 @@
+{
+  "history_id": "09_learning_access/intervention_student_004",
+  "as_of_session": 3,
+  "timeline": [
+    {
+      "session_number": 1,
+      "findings": {
+        "session_summary": "Initial session focused on establishing a practical, non-judgmental approach to a learning access barrier (seating visibility). The mentor and student identified the main obstacle as the inability to see the board from the current seat, leading to copying errors. They agreed on a small, realistic between-session task: noting one lesson where the obstacle occurs. No external services were delivered or approved; only the mentoring session itself occurred.",
+        "primary_concern": "Learning access barrier due to seating position preventing visibility of the board.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Student will note one lesson where the seating obstacle occurs, provided it fits their schedule.",
+            "status": "pending"
+          },
+          {
+            "detail": "Student expressed uncertainty about whether seats can be changed and requested checking school policy/contacts before promising support.",
+            "status": "unresolved"
+          },
+          {
+            "detail": "Student noted that dealing with the issue alone was ineffective, but asking a classmate provided partial utility.",
+            "status": "completed"
+          }
+        ],
+        "intervention": {
+          "type": "Learning Access",
+          "status": "inquiry_planned",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "unknown",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Check school policy or contact relevant staff regarding seat change eligibility.",
+          "Student to attempt the agreed small step (noting one lesson) if schedule permits."
+        ],
+        "uncertainties": [
+          "Whether a seat change is possible or approved.",
+          "Availability of external support services.",
+          "Exact dates and confirmation of service availability remain uncertain."
+        ],
+        "conclusion": "The initial session successfully identified the main barrier (seating visibility) and established a cautious, practical approach. The intended intervention involves checking school policy for seat changes, but no external support has been delivered yet. The student agreed to a small monitoring task. Evidence supports that the session was helpful in clarifying steps, but improvement in the barrier or attendance cannot be confirmed as this is the first session and no external aid has been received."
+      }
+    },
+    {
+      "session_number": 2,
+      "findings": {
+        "session_summary": "Follow-up session focused on reviewing the previous plan regarding seating visibility and attempting a practical activity (comparing worksheet layouts). The student reported partial completion of the between-session task due to scheduling constraints. A new in-session activity was attempted but remains unverified for future use. The core uncertainty regarding seat change eligibility persists.",
+        "primary_concern": "Learning access barrier due to seating position preventing visibility of the board, compounded by schedule constraints on monitoring tasks.",
+        "tracked_details": [
+          {
+            "detail": "Agreed between-session task: Student to note one lesson where the seating obstacle occurs.",
+            "status": "completed"
+          },
+          {
+            "detail": "In-session activity: Comparing a standard worksheet with a clearer layout.",
+            "status": "completed"
+          },
+          {
+            "detail": "Request to check school policy/contacts regarding seat change eligibility.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Learning Access",
+          "status": "inquiry_planned",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "unknown",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Check school policy or contact relevant staff regarding seat change eligibility.",
+          "Student to attempt the agreed small step (noting one lesson) if schedule permits."
+        ],
+        "uncertainties": [
+          "Whether a seat change is possible or approved.",
+          "Availability of external support services.",
+          "Exact dates and confirmation of service availability remain uncertain.",
+          "Whether the in-session worksheet activity can be successfully repeated alone by the student."
+        ],
+        "conclusion": "The follow-up session clarified that the previous between-session task was attempted but not fully completed due to schedule issues. A new in-session activity (worksheet comparison) was delivered and found useful for clarity, though its standalone utility remains uncertain. The main barrier (seating visibility) remains unresolved as no external support (seat change) has been approved or received. Evidence supports that the session itself was helpful in clarifying steps, but improvement in the primary barrier or attendance cannot be confirmed."
+      }
+    },
+    {
+      "session_number": 3,
+      "findings": {
+        "session_summary": "Session 3 focused on reviewing the partial completion of previous tasks and practicing a specific intervention activity (requesting clarification/seat adjustment) in real-time. The student reported that while the in-session practice was useful, the external barrier (school policy/seat change) remains unconfirmed. A new between-session task was agreed upon: attempting to ask a teacher about feasible adjustments. The student explicitly distinguished between the completed mentoring activity and the pending external support.",
+        "primary_concern": "Learning access barrier due to seating position preventing visibility of the board, compounded by uncertainty regarding school policy approval.",
+        "tracked_details": [
+          {
+            "detail": "In-session activity: Practicing how to request clarification or an appropriate seat.",
+            "status": "completed"
+          },
+          {
+            "detail": "Agreed between-session task: Student to attempt a smaller version of the step (asking a relevant teacher what adjustments are feasible).",
+            "status": "pending"
+          },
+          {
+            "detail": "Request to check school policy/contacts regarding seat change eligibility.",
+            "status": "pending"
+          }
+        ],
+        "intervention": {
+          "type": "Learning Access",
+          "status": "inquiry_planned",
+          "service_delivered": false
+        },
+        "outcome": {
+          "primary_barrier_resolved": "unknown",
+          "attendance_improved": "unknown",
+          "intervention_helpful": "unknown"
+        },
+        "session_helpful": "yes",
+        "next_steps": [
+          "Student to attempt asking a relevant teacher about feasible adjustments.",
+          "Check school policy or contact relevant staff regarding seat change eligibility."
+        ],
+        "uncertainties": [
+          "Whether the between-session task (asking the teacher) will be completed.",
+          "Whether a seat change is possible or approved by the school.",
+          "Availability of external support services.",
+          "Exact dates and confirmation of service availability remain uncertain."
+        ],
+        "conclusion": "The current session delivered an in-session activity (practicing the request for clarification) which was found helpful by the student. However, no external support (seat change or policy approval) has been delivered or confirmed. The main barrier remains unresolved as it depends on school administration decisions outside the mentoring scope. Evidence supports that the session itself was helpful in clarifying steps and reducing uncertainty about the process, but improvement in the primary barrier or attendance cannot be confirmed. The student agreed to a new, smaller between-session task to attempt asking a teacher directly."
+      }
+    }
+  ],
+  "conclusion": {
+    "session_summary": "Session 3 focused on reviewing the partial completion of previous tasks and practicing a specific intervention activity (requesting clarification/seat adjustment) in real-time. The student reported that while the in-session practice was useful, the external barrier (school policy/seat change) remains unconfirmed. A new between-session task was agreed upon: attempting to ask a teacher about feasible adjustments. The student explicitly distinguished between the completed mentoring activity and the pending external support.",
+    "primary_concern": "Learning access barrier due to seating position preventing visibility of the board, compounded by uncertainty regarding school policy approval.",
+    "tracked_details": [
+      {
+        "detail": "In-session activity: Practicing how to request clarification or an appropriate seat.",
+        "status": "completed"
+      },
+      {
+        "detail": "Agreed between-session task: Student to attempt a smaller version of the step (asking a relevant teacher what adjustments are feasible).",
+        "status": "pending"
+      },
+      {
+        "detail": "Request to check school policy/contacts regarding seat change eligibility.",
+        "status": "pending"
+      }
+    ],
+    "intervention": {
+      "type": "Learning Access",
+      "status": "inquiry_planned",
+      "service_delivered": false
+    },
+    "outcome": {
+      "primary_barrier_resolved": "unknown",
+      "attendance_improved": "unknown",
+      "intervention_helpful": "unknown"
+    },
+    "session_helpful": "yes",
+    "next_steps": [
+      "Student to attempt asking a relevant teacher about feasible adjustments.",
+      "Check school policy or contact relevant staff regarding seat change eligibility."
+    ],
+    "uncertainties": [
+      "Whether the between-session task (asking the teacher) will be completed.",
+      "Whether a seat change is possible or approved by the school.",
+      "Availability of external support services.",
+      "Exact dates and confirmation of service availability remain uncertain."
+    ],
+    "conclusion": "The current session delivered an in-session activity (practicing the request for clarification) which was found helpful by the student. However, no external support (seat change or policy approval) has been delivered or confirmed. The main barrier remains unresolved as it depends on school administration decisions outside the mentoring scope. Evidence supports that the session itself was helpful in clarifying steps and reducing uncertainty about the process, but improvement in the primary barrier or attendance cannot be confirmed. The student agreed to a new, smaller between-session task to attempt asking a teacher directly."
+  }
+}

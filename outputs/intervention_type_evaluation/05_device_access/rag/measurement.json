@@ -1,0 +1,37 @@
+{
+  "method": "rag",
+  "status": "completed",
+  "error": null,
+  "elapsed_seconds": 104.182,
+  "model_calls": 3,
+  "calls": [
+    {
+      "prompt_chars": 19901,
+      "elapsed_seconds": 30.269
+    },
+    {
+      "prompt_chars": 22098,
+      "elapsed_seconds": 36.437
+    },
+    {
+      "prompt_chars": 26471,
+      "elapsed_seconds": 37.446
+    }
+  ],
+  "total_prompt_chars": 68470,
+  "valid_saved_entries": 3,
+  "final_values": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "yes",
+    "session_helpful": "yes",
+    "service_delivered": false
+  },
+  "reference_checks": {
+    "primary_barrier_resolved": true,
+    "attendance_improved": true,
+    "session_helpful": true
+  },
+  "reference_checks_passed": 3,
+  "reference_checks_total": 3
+}

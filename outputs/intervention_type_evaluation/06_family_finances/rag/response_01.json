@@ -1,0 +1,35 @@
+{
+  "session_summary": "Initial session focused on establishing a safe space for the student to discuss barriers related to travel costs and household expenses without judgment. The mentor facilitated an activity to separate known school-related costs from unverified household details.",
+  "primary_concern": "Travel costs adding to household expenses, leading to missed bus fare and walking instead; uncertainty regarding household budget details and support eligibility.",
+  "tracked_details": [
+    {
+      "detail": "Agreed between-session task: Student to list specific school costs to inquire about with the support office.",
+      "status": "pending"
+    },
+    {
+      "detail": "Verification of household budget details and support eligibility.",
+      "status": "unresolved"
+    }
+  ],
+  "intervention": {
+    "type": "Family Finances",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "yes"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Student to attempt listing specific school costs.",
+    "Mentor to verify support eligibility and budget details in subsequent sessions."
+  ],
+  "uncertainties": [
+    "Exact dates of missed work are uncertain.",
+    "Availability of external support services is unconfirmed.",
+    "Whether the student can complete the between-session task without teacher assistance."
+  ],
+  "conclusion": "The initial session was helpful in clarifying the main barrier (travel costs/uncertainty) and establishing a cautious plan. No external service was delivered; only an inquiry was planned. The student's reported difficulty remains unresolved pending verification of support eligibility and completion of the between-session task."
+}

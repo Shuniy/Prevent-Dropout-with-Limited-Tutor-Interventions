@@ -1,0 +1,39 @@
+{
+  "session_summary": "Follow-up peer support session where the student completed an agreed between-session task (noticing a comfortable setting) and engaged in an in-session activity rehearsing a low-pressure introduction. The student clarified that while the specific step was manageable, the wider barrier of social isolation/uncertainty persists on some days. No external support was delivered.",
+  "primary_concern": "Social isolation due to friend moving classes; uncertainty about timetable changes; difficulty planning ahead due to ambiguity.",
+  "tracked_details": [
+    {
+      "detail": "Agreed between-session task: Notice one setting where the student feels included.",
+      "status": "completed"
+    },
+    {
+      "detail": "In-session activity: Rehearse a low-pressure introduction or group-work request.",
+      "status": "completed"
+    },
+    {
+      "detail": "Request for clarification on confirmed vs. proposed support elements.",
+      "status": "pending"
+    }
+  ],
+  "intervention": {
+    "type": "Peer Support",
+    "status": "inquiry_planned",
+    "service_delivered": false
+  },
+  "outcome": {
+    "primary_barrier_resolved": "no",
+    "attendance_improved": "unknown",
+    "intervention_helpful": "yes"
+  },
+  "session_helpful": "yes",
+  "next_steps": [
+    "Monitor completion of the between-session task to notice a comfortable setting.",
+    "Clarify which support elements are confirmed versus proposed before promising further assistance."
+  ],
+  "uncertainties": [
+    "Whether the timetable change is permanent.",
+    "If external support will be approved or delivered in future sessions.",
+    "Whether the student can complete the between-session task without running out of time."
+  ],
+  "conclusion": "The session successfully delivered a peer support activity (rehearsing an introduction) and confirmed completion of the previous between-session task. The student reported that the specific step was manageable, but explicitly stated that the wider school problem remains present on some days. Evidence supports that the session itself was helpful in clarifying steps and managing time, but improvement in the primary barrier is not yet established. No external support was delivered."
+}

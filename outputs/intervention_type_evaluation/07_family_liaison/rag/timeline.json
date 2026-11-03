@@ -1,0 +1,142 @@
+[
+  {
+    "session_number": 1,
+    "findings": {
+      "session_summary": "Initial Family Liaison session focused on clarifying communication barriers and establishing a cautious next step.",
+      "primary_concern": "Late or hard-to-understand notices affecting school attendance/participation; uncertainty about contact formats.",
+      "tracked_details": [
+        {
+          "detail": "Student reported missing a meeting date due to paper letter issues.",
+          "status": "reported"
+        },
+        {
+          "detail": "Uncertainty regarding alternative contact formats (e.g., voicemail vs. phone log).",
+          "status": "pending"
+        },
+        {
+          "detail": "Agreed between-session task: Ask guardian which contact time works best.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Family Liaison",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to ask guardian about preferred contact times.",
+        "Check school office availability for alternative contact formats."
+      ],
+      "uncertainties": [
+        "Whether alternative contact formats exist.",
+        "Availability of the school office for follow-up.",
+        "Actual receipt of any external support services (none confirmed)."
+      ],
+      "conclusion": "This initial session established a supportive environment where the student felt heard but did not receive external service delivery. The main barrier (communication uncertainty) remains unresolved as no alternative contact format was confirmed. An agreed action (asking guardian about timing) is pending. Evidence supports that the session itself was helpful in clarifying steps, but it does not establish improvement in the school barrier or attendance."
+    }
+  },
+  {
+    "session_number": 2,
+    "findings": {
+      "session_summary": "Follow-up Family Liaison session focused on reviewing a pending task regarding guardian contact preferences, distinguishing between in-session rehearsal and external support delivery. The student reported that the main barrier (communication uncertainty) persists on some days but noted that early knowledge of plans helps. An in-session activity rehearsing an explanation of school needs was completed, though its effectiveness outside this room remains unverified.",
+      "primary_concern": "Late or hard-to-understand notices affecting school attendance/participation; uncertainty about contact formats and availability of alternative methods.",
+      "tracked_details": [
+        {
+          "detail": "Review of agreed task: Ask guardian which contact time works best.",
+          "status": "reported"
+        },
+        {
+          "detail": "In-session activity: Rehearsed a short explanation of the student's school need.",
+          "status": "completed"
+        },
+        {
+          "detail": "Uncertainty regarding alternative contact formats (e.g., voicemail vs. phone log).",
+          "status": "pending"
+        },
+        {
+          "detail": "Verification of whether the student can repeat the rehearsed step alone.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Family Liaison",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt the rehearsed step alone and record what happens.",
+        "Check school office availability for alternative contact formats.",
+        "Verify if early knowledge of plans reduces difficulty on specific days."
+      ],
+      "uncertainties": [
+        "Whether alternative contact formats exist.",
+        "Availability of the school office for follow-up.",
+        "Actual receipt of any external support services (none confirmed).",
+        "Effectiveness of the rehearsed explanation outside this session.",
+        "Exact dates and status of service availability."
+      ],
+      "conclusion": "This follow-up session established a supportive environment where the student felt heard but did not receive external service delivery. The main barrier (communication uncertainty) remains unresolved as no alternative contact format was confirmed or received. An agreed action (asking guardian about timing) is reported as unclear/pending. Evidence supports that the session itself was helpful in clarifying steps and rehearsing a specific activity, but it does not establish improvement in the school barrier or attendance."
+    }
+  },
+  {
+    "session_number": 3,
+    "findings": {
+      "session_summary": "Session 3 focused on reviewing the failure to complete a previous between-session task due to home/school timing conflicts. The mentor and student distinguished between in-session rehearsal of a contact request and external delivery. An in-session activity rehearsing a phrased request was completed, but no external service (e.g., confirmed contact with school office) was delivered or verified. The main barrier (uncertainty about contact formats/availability and timing difficulties) remains unresolved.",
+      "primary_concern": "Uncertainty regarding alternative contact formats, availability of the school office, and practical timing difficulties preventing completion of agreed steps on some days.",
+      "tracked_details": [
+        {
+          "detail": "Review of previous task: Student reported inability to complete the step due to home/school timing conflicts.",
+          "status": "reported"
+        },
+        {
+          "detail": "In-session activity: Rehearsed phrasing a request for alternative contact formats without private family information.",
+          "status": "completed"
+        },
+        {
+          "detail": "Agreed action: Student to attempt contacting the liaison office or designated staff member using the rehearsed phrasing.",
+          "status": "pending"
+        },
+        {
+          "detail": "Verification of whether the student can repeat the rehearsed step alone outside the session.",
+          "status": "pending"
+        }
+      ],
+      "intervention": {
+        "type": "Family Liaison",
+        "status": "inquiry_planned",
+        "service_delivered": false
+      },
+      "outcome": {
+        "primary_barrier_resolved": "no",
+        "attendance_improved": "unknown",
+        "intervention_helpful": "unknown"
+      },
+      "session_helpful": "yes",
+      "next_steps": [
+        "Student to attempt the rehearsed contact request step alone and record what happens.",
+        "Check school office availability for alternative contact formats.",
+        "Verify if early knowledge of plans reduces difficulty on specific days."
+      ],
+      "uncertainties": [
+        "Whether alternative contact formats exist.",
+        "Availability of the school office for follow-up.",
+        "Actual receipt of any external support services (none confirmed).",
+        "Effectiveness of the rehearsed explanation outside this session.",
+        "Exact dates and status of service availability."
+      ],
+      "conclusion": "This follow-up session established a supportive environment where the student felt heard but did not receive external service delivery. The main barrier (communication uncertainty and timing difficulties) remains unresolved as no alternative contact format was confirmed or received. An agreed action (attempting the rehearsed step alone) is pending. Evidence supports that the session itself was helpful in clarifying steps and rehearsing a specific activity, but it does not establish improvement in the school barrier or attendance."
+    }
+  }
+]
