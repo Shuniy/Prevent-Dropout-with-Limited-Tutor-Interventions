@@ -1,9 +1,10 @@
 import csv
 import unittest
-from dataclasses import fields
+from dataclasses import fields, replace
 from pathlib import Path
 
 from src.models.student import Student, StudentSimulation
+from src.utils.school import DEFAULT_STUDENT_DATA_PATH, load_students
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -18,6 +19,48 @@ DERIVED_FIELDS = {
 
 
 class StudentModelTests(unittest.TestCase):
+    def low_need_student(self):
+        return replace(
+            load_students(DEFAULT_STUDENT_DATA_PATH, 1)[0],
+            anchor_grade1_0_20=10, math_grade1_0_20=None,
+            past_failures_count=0, internet_at_home=True, travel_time_category=2,
+            study_time_category=2, family_relationship_rating=3, health_self_rating=3,
+            initial_attendance_fraction_assumed=0.85, initial_engagement_assumed=0.6,
+            enrolled_initial_assumed=True, financial_need_verified=None,
+        )
+
+    def test_need_properties_respect_thresholds_and_unknowns(self):
+        student = self.low_need_student()
+        self.assertEqual(student.need_score, 0)
+        self.assertEqual(student.primary_support_type, "tutoring")
+        self.assertEqual(len(student.need_profile), 1)
+        basic = Student(**{item.name: getattr(student, item.name) for item in fields(Student)})
+        self.assertIsNone(basic.initial_scores["attendance_fraction_assumed"])
+        self.assertIsNone(basic.initial_scores["engagement_assumed"])
+        self.assertIsNone(basic.initial_scores["school_dropout_risk"])
+        self.assertNotIn("family_finances", [need["support_type"] for need in basic.need_profile])
+        self.assertEqual(replace(student, financial_need_verified=True).need_score, 0.75)
+
+    def test_need_profile_recomputes_without_mutating_source(self):
+        student = self.low_need_student()
+        profile = student.need_profile
+        profile[0]["severity"] = 1
+        self.assertEqual(student.need_score, 0)
+        student.internet_at_home = False
+        self.assertEqual(student.primary_support_type, "device_access")
+        self.assertEqual(student.need_score, 0.5)
+        student.travel_time_category = 4
+        self.assertEqual(student.primary_support_type, "transport_assessment")
+        self.assertEqual(student.need_score, 1)
+        self.assertNotIn("need_profile", {item.name for item in fields(student)})
+
+    def test_need_properties_reject_invalid_optional_fractions(self):
+        for field_name in ("initial_attendance_fraction_assumed", "initial_engagement_assumed"):
+            for value in (-0.1, 1.1, float("nan")):
+                with self.subTest(field=field_name, value=value):
+                    with self.assertRaises(ValueError):
+                        replace(self.low_need_student(), **{field_name: value}).need_profile
+
     def test_student_params_exclude_derived_dataset_fields(self) -> None:
         path = PROJECT_ROOT / "data/processed/students/student_dataset.csv"
         with path.open(newline="", encoding="utf-8") as source:

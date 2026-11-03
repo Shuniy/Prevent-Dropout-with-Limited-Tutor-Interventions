@@ -6,6 +6,12 @@ Recorded source sessions define participation, without inventing missing meeting
 or interpreting the end of a transcript series as school dropout.
 """
 
+try:
+    from ..utils.constants import HISTORIES, SIMULATION_RESULTS as RESULTS
+except ImportError:  # Direct script entry point.
+    from utils.constants import HISTORIES, SIMULATION_RESULTS as RESULTS
+
+
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -13,7 +19,7 @@ import random
 from typing import TYPE_CHECKING, Callable
 
 from .intervention import Intervention, write_report
-from .rag import HISTORIES, InterventionRAG, OllamaClient, SessionIndex, load_sessions
+from .rag import InterventionRAG, OllamaClient, SessionIndex, load_sessions
 
 try:
     from ..models.student import Student, StudentInterventionProfile
@@ -22,10 +28,6 @@ except ImportError:  # Direct ``python src/main.py`` entry point.
 
 if TYPE_CHECKING:
     from ..models.school import School
-
-
-RESULTS = Path(__file__).resolve().parents[2] / "results" / "intervention_simulation"
-PROBLEM_RULE_VERSION = "feature_rules_v1"
 
 
 def create_profile(student: Student, planned_sessions: int = 5) -> StudentInterventionProfile:
@@ -37,56 +39,10 @@ def create_profile(student: Student, planned_sessions: int = 5) -> StudentInterv
     """
     if planned_sessions < 1:
         raise ValueError("planned_sessions must be positive")
-    attendance = getattr(student, "initial_attendance_fraction_assumed", None)
-    engagement = getattr(student, "initial_engagement_assumed", None)
-    for name, value in (("attendance", attendance), ("engagement", engagement)):
-        if value is not None and not 0 <= value <= 1:
-            raise ValueError(f"initial {name} must be between 0 and 1")
-    problems = []
-
-    def add(problem: str, support_type: str, severity: float, basis: str) -> None:
-        problems.append({"problem": problem, "support_type": support_type,
-                         "severity": round(severity, 4), "basis": basis,
-                         "provenance": "feature_based_simulation_assumption"})
-
-    if getattr(student, "enrolled_initial_assumed", None) is False:
-        add("return_to_learning", "reentry_support", 1.0, "enrolled_initial_assumed is false")
-    if student.learning_gap > 0 or student.past_failures_count > 0:
-        add("learning_gap", "tutoring", max(student.learning_gap, min(1, student.past_failures_count / 4)),
-            "learning_gap > 0 or past_failures_count > 0")
-    if attendance is not None and attendance < 0.85:
-        add("attendance_routine", "attendance_planning", 1 - attendance,
-            "initial_attendance_fraction_assumed < 0.85")
-    if student.no_home_internet:
-        add("digital_access", "device_access", 0.5, "internet_at_home is false; device ownership is unknown")
-    if student.travel_over_30min:
-        add("long_journey", "transport_assessment", (student.travel_time_category - 2) / 2,
-            "travel_time_category >= 3; transport eligibility is unknown")
-    if student.study_time_category == 1:
-        add("study_routine", "homework_support", 0.25, "study_time_category == 1")
-    if student.family_relationship_rating <= 2:
-        add("family_communication", "family_liaison", (3 - student.family_relationship_rating) / 3,
-            "family_relationship_rating <= 2")
-    if student.health_self_rating <= 2:
-        add("wellbeing_checkin", "wellbeing_checkin", (3 - student.health_self_rating) / 3,
-            "health_self_rating <= 2; no diagnosis inferred")
-    if engagement is not None and engagement < 0.6:
-        add("participation_opportunities", "peer_support", 1 - engagement,
-            "initial_engagement_assumed < 0.6; peer isolation is not established")
-    if getattr(student, "financial_need_verified", None) is True:
-        add("verified_financial_need", "family_finances", 0.75, "financial_need_verified is true")
-    if not problems:
-        add("routine_learning_checkin", "tutoring", 0.0, "no scenario concern threshold met")
-    problems.sort(key=lambda problem: (-problem["severity"], problem["problem"]))
-    scores = {
-        "learning_gap_0_1": student.learning_gap,
-        "attendance_fraction_assumed": attendance,
-        "engagement_assumed": engagement,
-        "support_priority_0_1": problems[0]["severity"],
-        "school_dropout_risk": None,
-    }
-    return StudentInterventionProfile(student.student_id, asdict(student), scores,
-                                      problems, planned_sessions)
+    return StudentInterventionProfile(
+        student.student_id, asdict(student), student.initial_scores,
+        student.need_profile, planned_sessions,
+    )
 
 
 def run_interventions(
@@ -150,7 +106,7 @@ def run_interventions(
                 break
             assignments = school.step(month, student_support_types=requested,
                                       excluded_student_ids=processed,
-                                      preferred_mentor_ids=preferred)
+                                      preferred_mentor_ids=preferred, prioritize_by_need=True)
             for assignment in assignments:
                 sid = assignment.student_id
                 profile = profiles[sid]
@@ -182,8 +138,7 @@ def run_interventions(
                 write_report(destinations[sid] / "final_report.json", report)
         report = {
             "status": "failed" if any(p.status == "report_failed" for p in profiles.values()) else "finished",
-            "seed": school.seed, "problem_rule_version": PROBLEM_RULE_VERSION,
-            "history_root": str(root), "output_dir": str(output_dir.resolve()),
+            "output_dir": str(output_dir.resolve()),
             "configuration": {"students": len(profiles), "mentors": len(school.mentors),
                               "allocation_months": school.num_months,
                               "sessions_per_student_total": school.sessions_per_student,

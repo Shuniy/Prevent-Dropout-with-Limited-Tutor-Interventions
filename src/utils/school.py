@@ -1,48 +1,20 @@
 """Loading, validation, and feasibility helpers for the school simulation."""
 
+from .constants import (
+    ALL_SUPPORT_TYPES, BOOLEAN_FIELDS, DEFAULT_STUDENT_DATA_PATH, INTEGER_FIELDS, PROJECT_ROOT,
+)
+from .enums import SupportType
+
 import csv
 from pathlib import Path
 from typing import Iterable
 
 try:
-    from ..models.mentor import ALL_SUPPORT_TYPES, Mentor, MentorAvailability, SupportType
+    from ..models.mentor import Mentor, MentorAvailability
     from ..models.student import Student, StudentSimulation
 except ImportError:  # Support running ``python src/main.py`` directly.
-    from models.mentor import ALL_SUPPORT_TYPES, Mentor, MentorAvailability, SupportType
+    from models.mentor import Mentor, MentorAvailability
     from models.student import Student, StudentSimulation
-
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_STUDENT_DATA_PATH = (
-    PROJECT_ROOT / "data/synthetic/populations/synthetic_student_population.csv"
-)
-
-BOOLEAN_FIELDS = (
-    "rural_residence",
-    "family_size_gt3",
-    "parents_apart",
-    "school_support_existing",
-    "family_support_existing",
-    "paid_classes_existing",
-    "extracurricular",
-    "nursery_attended",
-    "higher_education_aspiration",
-    "internet_at_home",
-)
-
-INTEGER_FIELDS = (
-    "age_years",
-    "mother_education_code",
-    "father_education_code",
-    "travel_time_category",
-    "study_time_category",
-    "past_failures_count",
-    "family_relationship_rating",
-    "health_self_rating",
-    "anchor_grade1_0_20",
-    "weeks_since_offer",
-    "support_sessions_completed",
-)
 
 
 def validate_configuration(

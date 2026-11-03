@@ -121,6 +121,39 @@ class InterventionSimulationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             create_profile(replace(source, initial_engagement_assumed=1.2))
 
+    def test_need_priority_admits_highest_need_under_limited_budget(self):
+        low = replace(self.student, student_id="low", anchor_grade1_0_20=8,
+                      past_failures_count=0)
+        high = replace(self.student, student_id="high", anchor_grade1_0_20=1,
+                       past_failures_count=0)
+        school = School(students=[low, high], num_mentors=1, num_months=1,
+                        students_per_mentor=2, budget=5, seed=2)
+        report = self.run_school(school)
+        self.assertEqual([a.student_id for a in school.assignment_history], ["high"])
+        self.assertEqual(report["students"]["low"]["status"], "unassigned")
+        self.assertEqual(create_profile(high).problems, high.need_profile)
+        self.assertEqual(create_profile(high).initial_scores, high.initial_scores)
+
+    def test_need_allocation_matches_specialists_and_preserves_constraints(self):
+        digital = replace(self.student, student_id="digital", anchor_grade1_0_20=18,
+                          past_failures_count=0, internet_at_home=False)
+        tutor = Mentor("tutor", ["tutoring"], 1,
+                       availability_by_step=[MentorAvailability(1, 0, 5)],
+                       cost_units_per_session=1)
+        device = Mentor("device", ["device_access"], 1,
+                        availability_by_step=[MentorAvailability(1, 0, 5)],
+                        cost_units_per_session=1)
+        school = School(students=[digital, self.student], mentors=[tutor, device],
+                        num_months=1, budget=10)
+        assignments = school.step(1, prioritize_by_need=True)
+        pairs = {a.student_id: (a.mentor_id, a.support_type) for a in assignments}
+        self.assertEqual(pairs[digital.student_id], ("device", "device_access"))
+        self.assertEqual(pairs[self.student.student_id], ("tutor", "tutoring"))
+        self.assertEqual(school.remaining_budget, 0)
+        self.assertEqual(school.step(1, prioritize_by_need=True), [])
+        school.reset()
+        self.assertEqual(school.step(1, prioritize_by_need=True), assignments)
+
     def test_reports_cover_five_total_or_partial_sessions_and_actual_cost(self):
         school = self.school(num_months=12, budget=10)
         originals = [vars(student).copy() for student in school.students]

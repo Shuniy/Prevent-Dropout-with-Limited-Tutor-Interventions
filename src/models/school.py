@@ -29,10 +29,11 @@ except ImportError:
     )
 
 try:
-    from .mentor import Mentor, SupportType
+    from .mentor import Mentor
+    from ..utils.enums import SupportType
+    from ..utils.constants import DEFAULT_STUDENT_DATA_PATH
     from .student import Student
     from ..utils.school import (
-        DEFAULT_STUDENT_DATA_PATH,
         create_mentors,
         existing_assignments,
         load_students,
@@ -41,10 +42,11 @@ try:
         validate_unique_ids,
     )
 except ImportError:  # Support running ``python src/main.py`` directly.
-    from models.mentor import Mentor, SupportType
+    from models.mentor import Mentor
+    from utils.enums import SupportType
+    from utils.constants import DEFAULT_STUDENT_DATA_PATH
     from models.student import Student
     from utils.school import (
-        DEFAULT_STUDENT_DATA_PATH,
         create_mentors,
         existing_assignments,
         load_students,
@@ -158,8 +160,15 @@ class School:
         student_support_types: dict[str, SupportType] | None = None,
         excluded_student_ids: set[str] | None = None,
         preferred_mentor_ids: dict[str, str] | None = None,
+        prioritize_by_need: bool = False,
     ) -> list[MentorAssignment]:
-        """Allocate students for one month and return the new assignments."""
+        """Allocate students within mentor skills, capacity, sessions and budget.
+
+        With ``prioritize_by_need``, highest Student.need_score goes first and
+        seeded shuffling breaks ties. Support defaults to the student's primary
+        need unless a caller supplies per-student or shared support explicitly.
+        The default retains the random, shared-support baseline.
+        """
 
         if month < 1 or month > self.num_months:
             raise ValueError(f"month must be between 1 and {self.num_months}")
@@ -179,6 +188,8 @@ class School:
 
         students_this_month = list(self.students)
         self._rng.shuffle(students_this_month)
+        if prioritize_by_need:
+            students_this_month.sort(key=lambda student: student.need_score, reverse=True)
 
         for student in students_this_month:
             if student.student_id in self.assignments or (
@@ -189,7 +200,10 @@ class School:
 
             requested_support = (
                 student_support_types[student.student_id]
-                if student_support_types is not None else selected_support_type
+                if student_support_types is not None else (
+                    student.primary_support_type
+                    if prioritize_by_need and support_type is None else selected_support_type
+                )
             )
 
             eligible_mentors = [

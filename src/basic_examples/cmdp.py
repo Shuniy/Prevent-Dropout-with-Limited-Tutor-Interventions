@@ -1,19 +1,19 @@
+
+if __package__ in (None, ""):
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from src.utils.constants import EXAMPLE_SEED
+from src.utils.enums import CMDPStudentState as StudentState, CMDPMentorActions as MentorActions
+
 # simulate 100 students over 12 months with a constrained Markov decision process model for dropout behavior
 
-from enum import IntEnum
 import numpy as np
 from scipy.optimize import linprog
 
-rng = np.random.default_rng(5726455)  # set a random seed for reproducibility
+rng = np.random.default_rng(EXAMPLE_SEED)  # set a random seed for reproducibility
 
-class StudentState(IntEnum):
-    ACTIVE = 0
-    AT_RISK = 1
-    DROPPED_OUT = 2
-
-class MentorActions(IntEnum):
-    PROVIDE_SUPPORT = 0
-    IGNORE = 1
 
 class School:
     def __init__(self):

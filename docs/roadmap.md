@@ -10,7 +10,7 @@ raw-source workflow no longer describe the current setup.
 | 1. Data foundation | Load retained CSVs; expose typed records; explore in Jupyter | Partial; synthetic student loading and typed records work, while the earlier data-service layer is not active in this tree |
 | 2. Baselines and population sampling | Reproduce course-failure baselines; sample whole anchor profiles within a split | Planned; check held-out metrics and lineage inheritance |
 | 3. Simulation | Small structured environment with observations, support delivery, resources and event logs | In progress; seeded 12-month mentor allocation enforces support type, monthly caseload, session limits and total cost; feature-based scenario concerns now select one RAG history per student with five appointments total, actual-session costs and JSON reports; numeric transitions remain planned |
-| 4. Allocation and evaluation | Simple usual-support, random and rule-based policies; compare outcomes and resource use | In progress; random feasible allocation works, while comparison policies and outcome evaluation remain planned |
+| 4. Allocation and evaluation | Simple usual-support, random and rule-based policies; compare outcomes and resource use | In progress; random baseline and model-derived need-priority allocation work; outcome-policy comparisons remain planned |
 | 5. Feedback and risk | Update estimated state from dated observations; fit and validate simulated-withdrawal risk | Planned; prevent future/hidden information leakage |
 | 6. Extended experiments | Fairness constraints, alternative simulated worlds, sensitivity analysis and optional language input | Planned; add complexity only after simpler comparisons work |
 
@@ -36,6 +36,14 @@ immediately plus student and cohort final JSON. Generated mentors are assumed
 generalists; custom skills, monthly capacity and budget are enforced. The existing
 monthly allocation-only baseline remains available separately.
 
+Feature rules now live in computed `Student.need_profile`, `need_score`,
+`primary_support_type` and `initial_scores` properties. Intervention allocation
+serves higher need first, breaks score ties with a seeded shuffle, and matches
+the primary support to mentor skills within existing resource limits. The
+standalone `School.step(..., prioritize_by_need=True)` supports the same behavior;
+the random monthly baseline remains available. A need-priority heuristic is not
+a CMDP optimizer.
+
 Feature rules, initial scores and concerns are declared simulation assumptions.
 No numeric treatment effects or school-dropout labels are inferred. The CMDP wrapper
 reports appointment participation only. Dated structured observations, numeric
@@ -53,8 +61,9 @@ This does not complete Stage 5 or 6: state feedback, learned risk and held-out
 semantic extraction evaluation remain planned. Independently authored histories
 are still needed before making research accuracy claims.
 
-Verification: all 33 source-model, baseline, RAG and intervention tests pass under
-full unittest discovery. These cover five-total-session scheduling, partial source
+Verification: all 40 source-model, baseline, RAG and intervention tests pass under
+full unittest discovery. These cover computed needs, score thresholds and
+missingness, limited-budget priority, specialist matching, reproducibility, and five-total-session scheduling, partial source
 participation, actual costs, mentor continuity, no second programme, deterministic
 replay, shortfalls, immediate persistence, extraction failures and participation
 scoring. The local Ollama two-student seed-7 smoke run also completed with six

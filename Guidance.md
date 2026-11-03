@@ -55,9 +55,12 @@ seeded intervention run using `src.intervention.simulation.run_interventions`.
 The new mode excludes a student after their first programme, keeps one mentor and
 plans five appointments **total**, configurable by `sessions_per_student`.
 
-`create_profile(student)` creates a separate `StudentInterventionProfile` with the
-source fields, initial scores and ranked hypothetical concerns. Rules and severity
-formulas are versioned as `feature_rules_v1`; see the README's threshold table.
+`Student.need_profile`, `need_score`, `primary_support_type` and `initial_scores`
+calculate current needs and scores as properties in `src.models.student`.
+Keep rules in the model, not duplicated in allocation or reporting. The maximum
+severity sets need priority; ties between concerns use their names.
+`create_profile(student)` copies these into a separate `StudentInterventionProfile` with the
+source fields, initial scores and ranked hypothetical concerns. See the README's threshold table for the rules and severity formulas.
 The highest-priority concern chooses the support type. Keep unknown financial need
 and dropout risk unknown; do not turn proxies into verified need or diagnoses.
 Dataset scores remain fixed when RAG reports qualitative changes.
@@ -73,6 +76,12 @@ reservations become available for later allocation windows. A programme is repla
 inside one window; duration and weekly state transitions are not modeled.
 
 `School.step` accepts per-student support types, exclusions and preferred mentors.
+`prioritize_by_need=True` sorts descending by student need score after a seeded
+shuffle, which breaks score ties, and derives each support type unless explicitly
+overridden. Intervention runs enable this mode and report
+`allocation_policy="need_priority_seeded_ties"`. The allocation-only baseline keeps
+random shared-support allocation. Skill, full-dose session capacity, caseload and
+budget checks apply to both. This priority heuristic does not optimize a CMDP.
 `reset()` clears school-owned run state. `record_intervention_attendance` replaces
 a planned assignment with its recorded count and actual cost, releasing unused
 reservations. Do not equate `MentorAssignment.sessions` (planned) with
@@ -85,7 +94,7 @@ planned dose and leaves completion unknown.
 runs initial/follow-up sessions once, persists validated session JSON and returns
 the final student report. The profile must already contain mentor/history IDs and
 the mentor must have the student in its caseload. Do not start the same profile
-again. `simulation.py` keeps feature rules, seeded history selection, school
+again. `simulation.py` keeps profile snapshots, seeded history selection, school
 attendance/budget reconciliation and final student/cohort persistence. Its
 `write_report` import remains available, with the shared atomic JSON writer now
 implemented in `intervention.py`. The initial session needs no separate LLM call:
@@ -174,3 +183,9 @@ library SQLite FTS5, with no embedding model download.
 Do not change source data, merge split groups, treat bootstrap descendants as
 independent observations, or rename historical course failure as school dropout.
 Policy code uses the consumer interfaces, never raw hidden/evaluator tables.
+
+## Shared definitions
+
+Define constants in `src/utils/constants.py` and categorical types in
+`src/utils/enums.py`; import them into their consumers. Keep mutable runtime
+state, such as a generator's random stream, in the module that owns it.

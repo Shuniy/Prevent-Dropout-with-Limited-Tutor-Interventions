@@ -107,8 +107,9 @@ profiles = school.intervention_profiles
 ```
 
 `School.run_simulation()` retains the original monthly allocation behavior above.
-`School.run_interventions()` starts a fresh run and uses the same seeded allocation,
-mentor skills, monthly capacity and episode budget. Each admitted student retains
+`School.run_interventions()` starts a fresh run, prioritizes higher student need
+scores, and uses seeded shuffling to break equal-score ties. Mentor skills, monthly
+capacity and episode budget remain hard constraints. Each admitted student retains
 one mentor throughout their programme and is excluded from all later allocations.
 Caller-supplied initial mentor assignments are honored when feasible. Generated
 mentors are assumed generalists across the 13 support types; custom mentor skills
@@ -116,7 +117,12 @@ remain hard constraints. Students without feasible resources get an explicit
 unassigned report. Allocation months are admission windows: all appointments of a
 programme are replayed within its assigned window, without modeling session duration.
 
-`create_profile(student)` records the source fields and initial learning gap,
+`Student.need_profile` computes ranked needs from the student properties.
+`Student.need_score` is the maximum severity and `Student.primary_support_type`
+selects the highest-ranked need. These computed properties recalculate when source
+properties change and are not additional CSV or constructor fields.
+`Student.initial_scores` supplies the numeric score snapshot.
+`create_profile(student)` copies these into a programme report with the source fields and initial learning gap,
 assumed attendance, assumed engagement and support priority. Missing values remain
 unknown, including financial need and school-dropout risk. The highest-severity
 feature rule chooses the support type; ties use the problem name. These are
@@ -137,9 +143,16 @@ model. Dataset inputs and scores are not changed by language-model findings.
 | Verified financial need = true | Family finances |
 | No threshold met | Routine learning check-in / tutoring |
 
-Severity formulas are in `src/intervention/simulation.py` (`feature_rules_v1`).
+Severity formulas are in `src/models/student.py`.
 The learning-gap calculation uses the available anchor and math grades. Support
 priority is the maximum problem severity in [0, 1], never a dropout probability.
+The rules retain their existing thresholds and weights; the allocation policy is
+reported as `need_priority_seeded_ties`. This is a feasible priority heuristic;
+a CMDP optimizer, transition model and estimated treatment benefit remain planned.
+`School.step(month, prioritize_by_need=True)` also enables need priority and
+student-specific support matching without running RAG. Explicit per-student or
+shared support requests override the derived support type. The default
+`School.step()` and `run_simulation()` keep the monthly random tutoring baseline.
 No poverty, hunger, language need or learning disability is inferred from proxies.
 
 A separate seeded draw selects one history within the primary support type from
@@ -269,11 +282,12 @@ data/
   synthetic/simulator_states/  Hidden reset parameters (environment only)
   external/                 Historical outcomes, reference tables, dictionary
 src/
-  utils/constants.py        Default horizon, capacity, cost, budget and seed
-  models/student.py         Source records and separate intervention profiles
+  utils/constants.py        Shared defaults, paths, schemas and scenario constants
+  utils/enums.py            Shared categorical types and example state/action enums
+  models/student.py         Source records, computed needs and intervention profiles
   models/mentor.py          Support skills, availability and caseload
   models/school.py          Allocation, programme reservations and actual-session costs
-  intervention/simulation.py Feature rules, history assignment, accounting and cohort reports
+  intervention/simulation.py Profile snapshots, history assignment, accounting and reports
   intervention/intervention.py Student–mentor programme lifecycle and session reports
   intervention/student_mentor_dialogues/  Synthetic reference corpus and metadata
   intervention/rag.py       Student-scoped retrieval, chronological memory and JSON extraction
@@ -331,8 +345,8 @@ learning-gap proxies are computed properties rather than constructor parameters.
 ```mermaid
 flowchart LR
     A[Synthetic student CSV] --> B[Typed source profiles]
-    B --> C[Feature concerns and initial scores]
-    C --> D[Seeded feasible allocation once per student]
+    B --> C[Student properties: ranked needs and need score]
+    C --> D[Need priority and mentor skill matching once per student]
     M[Mentor skills, capacity and budget] --> D
     D --> E[Matching synthetic intervention history]
     E --> F[Chronological RAG and validated memory]
@@ -469,7 +483,7 @@ Simulation results describe the assumed worlds, not real-world causal effects.
 | 1. Data foundation and exploration | Partial | Synthetic CSV loading and typed records work; legacy exploration artifacts exist but the earlier data-service layer is not active in this tree |
 | 2. Baselines and profile sampling | Planned | Held-out course-failure metrics, within-split sampling and lineage checks |
 | 3. Structured simulation | In progress | CSV-backed agents and reproducible monthly resource accounting work; state transitions and outcomes remain |
-| 4. Allocation and evaluation | In progress | Random feasible allocation works; usual-support and rule-based comparisons remain |
+| 4. Allocation and evaluation | In progress | Random baseline and need-priority feasible allocation work; outcome comparisons remain |
 | 5. Feedback and risk | Planned | Replayable state updates and independently validated simulated-risk scores |
 | 6. Extended experiments | Planned | Fairness, alternative worlds, uncertainty and optional note-extraction comparisons |
 
@@ -478,9 +492,9 @@ state transitions, followed by no-support and rule-based policy comparisons. The
 current feature-matched replay produces evidence-backed qualitative reports and
 participation counts, without inventing intervention effects or dropout outcomes.
 
-Current verification: all 35 tests pass under `python -m unittest discover -s tests -v`.
+Current verification: all 40 tests pass under `python -m unittest discover -s tests -v`.
 They cover source models, baseline allocation, RAG chronology/provenance, feature
-rules, five-session total doses, incomplete participation, actual cost accounting,
+rules, computed needs, scarce-budget need priority, specialist matching, five-session total doses, incomplete participation, actual cost accounting,
 mentor continuity, resource shortfalls, repeat runs, immediate session persistence,
 extraction failures and the CMDP participation score.
 

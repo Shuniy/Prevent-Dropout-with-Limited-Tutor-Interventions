@@ -1,39 +1,13 @@
 """Synthetic mentor resources used by the allocation simulation."""
 
 from dataclasses import dataclass, field
-from typing import Literal
 
-SupportType = Literal[
-    "attendance_planning",
-    "device_access",
-    "family_finances",
-    "family_liaison",
-    "homework_support",
-    "language_support",
-    "learning_access",
-    "peer_support",
-    "reentry_support",
-    "school_meals",
-    "transport_assessment",
-    "tutoring",
-    "wellbeing_checkin",
-]
-
-ALL_SUPPORT_TYPES: tuple[SupportType, ...] = (
-    "attendance_planning",
-    "device_access",
-    "family_finances",
-    "family_liaison",
-    "homework_support",
-    "language_support",
-    "learning_access",
-    "peer_support",
-    "reentry_support",
-    "school_meals",
-    "transport_assessment",
-    "tutoring",
-    "wellbeing_checkin",
-)
+try:
+    from ..utils.enums import SupportType
+    from ..utils.constants import ALL_SUPPORT_TYPES
+except ImportError:  # Direct script entry point.
+    from utils.enums import SupportType
+    from utils.constants import ALL_SUPPORT_TYPES
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,13 @@
+
+if __package__ in (None, ""):
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from src.utils.constants import EXAMPLE_SEED
+
 import numpy as np
-rng = np.random.default_rng(5726455)  # set a random seed for reproducibility
+rng = np.random.default_rng(EXAMPLE_SEED)  # set a random seed for reproducibility
 # Simple agent-based model to simulate student dropout based on motivation
 
 class Student:
