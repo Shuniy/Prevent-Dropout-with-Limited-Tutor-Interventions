@@ -164,6 +164,19 @@ class SchoolSimulationTests(unittest.TestCase):
         self.assertEqual(len(school.assignment_history), 2)
         self.assertEqual(school.mentors[0].current_caseload, 0)
 
+    def test_allocation_seed_reproduces_after_reset_and_other_runs(self):
+        def school(seed):
+            return School(num_students=20, num_mentors=1, num_months=1,
+                          students_per_mentor=5, sessions_per_student=1, seed=seed)
+
+        first = school(17)
+        expected = first.step(1, prioritize_by_need=False)
+        school(99).step(1, prioritize_by_need=False)
+        self.assertEqual(school(17).step(1, prioritize_by_need=False), expected)
+        self.assertNotEqual(school(18).step(1, prioritize_by_need=False), expected)
+        first.reset()
+        self.assertEqual(first.step(1, prioritize_by_need=False), expected)
+
 
 if __name__ == "__main__":
     unittest.main()

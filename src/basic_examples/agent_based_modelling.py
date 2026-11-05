@@ -4,13 +4,16 @@ if __package__ in (None, ""):
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.utils.constants import DEFAULT_RNG as rng
+from numpy.random import Generator
+
+from src.utils.constants import SEED, create_rng
 
 
 
 # Agent based model to simulate student dropout based on motivation and external factors. A more realistic ABM would introduce relationships between students, teacher interventions, household circumstances, and feedback effects.
 class Student:
-    def __init__(self, motivation, external_factor):
+    def __init__(self, motivation, external_factor, *, seed=SEED, rng: Generator | None = None):
+        self._rng = rng if rng is not None else create_rng(seed)
         self.motivation = motivation
         self.external_factor = external_factor
         self.is_dropout = False
@@ -20,21 +23,22 @@ class Student:
             return
 
         # motivation decreases over time and is influenced by external factors
-        self.motivation += rng.uniform(-0.1, 0.1) + self.external_factor * 0.05
+        self.motivation += self._rng.uniform(-0.1, 0.1) + self.external_factor * 0.05
         self.motivation = max(0, min(1, self.motivation))  # keep motivation in [0, 1]
 
         # lower motivation increases dropout probability
         dropout_probability = (1 - self.motivation) * 0.1
-        if rng.random() < dropout_probability:
+        if self._rng.random() < dropout_probability:
             self.is_dropout = True
 
 class School:
-    def __init__(self, num_students):
-        self.students = [Student(rng.uniform(0.5, 1.0), rng.uniform(-0.1, 0.1)) for _ in range(num_students)]
+    def __init__(self, num_students, *, seed=SEED):
+        self._rng = create_rng(seed)
+        self.students = [Student(self._rng.uniform(0.5, 1.0), self._rng.uniform(-0.1, 0.1), rng=self._rng) for _ in range(num_students)]
 
     def step(self):
         # lets say there are some external factors that affect all students, like a new policy or a change in the school environment
-        external_factor = rng.uniform(-0.1, 0.1)
+        external_factor = self._rng.uniform(-0.1, 0.1)
         for student in self.students:
             student.external_factor = external_factor
             student.step()

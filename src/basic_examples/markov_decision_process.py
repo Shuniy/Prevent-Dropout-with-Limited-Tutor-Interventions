@@ -4,7 +4,9 @@ if __package__ in (None, ""):
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.utils.constants import DEFAULT_RNG as rng
+from numpy.random import Generator
+
+from src.utils.constants import SEED, create_rng
 from src.utils.enums import StudentState, MentorActions
 
 # simulate 100 students over 12 months with a simple Markov decision process model for dropout behavior
@@ -13,16 +15,18 @@ from src.utils.enums import StudentState, MentorActions
 
 
 class Student:
-    def __init__(self, id):
+    def __init__(self, id, *, seed=SEED, rng: Generator | None = None):
+        self._rng = rng if rng is not None else create_rng(seed)
         self.id = id
-        self.state = StudentState.ACTIVE if rng.random() < 0.8 else StudentState.AT_RISK  # 80% start as ACTIVE, 20% as AT_RISK
+        self.state = StudentState.ACTIVE if self._rng.random() < 0.8 else StudentState.AT_RISK  # 80% start as ACTIVE, 20% as AT_RISK
 
     def step(self, mentor_action, transition_matrix):
         next_state_probabilities = transition_matrix[mentor_action]
-        self.state = StudentState(rng.choice(len(next_state_probabilities), p=next_state_probabilities))
+        self.state = StudentState(self._rng.choice(len(next_state_probabilities), p=next_state_probabilities))
 
 class School:
-    def __init__(self):
+    def __init__(self, *, seed=SEED):
+        self._rng = create_rng(seed)
         # transition probabilities for each state given mentor actions
         self.probabilities = {
             StudentState.ACTIVE: {
@@ -55,7 +59,7 @@ class School:
         self.discount_factor = 0.9
 
         # initialize students and their values
-        self.students = [Student(id=i) for i in range(100)]
+        self.students = [Student(id=i, rng=self._rng) for i in range(100)]
         # initialize values for each state
         self.values = {state: 0 for state in StudentState}
         # results
@@ -108,7 +112,7 @@ class School:
         student.step(best_action, self.probabilities[current_state])
 
     def simulate(self, num_students, num_steps):
-        self.students = [Student(id=i) for i in range(num_students)]
+        self.students = [Student(id=i, rng=self._rng) for i in range(num_students)]
         self.results = {}
         for month in range(1, num_steps + 1):
             for student in self.students:

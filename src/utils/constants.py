@@ -6,15 +6,15 @@ from .enums import SupportType
 
 import numpy as np
 
-# seed etc
+# Default seed for independently owned simulation streams.
 SEED = 42
-SEEDS = [42, 123, 456, 789, 101112]
+SEEDS = [SEED, 123, 456, 789, 101112]
+
+
 def create_rng(seed: int = SEED) -> np.random.Generator:
     """Create an independent seeded stream for a reproducible simulation run."""
     return np.random.default_rng(seed)
 
-
-DEFAULT_RNG = create_rng()
 
 # default simulation parameters
 DEFAULT_NUMBER_OF_STUDENTS = 1000

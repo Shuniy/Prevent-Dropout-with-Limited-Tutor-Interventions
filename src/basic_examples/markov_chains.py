@@ -4,7 +4,9 @@ if __package__ in (None, ""):
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.utils.constants import DEFAULT_RNG as rng
+from numpy.random import Generator
+
+from src.utils.constants import SEED, create_rng
 from src.utils.enums import StudentState
 
 # simulating simple markov chains with a transition matrix
@@ -13,18 +15,20 @@ from src.utils.enums import StudentState
 
 
 class Student:
-    def __init__(self, transition_matrix):
+    def __init__(self, transition_matrix, *, seed=SEED, rng: Generator | None = None):
+        self._rng = rng if rng is not None else create_rng(seed)
         self.transition_matrix = transition_matrix
         self.state = StudentState.ACTIVE
 
     def step(self):
         current_state_index = self.state.value
         next_state_probabilities = self.transition_matrix[current_state_index]
-        self.state = StudentState(rng.choice(len(next_state_probabilities), p=next_state_probabilities))
+        self.state = StudentState(self._rng.choice(len(next_state_probabilities), p=next_state_probabilities))
 
 class School:
-    def __init__(self, num_students, transition_matrix):
-        self.students = [Student(transition_matrix) for _ in range(num_students)]
+    def __init__(self, num_students, transition_matrix, *, seed=SEED):
+        self._rng = create_rng(seed)
+        self.students = [Student(transition_matrix, rng=self._rng) for _ in range(num_students)]
 
     def step(self):
         for student in self.students:

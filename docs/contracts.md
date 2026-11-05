@@ -175,7 +175,10 @@ when generation fails. No exception/model text leaves through the public result.
 
 History selection is a seeded NumPy choice with replacement within the requested support.
 School and intervention streams are created by `utils.constants.create_rng(seed)`;
-they remain independent of the shared `DEFAULT_RNG` used by teaching examples.
+teaching examples also create independent streams per school or main invocation
+and pass their generator to students. All default seeds use `utils.constants.SEED`.
+CMDP policy shuffles and keyed environmental draws remain separate, explicitly
+seeded streams. Run IDs remain unique across resets for result identity checks.
 A coherent consecutive history starts at session 1 and is used up to the planned
 limit; no appointments are fabricated. Missing compatible history produces zero
 attendance and zero actual cost, retaining the admission and preventing a second

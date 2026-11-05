@@ -112,7 +112,8 @@ school policy before implementation; predictive-model retraining is outside scop
 Intervention binds a coherent support-matched history to run/programme/pair identity
 and processes recorded sessions in order, up to the planned limit. Selection uses
 local NumPy generators from `utils.constants.create_rng`, reset for each fresh
-run; corpus reuse is permitted. Teaching examples share `DEFAULT_RNG`. Every
+run; corpus reuse is permitted. Teaching examples create a seeded generator per
+school or main invocation and pass it to their students. Every
 programme gets a fresh extraction, including after mentor reassignment. The default
 passes all selected sessions in one call without creating a retrieval index. It
 validates the complete timeline and each entry's semantics before persisting private session files.

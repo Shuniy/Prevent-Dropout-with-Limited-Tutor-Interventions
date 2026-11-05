@@ -43,6 +43,10 @@ class School:
     When explicit agents are not supplied, the school reads student agents from
     the synthetic population CSV and creates mentor agents using the defaults in
     :mod:`constants`.
+
+    Allocation uses a local stream from ``seed`` and restarts it on reset.
+    Pass the same seed to an Intervention when coordinating a recorded run.
+    Run IDs remain unique across resets to reject results from earlier runs.
     """
 
     def __init__(

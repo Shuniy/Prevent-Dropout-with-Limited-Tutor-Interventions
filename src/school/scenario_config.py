@@ -5,6 +5,8 @@ from pathlib import Path
 import math
 import tomllib
 
+from ..utils.constants import SEED
+
 
 @dataclass(frozen=True)
 class ScenarioConfig:
@@ -17,7 +19,7 @@ class ScenarioConfig:
     appointments_per_programme: int = 5
     cost_per_appointment: float = 1.0
     budget: float = 150.0
-    seed: int = 42
+    seed: int = SEED
     effect_strength: float = 1.0
     max_programmes_per_student: int = 1
     fairness_window: int = 4

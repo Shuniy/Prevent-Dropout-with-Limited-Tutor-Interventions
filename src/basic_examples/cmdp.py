@@ -4,7 +4,7 @@ if __package__ in (None, ""):
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.utils.constants import DEFAULT_RNG as rng
+from src.utils.constants import SEED, create_rng
 from src.utils.enums import CMDPStudentState as StudentState, CMDPMentorActions as MentorActions
 
 # simulate 100 students over 12 months with a constrained Markov decision process model for dropout behavior
@@ -15,7 +15,8 @@ from scipy.optimize import linprog
 
 
 class School:
-    def __init__(self):
+    def __init__(self, *, seed=SEED):
+        self._rng = create_rng(seed)
         # transition probabilities for each state given mentor actions
         self.probabilities = {
             StudentState.ACTIVE: {
@@ -77,7 +78,7 @@ class School:
         """
         self.sessions_per_month = sessions_per_month
         states = np.where(
-            rng.random(num_students) < 0.8,
+            self._rng.random(num_students) < 0.8,
             StudentState.ACTIVE,
             StudentState.AT_RISK,
         ).astype(int)
@@ -89,10 +90,10 @@ class School:
             desired_support_prob = policy[month, states, MentorActions.PROVIDE_SUPPORT]
             proposed = np.flatnonzero(
                 (states != StudentState.DROPPED_OUT)
-                & (rng.random(num_students) < desired_support_prob)
+                & (self._rng.random(num_students) < desired_support_prob)
             )
             if len(proposed) > sessions_per_month:
-                selected = rng.choice(
+                selected = self._rng.choice(
                     proposed, size=sessions_per_month, replace=False
                 )
             else:
@@ -104,7 +105,7 @@ class School:
             # Every non-dropped-out student transitions every month.
             for i in range(num_students):
                 if states[i] != StudentState.DROPPED_OUT:
-                    states[i] = rng.choice(3, p=self.probabilities_matrix[states[i]][actions[i]])
+                    states[i] = self._rng.choice(3, p=self.probabilities_matrix[states[i]][actions[i]])
 
             results.append((month + 1, *map(int, counts()), len(selected)))
 

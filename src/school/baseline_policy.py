@@ -1,8 +1,9 @@
 """Simple allocation baselines with the same hard constraints as the planner."""
 
-from .allocation_result import AllocationResult
 import random
 
+from ..utils.constants import SEED
+from .allocation_result import AllocationResult
 from .greedy_matching import assign_feasible
 from .student_condition import STATES
 
@@ -18,7 +19,7 @@ class BaselinePolicy:
     withdrawal. Consequently, unserved survivors tie in this closed cohort.
     """
 
-    def __init__(self, name="wait", seed=42):
+    def __init__(self, name="wait", seed=SEED):
         if name not in BASELINES:
             raise ValueError(f"unknown baseline: {name}")
         self.name = name

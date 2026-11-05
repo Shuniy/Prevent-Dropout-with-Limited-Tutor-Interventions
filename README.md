@@ -93,7 +93,10 @@ For those standalone commands, use `--root` for another corpus, `--model` for
 another installed model and `OLLAMA_BASE_URL` for a different local endpoint.
 SQLite FTS5 provides retrieval; no embedding model is needed. School and
 intervention APIs use independent NumPy RNG streams from `create_rng(seed)`;
-teaching examples share `DEFAULT_RNG`.
+teaching examples create a fresh `create_rng(seed)` per school or main invocation
+and pass that generator to their students. Defaults use the shared `SEED`; callers
+can override the seed. CMDP policy shuffles and keyed environmental draws retain
+separate seeded streams so policy calls cannot shift environmental outcomes.
 
 ## Recorded-intervention Python workflow
 

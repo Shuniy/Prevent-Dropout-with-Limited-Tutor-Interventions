@@ -4,12 +4,15 @@ if __package__ in (None, ""):
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.utils.constants import DEFAULT_RNG as rng
+from numpy.random import Generator
+
+from src.utils.constants import SEED, create_rng
 
 # Simple agent-based model to simulate student dropout based on motivation
 
 class Student:
-    def __init__(self, motivation):
+    def __init__(self, motivation, *, seed=SEED, rng: Generator | None = None):
+        self._rng = rng if rng is not None else create_rng(seed)
         self.motivation = motivation
         self.is_dropout = False
 
@@ -17,16 +20,17 @@ class Student:
         if self.is_dropout:
             return
 
-        self.motivation += rng.uniform(-0.1, 0.1)  # motivation decreases over time
+        self.motivation += self._rng.uniform(-0.1, 0.1)  # motivation decreases over time
         self.motivation = max(0, min(1, self.motivation))  # keep motivation in [0, 1]
 
         # lower motivation increases dropout probability
         dropout_probability = (1 - self.motivation) * 0.1
-        if rng.random() < dropout_probability:
+        if self._rng.random() < dropout_probability:
             self.is_dropout = True
 
-def main():
-    students = [Student(rng.uniform(0.5, 1.0)) for _ in range(100)]  # initialize students with random motivation
+def main(*, seed=SEED):
+    rng = create_rng(seed)
+    students = [Student(rng.uniform(0.5, 1.0), rng=rng) for _ in range(100)]  # initialize students with random motivation
     # simulate 12 months
     for month in range(1, 13):
         for student in students:

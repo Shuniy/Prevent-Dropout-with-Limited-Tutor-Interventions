@@ -54,6 +54,8 @@ for results, scientific limitations and remaining acceptance gaps.
   school result application.
 - Coherent support-matched history assignment with local seeded selection,
   chronological SQLite retrieval, fresh programme memory and explicit model clients.
+- Independent seeded teaching-example streams, shared with each example's students,
+  using the same default seed convention as school and intervention runs.
 - Default all-sessions LLM extraction with one generation per intervention, no
   retrieval index and the existing timeline/conclusion and private output shapes.
 - Version 2 findings with stable action identity, six explicit completion statuses,
