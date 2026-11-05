@@ -20,7 +20,7 @@ class ClosedLoopCMDPController:
 
     def __init__(self, environment, policy, *, mode="structured", extractor=None,
                  observation_config=ObservationConfig(), note_quality=NoteQuality(),
-                 max_notes_per_month=None, estimator=None):
+                 max_notes_per_month=None, estimator=None, note_quality_by_student=None):
         if mode not in INFORMATION_MODES:
             raise ValueError("unknown information mode")
         if mode in ("llm_notes", "noisy_notes") and extractor is None:
@@ -32,6 +32,13 @@ class ClosedLoopCMDPController:
         self.gold_extractor = FixtureObservationExtractor()
         self.observation_model = SyntheticObservationModel(observation_config)
         self.note_quality, self.max_notes_per_month = note_quality, max_notes_per_month
+        # Synthetic information-quality experiments may assign an authorized
+        # source group a different note channel. Only the renderer sees these
+        # declared qualities; no hidden conditions or audit groups enter prompts.
+        self.note_quality_by_student = dict(note_quality_by_student or {})
+        if any(not isinstance(quality, NoteQuality)
+               for quality in self.note_quality_by_student.values()):
+            raise ValueError("student note qualities must be NoteQuality records")
         # Assumed controller matrices come from the planner, recorded separately
         # from the environment parameters for future misspecification studies.
         self.estimator = estimator or StudentStateEstimator(
@@ -67,7 +74,8 @@ class ClosedLoopCMDPController:
             start = (registry[0].event_month * self.max_notes_per_month) % len(events) if events else 0
             selected = (events[start:] + events[:start])[:self.max_notes_per_month]
         self.notes.extend(render_note(event, seed=self.environment.config.seed,
-                                     quality=self.note_quality) for event in selected)
+                                     quality=self.note_quality_by_student.get(
+                                         event.student_id, self.note_quality)) for event in selected)
 
     def process_new_observations(self, month):
         incoming = {sid: [] for sid in self.estimates}

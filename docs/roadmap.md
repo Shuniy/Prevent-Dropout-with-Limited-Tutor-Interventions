@@ -28,9 +28,18 @@ independent admission audits and paired target/budget/effect experiments. See
 [the formulation](cmdp_fairness_v1.md) and [execution report](cmdp_fairness_v1_results.md).
 
 Deferred: globally optimal stochastic fairness scheduling, repeated programmes,
-causal calibration, and LLM-driven state estimation/closed-loop evaluation. The
+and causal calibration. The
 rolling-window policy uses an optimistic enrollment projection and WAIT-based
-future values. Step 5 is the next separate task; Step 4 does not implement it.
+future values. Step 5 adds observable records, note-supported extraction, estimated
+beliefs and WAIT-continuation risk to the shared closed-loop controller; its real
+Qwen executions are documented in [the Step 5 report](cmdp_llm_feedback_v1_results.md).
+
+Step 6 adds finite-scenario robust fairness allocation, independent extraction
+scoring, evaluator-only belief/risk metrics, paired held-out experiments and
+bounded sensitivities. The [versioned protocol](research_evaluation_protocol.md)
+separates D-matched uncertainty comparisons from actual sparse LLM diagnostics.
+Consult [the executed research report](../results/research_evaluation_v1/research_results.md)
+for results, scientific limitations and remaining acceptance gaps.
 
 ## Working now
 
@@ -91,7 +100,7 @@ caseloads. Repeated programmes or reassignment require a separate eligibility po
 and must not implicitly transfer private memory. Predictive-model training, simulated
 withdrawal in the recorded-intervention workflow, causal effect estimation and
 LLM-driven closed-loop fairness evaluation remain separate future work. The
-language-free CMDP policy comparisons and Step 4 fairness experiments are implemented;
+CMDP policy comparisons, estimated-state feedback and Step 6 research evaluation are implemented;
 the recorded-intervention allocator remains a priority heuristic.
 
 ## Preserved research material

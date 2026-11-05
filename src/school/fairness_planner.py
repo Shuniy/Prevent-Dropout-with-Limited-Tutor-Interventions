@@ -16,17 +16,21 @@ from .retention_value import BENEFIT_ESTIMATOR_VERSION, estimate_all_student_ben
 from .window_optimization import validate_schedule, window_model
 
 
-def feasible_vector(result, rows, lower, upper):
+def feasible_vector(result, rows, lower, upper, *, integer_count=None, variable_lower=None):
     vector = getattr(result, "x", None)
     if result.status not in (0, 1) or vector is None:
         return False
     vector = np.asarray(vector)
     tolerance = 1e-6
+    integer_count = len(vector) if integer_count is None else integer_count
+    bounds_lower = np.zeros(len(vector)) if variable_lower is None else variable_lower
     if (len(vector) != rows.shape[1] or not np.isfinite(vector).all()
-            or np.any(vector < -tolerance)
-            or np.any(abs(vector - np.rint(vector)) > tolerance)):
+            or np.any(vector < bounds_lower - tolerance)
+            or np.any(abs(vector[:integer_count] - np.rint(vector[:integer_count])) > tolerance)):
         return False
-    values = rows @ np.rint(vector)
+    checked = vector.copy()
+    checked[:integer_count] = np.rint(checked[:integer_count])
+    values = rows @ checked
     return bool(np.all(values >= lower - tolerance) and np.all(values <= upper + tolerance))
 
 

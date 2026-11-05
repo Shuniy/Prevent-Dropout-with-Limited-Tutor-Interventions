@@ -336,8 +336,8 @@ research specifications describe possible future work, not the active interface.
 Synthetic conversations and assumed attendance/engagement are not observations of
 real children or measured treatment effects. Missing appointments have unknown
 reasons and do not establish dropout. Historical course failure is not school
-dropout. Causal calibration, trained risk models and LLM-driven closed-loop policy
-evaluation remain future work; the school CMDP workflow below uses explicit
+dropout. Causal calibration and trained withdrawal risk models remain future work;
+the school CMDP feedback and evaluation workflows use explicit
 synthetic dynamics and provides initial policy/fairness experiments.
 
 ## CMDP retention simulation
@@ -375,3 +375,48 @@ See [Step 2 baseline policies, commands and acceptance checks](docs/cmdp_baselin
 [implementation, formulae, assumptions and full commands](docs/cmdp-implementation.md),
 [executed simulation results](docs/cmdp-results-v1.md), and
 [versioned baseline configuration](configs/cmdp_baselines_v1.toml). Use a new output directory for each run.
+
+## Step 6 research contribution evaluation
+
+The [frozen evaluation protocol](docs/research_evaluation_protocol.md) and
+[configuration](configs/research_evaluation_v1.toml) define a staged comparison of
+FairPoint and finite-scenario FairRobust, reusing the Step5 feedback engine.
+The primary comparison uses group-dependent corrupted note-supported gold facts
+(D-matched); actual Qwen extraction is separately benchmarked and compared with
+exact-content sparse controls. This distinction prevents attributing observation
+or note loss to an extractor. Outcome claims concern simulated withdrawal only.
+
+```sh
+.venv/bin/python scripts/run_research_evaluation.py --stage freeze
+.venv/bin/python scripts/run_extraction_benchmark.py --live
+.venv/bin/python scripts/run_research_pilot.py
+.venv/bin/python scripts/run_primary_experiment.py
+.venv/bin/python scripts/run_research_sensitivity.py
+.venv/bin/python scripts/run_research_evaluation.py --stage live
+.venv/bin/python scripts/generate_research_report.py
+```
+
+Use `--output results/research_evaluation_v1/new_run` on every research command for
+an independent run; give the extraction command the corresponding
+`--output-dir results/research_evaluation_v1/new_run/extraction`. Existing completed
+cells resume from saved artifacts. Input/source hash changes require an explicit
+`--amend 'reason'`, preserve previous manifest versions, and require a fresh pilot.
+Do not amend a held-out analysis to select favorable policies. The real-model
+cache records complete note/context, prompt/schema, source and model digest.
+Failed extractions remain unknown and are recorded, never replaced with fixtures.
+
+Outputs include episode/monthly, group access and frozen memberships, belief/risk,
+solver/workload and paired confidence-interval CSVs; compressed complete episode
+traces; sensitivity/ablation tables; failure cases; standalone figures; and a
+research report under `results/research_evaluation_v1/`. Consult the generated
+report for actual results and incomplete acceptance items. Standalone regression
+checks do not require Ollama:
+
+```sh
+.venv/bin/python -m unittest discover -s tests
+```
+
+See [the implementation inventory and full reproduction commands](docs/research_implementation.md),
+[the executed research report](docs/research_results.md), and
+[the acceptance audit](results/research_evaluation_v1/acceptance_audit.json) for the
+completed evaluation and its remaining scope gaps.

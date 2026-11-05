@@ -67,6 +67,8 @@ def save_episode(controller, output):
     manifest = {"scenario": asdict(config), "information_mode": controller.mode,
         "observation_model": asdict(controller.observation_model.config),
         "note_quality": asdict(controller.note_quality), "max_notes_per_month": controller.max_notes_per_month,
+        "note_quality_by_student": {sid: asdict(quality) for sid, quality
+                                    in controller.note_quality_by_student.items()},
         "controller_version": controller.VERSION, "estimator": controller.estimator.configuration,
         "risk_version": SimulatedWithdrawalRiskEstimator.VERSION,
         "allocation_policy_version": controller.policy.VERSION,

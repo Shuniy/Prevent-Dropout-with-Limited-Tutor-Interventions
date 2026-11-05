@@ -297,3 +297,25 @@ Runtime support participation and known reported outcomes update on valid result
 application. Unknown or conflicting outcomes leave existing reported state unchanged. Numeric
 metrics stay unchanged, and each evaluation records the reason. There is no score,
 categorical-to-numeric mapping, automatic grade gain or model retraining.
+
+## Step 6 evaluation contracts
+
+`FairRobustPlanner.plan(DecisionState)` preserves the hard candidate, budget,
+compatibility, appointment and one-programme constraints of FairnessPlanner.
+Its lexicographic stages are normalized coverage slack, minimum total scenario
+benefit, cost, canonical assignment bits. Scenario construction may use current
+beliefs, observed missingness and evidence age only. Current oracle point states
+remain exact; ordinary policies cannot obtain evaluator truth or future draws.
+
+`ClosedLoopCMDPController(..., note_quality_by_student=...)` optionally applies
+validated synthetic NoteQuality records by ID at note generation. Source groups
+may determine this map outside the renderer; notes do not expose the group.
+D-matched uses the existing b_matched controller with exactly the noisy note
+channel; C/D use an explicit real extractor, with no fallback to fixtures.
+
+`score_episode(controller)` is a post-execution read-only evaluator. The Brier
+convention sums all four class errors. WAIT risk scores use evaluator conditional
+model probabilities and expected Bernoulli proper scores. `paired_comparison`
+requires equal nonempty unique seed sets and computes episode-level Student-t
+intervals; one seed gives no confidence interval. Frozen observed cell memberships
+and their hashes are exported so denominator changes remain explicit.

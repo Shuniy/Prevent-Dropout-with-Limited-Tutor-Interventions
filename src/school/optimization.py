@@ -31,7 +31,8 @@ def resource_constraints(state, candidates):
     return np.array(rows, dtype=float), np.array(upper, dtype=float)
 
 
-def solve_milp(objective, rows, lower, upper, *, binary_count, time_limit, integer_count=None):
+def solve_milp(objective, rows, lower, upper, *, binary_count, time_limit, integer_count=None,
+               variable_lower=None):
     count = len(objective)
     bounds_upper = np.full(count, np.inf)
     bounds_upper[:binary_count] = 1
@@ -40,7 +41,7 @@ def solve_milp(objective, rows, lower, upper, *, binary_count, time_limit, integ
     return milp(
         np.asarray(objective, dtype=float),
         integrality=integrality,
-        bounds=Bounds(np.zeros(count), bounds_upper),
+        bounds=Bounds(np.zeros(count) if variable_lower is None else variable_lower, bounds_upper),
         constraints=LinearConstraint(csc_matrix(rows), lower, upper),
         options={"time_limit": time_limit, "mip_rel_gap": 0.0},
     )

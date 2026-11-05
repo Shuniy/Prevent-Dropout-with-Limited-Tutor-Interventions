@@ -43,9 +43,13 @@ class NoteQuality:
     misleading_probability: float = 0.0
     delay_probability: float = 0.0
     delay_months: int = 1
+    ambiguity_probability: float = 0.0
+    negation_probability: float = 0.0
+    partial_reporting_probability: float = 0.0
 
     def __post_init__(self):
-        for name in ("omission_probability", "conflict_probability", "misleading_probability", "delay_probability"):
+        for name in ("omission_probability", "conflict_probability", "misleading_probability", "delay_probability",
+                     "ambiguity_probability", "negation_probability", "partial_reporting_probability"):
             value = getattr(self, name)
             if not math.isfinite(value) or not 0 <= value <= 1:
                 raise ValueError(f"{name} must be within [0, 1]")
@@ -62,7 +66,14 @@ def render_note(event: ObservableEvent, *, seed, quality=NoteQuality()):
         signal = event.signal
         if draw("misleading") < quality.misleading_probability:
             signal = SIGNALS[(SIGNALS.index(signal) + 1) % len(SIGNALS)]
-        pieces.append(SIGNAL_PHRASES[signal])
+        phrase = SIGNAL_PHRASES[signal]
+        if draw("ambiguity") < quality.ambiguity_probability:
+            phrase = "There is insufficient evidence about participation."
+        elif signal == "assignment_difficulty" and draw("negation") < quality.negation_probability:
+            phrase = "The student denies difficulty completing assignments."
+        elif draw("partial_reporting") < quality.partial_reporting_probability:
+            phrase = "The student reports greater participation, but progress is not yet consistent."
+        pieces.append(phrase)
         if draw("conflict") < quality.conflict_probability:
             pieces.extend([SIGNAL_PHRASES[SIGNALS[(SIGNALS.index(signal) + 2) % len(SIGNALS)]],
                            "Reports about participation conflict and remain unresolved."])

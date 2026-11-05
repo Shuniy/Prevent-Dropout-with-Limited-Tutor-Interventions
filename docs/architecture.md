@@ -143,3 +143,24 @@ the injected intervention and never inspects its private state.
 This is a module/report confidentiality boundary, not an OS access-control boundary.
 Standalone simple and RAG commands remain private analysis/developer tools. Neither mode
 estimates causal effectiveness or observed dropout.
+
+## Research evaluation (Step 6)
+
+`src/evaluation/research_experiments.py` stages frozen-protocol experiments over
+`ClosedLoopCMDPController`; it does not implement a second environment. The
+controller accepts an optional explicit student-to-NoteQuality map for synthetic
+group-dependent note channels. It passes only observable events to the renderer,
+never hidden states or audit attributes to the LLM. Every policy generates future
+notes from its own committed trajectory under shared keyed exogenous streams.
+
+`FairRobustPlanner` reuses the fairness window, candidate/resource construction,
+rollout model and validators. A continuous eta bounds total benefit under each
+scenario; fairness shortfall, cost and deterministic tie priorities remain shared.
+Finite belief scenarios use only estimated decision inputs and documented
+missingness/freshness. Evaluator-only scorecards join truth after execution.
+Risk scoring uses the conditional WAIT reference, not treated terminal labels.
+
+Configuration/source hashes gate execution, with append-only manifest versions
+for explicit amendments. CSV summaries, compressed complete episode traces,
+configuration-complete inference caches and generated scientific figures make
+results inspectable. See [the protocol](research_evaluation_protocol.md).
