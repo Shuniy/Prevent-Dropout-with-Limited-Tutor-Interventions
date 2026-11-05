@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import platform
+from importlib.metadata import version
 import sys
 
 import numpy as np
@@ -21,6 +22,8 @@ from .cmdp_scenarios import build_environment, build_school
 from .exact_tiny_mdp import ExactTinyMDP
 from .fairness_audit import audit_access
 from .student_condition import StudentCondition
+from .constrained_planner import ConstrainedAllocationPlanner
+from .retention_value import BENEFIT_ESTIMATOR_VERSION
 from .transition_model import P_WAIT, programme_matrix
 
 
@@ -75,6 +78,7 @@ def tiny_comparison(config):
     )
     result = ExactTinyMDP(state).compare()
     result["exact_first_action"] = [asdict(item) for item in result["exact_first_action"]]
+    result["heuristic_first_action"] = [asdict(item) for item in result["heuristic_first_action"]]
     result["scenario"] = (
         "Two initially stable students, three months, one generalist mentor, one funded programme"
     )
@@ -127,8 +131,16 @@ def run_experiments(
         "evaluation_seeds": evaluation,
         "partitions": partitions,
         "policy_versions": {
-            name: BASELINE_VERSION if name in BASELINES else "existing_cmdp_v1" for name in policies
+            name: (BASELINE_VERSION if name in BASELINES else
+                   ConstrainedAllocationPlanner.VERSION if name == "terminal_value" else
+                   "existing_cmdp_v1") for name in policies
         },
+        "benefit_estimator_version": BENEFIT_ESTIMATOR_VERSION,
+        "solver_configuration_version": "retention_cost_canonical_v1",
+        "planner_solver_settings": dict(ConstrainedAllocationPlanner(
+            time_limit=config.planner_time_limit, failure_mode=config.planner_failure_mode).settings),
+        "dependency_versions": {name: version(name) for name in
+                                ("numpy", "scipy", "pandas", "matplotlib")},
         "confidence_interval": "paired episode-level Student-t, 95%, ddof=1; pointwise",
         "student_month_convention": "enrolled after each monthly transition; excludes month zero",
         "waiting_convention": "full unsupported months survived; admission/withdrawal stop counter",
@@ -159,6 +171,9 @@ def run_experiments(
     }
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     (output / "experiment_config.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    (output / "requirements-lock.txt").write_text("\n".join(
+        f"{name}=={value}" for name, value in manifest["dependency_versions"].items()
+    ) + "\n", encoding="utf-8")
     episodes = []
     context = {}
     with (

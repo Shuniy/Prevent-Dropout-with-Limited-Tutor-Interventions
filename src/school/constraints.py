@@ -4,6 +4,7 @@ from collections import Counter
 import math
 
 from .mentor_assignment import MentorAssignment
+from .money import amount, budget_amount, programme_cost
 
 
 TOLERANCE = 1e-7
@@ -11,18 +12,18 @@ TOLERANCE = 1e-7
 
 def candidate_assignments(state) -> tuple[MentorAssignment, ...]:
     candidates = []
-    for student in state.students:
+    for student in sorted(state.students, key=lambda item: item.student_id):
         if not student.eligible:
             continue
-        for mentor in state.mentors:
+        for mentor in sorted(state.mentors, key=lambda item: item.mentor_id):
             # Complete programme cost = five appointments * appointment price.
-            cost = 5 * mentor.cost_per_appointment
+            cost = programme_cost(mentor.cost_per_appointment)
             if (
                 student.student_id in mentor.compatible_student_ids
                 and student.support_type in mentor.support_types
                 and mentor.admissions >= 1
                 and mentor.appointments >= 5
-                and cost <= state.remaining_budget + TOLERANCE
+                and cost <= budget_amount(state)
             ):
                 candidates.append(
                     MentorAssignment(
@@ -31,7 +32,7 @@ def candidate_assignments(state) -> tuple[MentorAssignment, ...]:
                         student.support_type,
                         state.month,
                         5,
-                        cost,
+                        float(cost),
                         5,
                     )
                 )
@@ -45,7 +46,7 @@ def validate_allocation(state, assignments) -> None:
     seen = set()
     admissions = Counter()
     appointments = Counter()
-    spending = 0.0
+    spending = amount(0)
     for assignment in assignments:
         student = students.get(assignment.student_id)
         mentor = mentors.get(assignment.mentor_id)
@@ -65,10 +66,10 @@ def validate_allocation(state, assignments) -> None:
             or student.student_id not in mentor.compatible_student_ids
         ):
             raise ValueError("incompatible student, need, or mentor")
-        cost = 5 * mentor.cost_per_appointment
+        cost = programme_cost(mentor.cost_per_appointment)
         if (
             not math.isfinite(assignment.cost_units)
-            or abs(assignment.cost_units - cost) > TOLERANCE
+            or assignment.cost_units != float(cost)
         ):
             raise ValueError("incorrect full programme cost")
         spending += cost
@@ -81,5 +82,5 @@ def validate_allocation(state, assignments) -> None:
             or appointments[mentor_id] > mentors[mentor_id].appointments
         ):
             raise ValueError("mentor admission or appointment capacity exceeded")
-    if spending > state.remaining_budget + TOLERANCE:
+    if spending > budget_amount(state):
         raise ValueError("episode budget exceeded")

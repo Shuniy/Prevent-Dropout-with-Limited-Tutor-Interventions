@@ -14,7 +14,8 @@ POLICY_NAMES = (*DEFAULT_POLICIES, "terminal_value", "fairness")
 def make_policy(name, config) -> AllocationPolicy:
     if name == "terminal_value":
         return ConstrainedAllocationPlanner(
-            treatment_matrix=programme_matrix(config.effect_strength)
+            treatment_matrix=programme_matrix(config.effect_strength),
+            time_limit=config.planner_time_limit, failure_mode=config.planner_failure_mode,
         )
     if name == "fairness":
         return FairnessPlanner(

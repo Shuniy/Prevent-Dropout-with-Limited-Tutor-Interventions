@@ -3,6 +3,7 @@
 from collections import defaultdict
 
 from .constraints import candidate_assignments, validate_allocation
+from .money import budget_amount, programme_cost
 
 
 def assign_feasible(state, ordered_students):
@@ -22,7 +23,8 @@ def assign_feasible(state, ordered_students):
     }
     selected = []
     seen = set()
-    budget = state.remaining_budget
+    budget = budget_amount(state)
+    prices = {mentor.mentor_id: mentor.cost_per_appointment for mentor in state.mentors}
     for student in ordered_students:
         if student.student_id in seen:
             raise ValueError("student priority order contains duplicates")
@@ -32,11 +34,11 @@ def assign_feasible(state, ordered_students):
         ):
             if (
                 admissions[assignment.mentor_id] < limits[assignment.mentor_id]
-                and assignment.cost_units <= budget
+                and programme_cost(prices[assignment.mentor_id]) <= budget
             ):
                 selected.append(assignment)
                 admissions[assignment.mentor_id] += 1
-                budget -= assignment.cost_units
+                budget -= programme_cost(prices[assignment.mentor_id])
                 break
     validate_allocation(state, selected)
     return tuple(selected)

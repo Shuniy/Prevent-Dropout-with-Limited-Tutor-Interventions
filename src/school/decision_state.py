@@ -14,3 +14,4 @@ class DecisionState:
     students: tuple[StudentObservation, ...]
     mentors: tuple[MentorResource, ...]
     observation_mode: str = "fully_observed_benchmark"
+    remaining_budget_exact: str | None = None

@@ -355,6 +355,7 @@ no waiting time. `--print-monthly` prints the first development world for each
 policy/scenario; large sweeps otherwise keep their usual progress output.
 
 See [Step 2 baseline policies, commands and acceptance checks](docs/cmdp_baselines_v1.md),
+[Step 3 constrained planner and reproducible commands](docs/cmdp_planner_v1.md),
 [implementation, formulae, assumptions and full commands](docs/cmdp-implementation.md),
 [executed simulation results](docs/cmdp-results-v1.md), and
 [versioned baseline configuration](configs/cmdp_baselines_v1.toml). Use a new output directory for each run.

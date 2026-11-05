@@ -3,6 +3,7 @@
 from dataclasses import replace
 from functools import lru_cache
 from itertools import product
+import time
 
 import numpy as np
 
@@ -73,6 +74,7 @@ class ExactTinyMDP:
         self._next_states = tuple(product(range(4), repeat=len(initial_state.students)))
 
     def compare(self):
+        started = time.perf_counter()
         planner = ConstrainedAllocationPlanner(
             wait_matrix=self.wait, treatment_matrix=self.programme
         )
@@ -148,6 +150,23 @@ class ExactTinyMDP:
                 )
             return expectation(month, conditions, used, budget, allocation.assignments, approximate)
 
+        @lru_cache(maxsize=None)
+        def exact_action(month, conditions, used, budget):
+            state = snapshot(month, conditions, used, budget)
+            actions = enumerate_allocations(state)
+            return max(actions, key=lambda action: expectation(
+                month, conditions, used, budget, action, optimal))
+
+        @lru_cache(maxsize=None)
+        def policy_spending(month, conditions, used, budget, exact):
+            if month == end:
+                return 0.0
+            action = (exact_action(month, conditions, used, budget) if exact else
+                      planner.plan(snapshot(month, conditions, used, budget)).assignments)
+            return sum(item.cost_units for item in action) + expectation(
+                month, conditions, used, budget, action,
+                lambda *args: policy_spending(*args, exact))
+
         args = (
             self.initial.month,
             initial_conditions,
@@ -157,15 +176,31 @@ class ExactTinyMDP:
         actions = enumerate_allocations(self.initial)
         values = [expectation(*args, action, optimal) for action in actions]
         best = max(range(len(actions)), key=lambda index: values[index])
+        exact_spending = policy_spending(*args, True)
+        exact_runtime = time.perf_counter() - started
+        heuristic_started = time.perf_counter()
         greedy = planner.plan(self.initial).assignments
         exact_value = values[best]
         heuristic_value = approximate(*args)
+        heuristic_spending = policy_spending(*args, False)
+        gap = exact_value - heuristic_value
+        if gap < -1e-9:
+            raise RuntimeError("exact policy value fell below evaluated heuristic")
         return {
             "exact_expected_terminal_enrollment": exact_value,
             "heuristic_expected_terminal_enrollment": heuristic_value,
-            "objective_gap": exact_value - heuristic_value,
+            "objective_gap": gap,
+            "relative_gap": gap / exact_value if exact_value else None,
             "exact_first_student_ids": [item.student_id for item in actions[best]],
             "heuristic_first_student_ids": [item.student_id for item in greedy],
             "exact_first_action": actions[best],
+            "heuristic_first_action": greedy,
+            "exact_expected_spending": exact_spending,
+            "heuristic_expected_spending": heuristic_spending,
+            "exact_first_spending": sum(item.cost_units for item in actions[best]),
+            "heuristic_first_spending": sum(item.cost_units for item in greedy),
+            "exact_runtime_seconds": exact_runtime,
+            "heuristic_runtime_seconds": time.perf_counter() - heuristic_started,
+            "runtime_seconds": time.perf_counter() - started,
             "states_evaluated": optimal.cache_info().currsize,
         }

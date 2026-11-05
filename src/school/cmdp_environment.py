@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 import math
+from .money import amount, programme_cost
 
 from .loading import mentor_can_take, validate_unique_ids
 from .allocation_result import AllocationResult
@@ -86,7 +87,7 @@ class CMDPEnvironment:
             if mentor.current_student_ids:
                 raise ValueError("CMDP episodes require mentors with empty initial caseloads")
         self._month = 1
-        self._remaining_budget = config.budget
+        self._remaining_budget = amount(config.budget)
         self._records = []
 
     @property
@@ -145,7 +146,9 @@ class CMDPEnvironment:
                     month=self._month,
                     required_sessions=5,
                     sessions_used=0,
-                    remaining_budget=self._remaining_budget,
+                    # Compatibility is independent of affordability. Exact
+                    # programme costs and budget are checked by the validator.
+                    remaining_budget=math.inf,
                 ):
                     compatible.append(student.student_id)
             resources.append(
@@ -161,10 +164,11 @@ class CMDPEnvironment:
         return DecisionState(
             self._month,
             max(0, self.config.horizon - self._month + 1),
-            self._remaining_budget,
+            float(self._remaining_budget),
             tuple(observations),
             tuple(resources),
             "fully_observed_benchmark" if fully_observed else "estimated_or_unobserved",
+            str(self._remaining_budget),
         )
 
     def step(self, allocation) -> MonthRecord:
@@ -179,8 +183,10 @@ class CMDPEnvironment:
         recipient_waits = tuple(
             self._waiting_months[item.student_id] for item in allocation.assignments
         )
-        spending = sum(assignment.cost_units for assignment in allocation.assignments)
-        self._remaining_budget = max(0.0, self._remaining_budget - spending)
+        prices = {mentor.mentor_id: mentor.cost_per_appointment for mentor in state.mentors}
+        spending = sum((programme_cost(prices[item.mentor_id])
+                        for item in allocation.assignments), amount(0))
+        self._remaining_budget -= spending
         for student_id in assigned:
             self._programme_months[student_id] += (self._month,)
         for student_id, condition in self._conditions.items():
@@ -204,7 +210,7 @@ class CMDPEnvironment:
         record = MonthRecord(
             self._month,
             tuple(self._conditions.items()),
-            self._remaining_budget,
+            float(self._remaining_budget),
             allocation,
             tuple(
                 (mentor.mentor_id, mentor.admissions, mentor.appointments)

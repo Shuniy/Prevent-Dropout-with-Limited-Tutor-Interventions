@@ -1,9 +1,29 @@
 """Deterministic terminal values; these are rollout benefits, not optimal Q values."""
 
 import numpy as np
+from functools import lru_cache
 
 from .student_condition import STATES, StudentCondition
 from .transition_model import validate_matrix
+
+
+BENEFIT_ESTIMATOR_VERSION = "wait_rollout_v2"
+
+
+@lru_cache(maxsize=128)
+def _value_table(matrix_key, horizon):
+    matrix = np.asarray(matrix_key).reshape(4, 4)
+    values = np.empty((horizon + 1, 4))
+    values[0] = [1, 1, 1, 0]
+    for month in range(horizon):
+        values[month + 1] = matrix @ values[month]
+    values.setflags(write=False)
+    return values
+
+
+def wait_values(matrix, horizon):
+    # All twelve decision horizons share one cached backward-propagation table.
+    return _value_table(tuple(matrix.ravel()), max(12, horizon))[horizon]
 
 
 def expected_terminal_retention(condition, months_remaining, transition_matrix) -> float:
@@ -11,8 +31,8 @@ def expected_terminal_retention(condition, months_remaining, transition_matrix) 
         raise ValueError("months_remaining must be a non-negative integer")
     matrix = validate_matrix(transition_matrix)
     # V_wait_h(s) = [P_wait ** h @ e]_s, where e = [1, 1, 1, 0].
-    values = np.linalg.matrix_power(matrix, months_remaining) @ np.array([1, 1, 1, 0])
-    return float(values[STATES.index(StudentCondition(condition))])
+    values = wait_values(matrix, months_remaining)
+    return float(np.clip(values[STATES.index(StudentCondition(condition))], 0, 1))
 
 
 def estimate_incremental_benefit(
@@ -23,7 +43,7 @@ def estimate_incremental_benefit(
     wait = validate_matrix(wait_matrix)
     programme = validate_matrix(programme_matrix)
     # Delta(s) = [(P_programme - P_wait) @ P_wait ** (h - 1) @ e]_s.
-    continuation = np.linalg.matrix_power(wait, months_remaining - 1) @ np.array([1, 1, 1, 0])
+    continuation = wait_values(wait, months_remaining - 1)
     benefits = (programme - wait) @ continuation
     return float(benefits[STATES.index(StudentCondition(condition))])
 

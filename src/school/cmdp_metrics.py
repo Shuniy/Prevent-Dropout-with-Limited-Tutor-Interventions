@@ -1,6 +1,7 @@
 """Episode-level simulation metrics and paired, world-level confidence intervals."""
 
 from collections import Counter
+from dataclasses import asdict
 
 import numpy as np
 from scipy.stats import t as student_t
@@ -195,6 +196,16 @@ def episode_metrics(env, initial_state, cohorts):
         "mentor_workload": workload,
         "group_access": audit_access(cohorts, env.records),
         "solver_runtime_seconds": sum(record.allocation.runtime_seconds for record in env.records),
+        "max_monthly_solver_runtime_seconds": max(
+            (record.allocation.runtime_seconds for record in env.records), default=0.0),
+        "estimated_total_benefit": sum(record.allocation.objective for record in env.records),
+        "feasibility_validation_failures": sum(record.allocation.validation_failures
+                                                for record in env.records),
+        "solver_diagnostics": [
+            {key: value for key, value in asdict(record.allocation).items()
+             if key != "assignments"}
+            for record in env.records
+        ],
         "solver_statuses": dict(Counter(record.allocation.status for record in env.records)),
         "solver_failures": sum("fallback" in record.allocation.status for record in env.records),
         "solver_optimality_gaps": [

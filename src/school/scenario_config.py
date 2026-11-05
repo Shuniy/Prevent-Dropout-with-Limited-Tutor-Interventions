@@ -22,6 +22,8 @@ class ScenarioConfig:
     max_programmes_per_student: int = 1
     fairness_window: int = 4
     fairness_min_access: float = 0.2
+    planner_time_limit: float = 10.0
+    planner_failure_mode: str = "raise"
 
     def __post_init__(self):
         for name in (
@@ -52,6 +54,10 @@ class ScenarioConfig:
             raise ValueError(
                 "version 1 supports one programme per student; repeats require a future model"
             )
+        if not math.isfinite(self.planner_time_limit) or self.planner_time_limit <= 0:
+            raise ValueError("planner_time_limit must be positive and finite")
+        if self.planner_failure_mode not in ("raise", "wait"):
+            raise ValueError("planner_failure_mode must be raise or wait")
 
     @classmethod
     def load(cls, path: str | Path):

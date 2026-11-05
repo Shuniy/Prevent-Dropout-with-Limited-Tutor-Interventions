@@ -91,6 +91,9 @@ def summarize(episodes, manifest=None):
                 "mentor_admission_utilization",
                 "appointment_slot_utilization",
                 "solver_runtime_seconds",
+                "max_monthly_solver_runtime_seconds",
+                "estimated_total_benefit",
+                "feasibility_validation_failures",
                 "solver_failures",
                 "window_normalized_shortfall",
             )
@@ -338,3 +341,6 @@ def save_reports(output, summaries, tiny, manifest, *, episodes=()):
     save_plots(summaries, output)
     save_tables(output, episodes, summaries)
     save_baseline_plots(summaries, output)
+    if "terminal_value" in manifest["policies"]:
+        from .planner_exports import save_planner_artifacts
+        save_planner_artifacts(output, episodes, summaries, manifest)
