@@ -1,6 +1,6 @@
 """Simple allocation baselines with the same hard constraints as the planner."""
 
-import random
+from numpy.random import default_rng
 
 from ..utils.constants import SEED
 from .allocation_result import AllocationResult
@@ -9,7 +9,7 @@ from .student_condition import STATES
 
 
 BASELINES = ("wait", "random", "severity", "need_priority", "longest_waiting")
-BASELINE_VERSION = "student_priority_v2"
+BASELINE_VERSION = "student_priority_v3"
 
 
 class BaselinePolicy:
@@ -39,7 +39,7 @@ class BaselinePolicy:
             key=lambda student: student.student_id,
         )
         if self.name == "random":
-            random.Random(f"{BASELINE_VERSION}:{self.seed}:{state.month}:policy").shuffle(students)
+            default_rng([self.seed, state.month]).shuffle(students)
             return tuple(students)
 
         def priority(student):

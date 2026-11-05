@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from matplotlib.style import available
+
 if __package__ in (None, ""):
     import sys
     from pathlib import Path
@@ -19,12 +21,13 @@ from src.utils.constants import (
     DIALOGUE_STATUS as STATUS,
     DIALOGUE_TOPIC_QUESTIONS as TOPIC_QUESTIONS,
 )
-import random, csv, json, zipfile, hashlib, re
+import csv, json, zipfile, hashlib, re
 from datetime import datetime, date, timedelta
 from pathlib import Path
 from collections import Counter
+import numpy as np
 
-rng=random.Random(SEED)
+rng=np.random.default_rng(SEED)
 root=Path(__file__).resolve().parent.parent
 output=root/'generated'
 output.mkdir(parents=True, exist_ok=True)
@@ -47,7 +50,7 @@ def sample_keep_order(items, n, mandatory=()):
     if len(required)>n:
         raise ValueError('not enough space for mandatory beats')
     extras=list(set(range(len(items)))-required)
-    picked=sorted(required|set(rng.sample(extras,n-len(required))))
+    picked=sorted(required|set(rng.choice(extras,n-len(required), replace=False)))
     return [items[j] for j in picked]
 
 # Need 30..60, allocate extra slots across stages with caps exactly 60.
@@ -58,7 +61,8 @@ def counts_for_duration(duration):
         available=[i for i in range(5) if vals[i]<maximum[i]]
         # keep exploring and planning phases long enough for complex sessions
         weights=[1.0,1.7,1.0,1.4,1.0]
-        chosen=rng.choices(available,weights=[weights[i] for i in available])[0]
+        w = np.array([weights[i] for i in available], dtype=float)
+        chosen = rng.choice(available, p=w / w.sum())
         vals[chosen]+=1
     assert sum(vals)==duration
     return vals
@@ -92,7 +96,7 @@ def build_session(i, forced_reason=None, forced_action=None):
        (reason=='device_access' and k=='online_uploads') or
        (reason=='exam_pressure' and k=='exam_worry')
     )])
-    duration=rng.randint(30,60)
+    duration=rng.integers(30,60)
     intro_n,core_n,secondary_n,action_n,closing_n=counts_for_duration(duration)
     style=rng.choice(['reflective','concise','neutral','direct','hesitant'])
     # Initial + general cause exploration. Core begins with main disclosure.
@@ -136,9 +140,9 @@ def build_session(i, forced_reason=None, forced_action=None):
     assert len(beats)==duration,(len(beats),duration)
     first_day=date(2026,9,1)
     while True:
-        d=first_day+timedelta(days=rng.randrange(59))
+        d=first_day+timedelta(days=rng.integers(0,59))
         if d.weekday()<5: break
-    start_minutes=rng.randrange(8*60+20,14*60+10,5)
+    start_minutes=rng.integers(8*60+20,14*60+10,5)
     base=datetime(2026,d.month,d.day,start_minutes//60,start_minutes%60)
     end=base+timedelta(minutes=duration)
     md=[

@@ -46,7 +46,8 @@ student consumes mentor A's only slot and a later student can use only A, it may
 assign one student when a rearrangement could assign two. A representative test
 demonstrates this limitation. Random priority is over students, not mentor edges;
 it is not a uniform draw from all feasible joint allocations. Policy version is
-`student_priority_v2`; older random-baseline results used a different algorithm.
+`student_priority_v3`: NumPy `default_rng([seed, month])` shuffles the stable
+student order. Earlier versions used a different random-baseline algorithm.
 
 ## Reproduce the experiments
 

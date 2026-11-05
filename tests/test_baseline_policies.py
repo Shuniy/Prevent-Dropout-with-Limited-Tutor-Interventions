@@ -1,6 +1,7 @@
 from dataclasses import replace
-import random
 import unittest
+
+import numpy as np
 
 from src.school.baseline_policy import BASELINES, BaselinePolicy
 from src.school.constraints import validate_allocation
@@ -70,13 +71,24 @@ class BaselinePolicyTests(unittest.TestCase):
 
     def test_random_order_reproduces_and_is_independent_of_mentor_edges_and_global_rng(self):
         policy = BaselinePolicy("random", seed=39)
-        global_state = random.getstate()
+        global_state = np.random.get_state()
         expected = policy.rank_students(self.state)
         self.assertEqual(expected, policy.rank_students(self.state))
         self.assertEqual(expected, policy.rank_students(replace(self.state, mentors=())))
         self.assertEqual(expected, policy.rank_students(replace(self.state, students=tuple(reversed(self.state.students)))))
-        self.assertEqual(global_state, random.getstate())
+        after = np.random.get_state()
+        self.assertEqual(global_state[0], after[0])
+        np.testing.assert_array_equal(global_state[1], after[1])
+        self.assertEqual(global_state[2:], after[2:])
         self.assertEqual(set(expected), set(self.state.students))
+
+    def test_random_order_depends_on_seed_and_month(self):
+        env, _, _ = environment(30)
+        state = env.observe()
+        policy = BaselinePolicy("random", seed=39)
+        expected = policy.rank_students(state)
+        self.assertNotEqual(expected, BaselinePolicy("random", seed=40).rank_students(state))
+        self.assertNotEqual(expected, policy.rank_students(replace(state, month=state.month + 1)))
 
     def test_all_policies_exclude_withdrawn_and_previously_supported_students(self):
         first, second, third = self.state.students
