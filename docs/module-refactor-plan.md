@@ -72,7 +72,7 @@ implementation validation.
 | `src/intervention/history_assignment.py` | Validate/catalogue histories and select a coherent recorded programme using a local seeded RNG. |
 | `rag.py`, `session_index.py`, `transcripts.py`, `findings.py`, `ollama_client.py` | Remain intervention internals; retain chronology, isolation, schema validation, and explicit model injection. |
 | `src/intervention/reports.py` | Limit to private intervention artifacts if persisted; school exports use school reporting. |
-| `src/main.py` | Construct dependencies and invoke the school simulation once; retain allocation-only mode. |
+| `src/main.py` | Load CMDP configuration and invoke school policy experiments; CMDP is the only CLI workflow. |
 
 Keep each production class/dataclass in its own file. Add explicit package
 initializers/exports for the two module boundaries. Keep source datasets and their

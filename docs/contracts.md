@@ -26,9 +26,10 @@
 - `observation_from_result(InterventionResult, current_month)` returns reported
   evidence only, available after the admission month. It cannot mutate truth or
   choose intervention effects. The future state estimator remains external.
-- `main.py --cmdp` runs school policy comparisons; `--suite full` adds the effect
-  and budget sweep. Explicit shared CLI arguments override the versioned CMDP config.
-  Existing allocation-only and recorded-intervention commands retain their defaults.
+- `main.py` runs school policy comparisons; `--suite full` adds the effect
+  and budget sweep. Explicit CLI arguments override the versioned CMDP config.
+  CMDP is the only main CLI workflow; recorded interventions and allocation-only
+  runs remain available through Python APIs.
 
 See [CMDP implementation and assumptions](cmdp-implementation.md) for exact
 formulae, audit denominator definitions, numerical tolerances and runnable commands.
@@ -99,12 +100,12 @@ report = School(num_students=2, num_mentors=1).run_simulation(programme)
 catalogue and owns programme state. The first argument accepts a list of `Session`
 records or an existing `SessionIndex` for compatibility. Simple mode uses its raw
 sessions only. `method="rag"` requires a built `SessionIndex` and retains the original
-session-by-session analysis. The CLI defaults to simple and creates an index only
-for `--method rag`. A client provides `generate(messages, schema)`;
+session-by-session analysis. Python callers construct the index explicitly for
+`method="rag"`. A client provides `generate(messages, schema)`;
 no default model client is created inside intervention. Private persistence is off
 by default. A private output directory must be new or empty at construction and
-must be separate from public school output; the CLI checks that neither contains
-the other. Python composition code chooses these separate destinations explicitly.
+must be separate from public school output. Python composition code chooses
+these separate destinations explicitly.
 
 `Intervention.simulate(request) -> InterventionResult` runs one programme without
 school imports, school objects or school callbacks. Reusing a run/programme ID,
@@ -248,8 +249,8 @@ no programme was admitted. An unavailable history is an admitted public result w
 The final run status is `failed` if any analysis failed, otherwise `finished`.
 Short/unavailable histories alone are not extraction failures. Model/schema failure
 stops only that programme's analysis; school continues other programmes and months.
-File I/O/configuration failures propagate. The CLI exits nonzero for either kind of
-failure and preserves already saved output. Existing nonempty school output is
+File I/O/configuration failures propagate to Python callers; analysis failures are
+recorded in the report, preserving already saved output. Existing nonempty school output is
 rejected before reset. Old output formats are not migrated.
 
 Runtime support participation and known reported outcomes update on valid result

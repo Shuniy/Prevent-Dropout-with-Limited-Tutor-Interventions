@@ -51,21 +51,19 @@ class SchoolCMDPIntegrationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "must match"):
             school.create_cmdp_environment(config=ScenarioConfig(horizon=3))
 
-    def test_cmdp_defaults_use_versioned_config_and_skip_the_llm(self):
+    def test_cmdp_is_the_default_and_uses_versioned_config(self):
         with tempfile.TemporaryDirectory() as directory:
-            arguments = ["school-dropout", "--cmdp", "--output", directory]
+            arguments = ["school-dropout", "--output", directory]
             with (
                 patch.object(sys, "argv", arguments),
                 patch(
                     "src.school.cmdp_experiments.run_experiments", return_value=Path(directory)
                 ) as run,
-                patch("src.main.OllamaClient") as client,
                 contextlib.redirect_stdout(io.StringIO()),
             ):
                 main()
             config = run.call_args.args[0]
             self.assertEqual((config.num_students, config.horizon, config.budget), (100, 12, 150))
-            client.assert_not_called()
 
     def test_script_and_module_cmdp_entrypoints_save_real_reports(self):
         for entry in (["src/main.py"], ["-m", "src.main"]):
@@ -80,7 +78,6 @@ class SchoolCMDPIntegrationTests(unittest.TestCase):
                     [
                         sys.executable,
                         *entry,
-                        "--cmdp",
                         "--students",
                         "3",
                         "--months",
@@ -120,7 +117,7 @@ class SchoolCMDPIntegrationTests(unittest.TestCase):
         ):
             with tempfile.TemporaryDirectory() as directory:
                 output = Path(directory) / "run"
-                arguments = ["school-dropout", "--cmdp", "--output", str(output), *options]
+                arguments = ["school-dropout", "--output", str(output), *options]
                 with (
                     patch.object(sys, "argv", arguments),
                     contextlib.redirect_stderr(io.StringIO()),

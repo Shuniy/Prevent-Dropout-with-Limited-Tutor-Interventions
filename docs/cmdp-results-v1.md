@@ -3,7 +3,7 @@
 ## School integration verification
 
 The implementation now lives directly in `src/school`, with `School.run_cmdp(policy)`
-and the shared `main.py --cmdp` entry point. The historical experiment artifacts below
+and the shared `main.py` entry point. The historical experiment artifacts below
 are preserved; their manifests describe the source layout used at execution time.
 
 After integration, **107 tests passed**, including 39 CMDP tests. Both script and

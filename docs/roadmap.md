@@ -3,7 +3,7 @@
 ## CMDP v1
 
 CMDP now lives directly in the school module, with `School.run_cmdp(policy)` and
-the shared `main.py --cmdp` entry point. Policy interfaces, monthly coordination,
+the shared `main.py` entry point. Policy interfaces, monthly coordination,
 environment dynamics and reporting have separate responsibilities.
 
 Implemented and tested: finite-horizon synthetic environment, hard realized
@@ -20,7 +20,7 @@ it does not claim an optimal stochastic coverage schedule.
 ## Working now
 
 - Separate `school` and confidential `intervention` modules, with explicit exports
-  and dependency direction `main → school → intervention`.
+  and dependency direction `school → intervention` for recorded-intervention APIs.
 - Typed source loading and shared need rules for baseline/current performance.
 - School-owned monthly allocation/intervention/evaluation/reporting, twelve months
   by default, one mentor/programme per student and reusable monthly mentor capacity.
@@ -39,7 +39,7 @@ it does not claim an optimal stochastic coverage schedule.
   model semantic review per entry before acceptance. Review remains fallible.
 - RAG pins source-backed actions and historical status reports independently of
   retrieval; generated summaries remain provisional.
-- Preserved optional session-by-session RAG (`--method rag`),
+- Preserved optional session-by-session RAG (`method="rag"` in the Python API),
   partial private findings for RAG and separate programme/analysis statuses.
 - Executable one-intervention comparison notebook with saved live reports, call
   counts, timings, outcome agreement and transcript-based reference checks.
@@ -49,7 +49,7 @@ it does not claim an optimal stochastic coverage schedule.
   private session/conclusion persistence to a separate destination.
 - Fresh run identities and reset of baseline performance, initial caseloads,
   accounting, results, snapshots and seeded selection.
-- Allocation-only CLI, private standalone simple/RAG commands and offline fake-client tests.
+- Allocation-only Python API, private standalone simple/RAG commands and offline fake-client tests.
 - Independent agent, Markov, MDP and CMDP examples without import side effects.
 
 ## Current checks
@@ -58,7 +58,7 @@ Use Python 3.12 or 3.13 and run `python -m unittest discover -s tests`. Tests co
 source/current needs, resource limits, monthly feedback/refunds, no repeat admission,
 immutability, identity/count rejection, duplicate application, baseline preservation,
 confidential exports, history isolation/chronology, short/missing histories,
-unknown/failed analysis, reset/repeat, zero-agent runs, CLI modes and teaching examples.
+unknown/failed analysis, reset/repeat, zero-agent runs, CMDP CLI and teaching examples.
 Evidence regressions cover immutable actions, source/cutoff errors, partial work,
 review-versus-task rejection, scoped delivery/helpfulness, missing citations, malformed
 reviews, rejection before persistence and action evidence retained without retrieval.

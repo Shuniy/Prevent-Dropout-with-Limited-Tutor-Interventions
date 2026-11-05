@@ -1,7 +1,7 @@
 # First CMDP simulation specification
 
 Status: version 1 implemented in `src/school`, through `School.run_cmdp` and
-`main.py --cmdp`. The existing recorded-intervention workflow remains available. See [implementation and usage](cmdp-implementation.md)
+`main.py`. CMDP is the default CLI workflow; recorded interventions remain available through Python APIs. See [implementation and usage](cmdp-implementation.md)
 and [executed results](cmdp-results-v1.md). The original specification below remains
 the modelling reference. All numerical transition probabilities are scenario
 assumptions, not estimates of real dropout or intervention effects.

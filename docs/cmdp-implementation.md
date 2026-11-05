@@ -1,7 +1,7 @@
 # CMDP v1 implementation
 
 The language-free retention simulator is implemented in `src/school` and exposed
-through the existing `School` facade and `main.py --cmdp`.
+through the existing `School` facade and `main.py`.
 It reuses school domain models and matching rules without changing the existing
 recorded-intervention workflow. All outcomes are synthetic simulation results.
 No course-failure label is interpreted as observed school withdrawal.
@@ -234,23 +234,23 @@ environment verification item. No supported interpreter was installed here.
 
 # Default 100-student, twelve-month comparison; 10 development + 30 held-out seeds.
 MPLCONFIGDIR=/private/tmp/cmdp-matplotlib XDG_CACHE_HOME=/private/tmp/cmdp-cache \
-  .venv/bin/python -m src.main --cmdp --output results/cmdp_v1/my_default_run
+  .venv/bin/python -m src.main --output results/cmdp_v1/my_default_run
 
 # Full effect-strength/budget sweep and optional fairness comparison: 2,240 episodes.
 MPLCONFIGDIR=/private/tmp/cmdp-matplotlib XDG_CACHE_HOME=/private/tmp/cmdp-cache \
-  .venv/bin/python -m src.main --cmdp --suite full \
+  .venv/bin/python -m src.main --suite full \
   --policies wait random severity need_priority longest_waiting terminal_value fairness \
   --output results/cmdp_v1/my_full_run
 
 # A small CLI smoke run.
 MPLCONFIGDIR=/private/tmp/cmdp-matplotlib XDG_CACHE_HOME=/private/tmp/cmdp-cache \
-  .venv/bin/python -m src.main --cmdp --development-seeds 1 --evaluation-seeds 1 \
+  .venv/bin/python -m src.main --development-seeds 1 --evaluation-seeds 1 \
   --output results/cmdp_v1/my_smoke_run
 ```
 
 Output destinations must be new; existing directories are never overwritten.
-Omit `--output` to create a timestamped destination. Both `python src/main.py --cmdp`
-and `python -m src.main --cmdp` work, as does the installed `school-dropout --cmdp`
+Omit `--output` to create a timestamped destination. Both `python src/main.py`
+and `python -m src.main` work, as does the installed `school-dropout`
 entry point. `--config` accepts another
 versioned TOML matching `configs/cmdp_v1.toml`. Full-suite variations intentionally
 use the specified effect strengths and budgets, while retaining other configuration.

@@ -1,7 +1,7 @@
 # Current architecture
 
-The CMDP workflow uses the same `main → school` entry point:
-`python -m src.main --cmdp` loads a scenario and calls school experiment execution.
+The default CMDP workflow uses the `main → school` entry point:
+`python -m src.main` loads a scenario and calls school experiment execution.
 Each world constructs the existing `School` and calls `School.run_cmdp(policy)`.
 `CMDPSimulation` coordinates the monthly cycle through the small `AllocationPolicy`
 interface; `CMDPEnvironment` owns simulated condition, copied resources and budget.
@@ -11,13 +11,13 @@ Policies receive immutable decision snapshots, never the environment or future d
 contract and does not invoke the extraction pipeline. There is no separate CMDP
 package. See [CMDP implementation](cmdp-implementation.md) for the module map.
 
-The dependency direction is `main → school → intervention`. School owns students,
+Recorded-intervention Python APIs use the dependency direction `school → intervention`. School owns students,
 mentors, allocation, the simulation clock, performance evaluation and school
 reports. Intervention owns the confidential recorded programme and model analysis.
 It does not import school or receive school domain objects or mutation callbacks.
 
 ```text
-main ── loads sessions + constructs client + Intervention
+Python caller ── loads sessions + constructs client + Intervention
   │
   └─ School.run_simulation(intervention)
        ├─ monthly allocation and programme requests
@@ -116,8 +116,7 @@ School receives only identity, counts, programme/analysis status and three enume
 outcome indicators. No transcripts, source paths, history IDs, private errors,
 detailed findings or free-text conclusions enter school state or reports. Private
 persistence is optional and uses a separate destination; school exports never link
-to it. The CLI rejects equal or nested public/private directories; Python composition
-code must choose separate directories too. School uses only `simulate(request)` on
+to it. Python composition code must choose separate public/private directories. School uses only `simulate(request)` on
 the injected intervention and never inspects its private state.
 
 This is a module/report confidentiality boundary, not an OS access-control boundary.

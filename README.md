@@ -1,17 +1,12 @@
 # Student support simulation
 
-School owns mentor allocation, a monthly simulation clock, student performance and
-school reports. Intervention runs a confidential synthetic programme using recorded
-mentor/student conversations and all-sessions LLM extraction, returning only approved structured
-outcomes. The dependency direction is `main → school → intervention`.
-The default makes one model call per intervention without retrieval. The original
-session-by-session RAG remains available with `--method rag`.
+The default workflow runs synthetic CMDP retention experiments through
+`main → school`. School compares allocation policies under budget, mentor and
+appointment constraints and saves reports, trajectories and plots. No LLM is required.
+Transition probabilities and intervention effects are synthetic assumptions.
 
-The default full simulation tracks every student for twelve months. Each student
-receives at most one programme with one mentor, with five total planned appointments.
-A programme is processed within its admission month. Mentors can serve other students
-in later months. School applies participation and reported outcomes without inventing
-numeric improvements or changing original source records.
+Recorded-intervention extraction remains available through Python APIs and the
+standalone simple/RAG analysis commands described below.
 
 ## Setup and commands
 
@@ -24,28 +19,18 @@ python -m pip install -r requirements.txt
 python -m pip install --no-deps -e .
 ```
 
-The requirements include dependencies for preserved research notebooks. SQLite FTS5
-provides retrieval; no embedding model is needed. For live generation:
+The requirements include dependencies for preserved research notebooks.
 
 ```bash
-ollama serve
-# In another terminal:
-ollama pull qwen3.5:latest
-```
+# Default CMDP policy comparison:
+python -m src.main --output results/cmdp_v1/my_run
 
-```bash
-# School simulation with local Ollama:
-python -m src.main --students 2 --mentors 1 --months 12 --sessions 5
+# Small CMDP run with explicit scenario overrides:
+python src/main.py --students 10 --mentors 2 --months 12 \
+  --development-seeds 1 --evaluation-seeds 1 --output results/cmdp_v1/small_run
 
-# Preserved session-by-session RAG simulation:
-python -m src.main --students 2 --mentors 1 --method rag
-
-# Allocation only; no model needed:
-python src/main.py --allocation-only --students 10 --mentors 2 --months 12
-
-# Public school reports, with optional private findings stored separately:
-python -m src.main --students 1 --mentors 1 --sessions 1 \
-  --output results/example_school --private-output results/example_private
+# Full effect and budget sweep:
+python -m src.main --suite full --output results/cmdp_v1/full_run
 
 # One-call private analysis of all sessions through the cutoff:
 python -m src.intervention.simple_llm \
@@ -62,21 +47,29 @@ python -m unittest discover -s tests
 ```
 
 Equivalent application entry points are `python src/main.py`, `python -m src.main`,
-and, after installation, `school-dropout`. Defaults: 10 students, 2 mentors,
-12 months, 5 total sessions per programme, mentor capacity 10, budget 10000, seed 42.
+and, after installation, `school-dropout`. CMDP defaults come from
+`configs/cmdp_v1.toml`: 100 students, 2 mentors, 12 months, 5 appointments per
+programme, 10 monthly admissions, budget 150 and seed 42. Explicit CLI options
+override the configuration. The default comparison uses 10 development seeds and
+30 independent evaluation seeds; `--policies` selects policies to compare.
+`--output` must be new or empty; omitting it creates a timestamped destination under
+`results/cmdp_v1`. The CLI prints one final message and exits nonzero on failure.
 
-Randomness uses NumPy generators configured in `src/utils/constants.py`. Teaching
-examples share `DEFAULT_RNG`; school and intervention runs use independent streams
-from `create_rng(seed)` so resets and explicit seeds remain reproducible. NumPy
-selection changes the sequences previously produced by Python’s `random` module.
-Historical corpus generators retain their original RNGs.
-Use `--history-root` for another corpus, `--model` for another installed model, and
-`OLLAMA_BASE_URL` for a different local endpoint. `--output` must be new or empty.
-`--private-output` is optional and must be new/empty and separate from school output;
-equal or nested destinations are rejected. Private findings are not saved by default.
-The CLI prints one final message and exits nonzero on configuration or model failure.
+Standalone extraction commands require a local Ollama server and model:
 
-## Monthly school workflow
+```bash
+ollama serve
+# In another terminal:
+ollama pull qwen3.5:latest
+```
+
+For those standalone commands, use `--root` for another corpus, `--model` for
+another installed model and `OLLAMA_BASE_URL` for a different local endpoint.
+SQLite FTS5 provides retrieval; no embedding model is needed. School and
+intervention APIs use independent NumPy RNG streams from `create_rng(seed)`;
+teaching examples share `DEFAULT_RNG`.
+
+## Recorded-intervention Python workflow
 
 1. Read current performance, save a before snapshot and compute ranked support needs
    using the shared baseline/current rules. Need severity determines priority;
@@ -85,10 +78,10 @@ The CLI prints one final message and exits nonzero on configuration or model fai
    remaining budget. Reserve the entire planned dose for the month's admissions.
 3. Send immutable minimal requests to intervention. It binds a coherent randomly
    chosen support-matched history to the run/programme/student/mentor identity.
-4. Select at most the planned number of recorded sessions. By default, send all
+4. Select at most the planned number of recorded sessions. With `method="simple"`, send all
    selected spoken conversations in one call, without an index, retrieval or
    previous LLM memory. The response contains a chronological findings timeline;
-   its final entry supplies the intervention conclusion. With `--method rag`,
+   its final entry supplies the intervention conclusion. With `method="rag"`,
    extract once per session with earlier passages, source-backed actions and validated
    findings. Both modes run an additional semantic review per timeline entry.
    Both exclude profiles, sessions beyond the selected cutoff
@@ -278,7 +271,7 @@ package exports and plain functions for loading, need rules, validation and repo
   history assignment, one-call extraction, preserved chronological RAG, index,
   transcripts and model client.
 - `src/utils/`: independent shared enums and constants.
-- `src/main.py`: CLI and explicit dependency construction.
+- `src/main.py`: CMDP CLI and explicit experiment configuration.
 - `src/basic_examples/`: independent agent, Markov, MDP and CMDP demonstrations.
 - `tests/`: offline feature tests with a shared fake client.
 
@@ -304,8 +297,9 @@ python -m src.basic_examples.cmdp
 
 Imports do not run simulations. Examples keep their essential state counts,
 rewards, and optimization algorithms and print a final result. The CMDP example
-uses SciPy through the existing scientific environment. The default recorded-intervention workflow uses need priority. The `--cmdp` mode
-uses the selected policy, including the constrained terminal-value optimizer.
+uses SciPy through the existing scientific environment. Recorded-intervention Python
+runs use need priority. The default CMDP workflow compares the selected policies,
+including the constrained terminal-value optimizer.
 
 The supplied CSVs and transcripts are used directly; no preprocessing command is
 required. `data/processed/`, `data/external/`, notebooks, corpus generators, and
@@ -323,15 +317,15 @@ synthetic dynamics and provides initial policy/fairness experiments.
 ## CMDP retention simulation
 
 The finite-horizon simulator lives in `src/school` and runs through
-`School.run_cmdp(policy)` or `main.py --cmdp`. It reuses the existing
+`School.run_cmdp(policy)` or `main.py`. It reuses the existing
 student/mentor models and matching rules, supports five allocation baselines,
 monthly terminal-value MILP allocation, exact tiny-instance comparisons, frozen
 group-access audits and optional window-aware fairness allocation. All transitions
 and effects are synthetic assumptions; simulated withdrawal is not observed school
-dropout. The existing note-extraction workflow is preserved.
+dropout. Note extraction is available through Python APIs and standalone analysis commands.
 
 ```sh
-.venv/bin/python -m src.main --cmdp --output results/cmdp_v1/my_run
+.venv/bin/python -m src.main --output results/cmdp_v1/my_run
 .venv/bin/python -m unittest discover -s tests -p 'test_cmdp*.py'
 ```
 
