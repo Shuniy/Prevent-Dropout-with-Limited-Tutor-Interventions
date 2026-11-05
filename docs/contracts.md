@@ -18,6 +18,10 @@
 - Every policy implements `plan(DecisionState) -> AllocationResult`. Only current
   immutable observations/resources enter that method. No environment/future draw
   reference is supplied.
+- `BaselinePolicy(name, seed).rank_students(state)` returns eligible immutable
+  student observations in priority order. All five baselines call the same
+  `assign_feasible(state, ordered_students)`; cheapest mentor then mentor ID breaks
+  matching ties. Random shuffles students, independently of mentor compatibility.
 - `validate_allocation(state, assignments)` independently checks every resource,
   identity, support and episode-eligibility rule. `environment.step(result)` repeats
   validation against current true eligibility before charging and transitioning.
@@ -26,6 +30,7 @@
   Each `MonthRecord` also freezes that month's mentor capacities and mean waiting
   among enrolled, unsupported students. Waiting increments only after a survived,
   unsupported month; admission and withdrawal stop it without counting that month.
+  Records also retain all student waiting counters and waits at programme admission.
 - `episode_metrics(...)` includes `monthly_summaries` from month zero through the
   horizon, with condition counts, retention/dropout rates, new withdrawals, enrolled
   and eligible counts, programme/appointment usage, spending, cumulative spending,
@@ -33,6 +38,14 @@
   An empty eligible set has mean waiting zero; an empty cohort has undefined
   retention/dropout rates (`null`). `monthly_conditions` retains its existing
   months 1–T schema, and enrolled student-months exclude month zero.
+- `run_experiments(..., stage="development" | "both")` defaults to five baselines;
+  it validates development before held-out execution, never overwrites directories,
+  and records an invalid/failed world in `failure.json` before propagating the error.
+- `summarize(episodes, manifest)` checks the complete expected scenario/partition/
+  policy/seed grid, including entirely missing policies and duplicate episodes.
+  Comparisons use episode-level Student-t intervals and export student-count and
+  percentage-point differences. Missing recipient cost/wait denominators produce
+  null; no eligible students means zero eligible mean/max waiting.
 - `observation_from_result(InterventionResult, current_month)` returns reported
   evidence only, available after the admission month. It cannot mutate truth or
   choose intervention effects. The future state estimator remains external.

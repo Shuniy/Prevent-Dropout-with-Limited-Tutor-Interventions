@@ -176,6 +176,9 @@ class CMDPEnvironment:
         state = self.observe()
         validate_allocation(state, allocation.assignments)
         assigned = {assignment.student_id for assignment in allocation.assignments}
+        recipient_waits = tuple(
+            self._waiting_months[item.student_id] for item in allocation.assignments
+        )
         spending = sum(assignment.cost_units for assignment in allocation.assignments)
         self._remaining_budget = max(0.0, self._remaining_budget - spending)
         for student_id in assigned:
@@ -208,6 +211,8 @@ class CMDPEnvironment:
                 for mentor in state.mentors
             ),
             sum(eligible_waits) / len(eligible_waits) if eligible_waits else 0.0,
+            tuple(self._waiting_months.items()),
+            recipient_waits,
         )
         self._records.append(record)
         self._month += 1

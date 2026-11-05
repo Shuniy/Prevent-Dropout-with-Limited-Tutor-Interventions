@@ -7,8 +7,8 @@ from .fairness_planner import FairnessPlanner
 from .transition_model import programme_matrix
 
 
-DEFAULT_POLICIES = (*BASELINES, "terminal_value")
-POLICY_NAMES = (*DEFAULT_POLICIES, "fairness")
+DEFAULT_POLICIES = BASELINES
+POLICY_NAMES = (*DEFAULT_POLICIES, "terminal_value", "fairness")
 
 
 def make_policy(name, config) -> AllocationPolicy:

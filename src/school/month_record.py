@@ -14,3 +14,5 @@ class MonthRecord:
     allocation: AllocationResult
     mentor_capacities: tuple[tuple[str, int, int], ...]
     mean_eligible_waiting_months: float
+    waiting_months: tuple[tuple[str, int], ...]
+    recipient_waiting_months: tuple[int, ...]

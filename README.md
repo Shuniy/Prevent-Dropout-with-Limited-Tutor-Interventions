@@ -23,14 +23,18 @@ The requirements include dependencies for preserved research notebooks.
 
 ```bash
 # Default CMDP policy comparison:
-python -m src.main --output results/cmdp_v1/my_run
+python -m src.main --output results/cmdp_baselines_v1/my_run
 
 # Small CMDP run with explicit scenario overrides:
 python src/main.py --students 10 --mentors 2 --months 12 \
   --development-seeds 1 --evaluation-seeds 1 --output results/cmdp_v1/small_run
 
 # Full effect and budget sweep:
-python -m src.main --suite full --output results/cmdp_v1/full_run
+python -m src.main --suite full --output results/cmdp_baselines_v1/full_run
+
+# Development only, to inspect results before a full comparison:
+python -m src.main --suite full --stage development \
+  --output results/cmdp_baselines_v1/development_run
 
 # One-call private analysis of all sessions through the cutoff:
 python -m src.intervention.simple_llm \
@@ -48,12 +52,18 @@ python -m unittest discover -s tests
 
 Equivalent application entry points are `python src/main.py`, `python -m src.main`,
 and, after installation, `school-dropout`. CMDP defaults come from
-`configs/cmdp_v1.toml`: 100 students, 2 mentors, 12 months, 5 appointments per
+`configs/cmdp_baselines_v1.toml`: the same Step 1 scenario with 100 students,
+2 mentors, 12 months, 5 appointments per
 programme, 10 monthly admissions, budget 150 and seed 42. Explicit CLI options
 override the configuration. The default comparison uses 10 development seeds and
-30 independent evaluation seeds; `--policies` selects policies to compare.
-`--output` must be new or empty; omitting it creates a timestamped destination under
-`results/cmdp_v1`. The CLI prints one final message and exits nonzero on failure.
+30 independent evaluation seeds. The five baselines are the default; `--policies`
+selects policies, `--seed` sets the first development seed (evaluation starts
+10,000 later), and `--effect-strength` and `--budget` change a default-suite scenario.
+`--output` must be new; omitting it creates a timestamped destination under
+`results/cmdp_baselines_v1`. Development validation precedes held-out execution.
+The CLI prints scenario progress and exits nonzero on failure, preserving a
+`failure.json` with the failed world. Existing optimizer/fairness policies remain
+explicit opt-ins and are excluded from the Step 2 comparison.
 
 Standalone extraction commands require a local Ollama server and model:
 
@@ -325,20 +335,26 @@ and effects are synthetic assumptions; simulated withdrawal is not observed scho
 dropout. Note extraction is available through Python APIs and standalone analysis commands.
 
 ```sh
-.venv/bin/python -m src.main --output results/cmdp_v1/my_run
+.venv/bin/python -m src.main --output results/cmdp_baselines_v1/my_run
 # Print month 0–12 and terminal summaries for a WAIT-only demonstration:
 .venv/bin/python -m src.main --policies wait --development-seeds 1 \
   --evaluation-seeds 1 --print-monthly --output results/cmdp_v1/my_wait_run
 .venv/bin/python -m unittest discover -s tests -p 'test_cmdp*.py'
+.venv/bin/python -m unittest discover -s tests -p 'test_baseline*.py'
 ```
 
 Every episode saves `monthly_summaries` in `episodes.jsonl`, including initial
 retention/dropout rates, withdrawals, programmes, appointments, spending, remaining
 budget, mentor utilization and waiting among enrolled, unsupported students.
+Portable CSV exports include episode/monthly records, policy comparisons with
+sample standard deviations and paired 95% Student-t intervals, budget/effect
+sensitivities, and descriptive group access. Eight figures under `figures/` cover
+retention, withdrawals, spending, programmes, utilization and sensitivities.
 Waiting counts only months survived without a programme; a withdrawal month adds
 no waiting time. `--print-monthly` prints the first development world for each
 policy/scenario; large sweeps otherwise keep their usual progress output.
 
-See [implementation, formulae, assumptions and full commands](docs/cmdp-implementation.md),
+See [Step 2 baseline policies, commands and acceptance checks](docs/cmdp_baselines_v1.md),
+[implementation, formulae, assumptions and full commands](docs/cmdp-implementation.md),
 [executed simulation results](docs/cmdp-results-v1.md), and
-[versioned configuration](configs/cmdp_v1.toml). Use a new output directory for each run.
+[versioned baseline configuration](configs/cmdp_baselines_v1.toml). Use a new output directory for each run.

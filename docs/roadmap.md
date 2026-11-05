@@ -15,6 +15,13 @@ and group audits. Complete month-zero and monthly episode summaries are exported
 with optional `--print-monthly` output for representative development worlds.
 See [execution results](cmdp-results-v1.md) and [usage](cmdp-implementation.md).
 
+Step 2 baseline completion adds student-only random ordering, shared greedy
+matching, full baseline tests, a development validation gate, complete CSV/figure
+exports and episode-level SD/percentage-point comparisons. The default now runs
+only the five baselines. Existing optimization/fairness implementations are
+preserved as optional research code; this task does not extend them. See
+[Step 2 verification and acceptance checklist](cmdp_baselines_v1.md).
+
 Deferred: globally optimal multi-month fairness scheduling, repeated programmes,
 causal calibration, and LLM-driven state estimation/closed-loop evaluation. The
 current fairness mode tracks multi-month coverage but optimizes current offers;

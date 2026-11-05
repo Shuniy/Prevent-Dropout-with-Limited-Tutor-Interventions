@@ -1,5 +1,12 @@
 # Executed CMDP v1 simulation results
 
+## Current Step 2 baseline results
+
+The completed five-baseline experiment uses student-priority random ordering,
+development validation, full CSV/statistical exports and eight baseline figures.
+See [Step 2 executed results and acceptance checks](cmdp_baselines_v1.md#executed-results--5-november-2026).
+Historical results below retain their original algorithm versions and output schema.
+
 ## Waiting-time correction and monthly-summary verification
 
 The follow-up implementation excludes the withdrawal month from student and

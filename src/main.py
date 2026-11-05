@@ -16,7 +16,7 @@ def run_cmdp_experiments(args):
     from src.school.cmdp_experiments import run_experiments
     from src.school.scenario_config import ScenarioConfig
 
-    config_path = args.config or Path(__file__).resolve().parents[1] / "configs/cmdp_v1.toml"
+    config_path = args.config or Path(__file__).resolve().parents[1] / "configs/cmdp_baselines_v1.toml"
     config = ScenarioConfig.load(config_path)
     fields = {
         "students": "num_students",
@@ -26,6 +26,7 @@ def run_cmdp_experiments(args):
         "capacity": "monthly_admissions",
         "budget": "budget",
         "seed": "seed",
+        "effect_strength": "effect_strength",
     }
     overrides = {
         field: getattr(args, argument)
@@ -41,6 +42,7 @@ def run_cmdp_experiments(args):
         evaluation_seed_count=args.evaluation_seeds if args.evaluation_seeds is not None else 30,
         policies=args.policies if args.policies is not None else DEFAULT_POLICIES,
         print_monthly=args.print_monthly,
+        stage=args.stage,
     )
 
 
@@ -53,15 +55,18 @@ def main() -> None:
     parser.add_argument("--capacity", type=int, help="Maximum monthly programme admissions")
     parser.add_argument("--budget", type=float)
     parser.add_argument("--seed", type=int)
+    parser.add_argument("--effect-strength", type=float, help="Synthetic intervention strength in [0, 1]")
+    parser.add_argument("--stage", choices=("development", "both"), default="both",
+                        help="Inspect development only, or validate development then run held-out worlds")
     parser.add_argument(
         "--print-monthly",
         action="store_true",
         help="Print month-zero, monthly and terminal summaries for the first development "
         "seed of each policy/scenario",
     )
-    parser.add_argument("--output", type=Path, help="New or empty CMDP report directory")
+    parser.add_argument("--output", type=Path, help="New CMDP report directory (never overwrite a run)")
     parser.add_argument(
-        "--config", type=Path, help="CMDP TOML configuration (default: configs/cmdp_v1.toml)"
+        "--config", type=Path, help="CMDP TOML configuration (default: configs/cmdp_baselines_v1.toml)"
     )
     parser.add_argument(
         "--suite",

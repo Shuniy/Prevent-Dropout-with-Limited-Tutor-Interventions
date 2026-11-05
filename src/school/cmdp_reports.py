@@ -6,6 +6,8 @@ import json
 import numpy as np
 
 from .cmdp_metrics import paired_difference
+from .baseline_validation import validate_experiment_grid
+from .baseline_exports import baseline_report, save_baseline_plots, save_tables
 
 
 def format_monthly_summary(months):
@@ -39,8 +41,15 @@ def format_monthly_summary(months):
     return "\n".join(lines)
 
 
-def summarize(episodes):
+def summarize(episodes, manifest=None):
     """Pair by world seed, not by students sharing capacity within a world."""
+    if not episodes:
+        raise ValueError("cannot summarize an empty experiment")
+    if manifest is not None:
+        validate_experiment_grid(episodes, manifest)
+    identities = [(row["scenario"], row["partition"], row["policy"], row["seed"]) for row in episodes]
+    if len(identities) != len(set(identities)):
+        raise ValueError("duplicate episode results")
     summaries = []
     keys = sorted({(item["scenario"], item["partition"]) for item in episodes})
     for scenario, partition in keys:
@@ -71,6 +80,16 @@ def summarize(episodes):
                 "mean_waiting_months",
                 "waiting_p50",
                 "waiting_p90",
+                "unique_students_supported",
+                "cumulative_withdrawals",
+                "remaining_budget",
+                "cost_per_supported_student",
+                "mean_eligible_waiting_months",
+                "max_eligible_waiting_months",
+                "max_waiting_months",
+                "mean_recipient_waiting_months",
+                "mentor_admission_utilization",
+                "appointment_slot_utilization",
                 "solver_runtime_seconds",
                 "solver_failures",
                 "window_normalized_shortfall",
@@ -80,6 +99,13 @@ def summarize(episodes):
                 "partition": partition,
                 "policy": name,
                 "episodes": len(runs),
+                "budget": runs[0].get("budget"),
+                "effect_strength": runs[0].get("effect_strength"),
+                "policy_version": runs[0].get("policy_version"),
+                "scenario_hash": runs[0].get("scenario_hash"),
+                "student_count": runs[0].get("student_count"),
+                "horizon": runs[0].get("horizon"),
+                "sd_terminal_enrolled": float(np.std(values, ddof=1)) if len(values) > 1 else None,
             }
             for field in scalar_fields:
                 known = [run[field] for run in runs if run[field] is not None]
@@ -90,6 +116,28 @@ def summarize(episodes):
                 )
                 for reference in names
             }
+            summary["paired_percentage_point_differences"] = {
+                reference: paired_difference(
+                    [100 * run["retention_rate"] for run in runs],
+                    [100 * by_policy[reference][seed]["retention_rate"] for seed in seeds],
+                )
+                for reference in names
+                if all(run["retention_rate"] is not None for run in runs)
+            }
+            summary["sd_retention_rate"] = (
+                float(np.std([run["retention_rate"] for run in runs], ddof=1))
+                if len(runs) > 1 and all(run["retention_rate"] is not None for run in runs) else None
+            )
+            summary["mean_monthly_summaries"] = [
+                {
+                    key: float(np.mean([run["monthly_summaries"][index][key] for run in runs]))
+                    for key in (
+                        "month", "stable", "vulnerable", "disengaged", "enrolled", "withdrawn", "newly_withdrawn", "cumulative_spending",
+                        "programmes_started", "spending", "mean_eligible_waiting_months",
+                    )
+                }
+                for index in range(len(runs[0]["monthly_summaries"]))
+            ]
             statuses = Counter()
             for run in runs:
                 statuses.update(run["solver_statuses"])
@@ -100,10 +148,10 @@ def summarize(episodes):
             )
             summary["mean_monthly_conditions"] = [
                 {
-                    key: float(np.mean([run["monthly_conditions"][index][key] for run in runs]))
-                    for key in runs[0]["monthly_conditions"][index]
+                    key: float(np.mean([run["monthly_summaries"][index][key] for run in runs]))
+                    for key in ("month", "stable", "vulnerable", "disengaged", "withdrawn")
                 }
-                for index in range(len(runs[0]["monthly_conditions"]))
+                for index in range(len(runs[0]["monthly_summaries"]))
             ]
             summary["mean_mentor_workload"] = [
                 {
@@ -138,6 +186,8 @@ def summarize(episodes):
 
 
 def report_markdown(summaries, tiny, manifest):
+    if tiny is None:
+        return baseline_report(summaries, manifest)
     lines = [
         "# CMDP v1 simulation results",
         "",
@@ -280,8 +330,11 @@ def save_plots(summaries, output):
     plt.close(figure)
 
 
-def save_reports(output, summaries, tiny, manifest):
+def save_reports(output, summaries, tiny, manifest, *, episodes=()):
     (output / "summary.json").write_text(json.dumps(summaries, indent=2), encoding="utf-8")
-    (output / "tiny_exact.json").write_text(json.dumps(tiny, indent=2), encoding="utf-8")
+    if tiny is not None:
+        (output / "tiny_exact.json").write_text(json.dumps(tiny, indent=2), encoding="utf-8")
     (output / "report.md").write_text(report_markdown(summaries, tiny, manifest), encoding="utf-8")
     save_plots(summaries, output)
+    save_tables(output, episodes, summaries)
+    save_baseline_plots(summaries, output)

@@ -124,8 +124,9 @@ at every hypothetical state, including solver tie choices, without future draws.
 ## Policies, randomness and waiting
 
 - `wait`: no additional programme.
-- `random`: independently keyed priorities over feasible student/mentor edges,
-  then greedy feasible admission. This is not a uniform draw over all joint actions.
+- `random`: shuffle eligible students in stable ID order with a local generator
+  seeded by policy version, episode seed and current month. Mentor compatibility
+  does not affect the student order. This is not uniform sampling of joint actions.
 - `severity`: disengaged, vulnerable, stable, then student ID and cheaper mentor.
 - `need_priority`: maximum initial shared-rule need severity, then the same ties.
   It does not use the evolving simulated condition or a fitted risk score.
@@ -142,7 +143,7 @@ Reports retain recipient waits separately from censored waits. Enrolled
 student-months count enrollment after each monthly transition, excluding month zero.
 
 Environmental draws use SHA-256 keys `(seed, student_id, month, event_type)`;
-policy priorities use a different event type. Assignment counts/order do not shift
+the random baseline uses its own local generator. Assignment counts/order do not shift
 another student's draws. Zero-effect worlds therefore have identical full condition
 trajectories across policies, not merely similar averages. Policies receive neither
 the environment object nor future draws. Solver timings can vary on repetition;
@@ -262,11 +263,12 @@ entry point. `--config` accepts another
 versioned TOML matching `configs/cmdp_v1.toml`. Full-suite variations intentionally
 use the specified effect strengths and budgets, while retaining other configuration.
 
-Each output includes `manifest.json` with seeds, dependency versions, matrices,
+Before Step 2 completion, each output included `manifest.json` with seeds, dependency versions, matrices,
 population/code hashes; `episodes.jsonl` with complete per-episode metrics;
 `sample_trajectories.jsonl` with the first development/evaluation world per policy
 and scenario; `summary.json` with all paired baseline comparisons, monthly counts
 and group audits; `tiny_exact.json`; `report.md`; and two standalone PNG plots.
+The current baseline CSVs/figures and optional exact output are described below.
 Each episode's `monthly_summaries` contains month zero and all realized months:
 four condition counts, newly and cumulatively withdrawn students, enrollment,
 retention/dropout rates, eligible students, programmes, appointments, monthly and
@@ -283,6 +285,33 @@ new results exclude the withdrawal month, so waiting metrics can differ while
 retention trajectories and allocation choices remain reproducible.
 Results directories follow the existing Git ignore convention; concise executed
 findings are also preserved in [cmdp-results-v1.md](cmdp-results-v1.md).
+
+## Step 2 baseline completion
+
+The current default is the five-policy Step 2 comparison, using
+`configs/cmdp_baselines_v1.toml` and timestamped `results/cmdp_baselines_v1/` outputs.
+The numerical scenario is unchanged from Step 1. The commands above with explicit
+paths and opt-in optimizer policies continue to work; the earlier six-policy
+default and two-plot-only output description record the previous workflow.
+
+`BaselinePolicy.rank_students` feeds `greedy_matching.assign_feasible` for all five
+baselines. Matching preserves priority and chooses the cheapest feasible mentor,
+then mentor ID; it does not maximize cardinality. Each paired world builds its
+source school once and gives copied identical inputs to every policy environment.
+`MonthRecord` additionally retains frozen student and recipient waiting counters.
+Summarized condition trajectories now include month zero; the per-episode
+`monthly_conditions` compatibility field remains months 1–T.
+
+`--stage development` ends after development export; default `--stage both`
+validates the development grid, resource ledgers, identical initial states and
+full null-effect/zero-budget trajectories before any held-out episode. Failed
+episodes are recorded and propagate, never repaired or silently omitted.
+`summarize(episodes, manifest)` detects missing policies, worlds, scenarios and
+duplicates. CSV exports add explicit episode identifiers, configuration hashes,
+sample SDs, paired student-count/percentage-point intervals, waiting distributions,
+pre-admission waiting, unit costs, resource diagnostics and descriptive group access.
+Eight baseline figures supplement the two existing plots. See
+[Step 2 details and executed results](cmdp_baselines_v1.md).
 
 With the default seed, ten development seeds are 42–51 and thirty held-out world
 seeds are 10042–10071. `--seed` sets the development start; held-out worlds start

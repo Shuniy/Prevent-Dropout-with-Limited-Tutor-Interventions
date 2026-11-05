@@ -1,12 +1,14 @@
 """Simple allocation baselines with the same hard constraints as the planner."""
 
 from .allocation_result import AllocationResult
-from .constraints import candidate_assignments, validate_allocation
+import random
+
+from .greedy_matching import assign_feasible
 from .student_condition import STATES
-from .transition_model import keyed_uniform
 
 
 BASELINES = ("wait", "random", "severity", "need_priority", "longest_waiting")
+BASELINE_VERSION = "student_priority_v2"
 
 
 class BaselinePolicy:
@@ -22,22 +24,24 @@ class BaselinePolicy:
         self.name = name
         self.seed = seed
 
-    def plan(self, state):
-        if self.name == "wait":
-            return AllocationResult()
-        students = {student.student_id: student for student in state.students}
-        candidates = list(candidate_assignments(state))
+    def rank_students(self, state):
+        """Rank eligible students independently of mentor compatibility.
 
-        def priority(assignment):
-            student = students[assignment.student_id]
-            if self.name == "random":
-                draw = keyed_uniform(
-                    self.seed,
-                    student.student_id + ":" + assignment.mentor_id,
-                    state.month,
-                    "policy_random_priority",
-                )
-                return (draw, student.student_id, assignment.mentor_id)
+        Random shuffles a stable ID order with a local, episode/month seeded
+        generator, separate from environmental keyed draws. This is a random
+        student ordering, not uniform sampling over feasible joint allocations.
+        """
+        if self.name == "wait":
+            return ()
+        students = sorted(
+            (student for student in state.students if student.eligible),
+            key=lambda student: student.student_id,
+        )
+        if self.name == "random":
+            random.Random(f"{BASELINE_VERSION}:{self.seed}:{state.month}:policy").shuffle(students)
+            return tuple(students)
+
+        def priority(student):
             if self.name == "severity":
                 if student.condition is None:
                     raise ValueError("severity policy requires an observed or estimated condition")
@@ -46,27 +50,9 @@ class BaselinePolicy:
                 score = student.need_score
             else:
                 score = student.waiting_months
-            return (-score, student.student_id, assignment.cost_units, assignment.mentor_id)
+            return (-score, student.student_id)
 
-        candidates.sort(key=priority)
-        admissions = {mentor.mentor_id: 0 for mentor in state.mentors}
-        limits = {
-            mentor.mentor_id: min(mentor.admissions, mentor.appointments // 5)
-            for mentor in state.mentors
-        }
-        selected = []
-        assigned_students = set()
-        budget = state.remaining_budget
-        for assignment in candidates:
-            mentor_id = assignment.mentor_id
-            if (
-                assignment.student_id not in assigned_students
-                and admissions[mentor_id] < limits[mentor_id]
-                and assignment.cost_units <= budget
-            ):
-                selected.append(assignment)
-                assigned_students.add(assignment.student_id)
-                admissions[mentor_id] += 1
-                budget -= assignment.cost_units
-        validate_allocation(state, selected)
-        return AllocationResult(tuple(selected))
+        return tuple(sorted(students, key=priority))
+
+    def plan(self, state):
+        return AllocationResult(assign_feasible(state, self.rank_students(state)))

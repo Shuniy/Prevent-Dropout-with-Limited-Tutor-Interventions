@@ -12,6 +12,14 @@ month-zero and monthly summaries; `--print-monthly` optionally prints representa
 development worlds. Waiting counts survived, unsupported months only, consistently
 in environment snapshots and group audits.
 Policies receive immutable decision snapshots, never the environment or future draws.
+The five baseline policies separate student ranking from one shared greedy matcher
+(`baseline_policy` → `greedy_matching` → `constraints`). Random ordering is over
+students, independent of compatible mentor edges. One source school is built per
+world and copied into each policy's environment. `baseline_validation` checks
+resource ledgers and complete experiment grids before held-out runs, while
+`baseline_exports` writes portable tables and eight baseline figures. Existing
+optimizer/fairness policies are opt-ins, outside the Step 2 default. See
+[baseline experiment contract](cmdp_baselines_v1.md).
 `school.observation_adapter` imports only the existing immutable InterventionResult
 contract and does not invoke the extraction pipeline. There is no separate CMDP
 package. See [CMDP implementation](cmdp-implementation.md) for the module map.
