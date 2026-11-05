@@ -113,6 +113,42 @@ class TransitionTests(unittest.TestCase):
         self.assertEqual(env.excluded_student_ids, (students[0].student_id,))
         self.assertEqual(len(env.observe().students), 1)
 
+    def test_waiting_counts_only_survived_unsupported_months(self):
+        env, students, mentors = environment(3, horizon=4)
+        for student in students:
+            student.initial_attendance_fraction_assumed = 0.95
+            student.initial_engagement_assumed = 0.9
+            student.anchor_grade1_0_20 = 18
+        # Stable -> vulnerable -> disengaged -> withdrawn; programmes hold state.
+        wait = np.array([[0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 0, 0, 1]])
+        env = CMDPEnvironment(students, mentors, env.config, wait_matrix=wait, treatment_matrix=np.eye(4))
+        self.assertEqual([s.waiting_months for s in env.observe().students], [0, 0, 0])
+        env.step(AllocationResult())
+        self.assertEqual([s.waiting_months for s in env.observe().students], [1, 1, 1])
+        first = candidate_assignments(env.observe())[0]
+        before = env.observe()
+        with self.assertRaises(ValueError):
+            env.step(AllocationResult((first, first)))
+        self.assertEqual(env.observe(), before)
+        env.step(AllocationResult((first,)))
+        self.assertEqual([s.waiting_months for s in env.observe().students], [1, 2, 2])
+        second = candidate_assignments(env.observe())[0]
+        env.step(AllocationResult((second,)))
+        state = env.observe()
+        self.assertEqual([s.waiting_months for s in state.students], [1, 2, 2])
+        self.assertFalse(state.students[2].enrolled)
+        env.step(AllocationResult())
+        self.assertEqual([s.waiting_months for s in env.observe().students], [1, 2, 2])
+        self.assertEqual(env.records[-1].mean_eligible_waiting_months, 0)
+
+    def test_first_month_withdrawal_does_not_increment_waiting(self):
+        env, students, mentors = environment(1)
+        wait = np.array([[0, 0, 0, 1]] * 4)
+        env = CMDPEnvironment(students, mentors, env.config, wait_matrix=wait)
+        env.step(AllocationResult())
+        self.assertFalse(env.observe().students[0].enrolled)
+        self.assertEqual(env.observe().students[0].waiting_months, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

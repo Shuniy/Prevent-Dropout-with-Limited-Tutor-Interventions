@@ -8,6 +8,37 @@ import numpy as np
 from .cmdp_metrics import paired_difference
 
 
+def format_monthly_summary(months):
+    """Readable per-world output, requested explicitly to keep large sweeps quiet."""
+    lines = [
+        "Month | Stable | Vulnerable | Disengaged | Withdrawn | New withdrawals | "
+        "Enrolled | Programmes | Appointments | Spend | Cumulative spend | Budget left | "
+        "Eligible | Mean eligible wait | Mentor usage (programmes/capacity, appointments/slots)",
+    ]
+    for row in months:
+        mentors = "; ".join(
+            f"{mentor['mentor_id']}: {mentor['programmes']}/{mentor['admission_capacity']}, "
+            f"{mentor['appointments']}/{mentor['appointment_capacity']}"
+            for mentor in row["mentor_utilization"]
+        )
+        lines.append(
+            f"{row['month']} | {row['stable']} | {row['vulnerable']} | "
+            f"{row['disengaged']} | {row['withdrawn']} | {row['newly_withdrawn']} | "
+            f"{row['enrolled']} | {row['programmes_started']} | "
+            f"{row['appointments_delivered']} | {row['spending']:.2f} | "
+            f"{row['cumulative_spending']:.2f} | {row['remaining_budget']:.2f} | "
+            f"{row['eligible_students']} | {row['mean_eligible_waiting_months']:.2f} | {mentors}"
+        )
+    final = months[-1]
+    retention = final["retention_rate"]
+    retention_text = f"{retention:.2%}" if retention is not None else "n/a"
+    lines.append(
+        f"Terminal enrollment: {final['enrolled']}; retention: {retention_text}; "
+        f"total spending: {final['cumulative_spending']:.2f}"
+    )
+    return "\n".join(lines)
+
+
 def summarize(episodes):
     """Pair by world seed, not by students sharing capacity within a world."""
     summaries = []
@@ -171,7 +202,9 @@ def report_markdown(summaries, tiny, manifest):
             "",
             "Machine-readable summaries contain comparisons against every baseline, monthly "
             "condition counts, workload, and access stratified by initial condition and fixed need. "
-            "Episode JSONL contains waiting distributions, withdrawal timing, window audits, bounds "
+            "Episode JSONL includes month-zero and monthly summaries with resource usage and "
+            "waiting among enrolled, unsupported students, plus waiting distributions, "
+            "withdrawal timing, window audits, bounds "
             "and statuses. Access is descriptive; equal allocation across unequal needs is not a fairness conclusion.",
             "",
             "Window shortfall sums max(0, q*N - offers)/N across nonempty comparable-need "

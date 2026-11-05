@@ -1,5 +1,30 @@
 # Executed CMDP v1 simulation results
 
+## Waiting-time correction and monthly-summary verification
+
+The follow-up implementation excludes the withdrawal month from student and
+group-audit waiting times. Every episode now saves complete month-zero through
+month-twelve `monthly_summaries`; `--print-monthly` optionally prints the first
+development world for each policy/scenario, including its terminal result.
+Existing interfaces, keyed draws and the terminal-only objective are retained.
+
+Executed with the existing `.venv`: **107 tests passed**. A fresh full sweep
+completed **2,240 episodes with zero solver fallbacks**. Independent output checks
+validated all 29,120 monthly summaries, current source hashes and 112 saved
+trajectories. Retention, condition counts, resource usage and solver diagnostics
+matched `full_003` except for runtime; saved trajectories also matched conditions
+and assignments. Waiting metrics intentionally changed, and new summary fields
+were added. Historical outputs below retain their original waiting convention.
+
+The printed WAIT-only demonstration (seed 42) started with 80 stable and 20
+vulnerable students, printed months 0–12, and finished with 71 enrolled, 29 withdrawn,
+71% retention, zero spending and 150 budget units remaining.
+
+Artifacts: [full report](../results/cmdp_v1/waiting_summary_fix_20261105/report.md),
+[independent checks](../results/cmdp_v1/waiting_summary_fix_20261105/verification.json),
+[printed WAIT-only run](../results/cmdp_v1/waiting_summary_smoke_20261105/cli_output.txt).
+See [implementation and runnable commands](cmdp-implementation.md) for output semantics.
+
 ## School integration verification
 
 The implementation now lives directly in `src/school`, with `School.run_cmdp(policy)`

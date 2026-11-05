@@ -64,7 +64,7 @@ class CMDPEnvironment:
         self._conditions = {}
         self._profiles = {}
         self._programme_months = {}
-        self._withdrawal_months = {}
+        self._waiting_months = {}
         self._excluded = []
         for student in students:
             condition = initial_condition(student)
@@ -73,6 +73,7 @@ class CMDPEnvironment:
                 continue
             self._conditions[student.student_id] = condition
             self._programme_months[student.student_id] = ()
+            self._waiting_months[student.student_id] = 0
             self._profiles[student.student_id] = (
                 student.primary_support_type,
                 student.need_score,
@@ -119,12 +120,6 @@ class CMDPEnvironment:
         for student_id, truth in self._conditions.items():
             support, need, disadvantage, sex = self._profiles[student_id]
             history = self._programme_months[student_id]
-            # Waiting starts at month 1 and ends at admission or withdrawal.
-            end = history[0] if history else self._month
-            # Withdrawal is at month end; admission is at month start.
-            withdrawal = self._withdrawal_months.get(student_id)
-            if withdrawal is not None:
-                end = min(end, withdrawal + 1)
             observations.append(
                 StudentObservation(
                     student_id,
@@ -133,7 +128,7 @@ class CMDPEnvironment:
                     support,
                     need,
                     history,
-                    end - 1,
+                    self._waiting_months[student_id],
                     disadvantage,
                     sex,
                 )
@@ -178,7 +173,8 @@ class CMDPEnvironment:
         if not isinstance(allocation, AllocationResult):
             raise ValueError("step requires an immutable AllocationResult")
         # Revalidate against current truth and resources, not a policy's estimate.
-        validate_allocation(self.observe(), allocation.assignments)
+        state = self.observe()
+        validate_allocation(state, allocation.assignments)
         assigned = {assignment.student_id for assignment in allocation.assignments}
         spending = sum(assignment.cost_units for assignment in allocation.assignments)
         self._remaining_budget = max(0.0, self._remaining_budget - spending)
@@ -190,13 +186,28 @@ class CMDPEnvironment:
                 self.config.seed, student_id, self._month, "environment_transition"
             )
             self._conditions[student_id] = sample_condition(condition, matrix, uniform)
-            if self._conditions[student_id] == StudentCondition.WITHDRAWN:
-                self._withdrawal_months.setdefault(student_id, self._month)
+            if (
+                self._conditions[student_id] != StudentCondition.WITHDRAWN
+                and not self._programme_months[student_id]
+            ):
+                # Count only full waiting months survived without a programme.
+                self._waiting_months[student_id] += 1
+        eligible_waits = [
+            self._waiting_months[student_id]
+            for student_id, condition in self._conditions.items()
+            if condition != StudentCondition.WITHDRAWN
+            and not self._programme_months[student_id]
+        ]
         record = MonthRecord(
             self._month,
             tuple(self._conditions.items()),
             self._remaining_budget,
             allocation,
+            tuple(
+                (mentor.mentor_id, mentor.admissions, mentor.appointments)
+                for mentor in state.mentors
+            ),
+            sum(eligible_waits) / len(eligible_waits) if eligible_waits else 0.0,
         )
         self._records.append(record)
         self._month += 1

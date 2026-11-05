@@ -89,6 +89,7 @@ class SchoolCMDPIntegrationTests(unittest.TestCase):
                         "--policies",
                         "wait",
                         "terminal_value",
+                        "--print-monthly",
                         "--development-seeds",
                         "1",
                         "--evaluation-seeds",
@@ -101,6 +102,9 @@ class SchoolCMDPIntegrationTests(unittest.TestCase):
                     env=environment,
                 )
                 self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("Monthly summary:", result.stdout)
+                self.assertIn("Mean eligible wait", result.stdout)
+                self.assertIn("Terminal enrollment:", result.stdout)
                 manifest = json.loads((output / "manifest.json").read_text())
                 self.assertEqual(manifest["config"]["num_students"], 3)
                 self.assertEqual(manifest["config"]["budget"], 5)
@@ -108,6 +112,9 @@ class SchoolCMDPIntegrationTests(unittest.TestCase):
                 self.assertEqual(manifest["evaluation_seeds"], [10073])
                 self.assertTrue((output / "report.md").is_file())
                 self.assertTrue((output / "monthly_conditions.png").is_file())
+                episodes = [json.loads(line) for line in (output / "episodes.jsonl").read_text().splitlines()]
+                for episode in episodes:
+                    self.assertEqual([row["month"] for row in episode["monthly_summaries"]], [0, 1, 2])
 
     def test_invalid_cmdp_options_fail_before_creating_outputs(self):
         for options in (

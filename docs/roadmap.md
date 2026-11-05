@@ -10,6 +10,9 @@ Implemented and tested: finite-horizon synthetic environment, hard realized
 budget/mentor/appointment constraints, five baselines, terminal-value monthly MILP,
 exact tiny Bellman reference, paired effect/budget sweeps, frozen group audits,
 window-aware lexicographic eager fairness mode, and isolated observation contracts.
+Waiting-time accounting excludes the withdrawal month in both student snapshots
+and group audits. Complete month-zero and monthly episode summaries are exported,
+with optional `--print-monthly` output for representative development worlds.
 See [execution results](cmdp-results-v1.md) and [usage](cmdp-implementation.md).
 
 Deferred: globally optimal multi-month fairness scheduling, repeated programmes,

@@ -12,3 +12,5 @@ class MonthRecord:
     conditions: tuple[tuple[str, StudentCondition], ...]
     remaining_budget: float
     allocation: AllocationResult
+    mentor_capacities: tuple[tuple[str, int, int], ...]
+    mean_eligible_waiting_months: float

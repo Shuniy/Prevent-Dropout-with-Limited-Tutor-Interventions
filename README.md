@@ -326,8 +326,18 @@ dropout. Note extraction is available through Python APIs and standalone analysi
 
 ```sh
 .venv/bin/python -m src.main --output results/cmdp_v1/my_run
+# Print month 0–12 and terminal summaries for a WAIT-only demonstration:
+.venv/bin/python -m src.main --policies wait --development-seeds 1 \
+  --evaluation-seeds 1 --print-monthly --output results/cmdp_v1/my_wait_run
 .venv/bin/python -m unittest discover -s tests -p 'test_cmdp*.py'
 ```
+
+Every episode saves `monthly_summaries` in `episodes.jsonl`, including initial
+retention/dropout rates, withdrawals, programmes, appointments, spending, remaining
+budget, mentor utilization and waiting among enrolled, unsupported students.
+Waiting counts only months survived without a programme; a withdrawal month adds
+no waiting time. `--print-monthly` prints the first development world for each
+policy/scenario; large sweeps otherwise keep their usual progress output.
 
 See [implementation, formulae, assumptions and full commands](docs/cmdp-implementation.md),
 [executed simulation results](docs/cmdp-results-v1.md), and

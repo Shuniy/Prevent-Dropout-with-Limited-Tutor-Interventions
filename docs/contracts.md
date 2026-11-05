@@ -23,11 +23,24 @@
   validation against current true eligibility before charging and transitioning.
 - `environment.records` is immutable historical output. `terminal_reward()` and
   `completed_resource_totals()` are available after the final transition.
+  Each `MonthRecord` also freezes that month's mentor capacities and mean waiting
+  among enrolled, unsupported students. Waiting increments only after a survived,
+  unsupported month; admission and withdrawal stop it without counting that month.
+- `episode_metrics(...)` includes `monthly_summaries` from month zero through the
+  horizon, with condition counts, retention/dropout rates, new withdrawals, enrolled
+  and eligible counts, programme/appointment usage, spending, cumulative spending,
+  remaining budget, per-mentor capacities/utilization and mean eligible waiting.
+  An empty eligible set has mean waiting zero; an empty cohort has undefined
+  retention/dropout rates (`null`). `monthly_conditions` retains its existing
+  months 1–T schema, and enrolled student-months exclude month zero.
 - `observation_from_result(InterventionResult, current_month)` returns reported
   evidence only, available after the admission month. It cannot mutate truth or
   choose intervention effects. The future state estimator remains external.
 - `main.py` runs school policy comparisons; `--suite full` adds the effect
   and budget sweep. Explicit CLI arguments override the versioned CMDP config.
+  `--print-monthly` prints monthly and terminal summaries for the first development
+  seed of every selected policy/scenario. Summaries are saved for every episode
+  whether or not printing is enabled.
   CMDP is the only main CLI workflow; recorded interventions and allocation-only
   runs remain available through Python APIs.
 

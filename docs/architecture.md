@@ -6,6 +6,11 @@ Each world constructs the existing `School` and calls `School.run_cmdp(policy)`.
 `CMDPSimulation` coordinates the monthly cycle through the small `AllocationPolicy`
 interface; `CMDPEnvironment` owns simulated condition, copied resources and budget.
 `school.cmdp_reports` handles summary/plot export independently of execution.
+The environment freezes monthly mentor capacities and eligible waiting in its
+records. `cmdp_metrics` combines those records with the initial snapshot to export
+month-zero and monthly summaries; `--print-monthly` optionally prints representative
+development worlds. Waiting counts survived, unsupported months only, consistently
+in environment snapshots and group audits.
 Policies receive immutable decision snapshots, never the environment or future draws.
 `school.observation_adapter` imports only the existing immutable InterventionResult
 contract and does not invoke the extraction pipeline. There is no separate CMDP

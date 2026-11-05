@@ -1,5 +1,9 @@
 # CMDP execution and workflow verification — 5 November 2026
 
+This records the run before the waiting-time and monthly-summary improvements.
+For the follow-up run and current behavior, see
+[waiting-time correction verification](cmdp-results-v1.md#waiting-time-correction-and-monthly-summary-verification).
+
 The current working tree completed the full CMDP experiment with no observed
 runtime failures or solver fallbacks. This verifies the tested configuration and
 environment; it does not guarantee success for every input or platform.

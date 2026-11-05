@@ -64,7 +64,7 @@ def audit_access(cohorts, records, *, start_month=1, end_month=None, minimum_acc
                 waiting.append(
                     max(
                         0,
-                        min(end_month, withdrawal_month.get(student_id, end_month))
+                        min(end_month, withdrawal_month.get(student_id, end_month + 1) - 1)
                         - start_month
                         + 1,
                     )

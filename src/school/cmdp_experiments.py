@@ -14,7 +14,7 @@ import scipy
 from ..utils.constants import DEFAULT_STUDENT_DATA_PATH
 from .allocation_policies import DEFAULT_POLICIES, POLICY_NAMES, make_policy
 from .cmdp_metrics import episode_metrics
-from .cmdp_reports import save_reports, summarize
+from .cmdp_reports import format_monthly_summary, save_reports, summarize
 from .cmdp_scenarios import build_environment, build_school
 from .exact_tiny_mdp import ExactTinyMDP
 from .fairness_audit import audit_access
@@ -82,6 +82,7 @@ def run_experiments(
     development_seed_count=10,
     evaluation_seed_count=30,
     policies=DEFAULT_POLICIES,
+    print_monthly=False,
 ):
     """Run independent paired worlds and save results in a new destination."""
     if suite not in ("default", "full"):
@@ -160,6 +161,9 @@ def run_experiments(
                         }
                         episodes.append(row)
                         episode_file.write(json.dumps(row) + "\n")
+                        if print_monthly and partition == "development" and seed == seeds[0]:
+                            print(f"Monthly summary: {scenario}, seed {seed}, policy {name}", flush=True)
+                            print(format_monthly_summary(metrics["monthly_summaries"]), flush=True)
                         if seed == seeds[0]:
                             trajectory_file.write(
                                 json.dumps(

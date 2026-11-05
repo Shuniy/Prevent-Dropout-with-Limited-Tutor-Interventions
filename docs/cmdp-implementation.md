@@ -134,10 +134,12 @@ at every hypothetical state, including solver tie choices, without future draws.
 - `terminal_value`: monthly constrained terminal-retention benefit maximization.
 - `fairness`: optional window-aware eager coverage, described below.
 
-Waiting begins at month 1. It ends at admission at the start of a month, withdrawal
-at the end of a month, or horizon censoring for unserved survivors. Reports retain
-recipient waits separately from censored waits. Enrolled student-months count
-enrollment after each monthly transition.
+Waiting starts at zero and increments only after an unsupported month in which
+the student remains enrolled. Admission and withdrawal stop the counter; neither
+the admission month nor the withdrawal month increments it. Condition changes do
+not reset it. Group audits apply the same rule within their assessment window.
+Reports retain recipient waits separately from censored waits. Enrolled
+student-months count enrollment after each monthly transition, excluding month zero.
 
 Environmental draws use SHA-256 keys `(seed, student_id, month, event_type)`;
 policy priorities use a different event type. Assignment counts/order do not shift
@@ -246,6 +248,11 @@ MPLCONFIGDIR=/private/tmp/cmdp-matplotlib XDG_CACHE_HOME=/private/tmp/cmdp-cache
 MPLCONFIGDIR=/private/tmp/cmdp-matplotlib XDG_CACHE_HOME=/private/tmp/cmdp-cache \
   .venv/bin/python -m src.main --development-seeds 1 --evaluation-seeds 1 \
   --output results/cmdp_v1/my_smoke_run
+
+# Print initialization, every month and terminal results for WAIT-only.
+MPLCONFIGDIR=/private/tmp/cmdp-matplotlib XDG_CACHE_HOME=/private/tmp/cmdp-cache \
+  .venv/bin/python -m src.main --policies wait --development-seeds 1 \
+  --evaluation-seeds 1 --print-monthly --output results/cmdp_v1/my_wait_run
 ```
 
 Output destinations must be new; existing directories are never overwritten.
@@ -260,6 +267,20 @@ population/code hashes; `episodes.jsonl` with complete per-episode metrics;
 `sample_trajectories.jsonl` with the first development/evaluation world per policy
 and scenario; `summary.json` with all paired baseline comparisons, monthly counts
 and group audits; `tiny_exact.json`; `report.md`; and two standalone PNG plots.
+Each episode's `monthly_summaries` contains month zero and all realized months:
+four condition counts, newly and cumulatively withdrawn students, enrollment,
+retention/dropout rates, eligible students, programmes, appointments, monthly and
+cumulative spending, remaining budget, mentor capacities/utilization and mean
+waiting among enrolled, unsupported students. The latter is zero when none are
+eligible; retention/dropout rates are `null` for an empty cohort. Month zero uses
+the initial first-month mentor capacities with zero usage. The existing
+`monthly_conditions` field keeps its months 1–T shape for compatibility.
+`--print-monthly` prints the first development seed for each policy/scenario,
+including its terminal result; full summaries are saved for every episode regardless.
+Episode restart, terminal-only reward and SHA-256 keyed draws keep their existing
+interfaces. Historical outputs retain their earlier waiting-time convention;
+new results exclude the withdrawal month, so waiting metrics can differ while
+retention trajectories and allocation choices remain reproducible.
 Results directories follow the existing Git ignore convention; concise executed
 findings are also preserved in [cmdp-results-v1.md](cmdp-results-v1.md).
 
