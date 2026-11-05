@@ -1,5 +1,16 @@
 # Current architecture
 
+The CMDP workflow uses the same `main → school` entry point:
+`python -m src.main --cmdp` loads a scenario and calls school experiment execution.
+Each world constructs the existing `School` and calls `School.run_cmdp(policy)`.
+`CMDPSimulation` coordinates the monthly cycle through the small `AllocationPolicy`
+interface; `CMDPEnvironment` owns simulated condition, copied resources and budget.
+`school.cmdp_reports` handles summary/plot export independently of execution.
+Policies receive immutable decision snapshots, never the environment or future draws.
+`school.observation_adapter` imports only the existing immutable InterventionResult
+contract and does not invoke the extraction pipeline. There is no separate CMDP
+package. See [CMDP implementation](cmdp-implementation.md) for the module map.
+
 The dependency direction is `main → school → intervention`. School owns students,
 mentors, allocation, the simulation clock, performance evaluation and school
 reports. Intervention owns the confidential recorded programme and model analysis.

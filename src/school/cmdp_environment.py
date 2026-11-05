@@ -1,0 +1,227 @@
+"""Synthetic environment with hard realized resource accounting and private truth."""
+
+from copy import deepcopy
+import math
+
+from .loading import mentor_can_take, validate_unique_ids
+from .allocation_result import AllocationResult
+from .condition_estimate import ConditionEstimate
+from .constraints import validate_allocation
+from .decision_state import DecisionState
+from .student_condition import StudentCondition
+from .mentor_resource import MentorResource
+from .month_record import MonthRecord
+from .student_observation import StudentObservation
+from .transition_model import (
+    P_WAIT,
+    keyed_uniform,
+    programme_matrix,
+    sample_condition,
+    validate_matrix,
+)
+
+
+def initial_condition(student) -> StudentCondition | None:
+    """None means outside the initial retention cohort, not simulated withdrawal."""
+    enrolled = getattr(student, "enrolled_initial_assumed", None)
+    if type(enrolled) is not bool:
+        raise ValueError(f"{student.student_id}: known initial enrollment is required")
+    for name in ("initial_attendance_fraction_assumed", "initial_engagement_assumed"):
+        value = getattr(student, name, None)
+        if value is None or not math.isfinite(value) or not 0 <= value <= 1:
+            raise ValueError(f"{student.student_id}: {name} must be known and within [0, 1]")
+    if not enrolled:
+        return None
+    attendance = student.initial_attendance_fraction_assumed
+    engagement = student.initial_engagement_assumed
+    if attendance < 0.70 or engagement < 0.40:
+        return StudentCondition.DISENGAGED
+    if attendance < 0.85 or engagement < 0.60 or student.learning_gap >= 0.30:
+        return StudentCondition.VULNERABLE
+    return StudentCondition.STABLE
+
+
+class CMDPEnvironment:
+    """Only categorical condition evolves; source measurements remain unchanged.
+
+    One step atomically validates/charges programmes, transitions everyone in the
+    initial cohort (including absorbing states), records, then advances the clock.
+    Initially non-enrolled students are excluded and listed separately.
+    """
+
+    def __init__(self, students, mentors, config, *, wait_matrix=None, treatment_matrix=None):
+        self.config = config
+        students = deepcopy(list(students))
+        self._mentors = deepcopy(list(mentors))
+        validate_unique_ids(students, self._mentors)
+        self._wait_matrix = validate_matrix(P_WAIT if wait_matrix is None else wait_matrix)
+        treatment = (
+            programme_matrix(config.effect_strength)
+            if treatment_matrix is None
+            else treatment_matrix
+        )
+        self._programme_matrix = validate_matrix(treatment)
+        self._conditions = {}
+        self._profiles = {}
+        self._programme_months = {}
+        self._withdrawal_months = {}
+        self._excluded = []
+        for student in students:
+            condition = initial_condition(student)
+            if condition is None:
+                self._excluded.append(student.student_id)
+                continue
+            self._conditions[student.student_id] = condition
+            self._programme_months[student.student_id] = ()
+            self._profiles[student.student_id] = (
+                student.primary_support_type,
+                student.need_score,
+                student.disadvantage_proxy_group,
+                student.sex_source,
+            )
+        for mentor in self._mentors:
+            if not math.isfinite(mentor.cost_units_per_session):
+                raise ValueError("mentor appointment price must be finite")
+            if mentor.current_student_ids:
+                raise ValueError("CMDP episodes require mentors with empty initial caseloads")
+        self._month = 1
+        self._remaining_budget = config.budget
+        self._records = []
+
+    @property
+    def records(self):
+        return tuple(self._records)
+
+    @property
+    def excluded_student_ids(self):
+        return tuple(self._excluded)
+
+    @property
+    def done(self):
+        return self._month > self.config.horizon
+
+    def observe(self, *, fully_observed=True, estimates=()) -> DecisionState:
+        """Enrollment is an assumed exact administrative observation in both modes.
+
+        Partial mode has no condition unless an explicit as-of estimate is supplied.
+        No estimate or reported LLM outcome can write the environment truth.
+        """
+        estimate_by_id = {}
+        for estimate in estimates:
+            if not isinstance(estimate, ConditionEstimate):
+                raise ValueError("estimates must be validated ConditionEstimate records")
+            if estimate.student_id not in self._conditions or estimate.student_id in estimate_by_id:
+                raise ValueError("condition estimates must reference unique cohort students")
+            if estimate.as_of_month != self._month:
+                raise ValueError("condition estimate must match the current decision month")
+            estimate_by_id[estimate.student_id] = estimate.condition
+        observations = []
+        for student_id, truth in self._conditions.items():
+            support, need, disadvantage, sex = self._profiles[student_id]
+            history = self._programme_months[student_id]
+            # Waiting starts at month 1 and ends at admission or withdrawal.
+            end = history[0] if history else self._month
+            # Withdrawal is at month end; admission is at month start.
+            withdrawal = self._withdrawal_months.get(student_id)
+            if withdrawal is not None:
+                end = min(end, withdrawal + 1)
+            observations.append(
+                StudentObservation(
+                    student_id,
+                    truth != StudentCondition.WITHDRAWN,
+                    truth if fully_observed else estimate_by_id.get(student_id),
+                    support,
+                    need,
+                    history,
+                    end - 1,
+                    disadvantage,
+                    sex,
+                )
+            )
+        resources = []
+        for mentor in self._mentors:
+            available = mentor.availability_at(self._month)
+            compatible = []
+            for student in observations:
+                if mentor_can_take(
+                    mentor,
+                    student_id=student.student_id,
+                    support_type=student.support_type,
+                    month=self._month,
+                    required_sessions=5,
+                    sessions_used=0,
+                    remaining_budget=self._remaining_budget,
+                ):
+                    compatible.append(student.student_id)
+            resources.append(
+                MentorResource(
+                    mentor.mentor_id,
+                    tuple(mentor.support_types),
+                    mentor.remaining_capacity if available else 0,
+                    available.max_sessions if available else 0,
+                    mentor.cost_units_per_session,
+                    tuple(compatible),
+                )
+            )
+        return DecisionState(
+            self._month,
+            max(0, self.config.horizon - self._month + 1),
+            self._remaining_budget,
+            tuple(observations),
+            tuple(resources),
+            "fully_observed_benchmark" if fully_observed else "estimated_or_unobserved",
+        )
+
+    def step(self, allocation) -> MonthRecord:
+        if self.done:
+            raise ValueError("episode has already completed")
+        if not isinstance(allocation, AllocationResult):
+            raise ValueError("step requires an immutable AllocationResult")
+        # Revalidate against current truth and resources, not a policy's estimate.
+        validate_allocation(self.observe(), allocation.assignments)
+        assigned = {assignment.student_id for assignment in allocation.assignments}
+        spending = sum(assignment.cost_units for assignment in allocation.assignments)
+        self._remaining_budget = max(0.0, self._remaining_budget - spending)
+        for student_id in assigned:
+            self._programme_months[student_id] += (self._month,)
+        for student_id, condition in self._conditions.items():
+            matrix = self._programme_matrix if student_id in assigned else self._wait_matrix
+            uniform = keyed_uniform(
+                self.config.seed, student_id, self._month, "environment_transition"
+            )
+            self._conditions[student_id] = sample_condition(condition, matrix, uniform)
+            if self._conditions[student_id] == StudentCondition.WITHDRAWN:
+                self._withdrawal_months.setdefault(student_id, self._month)
+        record = MonthRecord(
+            self._month,
+            tuple(self._conditions.items()),
+            self._remaining_budget,
+            allocation,
+        )
+        self._records.append(record)
+        self._month += 1
+        return record
+
+    def terminal_reward(self) -> int:
+        if not self.done:
+            raise ValueError("terminal reward is defined after the final transition")
+        # R_T = sum_i 1[s_i,T != withdrawn]; intermediate reward is zero, gamma = 1.
+        return sum(
+            condition != StudentCondition.WITHDRAWN for condition in self._conditions.values()
+        )
+
+    def completed_resource_totals(self):
+        """Post-episode reporting only; policies never receive future resources."""
+        if not self.done:
+            raise ValueError("resource totals are available after the episode")
+        totals = []
+        for mentor in self._mentors:
+            admissions = 0
+            appointments = 0
+            for month in range(1, self.config.horizon + 1):
+                available = mentor.availability_at(month)
+                if available:
+                    admissions += mentor.max_active_students
+                    appointments += available.max_sessions
+            totals.append((mentor.mentor_id, admissions, appointments))
+        return tuple(totals)

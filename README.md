@@ -304,8 +304,8 @@ python -m src.basic_examples.cmdp
 
 Imports do not run simulations. Examples keep their essential state counts,
 rewards, and optimization algorithms and print a final result. The CMDP example
-uses SciPy through the existing scientific environment. The production workflow
-uses a need-priority heuristic, not a CMDP optimizer.
+uses SciPy through the existing scientific environment. The default recorded-intervention workflow uses need priority. The `--cmdp` mode
+uses the selected policy, including the constrained terminal-value optimizer.
 
 The supplied CSVs and transcripts are used directly; no preprocessing command is
 required. `data/processed/`, `data/external/`, notebooks, corpus generators, and
@@ -316,5 +316,25 @@ research specifications describe possible future work, not the active interface.
 Synthetic conversations and assumed attendance/engagement are not observations of
 real children or measured treatment effects. Missing appointments have unknown
 reasons and do not establish dropout. Historical course failure is not school
-dropout. Numeric outcome dynamics, trained risk models, policy evaluation, and
-fairness experiments remain future work; see the [roadmap](docs/roadmap.md).
+dropout. Causal calibration, trained risk models and LLM-driven closed-loop policy
+evaluation remain future work; the school CMDP workflow below uses explicit
+synthetic dynamics and provides initial policy/fairness experiments.
+
+## CMDP retention simulation
+
+The finite-horizon simulator lives in `src/school` and runs through
+`School.run_cmdp(policy)` or `main.py --cmdp`. It reuses the existing
+student/mentor models and matching rules, supports five allocation baselines,
+monthly terminal-value MILP allocation, exact tiny-instance comparisons, frozen
+group-access audits and optional window-aware fairness allocation. All transitions
+and effects are synthetic assumptions; simulated withdrawal is not observed school
+dropout. The existing note-extraction workflow is preserved.
+
+```sh
+.venv/bin/python -m src.main --cmdp --output results/cmdp_v1/my_run
+.venv/bin/python -m unittest discover -s tests -p 'test_cmdp*.py'
+```
+
+See [implementation, formulae, assumptions and full commands](docs/cmdp-implementation.md),
+[executed simulation results](docs/cmdp-results-v1.md), and
+[versioned configuration](configs/cmdp_v1.toml). Use a new output directory for each run.

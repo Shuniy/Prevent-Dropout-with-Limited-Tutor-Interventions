@@ -25,6 +25,8 @@ from .mentor import Mentor
 from ..utils.enums import SupportType
 from ..utils.constants import DEFAULT_STUDENT_DATA_PATH
 from .student import Student
+from .allocation_policy import AllocationPolicy
+from .scenario_config import ScenarioConfig
 from .loading import (
     create_mentors,
     existing_assignments,
@@ -160,41 +162,45 @@ class School:
 
         students_this_month = list(self.students)
         self._rng.shuffle(students_this_month)
-        needs = {s.student_id: current_needs(s, self.performance[s.student_id])[0]
-                 for s in self.students}
+        needs = {
+            s.student_id: current_needs(s, self.performance[s.student_id])[0] for s in self.students
+        }
         if prioritize_by_need:
-            students_this_month.sort(key=lambda student: needs[student.student_id]["severity"], reverse=True)
+            students_this_month.sort(
+                key=lambda student: needs[student.student_id]["severity"], reverse=True
+            )
 
         for student in students_this_month:
             if student.student_id in self.assignments or (
-                excluded_student_ids is not None
-                and student.student_id in excluded_student_ids
+                excluded_student_ids is not None and student.student_id in excluded_student_ids
             ):
                 continue
 
             requested_support = (
                 student_support_types[student.student_id]
-                if student_support_types is not None else (
+                if student_support_types is not None
+                else (
                     needs[student.student_id]["support_type"]
-                    if prioritize_by_need and support_type is None else selected_support_type
+                    if prioritize_by_need and support_type is None
+                    else selected_support_type
                 )
             )
 
             eligible_mentors = [
                 mentor
                 for mentor in self.mentors
-                if (not preferred_mentor_ids
+                if (
+                    not preferred_mentor_ids
                     or student.student_id not in preferred_mentor_ids
-                    or mentor.mentor_id == preferred_mentor_ids[student.student_id])
+                    or mentor.mentor_id == preferred_mentor_ids[student.student_id]
+                )
                 and mentor_can_take(
                     mentor,
                     student_id=student.student_id,
                     support_type=requested_support,
                     month=month,
                     required_sessions=required_sessions,
-                    sessions_used=self._sessions_used.get(
-                        (mentor.mentor_id, month), 0
-                    ),
+                    sessions_used=self._sessions_used.get((mentor.mentor_id, month), 0),
                     remaining_budget=self.remaining_budget,
                 )
             ]
@@ -242,7 +248,9 @@ class School:
         self.assignments.clear()
         return preferred
 
-    def allocate_programmes(self, *, support_type: SupportType | None = None) -> dict[int, dict[str, str]]:
+    def allocate_programmes(
+        self, *, support_type: SupportType | None = None
+    ) -> dict[int, dict[str, str]]:
         """Plan once per student without intervention or attendance claims."""
         preferred = self._prepare_run()
         for month in range(1, self.num_months + 1):
@@ -250,11 +258,54 @@ class School:
             self.step(month, support_type=support_type, preferred_mentor_ids=preferred)
         return {month: dict(assignments) for month, assignments in self.monthly_assignments.items()}
 
-    def run_simulation(self, intervention, *, output_dir: Path | None = None,
-                       support_type: SupportType | None = None) -> dict:
+    def run_simulation(
+        self,
+        intervention,
+        *,
+        output_dir: Path | None = None,
+        support_type: SupportType | None = None,
+    ) -> dict:
         """Start a fresh complete monthly school cycle using an explicit intervention."""
         from .simulation import run_simulation
+
         return run_simulation(self, intervention, output_dir=output_dir, support_type=support_type)
+
+    def create_cmdp_environment(self, *, config: ScenarioConfig | None = None):
+        """Create a synthetic retention world from this school's existing models.
+
+        The world owns copied resources, simulated conditions and budget history.
+        Recorded measurements and reported intervention outcomes stay separate.
+        """
+        from .cmdp_environment import CMDPEnvironment
+
+        if config is None:
+            config = ScenarioConfig(
+                num_students=len(self.students),
+                num_mentors=len(self.mentors),
+                horizon=self.num_months,
+                budget=self.budget,
+                seed=self.seed,
+                monthly_admissions=self.students_per_mentor,
+                monthly_appointments=self.students_per_mentor * self.sessions_per_student,
+                appointments_per_programme=self.sessions_per_student,
+            )
+        if (
+            config.horizon != self.num_months
+            or config.budget != self.budget
+            or config.seed != self.seed
+            or config.appointments_per_programme != self.sessions_per_student
+        ):
+            raise ValueError(
+                "CMDP configuration must match the school's horizon, budget, seed and programme size"
+            )
+        return CMDPEnvironment(self.students, self.mentors, config)
+
+    def run_cmdp(self, policy: AllocationPolicy, *, config: ScenarioConfig | None = None):
+        """Run an injected allocation policy through the school's CMDP coordinator."""
+        from .cmdp_simulation import CMDPSimulation
+
+        environment = self.create_cmdp_environment(config=config)
+        return CMDPSimulation(environment, policy).run()
 
     def reset(self) -> None:
         """Restore baseline performance, complete initial caseloads and seeded run state."""
@@ -283,16 +334,24 @@ class School:
         if assignment.month != self.current_month:
             raise ValueError("assignment must belong to the current school month")
         mentor = next(m for m in self.mentors if m.mentor_id == assignment.mentor_id)
-        if (self.assignments.get(assignment.student_id) != assignment.mentor_id
-                or assignment.student_id not in mentor.current_student_ids
-                or not mentor.supports(assignment.support_type)):
+        if (
+            self.assignments.get(assignment.student_id) != assignment.mentor_id
+            or assignment.student_id not in mentor.current_student_ids
+            or not mentor.supports(assignment.support_type)
+        ):
             raise ValueError("assignment is not valid for this student and mentor")
         programme_id = f"{self.run_id}:{assignment.student_id}"
         if programme_id in self._requests:
             raise ValueError("programme has already been requested")
-        request = InterventionRequest(self.run_id, programme_id, assignment.month,
-                                      assignment.student_id, assignment.mentor_id,
-                                      assignment.support_type, assignment.sessions)
+        request = InterventionRequest(
+            self.run_id,
+            programme_id,
+            assignment.month,
+            assignment.student_id,
+            assignment.mentor_id,
+            assignment.support_type,
+            assignment.sessions,
+        )
         self._requests[programme_id] = request
         return request
 
@@ -302,8 +361,18 @@ class School:
             raise TypeError("result must be an InterventionResult")
         result.__post_init__()
         request = self._requests.get(result.programme_id)
-        if request is None or any(getattr(result, name) != getattr(request, name) for name in (
-                "run_id", "programme_id", "month", "student_id", "mentor_id", "support_type", "planned_sessions")):
+        if request is None or any(
+            getattr(result, name) != getattr(request, name)
+            for name in (
+                "run_id",
+                "programme_id",
+                "month",
+                "student_id",
+                "mentor_id",
+                "support_type",
+                "planned_sessions",
+            )
+        ):
             raise ValueError("result must match a requested programme")
         if result.programme_id in self.intervention_results:
             raise ValueError("programme result has already been applied")
@@ -314,8 +383,9 @@ class School:
         apply_outcomes(self.performance[result.student_id], result)
         self.intervention_results[result.programme_id] = result
 
-    def _record_intervention_attendance(self, assignment: MentorAssignment,
-                                        completed_sessions: int) -> None:
+    def _record_intervention_attendance(
+        self, assignment: MentorAssignment, completed_sessions: int
+    ) -> None:
         if not 0 <= completed_sessions <= assignment.sessions:
             raise ValueError("completed sessions must be within the scheduled programme")
         position = self.assignment_history.index(assignment)
@@ -326,4 +396,5 @@ class School:
         key = (assignment.mentor_id, assignment.month)
         self._sessions_used[key] -= assignment.sessions - completed_sessions
         self.assignment_history[position] = replace(
-            assignment, completed_sessions=completed_sessions, cost_units=cost)
+            assignment, completed_sessions=completed_sessions, cost_units=cost
+        )

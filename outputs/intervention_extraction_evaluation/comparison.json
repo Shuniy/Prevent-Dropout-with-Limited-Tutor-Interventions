@@ -3,7 +3,7 @@
   "as_of_session": 3,
   "model": "qwen3.5:latest",
   "question": "What barriers remain, what happened to agreed actions, and is there evidence of delivered support or improvement?",
-  "generated_at_utc": "2026-11-03T21:21:01.490447+00:00",
+  "generated_at_utc": "2026-11-03T21:38:41.869586+00:00",
   "python_version": "3.14.8",
   "num_ctx": 32768,
   "temperature": 0,
@@ -18,10 +18,6 @@
     ],
     "intervention_helpful": [
       "unknown"
-    ],
-    "service_delivered": [
-      false,
-      null
     ]
   },
   "reference_quotes": {
@@ -51,38 +47,42 @@
       "method": "rag",
       "status": "completed",
       "model_calls": 3,
-      "elapsed_seconds": 127.358,
+      "elapsed_seconds": 123.96,
       "total_prompt_chars": 75852,
       "primary_barrier_resolved": "no",
       "attendance_improved": "unknown",
       "intervention_helpful": "unknown",
+      "intended_status": "inquiry_planned",
+      "direct_activity_statuses": {},
+      "external_support_statuses": {},
       "service_delivered": false,
-      "reference_checks_passed": 4,
-      "reference_checks_total": 4,
+      "reference_checks_passed": 3,
+      "reference_checks_total": 3,
       "reference_checks": {
         "primary_barrier_resolved": true,
         "attendance_improved": true,
-        "intervention_helpful": true,
-        "service_delivered": true
+        "intervention_helpful": true
       }
     },
     {
       "method": "simple",
       "status": "completed",
       "model_calls": 1,
-      "elapsed_seconds": 84.705,
+      "elapsed_seconds": 84.336,
       "total_prompt_chars": 39530,
       "primary_barrier_resolved": "no",
       "attendance_improved": "unknown",
       "intervention_helpful": "unknown",
+      "intended_status": "completed",
+      "direct_activity_statuses": {},
+      "external_support_statuses": {},
       "service_delivered": false,
-      "reference_checks_passed": 4,
-      "reference_checks_total": 4,
+      "reference_checks_passed": 3,
+      "reference_checks_total": 3,
       "reference_checks": {
         "primary_barrier_resolved": true,
         "attendance_improved": true,
-        "intervention_helpful": true,
-        "service_delivered": true
+        "intervention_helpful": true
       }
     }
   ],
@@ -96,20 +96,20 @@
       "status": "completed",
       "error": null,
       "model_calls": 3,
-      "elapsed_seconds": 127.358,
+      "elapsed_seconds": 123.96,
       "total_prompt_chars": 75852,
       "calls": [
         {
           "prompt_chars": 24883,
-          "elapsed_seconds": 44.297
+          "elapsed_seconds": 43.206
         },
         {
           "prompt_chars": 23613,
-          "elapsed_seconds": 38.281
+          "elapsed_seconds": 36.978
         },
         {
           "prompt_chars": 27356,
-          "elapsed_seconds": 44.726
+          "elapsed_seconds": 43.684
         }
       ]
     },
@@ -117,21 +117,21 @@
       "status": "completed",
       "error": null,
       "model_calls": 1,
-      "elapsed_seconds": 84.705,
+      "elapsed_seconds": 84.336,
       "total_prompt_chars": 39530,
       "calls": [
         {
           "prompt_chars": 39530,
-          "elapsed_seconds": 84.677
+          "elapsed_seconds": 84.291
         }
       ]
     }
   },
   "limitations": [
     "One synthetic intervention; no general accuracy or causal claim.",
-    "Four reference checks do not measure full narrative accuracy.",
+    "Three reference checks do not measure full narrative accuracy.",
     "Single sequential run: cold-start and caching effects are uncontrolled.",
     "Simple timeline is reconstructed with all selected sessions visible.",
-    "Schema validation checks structure, not semantic truth."
+    "Source checks and separate semantic reviews remain fallible, not independent verification."
   ]
 }

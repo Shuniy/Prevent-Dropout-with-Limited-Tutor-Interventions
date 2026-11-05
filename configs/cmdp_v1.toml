@@ -1,0 +1,16 @@
+# All transition effects, capacities and budget prices are synthetic assumptions.
+[cmdp]
+version = "cmdp_v1"
+num_students = 100
+num_mentors = 2
+horizon = 12
+monthly_admissions = 10
+monthly_appointments = 50
+appointments_per_programme = 5
+cost_per_appointment = 1.0
+budget = 150.0
+seed = 42
+effect_strength = 1.0
+max_programmes_per_student = 1
+fairness_window = 4
+fairness_min_access = 0.2

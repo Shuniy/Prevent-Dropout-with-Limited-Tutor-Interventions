@@ -1,5 +1,22 @@
 # Implementation status and next work
 
+## CMDP v1
+
+CMDP now lives directly in the school module, with `School.run_cmdp(policy)` and
+the shared `main.py --cmdp` entry point. Policy interfaces, monthly coordination,
+environment dynamics and reporting have separate responsibilities.
+
+Implemented and tested: finite-horizon synthetic environment, hard realized
+budget/mentor/appointment constraints, five baselines, terminal-value monthly MILP,
+exact tiny Bellman reference, paired effect/budget sweeps, frozen group audits,
+window-aware lexicographic eager fairness mode, and isolated observation contracts.
+See [execution results](cmdp-results-v1.md) and [usage](cmdp-implementation.md).
+
+Deferred: globally optimal multi-month fairness scheduling, repeated programmes,
+causal calibration, and LLM-driven state estimation/closed-loop evaluation. The
+current fairness mode tracks multi-month coverage but optimizes current offers;
+it does not claim an optimal stochastic coverage schedule.
+
 ## Working now
 
 - Separate `school` and confidential `intervention` modules, with explicit exports

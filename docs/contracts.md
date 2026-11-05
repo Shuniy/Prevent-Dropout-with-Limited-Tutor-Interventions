@@ -1,5 +1,38 @@
 # Current interfaces
 
+## School CMDP interfaces
+
+- `ScenarioConfig.load(path)` loads the versioned `[cmdp]` TOML table.
+- `School.create_cmdp_environment(config=None)` constructs a synthetic environment
+  from its student and mentor records. With no configuration supplied, it derives
+  settings from the school; conflicting horizon/budget/seed/programme settings fail.
+- `School.run_cmdp(policy, config=None)` returns a completed `CMDPSimulation`.
+  Its environment owns simulated conditions and resource history; the school's
+  recorded-intervention performance is not overwritten by synthetic results.
+- `AllocationPolicy` is a structural protocol with only `plan(state)`; baseline,
+  retention and fairness policies satisfy the same contract. The monthly coordinator
+  receives the policy explicitly and knows nothing about its optimizer.
+- `CMDPEnvironment(students, mentors, config)` copies source inputs. `observe()`
+  returns a fully observed benchmark; `observe(fully_observed=False, estimates=...)`
+  omits hidden conditions except explicit current-month `ConditionEstimate` values.
+- Every policy implements `plan(DecisionState) -> AllocationResult`. Only current
+  immutable observations/resources enter that method. No environment/future draw
+  reference is supplied.
+- `validate_allocation(state, assignments)` independently checks every resource,
+  identity, support and episode-eligibility rule. `environment.step(result)` repeats
+  validation against current true eligibility before charging and transitioning.
+- `environment.records` is immutable historical output. `terminal_reward()` and
+  `completed_resource_totals()` are available after the final transition.
+- `observation_from_result(InterventionResult, current_month)` returns reported
+  evidence only, available after the admission month. It cannot mutate truth or
+  choose intervention effects. The future state estimator remains external.
+- `main.py --cmdp` runs school policy comparisons; `--suite full` adds the effect
+  and budget sweep. Explicit shared CLI arguments override the versioned CMDP config.
+  Existing allocation-only and recorded-intervention commands retain their defaults.
+
+See [CMDP implementation and assumptions](cmdp-implementation.md) for exact
+formulae, audit denominator definitions, numerical tolerances and runnable commands.
+
 These contracts describe the active application. Historical notebooks and archived
 results can use older imports and schemas; they have not been migrated.
 
