@@ -21,6 +21,10 @@ def make_policy(name, config) -> AllocationPolicy:
         return FairnessPlanner(
             minimum_access=config.fairness_min_access,
             window_months=config.fairness_window,
+            grouping_attribute=config.fairness_grouping_attribute,
+            allow_shortfall=config.fairness_allow_shortfall,
+            enabled=config.fairness_enabled,
             treatment_matrix=programme_matrix(config.effect_strength),
+            time_limit=config.planner_time_limit, failure_mode=config.planner_failure_mode,
         )
     return BaselinePolicy(name, seed=config.seed)

@@ -22,6 +22,12 @@ class ScenarioConfig:
     max_programmes_per_student: int = 1
     fairness_window: int = 4
     fairness_min_access: float = 0.2
+    fairness_enabled: bool = True
+    fairness_grouping_attribute: str = "disadvantage_proxy"
+    fairness_allow_shortfall: bool = True
+    fairness_metric: str = "minimum_access_coverage"
+    fairness_need_stratification: str = "frozen_condition"
+    fairness_small_group_threshold: int = 30
     planner_time_limit: float = 10.0
     planner_failure_mode: str = "raise"
 
@@ -58,8 +64,35 @@ class ScenarioConfig:
             raise ValueError("planner_time_limit must be positive and finite")
         if self.planner_failure_mode not in ("raise", "wait"):
             raise ValueError("planner_failure_mode must be raise or wait")
+        if self.fairness_grouping_attribute not in ("disadvantage_proxy", "sex_source"):
+            raise ValueError("fairness grouping must select one authorized audit attribute")
+        if self.fairness_metric != "minimum_access_coverage":
+            raise ValueError("unsupported fairness metric")
+        if self.fairness_need_stratification != "frozen_condition":
+            raise ValueError("unsupported fairness need stratification")
+        if type(self.fairness_enabled) is not bool or type(self.fairness_allow_shortfall) is not bool:
+            raise ValueError("fairness mode flags must be boolean")
+        if type(self.fairness_small_group_threshold) is not int or self.fairness_small_group_threshold < 1:
+            raise ValueError("small group threshold must be a positive integer")
 
     @classmethod
     def load(cls, path: str | Path):
         with Path(path).open("rb") as source:
-            return cls(**tomllib.load(source)["cmdp"])
+            data = tomllib.load(source)
+        fields = {"enabled": "fairness_enabled", "metric": "fairness_metric",
+                  "assessment_window_months": "fairness_window",
+                  "grouping_attribute": "fairness_grouping_attribute",
+                  "need_stratification": "fairness_need_stratification",
+                  "target_coverage": "fairness_min_access",
+                  "allow_shortfall": "fairness_allow_shortfall",
+                  "small_group_threshold": "fairness_small_group_threshold"}
+        fairness = data.get("fairness", {})
+        unknown = set(fairness) - fields.keys()
+        if unknown:
+            raise ValueError(f"unsupported fairness settings: {sorted(unknown)}")
+        values = dict(data["cmdp"])
+        for key, value in fairness.items():
+            if fields[key] in values:
+                raise ValueError(f"duplicate fairness setting: {key}")
+            values[fields[key]] = value
+        return cls(**values)

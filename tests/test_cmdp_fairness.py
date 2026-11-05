@@ -1,6 +1,7 @@
 from dataclasses import replace
 from unittest.mock import patch
 import unittest
+import numpy as np
 
 from src.school.allocation_result import AllocationResult
 from src.school.baseline_policy import BaselinePolicy
@@ -41,8 +42,8 @@ class FairnessTests(unittest.TestCase):
         assignment = candidate_assignments(state)[0]
         env.step(AllocationResult((assignment,)))
         run_episode(env, BaselinePolicy("wait"))
-        audits = audit_access(frozen, env.records, minimum_access=1)
         for attribute in ("sex_source", "disadvantage_proxy"):
+            audits = audit_access(freeze_cohorts(state, attribute), env.records, minimum_access=1)
             selected = [row for row in audits if row["attribute"] == attribute]
             self.assertEqual(sum(row["eligible_count"] for row in selected), 3)
             self.assertEqual(sum(row["unique_offers"] for row in selected), 1)
@@ -80,10 +81,10 @@ class FairnessTests(unittest.TestCase):
             sex_source="F",
         )
         state = replace(state, students=(first, second))
-        policy = FairnessPlanner(minimum_access=1)
+        policy = FairnessPlanner(minimum_access=1, wait_matrix=np.eye(4), treatment_matrix=np.eye(4))
         allocation = policy.plan(state)
         self.assertEqual(len(allocation.assignments), 1)
-        self.assertAlmostEqual(allocation.fairness_shortfall, 1.0)  # two groups * (2-1)/2
+        self.assertAlmostEqual(allocation.fairness_shortfall, 0.5)  # one active cell * (2-1)/2
         recipient = allocation.assignments[0].student_id
         next_students = tuple(
             replace(
@@ -95,8 +96,8 @@ class FairnessTests(unittest.TestCase):
         )
         next_state = replace(state, month=2, students=next_students, remaining_budget=0)
         after = policy.plan(next_state)
-        self.assertAlmostEqual(after.fairness_shortfall, 1.0)
-        self.assertAlmostEqual(coverage_shortfall(freeze_cohorts(state), {recipient}, 1), 1.0)
+        self.assertAlmostEqual(after.fairness_shortfall, 0.5)
+        self.assertAlmostEqual(coverage_shortfall(freeze_cohorts(state), {recipient}, 1), 0.5)
 
     def test_lexicographic_shortfall_matches_exhaustive_feasible_actions(self):
         from src.school.exact_tiny_mdp import enumerate_allocations

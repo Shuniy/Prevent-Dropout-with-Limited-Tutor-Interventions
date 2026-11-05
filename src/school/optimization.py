@@ -31,12 +31,12 @@ def resource_constraints(state, candidates):
     return np.array(rows, dtype=float), np.array(upper, dtype=float)
 
 
-def solve_milp(objective, rows, lower, upper, *, binary_count, time_limit):
+def solve_milp(objective, rows, lower, upper, *, binary_count, time_limit, integer_count=None):
     count = len(objective)
     bounds_upper = np.full(count, np.inf)
     bounds_upper[:binary_count] = 1
     integrality = np.zeros(count)
-    integrality[:binary_count] = 1
+    integrality[:binary_count if integer_count is None else integer_count] = 1
     return milp(
         np.asarray(objective, dtype=float),
         integrality=integrality,

@@ -31,6 +31,16 @@ class AllocationResult:
     total_programme_cost: float = 0.0
     selected_student_count: int = 0
     estimated_total_benefit: float = 0.0
+    # Only assignments above are executed. This schedule is a disposable forecast.
+    tentative_assignments: tuple[MentorAssignment, ...] = ()
+    projected_fairness_shortfall: float | None = None
+    realized_fairness_shortfall: float | None = None
+    projected_coverage: tuple = ()
+    fairness_window_start: int | None = None
+    fairness_window_end: int | None = None
+    fairness_mode: str | None = None
+    projected_fairness_feasible: bool | None = None
+    projected_total_benefit: float | None = None
 
     def __post_init__(self):
         # Copy a caller's list into a tuple before it enters historical records.

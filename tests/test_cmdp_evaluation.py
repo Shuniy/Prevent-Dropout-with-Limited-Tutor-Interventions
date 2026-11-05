@@ -58,6 +58,9 @@ class EvaluationTests(unittest.TestCase):
         self.assertEqual(months[-1]["dropout_rate"], 2 / 3)
         self.assertEqual(metrics["enrolled_student_months"], 5)
         for cohort, audit in zip(cohorts, metrics["group_access"]):
+            if not cohort.student_ids:
+                self.assertIsNone(audit["mean_waiting_months"])
+                continue
             waits = {s.student_id: s.waiting_months for s in env.observe().students}
             self.assertEqual(
                 audit["mean_waiting_months"],

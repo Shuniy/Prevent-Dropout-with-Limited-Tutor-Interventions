@@ -174,6 +174,11 @@ or unsupported numerical fairness quota is built into v1. A later fairness
 constraint must specify its eligible denominator, horizon, tolerance and
 infeasibility behavior explicitly, then compare outcomes against this baseline.
 
+Step 4 now implements that extension as declared minimum admission coverage with
+frozen four-month cohorts, integer targets, strict/soft modes and rolling plans.
+The current contract and experiments are in [the Step 4 specification](cmdp_fairness_v1.md);
+the preceding paragraph describes the original resource-only v1 design.
+
 ## Simulation and planning
 
 Monthly order: observe current conditions/resources; choose and validate joint

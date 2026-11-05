@@ -54,7 +54,12 @@ class Student:
         )
 
     @property
-    def disadvantage_proxy_count(self) -> int:
+    def disadvantage_proxy_count(self) -> int | None:
+        if any(getattr(self, name) is None for name in (
+            "mother_education_code", "father_education_code", "internet_at_home",
+            "travel_time_category",
+        )):
+            return None
         return sum(
             (
                 self.both_parents_education_at_most_2,
@@ -64,8 +69,9 @@ class Student:
         )
 
     @property
-    def disadvantage_proxy_group(self) -> bool:
-        return self.disadvantage_proxy_count >= 2
+    def disadvantage_proxy_group(self) -> bool | None:
+        count = self.disadvantage_proxy_count
+        return None if count is None else count >= 2
 
     @property
     def learning_gap(self) -> float:

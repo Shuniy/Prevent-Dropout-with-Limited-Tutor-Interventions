@@ -15,8 +15,8 @@ class StudentObservation:
     need_score: float
     programme_months: tuple[int, ...]
     waiting_months: int
-    disadvantage_proxy: bool
-    sex_source: str
+    disadvantage_proxy: bool | None
+    sex_source: str | None
 
     @property
     def eligible(self) -> bool:

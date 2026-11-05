@@ -134,16 +134,35 @@ class CMDPEnvironment:
                     sex,
                 )
             )
+        resources = self._mentor_resources(observations, self._month)
+        return DecisionState(
+            self._month,
+            max(0, self.config.horizon - self._month + 1),
+            float(self._remaining_budget),
+            tuple(observations),
+            resources,
+            "fully_observed_benchmark" if fully_observed else "estimated_or_unobserved",
+            str(self._remaining_budget),
+            tuple((month, self._mentor_resources(observations, month))
+                  for month in range(self._month, self.config.horizon + 1)),
+        )
+
+    def _mentor_resources(self, observations, month):
+        """Public, preannounced calendar applied to currently observed students.
+
+        Compatibility uses fixed skills and support needs, never future truth.
+        The v1 environment has no programme-hours requirement (required_hours=0).
+        """
         resources = []
         for mentor in self._mentors:
-            available = mentor.availability_at(self._month)
+            available = mentor.availability_at(month)
             compatible = []
             for student in observations:
                 if mentor_can_take(
                     mentor,
                     student_id=student.student_id,
                     support_type=student.support_type,
-                    month=self._month,
+                    month=month,
                     required_sessions=5,
                     sessions_used=0,
                     # Compatibility is independent of affordability. Exact
@@ -161,15 +180,7 @@ class CMDPEnvironment:
                     tuple(compatible),
                 )
             )
-        return DecisionState(
-            self._month,
-            max(0, self.config.horizon - self._month + 1),
-            float(self._remaining_budget),
-            tuple(observations),
-            tuple(resources),
-            "fully_observed_benchmark" if fully_observed else "estimated_or_unobserved",
-            str(self._remaining_budget),
-        )
+        return tuple(resources)
 
     def step(self, allocation) -> MonthRecord:
         if self.done:

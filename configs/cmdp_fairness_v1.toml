@@ -1,0 +1,28 @@
+# Frozen research assumptions; 30% is illustrative, not an established standard.
+[cmdp]
+version = "cmdp_fairness_v1"
+num_students = 100
+num_mentors = 2
+horizon = 12
+monthly_admissions = 10
+monthly_appointments = 50
+appointments_per_programme = 5
+cost_per_appointment = 1.0
+budget = 150.0
+seed = 42
+effect_strength = 1.0
+max_programmes_per_student = 1
+planner_time_limit = 10.0
+planner_failure_mode = "raise"
+
+[fairness]
+enabled = true
+metric = "minimum_access_coverage"
+assessment_window_months = 4
+grouping_attribute = "disadvantage_proxy"
+need_stratification = "frozen_condition"
+target_coverage = 0.30
+allow_shortfall = true
+small_group_threshold = 30
+# Fixed lexicographic order: normalized shortfall, retention, cost, canonical bits.
+# All unknown and empty cells are reported; small cells are flagged, not suppressed.

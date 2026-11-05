@@ -15,3 +15,5 @@ class DecisionState:
     mentors: tuple[MentorResource, ...]
     observation_mode: str = "fully_observed_benchmark"
     remaining_budget_exact: str | None = None
+    # Announced mentor calendar only: no future student conditions or random draws.
+    known_mentor_schedule: tuple[tuple[int, tuple[MentorResource, ...]], ...] = ()

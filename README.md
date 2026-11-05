@@ -32,6 +32,9 @@ python src/main.py --students 10 --mentors 2 --months 12 \
 # Full effect and budget sweep:
 python -m src.main --suite full --output results/cmdp_baselines_v1/full_run
 
+# Step 4: frozen-cohort fairness targets, budget and effect sensitivity (1,000 episodes):
+python scripts/run_cmdp_fairness.py --output results/cmdp_fairness_v1
+
 # Development only, to inspect results before a full comparison:
 python -m src.main --suite full --stage development \
   --output results/cmdp_baselines_v1/development_run
@@ -64,6 +67,12 @@ selects policies, `--seed` sets the first development seed (evaluation starts
 The CLI prints scenario progress and exits nonzero on failure, preserving a
 `failure.json` with the failed world. Existing optimizer/fairness policies remain
 explicit opt-ins and are excluded from the Step 2 comparison.
+
+Step 4 adds strict or shortfall-aware minimum programme-access coverage with
+four-month frozen condition strata and one explicitly selected audit attribute.
+The rolling MILP executes only current-month admissions; future schedules remain
+tentative. See the [fairness definition and reproduction commands](docs/cmdp_fairness_v1.md)
+and [computed results and acceptance checks](docs/cmdp_fairness_v1_results.md).
 
 Standalone extraction commands require a local Ollama server and model:
 

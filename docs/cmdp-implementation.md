@@ -26,7 +26,7 @@ No course-failure label is interpreted as observed school withdrawal.
 | `retention_value`, `optimization`, `constrained_planner` | Terminal rollout values, SciPy MILP with hard constraints, monthly replanning |
 | `baseline_policy` | Wait, random, severity, fixed source-need priority, longest waiting |
 | `exact_tiny_mdp` | Exact feasible-action Bellman recursion and exact expectation of the production monthly heuristic |
-| `access_cohort`, `fairness_audit`, `fairness_planner` | Frozen comparable-need cohorts, window audits, optional lexicographic eager coverage |
+| `access_cohort`, `fairness_audit`, `fairness_window`, `fairness_planner`, `window_optimization` | Frozen cohorts, independent admission audits, strict/soft rolling-window MILP |
 | `condition_estimate`, `structured_observation`, `observation_adapter` | Explicit estimated conditions, temporally validated existing extraction results, no truth mutation |
 | `cmdp_metrics`, `cmdp_experiments`, `cmdp_reports` | Episode metrics, paired experiment execution, independent report/plot generation and version manifests |
 | `allocation_policy`, `allocation_policies`, `cmdp_simulation` | Small policy protocol, policy construction, monthly coordination behind `School.run_cmdp` |
@@ -133,7 +133,7 @@ at every hypothetical state, including solver tie choices, without future draws.
 - `longest_waiting`: elapsed full months before admission, then the same ties.
   All unserved survivors tie in this closed cohort because everyone enters together.
 - `terminal_value`: monthly constrained terminal-retention benefit maximization.
-- `fairness`: optional window-aware eager coverage, described below.
+- `fairness`: optional strict/soft rolling-window minimum coverage, described below.
 
 Waiting starts at zero and increments only after an unsupported month in which
 the student remains enrolled. Admission and withdrawal stop the counter; neither
@@ -151,36 +151,25 @@ statistical outcomes and assignments reproduce with the recorded dependency stac
 
 ## Fairness auditing and optional constraint mode
 
-Audits use only source sex and the existing disadvantage proxy. The latter is not
-verified economic disadvantage. Comparable-need strata use the available condition
-at assessment start and the fixed initial support type. Each group's eligible
-cohort contains enrolled, unused students, independently of whether the current
-budget can fund them. This prevents an exhausted budget from erasing unmet demand.
+Step 4 replaces the earlier eager heuristic with a remaining-window MILP. One
+configured authorized attribute (`disadvantage_proxy` or `sex_source`) partitions
+three broad condition strata. Enrolled, unused, compatible students form frozen
+denominators independently of shared affordability. Unknown and empty cells are
+explicit; small cells are flagged. The disadvantage proxy is not verified poverty.
 
-Freeze denominators at the start of each four-month window, including the shorter
-last window if configured. Previously offered students are excluded from the new
-window's eligible cohort. Subsequent withdrawals remain in the frozen denominator.
-Count unique offers; in v1 every offer is accepted, fully delivered and completed.
+Coverage counts unique actual START_PROGRAMME admissions. The threshold is
+`ceil(q * eligible_count)`, using integer shortfall. Strict mode reports model
+infeasibility; the recommended soft mode minimizes normalized shortfall, then
+maximizes projected retention, minimizes cost and chooses canonical assignments.
+The Step 4 config uses illustrative q=.3; prior scenario configs retain their own
+targets. All hard resource rules remain shared with Step 3.
 
-The optional planner tracks prior offers in the current window and solves:
-
-\[
-\min\sum_g\xi_g/|E_g|,\qquad
-\mathrm{priorOffers}_g+\sum_{i\in E_g,m}x_{im}+\xi_g\ge q|E_g|.
-\]
-
-It then maximizes retention benefit subject to the minimum shortfall. Groups are
-weighted equally after normalizing by their frozen size. Source-sex and proxy
-axes overlap and both contribute. Default `q=0.2` is an illustrative policy
-assumption, applied only when fairness mode is requested. The hard resource
-constraints always take precedence; no coverage promise overrides them.
-
-This is an **eager, window-aware soft fairness heuristic**: it tries to close the
-remaining window target now and remembers prior offers in later decisions. Actual
-end-window shortfalls are independently recomputed from records. It does not
-optimize a stochastic multi-month fairness schedule, reserve future window funds,
-or guarantee zero shortfall. That stronger planner remains deferred. Small strata
-and unequal needs require care; descriptive access rates are not fairness proofs.
+Only the current slice executes. Future mentor calendars are announced data,
+future student values use WAIT-only projections, and future enrollment is
+optimistic. Tentative schedules reserve no resources. Independent recorded
+admission audits measure realized coverage and shortfall. This does not establish
+an optimal stochastic fair CMDP or guarantee coverage after withdrawals. See the
+[Step 4 definition, mathematics and limitations](cmdp_fairness_v1.md).
 
 ## Observation interface and LLM boundary
 

@@ -172,7 +172,10 @@ def summarize(episodes, manifest=None):
                 {
                     **group,
                     **{
-                        key: float(np.mean([run["group_access"][index][key] for run in runs]))
+                        key: (float(np.mean([run["group_access"][index][key] for run in runs
+                                             if run["group_access"][index][key] is not None]))
+                              if any(run["group_access"][index][key] is not None for run in runs)
+                              else None)
                         for key in (
                             "unique_offers",
                             "access_rate",

@@ -2,7 +2,10 @@
 
 ## School CMDP interfaces
 
-- `ScenarioConfig.load(path)` loads the versioned `[cmdp]` TOML table.
+- `ScenarioConfig.load(path)` loads the versioned `[cmdp]` TOML table and optional
+  `[fairness]` table. Fairness selects one authorized audit attribute, integer
+  coverage target, window length and strict/shortfall-aware mode. Unknown settings
+  and duplicate old/new fairness aliases fail explicitly.
 - `School.create_cmdp_environment(config=None)` constructs a synthetic environment
   from its student and mentor records. With no configuration supplied, it derives
   settings from the school; conflicting horizon/budget/seed/programme settings fail.
@@ -16,8 +19,19 @@
   returns a fully observed benchmark; `observe(fully_observed=False, estimates=...)`
   omits hidden conditions except explicit current-month `ConditionEstimate` values.
 - Every policy implements `plan(DecisionState) -> AllocationResult`. Only current
-  immutable observations/resources enter that method. No environment/future draw
-  reference is supplied.
+  immutable student observations and preannounced mentor resources enter that
+  method. `known_mentor_schedule` is an immutable calendar, not future student
+  conditions. No environment/future draw reference is supplied.
+- `FairnessPlanner(...)` returns current `assignments` plus a disposable
+  `tentative_assignments` schedule. Only the former can be submitted to the
+  environment. Diagnostics distinguish projected shortfall/feasibility from
+  actual coverage. `allow_shortfall=False` reports `fairness_infeasible` and WAIT
+  when the declared remaining-window model cannot satisfy coverage. The q=0 policy
+  delegates to the resource-only planner exactly.
+- `CMDPSimulation.fairness_windows` and `fairness_monthly` record frozen cohorts
+  and actual unique admission counters for all policies. `audit_access` reports
+  empty denominators as undefined and flags unknown/small cells. The active
+  benchmark requires observed oracle conditions at window initialization.
 - `BaselinePolicy(name, seed).rank_students(state)` returns eligible immutable
   student observations in priority order. All five baselines call the same
   `assign_feasible(state, ordered_students)`; cheapest mentor then mentor ID breaks

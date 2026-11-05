@@ -20,7 +20,7 @@ from .cmdp_metrics import episode_metrics
 from .cmdp_reports import format_monthly_summary, save_reports, summarize
 from .cmdp_scenarios import build_environment, build_school
 from .exact_tiny_mdp import ExactTinyMDP
-from .fairness_audit import audit_access
+from .fairness_audit import audit_access, group_retention
 from .student_condition import StudentCondition
 from .constrained_planner import ConstrainedAllocationPlanner
 from .retention_value import BENEFIT_ESTIMATOR_VERSION
@@ -46,11 +46,16 @@ def run_policy(config, name, *, school=None):
             start_month=start,
             end_month=min(config.horizon, start + config.fairness_window - 1),
             minimum_access=config.fairness_min_access,
+            small_group_threshold=config.fairness_small_group_threshold,
         )
     ]
     metrics["window_normalized_shortfall"] = sum(
         entry["normalized_shortfall"] for entry in metrics["fairness_windows"]
+        if entry["normalized_shortfall"] is not None
     )
+    metrics["fairness_monthly"] = simulation.fairness_monthly
+    metrics["group_retention"] = group_retention(
+        simulation.initial_state, env.records, config.fairness_grouping_attribute)
     trajectory = [asdict(record) for record in env.records]
     return metrics, trajectory
 

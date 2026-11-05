@@ -20,6 +20,14 @@ resource ledgers and complete experiment grids before held-out runs, while
 `baseline_exports` writes portable tables and eight baseline figures. Existing
 optimizer/fairness policies are opt-ins, outside the Step 2 default. See
 [baseline experiment contract](cmdp_baselines_v1.md).
+The Step 4 fairness policy reuses the retention planner's candidate, resource and
+validation functions in a time-indexed remaining-window MILP. The decision snapshot
+adds the preannounced mentor calendar, with no future student truth.
+`fairness_window` freezes one audit axis and broad condition cohorts;
+`CMDPSimulation` records independent admission ledgers for every policy.
+`fairness_audit` evaluates actual recorded access separately from the solver, and
+`fairness_experiments` runs the frozen paired target/budget/effect grid. See
+[the Step 4 formulation](cmdp_fairness_v1.md).
 `school.observation_adapter` imports only the existing immutable InterventionResult
 contract and does not invoke the extraction pipeline. There is no separate CMDP
 package. See [CMDP implementation](cmdp-implementation.md) for the module map.
