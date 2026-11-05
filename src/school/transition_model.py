@@ -1,11 +1,9 @@
 """Assumed monthly probabilities; no empirical or causal calibration is claimed."""
 
-import hashlib
-import json
-
 import numpy as np
 
 from .student_condition import STATES, StudentCondition
+from ..utils.keyed_random import keyed_uniform
 
 
 P_WAIT = np.array(
@@ -51,14 +49,6 @@ def programme_matrix(alpha: float = 1.0) -> np.ndarray:
         raise ValueError("effect strength alpha must be within [0, 1]")
     # P_alpha = P_wait + alpha * (P_programme - P_wait).
     return validate_matrix(P_WAIT + alpha * (P_PROGRAMME - P_WAIT))
-
-
-def keyed_uniform(seed: int, student_id: str, month: int, event_type: str) -> float:
-    """Stable keys avoid Python hash randomization and action-dependent draw counts."""
-    key = json.dumps([seed, student_id, month, event_type], separators=(",", ":"))
-    digest = hashlib.sha256(key.encode("utf-8")).digest()
-    # Use 53 bits so conversion to float always gives 0 <= U < 1.
-    return (int.from_bytes(digest[:8], "big") >> 11) / 2**53
 
 
 def sample_condition(condition, matrix, uniform: float) -> StudentCondition:

@@ -102,6 +102,11 @@ class CMDPEnvironment:
     def done(self):
         return self._month > self.config.horizon
 
+    @property
+    def transition_assumptions(self):
+        """Declared model parameters for manifests; never realized/future draws."""
+        return self._wait_matrix.tolist(), self._programme_matrix.tolist()
+
     def observe(self, *, fully_observed=True, estimates=()) -> DecisionState:
         """Enrollment is an assumed exact administrative observation in both modes.
 
@@ -181,6 +186,50 @@ class CMDPEnvironment:
                 )
             )
         return tuple(resources)
+
+    def generate_observable_records(self, observation_model):
+        """Privileged observation boundary, used at reset and after each transition.
+
+        Only emitted authorized records leave this method; the note renderer and
+        estimator never receive the environment's condition map.
+        """
+        assignments = self._records[-1].allocation.assignments if self._records else ()
+        return observation_model.generate(tuple(self._conditions.items()),
+            month=self._month - 1, seed=self.config.seed, assignments=assignments)
+
+    def operational_snapshot(self, enrollment_records, *, estimates=(), risks=()):
+        """Build Step 5 inputs from explicit registry records, never truth masks.
+
+        Unlike the legacy benchmark API, waiting/eligibility here depend solely
+        on these current authorized records and committed admission history.
+        """
+        from dataclasses import replace
+        registry = {r.student_id: r for r in enrollment_records}
+        if set(registry) != set(self._profiles) or len(registry) != len(enrollment_records):
+            raise ValueError("operational snapshot requires unique cohort registry records")
+        if any(r.event_month != self._month - 1 or r.available_from_month > self._month
+               or type(r.enrolled) is not bool for r in registry.values()):
+            raise ValueError("registry must be available at the current decision cutoff")
+        by_id = {e.student_id: e for e in estimates}
+        students = []
+        for sid, (support, need, disadvantage, sex) in self._profiles.items():
+            history = self._programme_months[sid]
+            estimate = by_id.get(sid)
+            students.append(StudentObservation(
+                sid, registry[sid].enrolled,
+                estimate.estimated_condition if estimate else None,
+                support, need, history, self._month - 1 if registry[sid].enrolled and not history else 0,
+                disadvantage, sex,
+                estimate.condition_probabilities if estimate else (),
+                estimate.estimate_id if estimate else None))
+        snapshot = DecisionState(self._month, max(0, self.config.horizon - self._month + 1),
+            float(self._remaining_budget), tuple(students), self._mentor_resources(students, self._month),
+            "estimated_state_v1", str(self._remaining_budget),
+            tuple((month, self._mentor_resources(students, month))
+                  for month in range(self._month, self.config.horizon + 1)))
+        snapshot = replace(snapshot, estimated_student_states=tuple(estimates), risk_estimates=tuple(risks))
+        snapshot.validate_estimates()
+        return snapshot
 
     def step(self, allocation) -> MonthRecord:
         if self.done:

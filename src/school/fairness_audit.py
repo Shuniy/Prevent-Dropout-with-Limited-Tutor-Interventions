@@ -46,14 +46,24 @@ def freeze_cohorts(state, grouping_attribute="disadvantage_proxy", *, end_month=
     """One audit axis, three broad oracle-observed conditions; include empty cells."""
     if grouping_attribute not in ATTRIBUTES:
         raise ValueError("select one authorized audit attribute")
-    if state.observation_mode != "fully_observed_benchmark":
+    estimated = state.observation_mode == "estimated_state_v1"
+    if state.observation_mode != "fully_observed_benchmark" and not estimated:
         raise ValueError("frozen_condition requires the labelled oracle benchmark interface")
     groups = ("False", "True", "unknown") if grouping_attribute == "disadvantage_proxy" else ("F", "M", "unknown")
-    grouped = {(group, condition.value): [] for group in groups
-               for condition in tuple(StudentCondition)[:3]}
+    strata = [condition.value for condition in tuple(StudentCondition)[:3]]
+    if estimated:
+        strata.append("uncertain")
+    grouped = {(group, condition): [] for group in groups for condition in strata}
     compatible = compatible_ids(state, end_month)
     for student in state.students:
         if student.student_id not in compatible:
+            continue
+        if estimated:
+            # Uncertain enrolled cases retain a denominator, never zero need.
+            belief = student.condition_probabilities
+            label = (student.condition.value if belief and max(belief) >= .6
+                     and student.condition not in (None, StudentCondition.WITHDRAWN) else "uncertain")
+            grouped[(audit_group(student, grouping_attribute), label)].append(student.student_id)
             continue
         if student.condition is None or student.condition == StudentCondition.WITHDRAWN:
             raise ValueError("eligible fairness cohort requires an observed enrolled condition")

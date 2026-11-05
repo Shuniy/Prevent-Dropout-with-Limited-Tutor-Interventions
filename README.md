@@ -74,6 +74,13 @@ The rolling MILP executes only current-month admissions; future schedules remain
 tentative. See the [fairness definition and reproduction commands](docs/cmdp_fairness_v1.md)
 and [computed results and acceptance checks](docs/cmdp_fairness_v1_results.md).
 
+Step 5 connects dated monitoring/programme notes to validated LLM extraction,
+categorical beliefs, synthetic withdrawal risk and both existing CMDP planners.
+Run `python scripts/run_cmdp_feedback_pilot.py` for the offline fixture pilot, or
+add `--extractor ollama --max-notes-per-month 1` for the existing local model.
+See the [feedback contracts and reproduction commands](docs/cmdp_llm_feedback_v1.md)
+and [actual integration results](docs/cmdp_llm_feedback_v1_results.md).
+
 Standalone extraction commands require a local Ollama server and model:
 
 ```bash

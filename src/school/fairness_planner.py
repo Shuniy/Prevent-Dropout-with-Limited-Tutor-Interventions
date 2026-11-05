@@ -70,6 +70,7 @@ class FairnessPlanner(ConstrainedAllocationPlanner):
                 ("projection", "announced_calendar_current_candidates_wait_values"))
 
     def plan(self, state):
+        state.validate_estimates()
         started = time.perf_counter()
         start = ((state.month - 1) // self.window_months) * self.window_months + 1
         if self.window is None or self.window.start != start:

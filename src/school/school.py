@@ -307,6 +307,14 @@ class School:
         environment = self.create_cmdp_environment(config=config)
         return CMDPSimulation(environment, policy).run()
 
+    def run_cmdp_feedback(self, policy: AllocationPolicy, *, config: ScenarioConfig | None = None,
+                          **feedback_options):
+        """Step 5 sequential observations, belief estimation and the existing planner."""
+        from .closed_loop_controller import ClosedLoopCMDPController
+
+        return ClosedLoopCMDPController(self.create_cmdp_environment(config=config), policy,
+                                       **feedback_options).run_episode()
+
     def reset(self) -> None:
         """Restore baseline performance, complete initial caseloads and seeded run state."""
         for mentor in self.mentors:

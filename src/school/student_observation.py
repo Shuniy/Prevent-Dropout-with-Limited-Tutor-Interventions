@@ -17,6 +17,9 @@ class StudentObservation:
     waiting_months: int
     disadvantage_proxy: bool | None
     sex_source: str | None
+    # Step 5: immutable belief; condition remains the labelled oracle/MAP input.
+    condition_probabilities: tuple[float, ...] = ()
+    estimate_version: str | None = None
 
     @property
     def eligible(self) -> bool:

@@ -90,6 +90,7 @@ class ConstrainedAllocationPlanner:
                 ("tie_block_size", self.TIE_BLOCK_SIZE), ("failure_mode", self.failure_mode))
 
     def plan(self, state):
+        state.validate_estimates()
         started = time.perf_counter()
         candidates = candidate_assignments(state)
 

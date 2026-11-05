@@ -59,10 +59,13 @@ def window_model(state, end, wait, programme):
         if not elapsed:
             values.append(immediate[item.student_id])
             continue
-        key = (student.condition, elapsed)
+        key = (student.condition, student.condition_probabilities, elapsed)
         if key not in cached:
             # WAIT-only unconditional distribution, including absorbing withdrawal.
-            distribution = np.linalg.matrix_power(wait, elapsed)[STATES.index(student.condition)]
+            if student.condition_probabilities:
+                distribution = np.asarray(student.condition_probabilities) @ np.linalg.matrix_power(wait, elapsed)
+            else:
+                distribution = np.linalg.matrix_power(wait, elapsed)[STATES.index(student.condition)]
             by_condition = [estimate_incremental_benefit(condition, state.months_remaining - elapsed,
                                                         wait, programme) for condition in STATES]
             cached[key] = float(distribution @ by_condition)
