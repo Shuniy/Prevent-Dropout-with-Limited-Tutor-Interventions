@@ -198,7 +198,7 @@ def _solver_rows(controller):
             scenario_count=len(settings.get("scenario_names", ())),
             robust_worst_case_benefit=settings.get("robust_worst_case_benefit"))
         # Baselines have no lexicographic solver and are not failed solves.
-        incomplete = bool(allocation.planner_version and not allocation.lexicographic_complete)
+        incomplete = bool(allocation.solver_settings and not allocation.lexicographic_complete)
         result.append({"month": record.month, **values,
                        "solver_incomplete": incomplete,
                        "solver_fallback": "fallback" in allocation.status.lower()})

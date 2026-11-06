@@ -1,6 +1,5 @@
 # Step 2: fully observed synthetic benchmark; no fitted intervention effects.
 [cmdp]
-version = "cmdp_baselines_v1"
 num_students = 100
 num_mentors = 2
 horizon = 12

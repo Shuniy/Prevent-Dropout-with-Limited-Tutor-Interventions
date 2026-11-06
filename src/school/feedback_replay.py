@@ -24,18 +24,16 @@ def replay_feedback_episode(source, output):
     config = ScenarioConfig(**manifest["scenario"])
     payloads = {}
     for batch in read_jsonl(source / "extracted_observations.jsonl"):
-        payloads[batch["note_id"]] = {"schema_version": batch["schema_version"],
-            "student_id": batch["student_id"], "note_id": batch["note_id"],
+        payloads[batch["note_id"]] = {"student_id": batch["student_id"], "note_id": batch["note_id"],
             "observations": [{k: v for k, v in fact.items() if k not in ("event_id", "evidence_id")}
                              for fact in batch["facts"]]}
     extractor = FixtureObservationExtractor(payloads)
-    extractor.version = manifest["extractor_version"]
     kwargs = {"time_limit": config.planner_time_limit, "failure_mode": config.planner_failure_mode,
               "treatment_matrix": programme_matrix(config.effect_strength)}
     policy = (FairnessPlanner(minimum_access=config.fairness_min_access,
         window_months=config.fairness_window, grouping_attribute=config.fairness_grouping_attribute,
         allow_shortfall=config.fairness_allow_shortfall, **kwargs)
-        if manifest["allocation_policy_version"].startswith("fairness") else ConstrainedAllocationPlanner(**kwargs))
+        if manifest["allocation_policy"] == "FairnessPlanner" else ConstrainedAllocationPlanner(**kwargs))
     observation = manifest["observation_model"]
     observation["emissions"] = tuple(tuple(row) for row in observation["emissions"])
     result = build_school(config).run_cmdp_feedback(policy, config=config,

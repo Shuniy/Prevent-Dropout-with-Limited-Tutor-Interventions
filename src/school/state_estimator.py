@@ -27,13 +27,10 @@ class EstimateUpdate:
     rejected_observations: tuple
     updated_belief: tuple
     estimate_id: str
-    estimator_version: str
     uncertainty: tuple
 
 
 class StudentStateEstimator:
-    VERSION = "categorical_bayes_replay_v1"
-
     def __init__(self, *, observation_config=ObservationConfig(), wait_matrix=P_WAIT,
                  treatment_matrix=None, prior=(1/3, 1/3, 1/3, 0)):
         self.prior = validate_belief(prior)
@@ -45,10 +42,10 @@ class StudentStateEstimator:
 
     @property
     def configuration(self):
-        return {"version": self.VERSION, "prior": self.prior, "wait_matrix": self.wait.tolist(),
+        return {"prior": self.prior, "wait_matrix": self.wait.tolist(),
                 "programme_matrix": self.programme.tolist(),
                 "observation_config": asdict(self.observation_config),
-                "registry_model": "exact_administrative_enrollment_v1",
+                "registry_model": "exact_administrative_enrollment",
                 "correlation_rule": "one_signal_per_event_conflicts_quarantined"}
 
     def initialize(self, student_id, initial_observations=(), *, registry=(), as_of_month=1):
@@ -133,7 +130,7 @@ class StudentStateEstimator:
                     "estimator": self.configuration}
         estimate_id = sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
         result = EstimatedStudentState(
-            sid, cutoff, posterior, estimate_id, self.VERSION,
+            sid, cutoff, posterior, estimate_id,
             tuple(f.evidence_id for f in facts), tuple(unresolved),
             tuple(f for f in facts if f.field == "mentoring_support"), uncertainty, last,
             facts, tuple(r for _, r in sorted(registry_by_month.items())), actions)
@@ -144,7 +141,7 @@ class StudentStateEstimator:
         self.updates.append(EstimateUpdate(sid, cutoff,
                             previous.condition_probabilities if previous else self.prior,
                             tuple(predicted), tuple(accepted), tuple(rejected), posterior,
-                            estimate_id, self.VERSION, uncertainty))
+                            estimate_id, uncertainty))
         return result
 
     @staticmethod

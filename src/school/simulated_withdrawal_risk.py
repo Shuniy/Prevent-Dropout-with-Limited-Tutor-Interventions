@@ -13,16 +13,13 @@ class RiskEstimate:
     probability: float
     months_remaining: int
     as_of_month: int
-    input_belief_version: str
-    estimator_version: str
+    input_estimate_id: str
     uncertainty: tuple
     reference_policy: str = "WAIT_no_additional_programmes"
     target: str = "synthetic_terminal_non_enrollment"
 
 
 class SimulatedWithdrawalRiskEstimator:
-    VERSION = "synthetic_wait_endpoint_risk_v1"
-
     def __init__(self, wait_matrix=P_WAIT):
         self.wait = validate_matrix(wait_matrix)
 
@@ -31,5 +28,5 @@ class SimulatedWithdrawalRiskEstimator:
             raise ValueError("risk horizon must be a non-negative integer")
         risk = 1 - np.asarray(estimated_state.condition_probabilities) @ wait_values(self.wait, months_remaining)
         return RiskEstimate(estimated_state.student_id, float(np.clip(risk, 0, 1)), months_remaining,
-                            estimated_state.as_of_month, estimated_state.estimate_id, self.VERSION,
+                            estimated_state.as_of_month, estimated_state.estimate_id,
                             estimated_state.observation_uncertainty)

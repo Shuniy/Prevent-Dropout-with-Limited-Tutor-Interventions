@@ -13,8 +13,8 @@ from src.school.scenario_config import ScenarioConfig
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", type=Path, default=Path("configs/cmdp_fairness_v1.toml"))
-    parser.add_argument("--output", type=Path, default=Path("results/cmdp_fairness_v1"))
+    parser.add_argument("--config", type=Path, default=Path("configs/cmdp_fairness.toml"))
+    parser.add_argument("--output", type=Path, default=Path("results/cmdp_fairness"))
     parser.add_argument("--development-seeds", type=int, default=10)
     parser.add_argument("--evaluation-seeds", type=int, default=30)
     parser.add_argument("--stage", choices=("development", "both"), default="both")

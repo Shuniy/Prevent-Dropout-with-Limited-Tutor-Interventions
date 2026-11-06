@@ -19,7 +19,7 @@ class StudentObservation:
     sex_source: str | None
     # Step 5: immutable belief; condition remains the labelled oracle/MAP input.
     condition_probabilities: tuple[float, ...] = ()
-    estimate_version: str | None = None
+    estimate_id: str | None = None
 
     @property
     def eligible(self) -> bool:

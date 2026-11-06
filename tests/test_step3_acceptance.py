@@ -133,7 +133,7 @@ class Step3AcceptanceTests(unittest.TestCase):
             self.assertEqual((result.current_month, result.months_remaining), (1, 1))
             self.assertEqual((result.candidate_pair_count, result.eligible_student_count), (2, 2))
             self.assertEqual(result.available_mentor_count, 1)
-            self.assertTrue(result.benefit_estimator_version and result.solver_version)
+            self.assertEqual(dict(result.solver_settings)["solver"], "scipy.optimize.milp/HiGHS")
 
     def test_solver_errors_and_refinement_limits_are_visible_and_do_not_mutate(self):
         env, _, _ = environment(2, horizon=1)
@@ -245,7 +245,7 @@ class Step3AcceptanceTests(unittest.TestCase):
                              "solver_diagnostics.csv", "experiment_config.json",
                              "figures/terminal_retention.png", "figures/retention_trajectories.png",
                              "figures/budget_sensitivity.png", "figures/benefit_by_horizon.png",
-                             "figures/solver_runtime.png", "requirements-lock.txt"):
+                             "figures/solver_runtime.png"):
                 self.assertTrue((output / filename).is_file(), filename)
             with (output / "solver_diagnostics.csv").open() as source:
                 diagnostics = list(csv.DictReader(source))

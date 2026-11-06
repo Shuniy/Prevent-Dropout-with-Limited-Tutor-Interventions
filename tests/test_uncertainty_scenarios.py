@@ -20,16 +20,16 @@ def estimated_state(count=3, *, month=1, horizon=2, beliefs=None, **options):
     state = env.observe()
     beliefs = beliefs or [(1/3, 1/3, 1/3, 0)] * count
     estimates = tuple(EstimatedStudentState(s.student_id, month, tuple(beliefs[index]),
-        f"estimate-{index}-{month}", "unit_fixture", observation_uncertainty=(
+        f"estimate-{index}-{month}", observation_uncertainty=(
             ("missing_current_signal", index % 2 == 1),),
         last_observation_month=month - 1 if index % 2 == 0 else None)
         for index, s in enumerate(state.students))
     risks = tuple(SimulatedWithdrawalRiskEstimator().predict(e, horizon - month + 1) for e in estimates)
     return replace(state, month=month, months_remaining=horizon - month + 1,
-        observation_mode="estimated_state_v1", estimated_student_states=estimates, risk_estimates=risks,
+        observation_mode="estimated_state", estimated_student_states=estimates, risk_estimates=risks,
         students=tuple(replace(s, condition=S.VULNERABLE, support_type="tutoring",
             disadvantage_proxy=False, sex_source="F", condition_probabilities=e.condition_probabilities,
-            estimate_version=e.estimate_id) for s, e in zip(state.students, estimates)))
+            estimate_id=e.estimate_id) for s, e in zip(state.students, estimates)))
 
 
 class UncertaintyScenarioTests(unittest.TestCase):

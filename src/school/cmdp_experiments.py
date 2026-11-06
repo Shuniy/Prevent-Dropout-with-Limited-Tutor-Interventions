@@ -5,16 +5,10 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
-import platform
-from importlib.metadata import version
-import sys
-
-import numpy as np
-import scipy
 
 from ..utils.constants import DEFAULT_STUDENT_DATA_PATH
 from .allocation_policies import DEFAULT_POLICIES, POLICY_NAMES, make_policy
-from .baseline_policy import BASELINES, BASELINE_VERSION
+from .baseline_policy import BASELINES
 from .baseline_validation import validate_episode, validate_experiment_grid
 from .cmdp_metrics import episode_metrics
 from .cmdp_reports import format_monthly_summary, save_reports, summarize
@@ -23,7 +17,6 @@ from .exact_tiny_mdp import ExactTinyMDP
 from .fairness_audit import audit_access, group_retention
 from .student_condition import StudentCondition
 from .constrained_planner import ConstrainedAllocationPlanner
-from .retention_value import BENEFIT_ESTIMATOR_VERSION
 from .transition_model import P_WAIT, programme_matrix
 
 
@@ -116,7 +109,7 @@ def run_experiments(
     ):
         raise ValueError("policies must contain distinct supported policy names")
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    output = Path(output) if output is not None else Path("results/cmdp_baselines_v1") / timestamp
+    output = Path(output) if output is not None else Path("results/cmdp_baselines") / timestamp
     # Refuse to overwrite any prior research run.
     output.mkdir(parents=True, exist_ok=False)
     variations = [(config.effect_strength, config.budget)]
@@ -127,7 +120,6 @@ def run_experiments(
     evaluation = tuple(range(config.seed + 10000, config.seed + 10000 + evaluation_seed_count))
     partitions = ("development",) if stage == "development" else ("development", "evaluation")
     manifest = {
-        "experiment_version": "cmdp_baselines_v1",
         "config": asdict(config),
         "suite": suite,
         "variations": variations,
@@ -135,24 +127,11 @@ def run_experiments(
         "development_seeds": development,
         "evaluation_seeds": evaluation,
         "partitions": partitions,
-        "policy_versions": {
-            name: (BASELINE_VERSION if name in BASELINES else
-                   ConstrainedAllocationPlanner.VERSION if name == "terminal_value" else
-                   "existing_cmdp_v1") for name in policies
-        },
-        "benefit_estimator_version": BENEFIT_ESTIMATOR_VERSION,
-        "solver_configuration_version": "retention_cost_canonical_v1",
         "planner_solver_settings": dict(ConstrainedAllocationPlanner(
             time_limit=config.planner_time_limit, failure_mode=config.planner_failure_mode).settings),
-        "dependency_versions": {name: version(name) for name in
-                                ("numpy", "scipy", "pandas", "matplotlib")},
         "confidence_interval": "paired episode-level Student-t, 95%, ddof=1; pointwise",
         "student_month_convention": "enrolled after each monthly transition; excludes month zero",
         "waiting_convention": "full unsupported months survived; admission/withdrawal stop counter",
-        "python": sys.version,
-        "platform": platform.platform(),
-        "numpy": np.__version__,
-        "scipy": scipy.__version__,
         "wait_matrix": P_WAIT.tolist(),
         "programme_matrices": {
             str(alpha): programme_matrix(alpha).tolist() for alpha, _ in variations
@@ -176,9 +155,6 @@ def run_experiments(
     }
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     (output / "experiment_config.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    (output / "requirements-lock.txt").write_text("\n".join(
-        f"{name}=={value}" for name, value in manifest["dependency_versions"].items()
-    ) + "\n", encoding="utf-8")
     episodes = []
     context = {}
     with (
@@ -207,8 +183,6 @@ def run_experiments(
                             initial_state_hash = metrics["initial_state_hash"]
                             row = {
                                 **context,
-                                "policy_version": manifest["policy_versions"][name],
-                                "scenario_version": selected.version,
                                 "config_hash": config_hash(asdict(selected)),
                                 "scenario_hash": config_hash({k: v for k, v in asdict(selected).items() if k != "seed"}),
                                 "budget": budget,

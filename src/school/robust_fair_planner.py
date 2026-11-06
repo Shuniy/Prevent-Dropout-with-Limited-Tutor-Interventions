@@ -4,7 +4,6 @@ from dataclasses import replace
 import time
 
 import numpy as np
-import scipy
 
 from .allocation_result import AllocationResult
 from .constraints import validate_allocation
@@ -12,8 +11,8 @@ from .fairness_audit import coverage_shortfall, required_access
 from .fairness_planner import FairnessPlanner, feasible_vector
 from .fairness_window import FairnessWindow
 from .optimization import solve_milp
-from .retention_value import BENEFIT_ESTIMATOR_VERSION, estimate_all_student_benefits
-from .uncertainty_scenarios import (SCENARIO_SOURCE, SCENARIO_VERSION,
+from .retention_value import estimate_all_student_benefits
+from .uncertainty_scenarios import (SCENARIO_SOURCE,
     UncertaintyScenarioConfig, build_belief_scenarios, scenario_candidate_values)
 from .window_optimization import validate_schedule, window_model
 
@@ -27,8 +26,6 @@ class FairRobustPlanner(FairnessPlanner):
     objective applies to current candidates without future access pressure.
     """
 
-    VERSION = "fairness_finite_scenario_robust_milp_v1"
-
     def __init__(self, *, uncertainty_radius=.25, uncertainty_config=None, **kwargs):
         super().__init__(**kwargs)
         self.uncertainty_config = uncertainty_config or UncertaintyScenarioConfig(radius=uncertainty_radius)
@@ -41,7 +38,7 @@ class FairRobustPlanner(FairnessPlanner):
     @property
     def settings(self):
         config = self.uncertainty_config
-        return (*super().settings, ("uncertainty_version", SCENARIO_VERSION),
+        return (*super().settings,
             ("uncertainty_source", SCENARIO_SOURCE), ("uncertainty_radius", config.radius),
             ("uncertainty_missingness_multiplier", config.missingness_multiplier),
             ("uncertainty_freshness_months", config.freshness_months),
@@ -91,8 +88,6 @@ class FairRobustPlanner(FairnessPlanner):
                 available_mentor_count=sum(m.admissions > 0 and m.appointments >= 5 for m in state.mentors),
                 current_month=state.month, remaining_budget=state.remaining_budget,
                 months_remaining=state.months_remaining,
-                benefit_estimator_version=BENEFIT_ESTIMATOR_VERSION,
-                planner_version=self.VERSION, solver_version=scipy.__version__,
                 solver_settings=(*self.settings, *metadata))
 
         end = window.end if active_fairness else state.month

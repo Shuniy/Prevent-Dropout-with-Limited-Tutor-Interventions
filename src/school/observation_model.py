@@ -16,7 +16,6 @@ DEFAULT_EMISSIONS = ((.65, .22, .10, .03), (.25, .45, .25, .05),
 
 @dataclass(frozen=True)
 class ObservationConfig:
-    version: str = "synthetic_observation_v1"
     emissions: tuple[tuple[float, ...], ...] = DEFAULT_EMISSIONS
     missing_probability: float = .05
     delay_probability: float = .10
@@ -64,5 +63,5 @@ class SyntheticObservationModel:
                 f"{seed}:{sid}:event:{month}", sid, month, month + 1 + delay, SIGNALS[index],
                 assignment.mentor_id if assignment else None,
                 f"{seed}:{sid}:programme:{month}" if assignment else None,
-                assignment is not None, self.config.version))
+                assignment is not None))
         return tuple(events), tuple(registry)

@@ -16,7 +16,6 @@ class ObservableEvent:
     mentor_id: str | None = None
     programme_id: str | None = None
     support_completed: bool = False
-    model_version: str = "synthetic_observation_v1"
 
     def __post_init__(self):
         if (not self.event_id or not self.student_id or self.signal not in SIGNALS
@@ -57,7 +56,6 @@ class Note:
     available_from_month: int
     text: str
     source_event_ids: tuple[str, ...]
-    generator_version: str = "observable_note_v1"
 
     def __post_init__(self):
         if (not self.note_id or not self.student_id or not self.source_event_ids

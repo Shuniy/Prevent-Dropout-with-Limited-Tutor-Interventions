@@ -37,7 +37,6 @@ SIGNAL_PHRASES = dict(zip(SIGNALS, tuple(PHRASES)[:4]))
 
 @dataclass(frozen=True)
 class NoteQuality:
-    version: str = "note_quality_v1"
     omission_probability: float = 0.0
     conflict_probability: float = 0.0
     misleading_probability: float = 0.0

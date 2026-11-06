@@ -1,6 +1,5 @@
 # Step 3: fully observed synthetic benchmark; no fitted causal effects.
 [cmdp]
-version = "cmdp_planner_v1"
 num_students = 100
 num_mentors = 2
 horizon = 12

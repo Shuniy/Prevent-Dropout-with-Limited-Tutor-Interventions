@@ -1,7 +1,7 @@
-# Research evaluation protocol v1
+# Research evaluation protocol
 
 Frozen before the first Step 6 development/held-out research execution on 2026-11-06.
-The executable settings are [research_evaluation_v1.toml](../configs/research_evaluation_v1.toml).
+The executable settings are [research_evaluation.toml](../configs/research_evaluation.toml).
 The runner records this document, configuration and source SHA256 in its immutable manifest.
 Changes after held-out inspection require an appended amendment; never rewrite the original manifest.
 
@@ -93,7 +93,7 @@ This set covers selected reliability regimes, not all arbitrary joint state erro
 
 Use SciPy/HiGHS existing tolerances: MILP mip gap0, fairness tolerance1e-8,
 benefit tolerance1e-10 (actual code setting recorded in manifest), ten-second total
-monthly solve deadline, deterministic canonical ties. Record exact versions,
+monthly solve deadline, deterministic canonical ties. Record solver settings,
 statuses, incomplete stages and fallbacks. Feasible incomplete solutions remain
 explicit; no silent infeasibility or constraint relaxation.
 

@@ -156,7 +156,7 @@ class CMDPEnvironment:
         """Public, preannounced calendar applied to currently observed students.
 
         Compatibility uses fixed skills and support needs, never future truth.
-        The v1 environment has no programme-hours requirement (required_hours=0).
+        The environment has no programme-hours requirement (required_hours=0).
         """
         resources = []
         for mentor in self._mentors:
@@ -224,7 +224,7 @@ class CMDPEnvironment:
                 estimate.estimate_id if estimate else None))
         snapshot = DecisionState(self._month, max(0, self.config.horizon - self._month + 1),
             float(self._remaining_budget), tuple(students), self._mentor_resources(students, self._month),
-            "estimated_state_v1", str(self._remaining_budget),
+            "estimated_state", str(self._remaining_budget),
             tuple((month, self._mentor_resources(students, month))
                   for month in range(self._month, self.config.horizon + 1)))
         snapshot = replace(snapshot, estimated_student_states=tuple(estimates), risk_estimates=tuple(risks))

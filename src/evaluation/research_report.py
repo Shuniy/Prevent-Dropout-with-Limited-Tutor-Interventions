@@ -424,8 +424,8 @@ def generate_report(output):
     risks = _individual_records(directories, "risk_records")
     figures = _figures(output, episodes, comparisons, extraction_rows, beliefs, risks)
     cases, missing_cases = failure_analysis(output, episodes, directories, beliefs)
-    manifests = sorted(output.glob("configuration_manifest*.json"))
-    manifest = _json(manifests[-1], {}) if manifests else {}
+    manifest_path = output / "configuration_manifest.json"
+    manifest = _json(manifest_path, {})
     configuration = manifest.get("configuration", {})
     scenario = configuration.get("scenario", {})
     evaluation = configuration.get("evaluation", {})
@@ -485,7 +485,7 @@ Four conditions, WAIT/programme transition matrices, intervention alpha, enrollm
 
 ## 3. Frozen design, replication and execution
 
-Development seeds: {evaluation.get('development_seeds', 'unavailable')}. Frozen primary evaluation seeds: {evaluation.get('evaluation_seeds', 'unavailable')}. Completed episode rows: {len(episodes)}; primary rows: {len(primary_episodes)}; sparse real-LLM rows: {len(live)}. Source/configuration hashes and package versions are in [{manifests[-1].name if manifests else 'configuration_manifest.json'}]({manifests[-1].name if manifests else 'configuration_manifest.json'}). The frozen protocol is [available here](research_evaluation_protocol_frozen.md).
+Development seeds: {evaluation.get('development_seeds', 'unavailable')}. Frozen primary evaluation seeds: {evaluation.get('evaluation_seeds', 'unavailable')}. Completed episode rows: {len(episodes)}; primary rows: {len(primary_episodes)}; sparse real-LLM rows: {len(live)}. Source/configuration hashes are in [configuration_manifest.json](configuration_manifest.json). The frozen protocol is [available here](research_evaluation_protocol_frozen.md).
 
 One episode seed is one independent simulation replicate. Intervals use paired world differences with Student-t critical values and sample SD (ddof=1). Students and months are not independent replicates. Secondary contrasts are exploratory without multiplicity adjustment. These intervals quantify simulation Monte Carlo uncertainty; they do not cover source-population or causal-model uncertainty.
 
@@ -567,7 +567,7 @@ Full selected traces are in [failure_cases.jsonl](failure_cases.jsonl). Each sep
 
 No claim here establishes observed school-dropout prediction, causal programme efficacy, fairness outcome parity or robust-policy superiority outside the declared simulator. Group information-quality differences, transition dynamics and uncertainty radii are assumptions. The fixed prefix excludes source-cohort sampling uncertainty; controlled language favors exact-rule extraction. Oracle consumes present state only, not future draws. Post-action observations belong to each policy's own trajectory. Secondary and subgroup estimates have few worlds and no multiplicity correction.
 
-Execution Python: {manifest.get('python', 'unavailable')}; declared support: {manifest.get('declared_python_support', 'unavailable')}. The recorded interpreter must not be described as a verified supported runtime if outside that declared range. Real inference is distinguished from deterministic cache replay; temperature zero does not guarantee bitwise model determinism. See [development_gate.json](development_gate.json), [primary_complete.json](primary_complete.json), [live_runtime.json](live_runtime.json), frozen manifests, per-episode summaries and compressed traces for completed stages and remaining acceptance items. An unavailable table or plot is explicitly labeled and does not count as completed evidence.
+Real inference is distinguished from deterministic cache replay; temperature zero does not guarantee bitwise model determinism. See [development_gate.json](development_gate.json), [primary_complete.json](primary_complete.json), [live_runtime.json](live_runtime.json), the frozen manifest, per-episode summaries and compressed traces for completed stages and remaining acceptance items. An unavailable table or plot is explicitly labeled and does not count as completed evidence.
 """
     # Preserve the user's requested twelve-section paper structure while keeping
     # extraction, state, risk, action and outcome results separately inspectable.

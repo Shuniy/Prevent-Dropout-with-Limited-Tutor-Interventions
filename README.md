@@ -39,21 +39,21 @@ python src/main.py --extractor fixture --students 10 --months 3 \
   --output results/comparison/offline_run
 
 # Legacy multi-seed baseline comparison:
-python -m src.main --runner baselines --output results/cmdp_baselines_v1/my_run
+python -m src.main --runner baselines --output results/cmdp_baselines/my_run
 
 # Small CMDP run with explicit scenario overrides:
 python src/main.py --runner baselines --students 10 --mentors 2 --months 12 \
-  --development-seeds 1 --evaluation-seeds 1 --output results/cmdp_v1/small_run
+  --development-seeds 1 --evaluation-seeds 1 --output results/cmdp/small_run
 
 # Full effect and budget sweep:
-python -m src.main --runner baselines --suite full --output results/cmdp_baselines_v1/full_run
+python -m src.main --runner baselines --suite full --output results/cmdp_baselines/full_run
 
 # Step 4: frozen-cohort fairness targets, budget and effect sensitivity (1,000 episodes):
-python scripts/run_cmdp_fairness.py --output results/cmdp_fairness_v1
+python scripts/run_cmdp_fairness.py --output results/cmdp_fairness
 
 # Development only, to inspect results before a full comparison:
 python -m src.main --runner baselines --suite full --stage development \
-  --output results/cmdp_baselines_v1/development_run
+  --output results/cmdp_baselines/development_run
 
 # One-call private analysis of all sessions through the cutoff:
 python -m src.intervention.simple_llm \
@@ -71,7 +71,7 @@ python -m unittest discover -s tests
 
 Equivalent application entry points are `python src/main.py`, `python -m src.main`,
 and, after installation, `school-dropout`. The combined comparison defaults come from
-`configs/cmdp_llm_feedback_v1.toml` (100 students, 2 mentors, 12 months, one monthly
+`configs/cmdp_llm_feedback.toml` (100 students, 2 mentors, 12 months, one monthly
 admission and five monthly appointments per mentor). Use `--policies` to select baselines,
 `--feedback-policies` to select planners, and `--modes` to select information modes.
 `--max-notes-per-month` caps intervention programme notes per source month in note
@@ -84,7 +84,7 @@ monthly admission per mentor over twelve months allows at most 24 calls per poli
 with two mentors, or 96 across the two planners and two LLM modes. Previously every student's
 monthly note reached the LLM: up to `100 × (12 + 1) = 1,300` calls per policy/mode.
 The legacy baseline runner defaults come from
-`configs/cmdp_baselines_v1.toml`: the same Step 1 scenario with 100 students,
+`configs/cmdp_baselines.toml`: the same Step 1 scenario with 100 students,
 2 mentors, 12 months, 5 appointments per
 programme, 10 monthly admissions, budget 150 and seed 42. Explicit CLI options
 override the configuration. The default comparison uses 10 development seeds and
@@ -92,7 +92,7 @@ override the configuration. The default comparison uses 10 development seeds and
 selects policies, `--seed` sets the first development seed (evaluation starts
 10,000 later), and `--effect-strength` and `--budget` change a default-suite scenario.
 `--output` must be new; omitting it creates a timestamped destination under
-`results/cmdp_baselines_v1`. Development validation precedes held-out execution.
+`results/cmdp_baselines`. Development validation precedes held-out execution.
 The CLI prints scenario progress and exits nonzero on failure, preserving a
 `failure.json` with the failed world. Existing optimizer/fairness policies remain
 explicit opt-ins and are excluded from the Step 2 comparison.
@@ -240,7 +240,7 @@ School reports never link to this destination.
 Python callers must choose separate public/private destinations, as the CLI does.
 Both standalone extraction commands write the same private report structure:
 `history_id`, `as_of_session`, `timeline`, `conclusion`. Existing school results and
-private file layouts retain their outer fields. Findings now use `schema_version: 2`;
+private file layouts retain their outer fields. Findings use the current extraction schema;
 old findings are incompatible and historical outputs are not migrated.
 
 Each agreed action has a stable ID (`<history_id>:s<origin-session>:a<ordinal>`), verbatim
@@ -286,7 +286,7 @@ The executed notebook and `outputs/intervention_extraction_evaluation/` retain b
 reports, exact model requests (prompts, input context and schemas), call counts, elapsed
 time, prompt characters, outcome agreement and three
 transcript-based reference checks. Historical saved results use the earlier schema
-and four-check rubric; rerunning uses version 2 and includes semantic review calls. This is one synthetic case, not an accuracy
+and four-check rubric; rerunning uses the current schema and includes semantic review calls. This is one synthetic case, not an accuracy
 benchmark. Timing is a single sequential run with uncontrolled startup/cache effects.
 Each method receives the recorded intervention type, date and stage alongside spoken
 turns. Simple inputs label each conversation position and its earlier sessions explicitly.
@@ -383,10 +383,10 @@ and effects are synthetic assumptions; simulated withdrawal is not observed scho
 dropout. Note extraction is available through Python APIs and standalone analysis commands.
 
 ```sh
-.venv/bin/python -m src.main --output results/cmdp_baselines_v1/my_run
+.venv/bin/python -m src.main --output results/cmdp_baselines/my_run
 # Print month 0–12 and terminal summaries for a WAIT-only demonstration:
 .venv/bin/python -m src.main --policies wait --development-seeds 1 \
-  --evaluation-seeds 1 --print-monthly --output results/cmdp_v1/my_wait_run
+  --evaluation-seeds 1 --print-monthly --output results/cmdp/my_wait_run
 .venv/bin/python -m unittest discover -s tests -p 'test_cmdp*.py'
 .venv/bin/python -m unittest discover -s tests -p 'test_baseline*.py'
 ```
@@ -406,12 +406,12 @@ See [Step 2 baseline policies, commands and acceptance checks](docs/cmdp_baselin
 [Step 3 constrained planner and reproducible commands](docs/cmdp_planner_v1.md),
 [implementation, formulae, assumptions and full commands](docs/cmdp-implementation.md),
 [executed simulation results](docs/cmdp-results-v1.md), and
-[versioned baseline configuration](configs/cmdp_baselines_v1.toml). Use a new output directory for each run.
+[baseline configuration](configs/cmdp_baselines.toml). Use a new output directory for each run.
 
 ## Step 6 research contribution evaluation
 
 The [frozen evaluation protocol](docs/research_evaluation_protocol.md) and
-[configuration](configs/research_evaluation_v1.toml) define a staged comparison of
+[configuration](configs/research_evaluation.toml) define a staged comparison of
 FairPoint and finite-scenario FairRobust, reusing the Step5 feedback engine.
 The primary comparison uses group-dependent corrupted note-supported gold facts
 (D-matched); actual Qwen extraction is separately benchmarked and compared with
@@ -428,11 +428,11 @@ or note loss to an extractor. Outcome claims concern simulated withdrawal only.
 .venv/bin/python scripts/generate_research_report.py
 ```
 
-Use `--output results/research_evaluation_v1/new_run` on every research command for
+Use `--output results/research_evaluation/new_run` on every research command for
 an independent run; give the extraction command the corresponding
-`--output-dir results/research_evaluation_v1/new_run/extraction`. Existing completed
+`--output-dir results/research_evaluation/new_run/extraction`. Existing completed
 cells resume from saved artifacts. Input/source hash changes require an explicit
-`--amend 'reason'`, preserve previous manifest versions, and require a fresh pilot.
+`--amend 'reason'`, replace the single input manifest, and require a fresh pilot.
 Do not amend a held-out analysis to select favorable policies. The real-model
 cache records complete note/context, prompt/schema, source and model digest.
 Failed extractions remain unknown and are recorded, never replaced with fixtures.
@@ -440,7 +440,7 @@ Failed extractions remain unknown and are recorded, never replaced with fixtures
 Outputs include episode/monthly, group access and frozen memberships, belief/risk,
 solver/workload and paired confidence-interval CSVs; compressed complete episode
 traces; sensitivity/ablation tables; failure cases; standalone figures; and a
-research report under `results/research_evaluation_v1/`. Consult the generated
+research report under `results/research_evaluation/`. Consult the generated
 report for actual results and incomplete acceptance items. Standalone regression
 checks do not require Ollama:
 

@@ -1,4 +1,4 @@
-"""Versioned scenario inputs using the repository's TOML convention."""
+"""Scenario inputs using the repository's TOML convention."""
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,7 +10,6 @@ from ..utils.constants import SEED
 
 @dataclass(frozen=True)
 class ScenarioConfig:
-    version: str = "cmdp_v1"
     num_students: int = 100
     num_mentors: int = 2
     horizon: int = 12
@@ -57,10 +56,10 @@ class ScenarioConfig:
             if not math.isfinite(value) or not 0 <= value <= 1:
                 raise ValueError(f"{name} must be within [0, 1]")
         if self.appointments_per_programme != 5:
-            raise ValueError("version 1 requires five appointments per monthly programme")
+            raise ValueError("five appointments are required per monthly programme")
         if self.max_programmes_per_student != 1:
             raise ValueError(
-                "version 1 supports one programme per student; repeats require a future model"
+                "only one programme per student is supported"
             )
         if not math.isfinite(self.planner_time_limit) or self.planner_time_limit <= 0:
             raise ValueError("planner_time_limit must be positive and finite")

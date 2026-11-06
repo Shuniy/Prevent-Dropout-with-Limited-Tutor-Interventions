@@ -315,7 +315,7 @@ class WindowMILPTests(unittest.TestCase):
             self.assertFalse(result.lexicographic_complete)
 
     def test_configuration_loads_and_rejects_ambiguous_modes(self):
-        config = ScenarioConfig.load("configs/cmdp_fairness_v1.toml")
+        config = ScenarioConfig.load("configs/cmdp_fairness.toml")
         self.assertEqual(config.fairness_min_access, .3)
         self.assertEqual(config.fairness_grouping_attribute, "disadvantage_proxy")
         for kwargs in ({"fairness_grouping_attribute": "both"}, {"fairness_metric": "parity"},

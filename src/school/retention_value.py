@@ -7,9 +7,6 @@ from .student_condition import STATES, StudentCondition
 from .transition_model import validate_matrix
 
 
-BENEFIT_ESTIMATOR_VERSION = "wait_rollout_v2"
-
-
 @lru_cache(maxsize=128)
 def _value_table(matrix_key, horizon):
     matrix = np.asarray(matrix_key).reshape(4, 4)

@@ -5,8 +5,6 @@ from dataclasses import asdict, replace
 import hashlib
 import json
 from pathlib import Path
-import platform
-from importlib.metadata import version
 
 import numpy as np
 
@@ -136,9 +134,8 @@ def run_fairness_experiments(config, *, output, development_seed_count=10, evalu
     partitions = {"development": list(range(config.seed, config.seed + development_seed_count))}
     if stage == "both":
         partitions["evaluation"] = list(range(config.seed + 10000, config.seed + 10000 + evaluation_seed_count))
-    manifest = {"version": "cmdp_fairness_v1", "config": asdict(config), "grid": grid,
-                "seed_partitions": partitions, "python": platform.python_version(),
-                "dependencies": {name: version(name) for name in ("numpy", "scipy", "pandas", "matplotlib")},
+    manifest = {"config": asdict(config), "grid": grid,
+                "seed_partitions": partitions,
                 "population_sha256": hashlib.sha256(Path(DEFAULT_STUDENT_DATA_PATH).read_bytes()).hexdigest(),
                 "source_sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(Path(__file__).parent.glob("*.py"))},
                 "objective_order": ["minimize_sum_integer_shortfall_over_frozen_size", "maximize_projected_retention", "minimize_cost", "canonical_bits"],

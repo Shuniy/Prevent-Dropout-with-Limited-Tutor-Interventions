@@ -45,14 +45,13 @@ Greedy matching is not maximum-cardinality or globally optimal: if a flexible
 student consumes mentor A's only slot and a later student can use only A, it may
 assign one student when a rearrangement could assign two. A representative test
 demonstrates this limitation. Random priority is over students, not mentor edges;
-it is not a uniform draw from all feasible joint allocations. Policy version is
-`student_priority_v3`: NumPy `default_rng([seed, month])` shuffles the stable
-student order. Earlier versions used a different random-baseline algorithm.
+it is not a uniform draw from all feasible joint allocations. NumPy
+`default_rng([seed, month])` shuffles the stable student order.
 
 ## Reproduce the experiments
 
 Use a project environment with the existing requirements installed. Default
-configuration is `configs/cmdp_baselines_v1.toml`, numerically the Step 1 scenario:
+configuration is `configs/cmdp_baselines.toml`, numerically the Step 1 scenario:
 100 students, 2 mentors, 12 months, 10 admissions and 50 slots per mentor/month,
 5 appointments/programme, appointment price 1, budget 150, effect strength 1.
 No extra dependency was added.
@@ -83,7 +82,7 @@ MPLCONFIGDIR=/private/tmp/cmdp-baselines-matplotlib XDG_CACHE_HOME=/private/tmp/
 builds the source cohort and mentors once, then each policy environment copies
 those identical inputs. SHA-256 keyed environmental draws use episode seed,
 student ID, month and event type. Policy randomness uses an independent local
-generator seeded by policy version, episode seed and decision month. Policy
+generator seeded by episode seed and decision month. Policy
 instances do not retain mutable RNG state across episodes.
 
 The full suite fixes effect sensitivity at budget 150 with alpha
@@ -138,7 +137,7 @@ under synthetic transitions, not real-world causal-effect uncertainty.
 Production additions: `greedy_matching.py`, `baseline_validation.py`, and
 `baseline_exports.py` under `src/school`. Updated: baseline policy/factory,
 environment month records, metrics, experiment runner/reports and CLI. Added
-`configs/cmdp_baselines_v1.toml`, `tests/test_baseline_policies.py`, and
+`configs/cmdp_baselines.toml`, `tests/test_baseline_policies.py`, and
 `tests/test_baseline_evaluation.py`. README, architecture, contracts, roadmap and
 CMDP implementation documentation describe the current workflow.
 
@@ -147,7 +146,7 @@ Each new output directory contains:
 - `episode_results.csv`, `monthly_results.csv`, `policy_comparison.csv`,
   `budget_sensitivity.csv`, `effect_sensitivity.csv`, and `access_audit.csv`.
 - `manifest.json` / `experiment_config.json` with configuration, exact seeds,
-  policy versions, matrices, dependencies, source population/code hashes and conventions.
+  matrices, solver settings, source population/code hashes and conventions.
 - `episodes.jsonl` with full metrics; `sample_trajectories.jsonl` with first-seed
   trajectories per partition/policy/scenario; `summary.json` and `report.md`.
 - `development_summary.json`, `development_validation.json`, and `COMPLETED.json`.
@@ -156,7 +155,7 @@ Each new output directory contains:
   `programme_utilization`, `budget_sensitivity`, and `effect_sensitivity`.
   Existing `monthly_conditions.png` and `paired_retention.png` are also retained.
 
-Episode/monthly CSV rows carry policy/version, world seed, scenario/version,
+Episode/monthly CSV rows carry policy, world seed, scenario,
 configuration/scenario hashes, budget, effect, cohort size and horizon. Episode
 rows include resource validation diagnostics. Nested monthly mentor utilization
 and waiting distributions are JSON cells. Access denominators are explicit in the

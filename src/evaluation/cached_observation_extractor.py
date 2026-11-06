@@ -11,7 +11,7 @@ from urllib.request import urlopen
 
 from src.intervention import observation_extractor, ollama_client
 from src.intervention.observation_extractor import (
-    EXTRACTION_SCHEMA, LLMObservationExtractor, PROMPT_VERSION, SCHEMA_VERSION,
+    EXTRACTION_SCHEMA, LLMObservationExtractor,
     SYSTEM_PROMPT, source_spans, validate_extraction,
 )
 from src.intervention.ollama_client import OllamaClient
@@ -40,8 +40,7 @@ class CachedObservationExtractor:
         self.configuration = {
             "model": model, "model_metadata": selected, "base_url": self.client.base_url,
             "timeout_seconds": timeout, "options": {"temperature": 0, "num_ctx": num_ctx},
-            "think": False, "stream": False, "prompt_version": PROMPT_VERSION,
-            "schema_version": SCHEMA_VERSION, "system_prompt": SYSTEM_PROMPT,
+            "think": False, "stream": False, "system_prompt": SYSTEM_PROMPT,
             "schema": EXTRACTION_SCHEMA,
             "extractor_code_sha256": sha256(Path(observation_extractor.__file__).read_bytes()).hexdigest(),
             "client_code_sha256": sha256(Path(ollama_client.__file__).read_bytes()).hexdigest(),
@@ -50,7 +49,6 @@ class CachedObservationExtractor:
         }
         self.cache_path = Path(cache_path)
         self.cache_path.mkdir(parents=True, exist_ok=True)
-        self.version = f"ollama_observation_v1:{model}"
         self.calls = 0
         self.audit_records = []
         self.quarantine = []
@@ -99,4 +97,4 @@ class CachedObservationExtractor:
             self.quarantine.append(audit)
             raise ValueError(record.get("error") or "cached model failure")
         # Cache hits still pass the current provenance, entailment and timing guards.
-        return validate_extraction(record["raw_output"], note, as_of_time, self.version)
+        return validate_extraction(record["raw_output"], note, as_of_time)

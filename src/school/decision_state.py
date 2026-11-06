@@ -22,7 +22,7 @@ class DecisionState:
 
     def validate_estimates(self):
         """Only actual decisions require current risks; forecasts retain the cutoff."""
-        if self.observation_mode != "estimated_state_v1":
+        if self.observation_mode != "estimated_state":
             return
         estimates = {s.student_id: s for s in self.estimated_student_states}
         risks = {r.student_id: r for r in self.risk_estimates}
@@ -35,7 +35,7 @@ class DecisionState:
             estimate, risk = estimates[student.student_id], risks[student.student_id]
             if (estimate.as_of_month != self.month or risk.as_of_month != self.month
                     or risk.months_remaining != self.months_remaining
-                    or risk.input_belief_version != estimate.estimate_id
-                    or student.estimate_version != estimate.estimate_id
+                    or risk.input_estimate_id != estimate.estimate_id
+                    or student.estimate_id != estimate.estimate_id
                     or student.condition_probabilities != estimate.condition_probabilities):
                 raise ValueError("stale or mismatched estimate/risk decision cutoff")

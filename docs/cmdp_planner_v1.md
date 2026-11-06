@@ -38,7 +38,7 @@ probability are distinct from estimated intervention benefit.
 One binary variable `x[i,m]` represents each eligible, compatible student–mentor
 pair with positive benefit. Nonpositive-benefit programmes are excluded even if
 free. A programme delivers all five appointments in its admission month, following
-the existing version-1 scenario contract.
+the existing scenario contract.
 
 ```text
 maximize sum Delta_i * x[i,m]
@@ -129,7 +129,7 @@ five-baseline default. Existing result directories are never overwritten.
 ```sh
 .venv/bin/python -m unittest discover -s tests
 
-.venv/bin/python -m src.main --config configs/cmdp_planner_v1.toml \
+.venv/bin/python -m src.main --config configs/cmdp_planner.toml \
   --policies wait random severity need_priority longest_waiting terminal_value \
   --suite full --output results/cmdp_planner_v1/my_run
 ```
@@ -148,11 +148,11 @@ figures. Step 3 adds:
 - `solver_diagnostics.csv`: every planner month, including empty allocations,
   counts of candidates/variables/eligible students/available mentors, remaining
   budget, horizon, objective, spending, runtime, gaps, statuses, validation failures,
-  solver settings and version identifiers.
+  solver settings.
 - `tiny_exact_comparison.csv` and `.json`: all five exact comparisons.
 - `figures/terminal_retention.png`, `benefit_by_horizon.png`, `solver_runtime.png`.
-- `experiment_config.json`, `manifest.json` and `requirements-lock.txt`: seeds,
-  matrices, versions, source hashes, interpreter and exact numerical dependencies.
+- `experiment_config.json` and `manifest.json`: seeds,
+  matrices, solver settings and source hashes.
 
 Episode metrics also record maximum monthly runtime, total estimated benefit,
 appointments, unused budget, waiting, mentor utilization and withdrawals. Monthly

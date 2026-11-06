@@ -42,7 +42,7 @@ class FixedMonitoringRecords:
     """A deterministic information-flow fixture; no population-level claim."""
     def __init__(self, changed):
         self.changed = changed
-        self.config = ObservationConfig(version="fixed_feedback_records_diagnostic_v1")
+        self.config = ObservationConfig()
 
     def generate(self, conditions, *, month, seed, assignments=()):
         ids = sorted(sid for sid, _ in conditions)

@@ -16,8 +16,6 @@ INFORMATION_MODES = ("oracle", "structured", "b_matched", "llm_notes", "noisy_no
 
 
 class ClosedLoopCMDPController:
-    VERSION = "closed_loop_cmdp_v2_programme_notes"
-
     def __init__(self, environment, policy, *, mode="structured", extractor=None,
                  observation_config=ObservationConfig(), note_quality=NoteQuality(),
                  max_notes_per_month=None, estimator=None, note_quality_by_student=None):

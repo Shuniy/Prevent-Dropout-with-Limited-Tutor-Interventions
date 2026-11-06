@@ -33,7 +33,7 @@ def summary_table(summaries):
 
 
 def save_tables(output, episodes, summaries):
-    identities = ("scenario", "partition", "seed", "policy", "policy_version", "scenario_version",
+    identities = ("scenario", "partition", "seed", "policy",
                   "config_hash", "scenario_hash", "budget", "effect_strength", "student_count", "horizon")
     write_csv(output / "episode_results.csv", (
         {key: value for key, value in episode.items() if not isinstance(value, (list, dict))}
@@ -55,7 +55,7 @@ def save_tables(output, episodes, summaries):
 
 def baseline_report(summaries, manifest):
     lines = [
-        "# Baseline allocation experiments v1", "",
+        "# Baseline allocation experiments", "",
         "Synthetic, fully observed benchmark. Retention is measured after the final monthly transition; "
         "the denominator is the initially enrolled cohort. These are not measured mentoring effects.", "",
         f"Development seeds: {manifest['development_seeds']}. Held-out seeds: {manifest['evaluation_seeds']}.",
@@ -105,7 +105,7 @@ def baseline_report(summaries, manifest):
               "## Artifacts", "",
               "CSV files contain episode, monthly, policy, budget, effect and access results. JSONL retains "
               "complete episode metrics and representative student trajectories. The manifest records seeds, "
-              "versions, matrices and source hashes; existing run directories are never overwritten.", ""]
+              "matrices and source hashes; existing run directories are never overwritten.", ""]
     for name in ("retention_comparison", "retention_trajectories", "cumulative_withdrawals",
                  "cumulative_spending", "monthly_programmes", "programme_utilization",
                  "budget_sensitivity", "effect_sensitivity"):

@@ -139,7 +139,7 @@ class ClosedLoopFeedbackTests(unittest.TestCase):
                             and note.event_month == 1 for note in updated.notes))
         prior = next(r for r in updated.risks if r.student_id == third and r.as_of_month == 1)
         next_risk = next(r for r in updated.risks if r.student_id == third and r.as_of_month == 2)
-        self.assertNotEqual(prior.input_belief_version, next_risk.input_belief_version)
+        self.assertNotEqual(prior.input_estimate_id, next_risk.input_estimate_id)
         self.assertNotEqual(prior.probability, next_risk.probability)
 
     def test_episode_preserves_source_records_constraints_and_one_programme(self):
@@ -157,7 +157,7 @@ class ClosedLoopFeedbackTests(unittest.TestCase):
             validate_allocation(state, record.allocation.assignments)
             self.assertGreaterEqual(record.remaining_budget, 0)
             state.validate_estimates()
-            self.assertEqual(state.observation_mode, "estimated_state_v1")
+            self.assertEqual(state.observation_mode, "estimated_state")
             self.assertFalse(hasattr(state, "_conditions"))
         self.assertTrue(any(n.programme_id is not None for n in controller.notes))
 
@@ -206,7 +206,7 @@ class ClosedLoopFeedbackTests(unittest.TestCase):
         controller, _ = setup()
         controller.initialize()
         state = controller.prepare_decision_snapshot(1)
-        stale = replace(state.risk_estimates[0], input_belief_version="stale")
+        stale = replace(state.risk_estimates[0], input_estimate_id="stale")
         bad = replace(state, risk_estimates=(stale, *state.risk_estimates[1:]))
         for planner in (ConstrainedAllocationPlanner(), FairnessPlanner()):
             with self.assertRaisesRegex(ValueError, "stale"):

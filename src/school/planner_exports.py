@@ -67,7 +67,7 @@ def tiny_comparisons():
 def save_planner_artifacts(output, episodes, summaries, manifest):
     benefits = benefit_rows()
     write_csv(output / "benefit_by_condition.csv", benefits)
-    identities = ("scenario", "partition", "seed", "policy", "config_hash", "scenario_version")
+    identities = ("scenario", "partition", "seed", "policy", "config_hash")
     diagnostics = [
         {**{key: episode[key] for key in identities}, **record}
         for episode in episodes if episode["policy"] == "terminal_value"

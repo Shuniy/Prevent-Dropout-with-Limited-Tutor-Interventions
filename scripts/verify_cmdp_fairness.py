@@ -77,7 +77,7 @@ def verify(output):
     assert hashlib.sha256(Path(DEFAULT_STUDENT_DATA_PATH).read_bytes()).hexdigest() == manifest["population_sha256"]
     report = {"status": "passed", "episodes": len(episodes), "group_window_cells": len(cells),
               "monthly_decisions": len(diagnostics), "solver_statuses": dict(statuses),
-              "incomplete_hierarchies": sum(row["lexicographic_complete"] == "False" for row in diagnostics if row["planner_version"]),
+              "incomplete_hierarchies": sum(row["lexicographic_complete"] == "False" for row in diagnostics if row["solver_settings"] != "[]"),
               "checks": ["manifest grid", "budget ledger", "programme totals", "frozen denominators",
                          "unique actual admissions", "integer thresholds and realized shortfalls",
                          "q=0 exact decisions", "alpha=0 exact trajectories", "no allocation validation failures",
@@ -88,7 +88,7 @@ def verify(output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("output", nargs="?", type=Path, default=Path("results/cmdp_fairness_v1"))
+    parser.add_argument("output", nargs="?", type=Path, default=Path("results/cmdp_fairness"))
     parser.add_argument("--reference", type=Path, help="Optional previous grid for exact nontiming comparison")
     args = parser.parse_args()
     print(json.dumps(verify(args.output), indent=2))

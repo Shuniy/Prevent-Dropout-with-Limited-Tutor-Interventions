@@ -37,7 +37,7 @@ No retrieval architecture or training is added.
 | Experiment exports and figures | [feedback_experiments](../src/school/feedback_experiments.py) |
 | Independent ledger checks and paired feedback demonstration | [feedback_validation](../src/school/feedback_validation.py), [verification command](../scripts/verify_cmdp_feedback.py) |
 | Saved-extraction replay | [feedback_replay](../src/school/feedback_replay.py), [replay command](../scripts/replay_cmdp_feedback.py) |
-| Research assumptions | [configuration](../configs/cmdp_llm_feedback_v1.toml) |
+| Research assumptions | [configuration](../configs/cmdp_llm_feedback.toml) |
 | Tests | [extraction](../tests/test_feedback_extraction.py), [estimation](../tests/test_feedback_estimation.py), [closed loop](../tests/test_feedback_closed_loop.py) |
 
 Existing files extended: [School](../src/school/school.py),
@@ -90,7 +90,7 @@ has no invented compatible mentor and remains visible in the existing
 no-compatible-student accounting.
 
 Every note retains its student, optional mentor/programme, type, source event IDs,
-event month, ISO creation time, availability cutoff and generator version.
+event month, ISO creation time and availability cutoff.
 The synthetic calendar begins on 2026-01-01 UTC and uses 30-day periods.
 Creation must follow its event and precede availability. An event at month `t`
 is available no earlier than decision cutoff `t+1`; configured delays add periods.
@@ -98,8 +98,8 @@ Post-final-transition records can inform terminal estimates, never a thirteenth 
 
 ## Extraction contract
 
-An `ExtractedObservationBatch` identifies the student, note, cutoff, extractor,
-prompt and schema versions. Each fact separately carries:
+An `ExtractedObservationBatch` identifies the student, note and cutoff. Each fact
+separately carries:
 
 - `field`, `assertion_status`, `trend`, `condition_status` and qualitative `value`;
 - `barrier_status` and `workflow_status`;
@@ -111,7 +111,7 @@ contradictions, improvement/worsening, unchanged status, partial resolution,
 unresolved barriers and pending/completed support. A pending application remains
 an unresolved barrier. A low participation level alone does not establish worsening.
 
-V1 deliberately supports a finite, versioned synthetic sentence grammar. Semantic
+Extraction deliberately supports a finite synthetic sentence grammar. Semantic
 validation requires a complete supported source sentence and its exact field
 mapping. This rejects hallucinated claims even when a citation mentions the same
 topic. Unsupported prose is omitted or quarantined; there is no automatic repair.
@@ -174,7 +174,7 @@ For `h` transitions remaining and `e = [1,1,1,0]`, risk is:
 `risk = 1 - b @ P_WAIT**h @ e`
 
 Its target is synthetic terminal non-enrollment under no additional programmes,
-with a horizon, cutoff, model version, input estimate ID and missingness flags.
+with a horizon, cutoff, input estimate ID and missingness flags.
 Absorbing withdrawal makes endpoint non-enrollment compatible with withdrawal by
 the endpoint. Re-entry would require revising the target. This is not a real-world
 dropout predictor or a relabeled source-course-failure classifier.
@@ -185,7 +185,7 @@ The shared Step 3 benefit function now also accepts:
 
 Oracle mode retains the original point-state benefit. Risk never replaces benefit.
 Both planners validate that all estimates and risks belong to the same decision
-cutoff and estimate version. The existing candidates, MILP variables, exact-money
+cutoff and estimate ID. The existing candidates, MILP variables, exact-money
 budget checks, mentor compatibility, capacity and independent validation remain.
 Future fairness-window benefits propagate the current belief under WAIT.
 
@@ -233,8 +233,8 @@ malicious policy code.
 
 Root outputs include episode/comparison CSVs and three actual-execution figures:
 belief evolution, synthetic risk evolution and admissions over time. Configuration,
-seed, transition matrices, observation assumptions, extractor/prompt/schema/state/risk
-versions, solver settings and available model digest are saved. Output directories
+seed, transition matrices, observation assumptions, policy type,
+solver settings and available model digest are saved. Output directories
 must be new. The independent trace checker recomputes feasibility, unique admissions
 and resource balances from the episode records.
 
@@ -259,8 +259,7 @@ routine monitoring is retained without LLM calls. Delays can bring notes from
 multiple source months to the same decision cutoff. With the default one monthly
 admission per mentor, two mentors and twelve months, each policy/LLM mode makes at most 24 calls, compared
 with the former population-wide ceiling of 1,300. Missing notes, delayed terminal
-notes, limits and cache hits can reduce this count. The controller version is now
-`closed_loop_cmdp_v2_programme_notes`; historical result reports retain their
+notes, limits and cache hits can reduce this count. Historical result reports retain their
 original population-wide extraction and note-selection semantics.
 
 Replay uses the saved configuration, seed and accepted extraction payloads with

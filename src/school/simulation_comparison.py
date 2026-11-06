@@ -34,7 +34,7 @@ def run_comparison(args):
     if any(getattr(args, key) is not None for key in
            ("suite", "stage", "development_seeds", "evaluation_seeds")) or args.print_monthly:
         raise ValueError("sweep, stage, seed-count and monthly options require --runner baselines")
-    path = args.config or Path(__file__).resolve().parents[2] / "configs/cmdp_llm_feedback_v1.toml"
+    path = args.config or Path(__file__).resolve().parents[2] / "configs/cmdp_llm_feedback.toml"
     with path.open("rb") as stream:
         values = tomllib.load(stream)
     config = (ScenarioConfig(**values["scenario"]) if "scenario" in values
@@ -100,7 +100,7 @@ def run_comparison(args):
                    sum(len(row["admitted_ids"]) for row in controller.decisions),
                    config.budget - controller.environment.records[-1].remaining_budget,
                    len(controller.failures), getattr(extractor, "calls", 0),
-                   extractor.version if mode in ("llm_notes", "noisy_notes") else "structured_gold_v1")
+                   type(extractor).__name__ if mode in ("llm_notes", "noisy_notes") else "structured_gold")
             artifacts.append((f"{name}_{mode}", controller))
 
     lines = ["# Simulation comparison", "", CAVEAT, "",

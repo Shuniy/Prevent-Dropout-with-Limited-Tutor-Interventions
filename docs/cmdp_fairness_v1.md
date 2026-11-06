@@ -9,7 +9,7 @@ target is an illustrative research assumption, not a validated fairness standard
 ## Definition, eligibility and provenance
 
 The active audit dimension is selected explicitly in
-[the versioned configuration](../configs/cmdp_fairness_v1.toml):
+[the configuration](../configs/cmdp_fairness.toml):
 
 - `disadvantage_proxy`: the existing analyst-defined Boolean
   `disadvantage_proxy_count >= 2`, using low parental education, no home internet
@@ -30,7 +30,7 @@ and frozen conditions. No source/provenance data is rewritten.
 
 Analyze one dimension at a time. The default experiment uses the disadvantage
 proxy. Switching to source sex requires a separate named run and frozen config;
-intersectional policy optimization is outside this version. The audit utility can
+intersectional policy optimization is outside the model. The audit utility can
 count overlapping supplied cohorts without duplicating actual admissions or costs,
 but the configured optimizer uses a single partitioning axis.
 
@@ -106,7 +106,7 @@ month plus global uniqueness and total budget. The environment independently
 validates the current slice again before charging it. Monthly capacities reset;
 only actual expenditure reduces the episode budget. Programmes have no configured
 hour duration in v1, so the established `required_hours=0` rule remains applicable;
-this version adds no invented hour or student effect model.
+the model adds no invented hour or student effect model.
 
 Both the window-wide budget row and its independent validator recompute exact
 five-appointment costs from mentor prices. Rounded display floats in assignment
@@ -215,7 +215,7 @@ python scripts/run_cmdp_fairness.py --stage development --development-seeds 1 \
   --output results/cmdp_fairness_v1_smoke
 
 # Selected policies through the existing application entry point.
-python -m src.main --config configs/cmdp_fairness_v1.toml \
+python -m src.main --config configs/cmdp_fairness.toml \
   --policies terminal_value fairness --output results/cmdp_fairness_v1_custom
 
 python -m unittest discover -s tests -v

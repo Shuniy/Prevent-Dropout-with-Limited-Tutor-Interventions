@@ -9,7 +9,6 @@ from .student_condition import STATES
 
 
 BASELINES = ("wait", "random", "severity", "need_priority", "longest_waiting")
-BASELINE_VERSION = "student_priority_v3"
 
 
 class BaselinePolicy:

@@ -65,9 +65,9 @@ class ObservationAndExtractionTests(unittest.TestCase):
             payload = gold_payload(item)
             mutate(payload)
             with self.subTest(payload=payload), self.assertRaises(ValueError):
-                validate_extraction(payload, item, 1, "fixture")
+                validate_extraction(payload, item, 1)
         with self.assertRaises(ValueError):
-            validate_extraction("malformed", item, 1, "fixture")
+            validate_extraction("malformed", item, 1)
         with self.assertRaises(ValueError):
             FixtureObservationExtractor().extract(item, 0)
         with self.assertRaisesRegex(ValueError, "creation"):
@@ -94,7 +94,7 @@ class ObservationAndExtractionTests(unittest.TestCase):
         fact["start_offset"] += len("Do not claim that ")
         fact["end_offset"] += len("Do not claim that ")
         with self.assertRaisesRegex(ValueError, "evidence span"):
-            validate_extraction(forged, changed, 1, "fixture")
+            validate_extraction(forged, changed, 1)
 
     def test_llm_failures_quarantined_without_replacement_facts_and_cache_context(self):
         item = note()

@@ -1,4 +1,4 @@
-"""Immutable controller beliefs and their versioned evidence provenance."""
+"""Immutable controller beliefs and their evidence provenance."""
 
 from dataclasses import dataclass
 import math
@@ -20,7 +20,6 @@ class EstimatedStudentState:
     as_of_month: int
     condition_probabilities: tuple[float, ...]
     estimate_id: str
-    estimator_version: str
     evidence_ids: tuple[str, ...] = ()
     unresolved_observations: tuple = ()
     observed_support_history: tuple = ()
@@ -35,8 +34,8 @@ class EstimatedStudentState:
         validate_belief(self.condition_probabilities)
         if type(self.as_of_month) is not int or self.as_of_month < 1:
             raise ValueError("belief as-of month must be positive")
-        if not self.estimate_id or not self.estimator_version:
-            raise ValueError("belief requires versioned provenance")
+        if not self.estimate_id:
+            raise ValueError("belief requires an estimate identity")
 
     @property
     def estimated_condition(self) -> StudentCondition:

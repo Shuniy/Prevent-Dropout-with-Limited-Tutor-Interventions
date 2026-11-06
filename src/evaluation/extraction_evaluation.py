@@ -14,13 +14,11 @@ from jsonschema import Draft202012Validator
 
 from src.evaluation.cached_observation_extractor import CachedObservationExtractor, content_digest
 from src.intervention.observation_extractor import (
-    CONCEPTS, EXTRACTION_SCHEMA, SCHEMA_VERSION, FixtureObservationExtractor, gold_payload,
+    CONCEPTS, EXTRACTION_SCHEMA, FixtureObservationExtractor, gold_payload,
     source_spans,
 )
 from src.observations.observable_events import Note, synthetic_creation_time
 
-
-BENCHMARK_VERSION = "heldout_note_compositions_v1"
 
 # Independently declared benchmark gold. Never call gold_payload to annotate cases.
 GOLD_SENTENCES = (
@@ -51,7 +49,7 @@ GOLD_SENTENCES = (
 
 def benchmark_protocol():
     return {
-        "benchmark_version": BENCHMARK_VERSION, "freeze_rule": "Protocol and full gold manifest written before first model request; mismatch refuses reuse",
+        "freeze_rule": "Protocol and full gold manifest written before first model request; mismatch refuses reuse",
         "size": {"eligible_notes": 24, "ineligible_temporal_notes": 4},
         "gold_origin": "Independently declared synthetic semantic table plus composition offsets; no human annotation or real student notes",
         "development_lineage": ["src/intervention/feedback_notes.py PHRASES", "tests/test_feedback_extraction.py", "Step 5 saved six-call smoke inference (not reused as evaluation outputs)"],
@@ -69,7 +67,7 @@ def benchmark_protocol():
             "denominators": "All metrics include numerator/denominator or TP/FP/FN. Zero-denominator P/R/F1 shown as null. No uncertainty intervals: small designed synthetic cases are not independent population samples",
         },
         "runtime": {"model": "qwen3.5:latest", "temperature": 0, "num_ctx": 8192, "think": False, "stream": False, "timeout_seconds": 300},
-        "numeric_scope": "No quantitative observation support in Step5 v1; unsupported numeric prose must not generate facts",
+        "numeric_scope": "No quantitative observation support; unsupported numeric prose must not generate facts",
     }
 
 
@@ -83,7 +81,7 @@ def _gold(note, indices, starts):
         facts.append({**dict(zip(CONCEPTS, concepts)), "numeric_value": None, "unit": None,
                       "evidence": phrase, "start_offset": start, "end_offset": start + len(phrase),
                       "source_month": note.event_month})
-    return {"schema_version": SCHEMA_VERSION, "student_id": note.student_id,
+    return {"student_id": note.student_id,
             "note_id": note.note_id, "observations": facts}
 
 
@@ -103,7 +101,7 @@ def build_benchmark():
         note_text = prefix + separator.join(pieces) + suffix if text is None else text
         note = Note(f"eval-note-{number:03}", f"eval-student-{number:03}", None, None,
                     "monitoring", month, synthetic_creation_time(month), month + delay,
-                    note_text, (f"eval-source-event-{number:03}",), BENCHMARK_VERSION)
+                    note_text, (f"eval-source-event-{number:03}",))
         cutoff = month + cutoff_delta
         eligible = note.event_month < cutoff and note.available_from_month <= cutoff
         note_record = asdict(note)
@@ -139,7 +137,7 @@ def freeze_benchmark(output_dir):
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     protocol, cases = benchmark_protocol(), build_benchmark()
-    manifest = {"benchmark_version": BENCHMARK_VERSION, "cases": cases,
+    manifest = {"cases": cases,
                 "gold_manifest_sha256": content_digest(cases), "protocol_sha256": content_digest(protocol)}
     for filename, payload in (("protocol.json", protocol), ("gold_manifest.json", manifest)):
         path = output_dir / filename
@@ -162,7 +160,7 @@ def _note(case):
 
 
 def _batch_payload(batch):
-    return {"schema_version": SCHEMA_VERSION, "student_id": batch.student_id,
+    return {"student_id": batch.student_id,
             "note_id": batch.note_id, "observations": [
                 {key: value for key, value in asdict(fact).items() if key not in ("event_id", "evidence_id")}
                 for fact in batch.facts]}

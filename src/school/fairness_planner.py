@@ -4,7 +4,6 @@ from dataclasses import replace
 import time
 
 import numpy as np
-import scipy
 
 from .allocation_result import AllocationResult
 from .constrained_planner import ConstrainedAllocationPlanner
@@ -12,7 +11,7 @@ from .constraints import validate_allocation
 from .fairness_audit import ATTRIBUTES, coverage_shortfall, required_access
 from .fairness_window import FairnessWindow
 from .optimization import solve_milp
-from .retention_value import BENEFIT_ESTIMATOR_VERSION, estimate_all_student_benefits
+from .retention_value import estimate_all_student_benefits
 from .window_optimization import validate_schedule, window_model
 
 
@@ -43,7 +42,6 @@ class FairnessPlanner(ConstrainedAllocationPlanner):
     realized admissions alone enter the persistent ledger.
     """
 
-    VERSION = "fairness_window_milp_v1"
     FAIRNESS_TOLERANCE = 1e-8
 
     def __init__(self, *, minimum_access=0.3, window_months=4,
@@ -108,8 +106,6 @@ class FairnessPlanner(ConstrainedAllocationPlanner):
                            eligible_student_count=sum(s.eligible for s in state.students),
                            current_month=state.month, remaining_budget=state.remaining_budget,
                            months_remaining=state.months_remaining,
-                           benefit_estimator_version=BENEFIT_ESTIMATOR_VERSION,
-                           planner_version=self.VERSION, solver_version=scipy.__version__,
                            solver_settings=self.settings)
 
         # Exact Step 3 objective and tie-breaking at q=0; no future pressure.

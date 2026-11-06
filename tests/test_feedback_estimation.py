@@ -101,7 +101,7 @@ class BeliefAndRiskTests(unittest.TestCase):
             for horizon in (0, 1, 12):
                 risk = risk_model.predict(estimate, horizon)
                 self.assertAlmostEqual(risk.probability, 1 - expected_terminal_retention(condition, horizon, P_WAIT))
-                self.assertEqual(risk.input_belief_version, estimate.estimate_id)
+                self.assertEqual(risk.input_estimate_id, estimate.estimate_id)
                 self.assertEqual(risk.target, "synthetic_terminal_non_enrollment")
             self.assertAlmostEqual(estimate_belief_benefit(belief, 3, P_WAIT, P_PROGRAMME),
                                    estimate_incremental_benefit(condition, 3, P_WAIT, P_PROGRAMME))

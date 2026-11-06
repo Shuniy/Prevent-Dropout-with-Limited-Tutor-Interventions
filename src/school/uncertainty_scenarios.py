@@ -15,7 +15,6 @@ from .retention_value import estimate_incremental_benefit
 from .student_condition import STATES
 
 
-SCENARIO_VERSION = "documentation_subset_belief_mixture_v1"
 SCENARIO_SOURCE = "declared_synthetic_assumption_not_empirically_calibrated"
 
 
@@ -92,8 +91,8 @@ def build_belief_scenarios(state, config, wait_matrix, programme_matrix):
         uncertainty.append((student.student_id, (("mixture_radius", radius),
             ("missing_current_signal", missing), ("signal_age_months", age),
             ("last_observation_month", last), ("documentation_subset", subset),
-            ("estimate_id", student.estimate_version), ("source", "decision_state_estimate"))))
-    parameters = (("version", SCENARIO_VERSION), ("radius", config.radius),
+            ("estimate_id", student.estimate_id), ("source", "decision_state_estimate"))))
+    parameters = (("radius", config.radius),
         ("missingness_multiplier", config.missingness_multiplier),
         ("freshness_months", config.freshness_months),
         ("student_uncertainty", tuple(uncertainty)),

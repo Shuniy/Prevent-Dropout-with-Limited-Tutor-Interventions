@@ -39,7 +39,7 @@ New implementation files:
   time-indexed model and independent schedule validation.
 - [fairness_experiments.py](../src/school/fairness_experiments.py): frozen paired
   grid, episode statistics, export and figures.
-- [cmdp_fairness_v1.toml](../configs/cmdp_fairness_v1.toml): explicit assumptions.
+- [cmdp_fairness.toml](../configs/cmdp_fairness.toml): explicit assumptions.
 - [run_cmdp_fairness.py](../scripts/run_cmdp_fairness.py) and
   [verify_cmdp_fairness.py](../scripts/verify_cmdp_fairness.py): execution and
   independent saved-result reconciliation.
@@ -248,7 +248,7 @@ All requested files are in [the versioned results directory](../results/cmdp_fai
 The existing application CLI also completed its two-policy smoke comparison:
 
 ```bash
-.venv/bin/python -m src.main --config configs/cmdp_fairness_v1.toml \
+.venv/bin/python -m src.main --config configs/cmdp_fairness.toml \
   --students 6 --months 4 --development-seeds 1 --stage development \
   --policies terminal_value fairness --output results/cmdp_fairness_v1_cli
 ```

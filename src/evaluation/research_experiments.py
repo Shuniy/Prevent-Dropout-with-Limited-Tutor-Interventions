@@ -5,10 +5,8 @@ from dataclasses import asdict, replace
 from datetime import datetime, timezone
 import gzip
 from hashlib import sha256
-import importlib.metadata
 import json
 from pathlib import Path
-import platform
 import time
 import tomllib
 
@@ -30,7 +28,7 @@ from ..utils.constants import DEFAULT_STUDENT_DATA_PATH, PROJECT_ROOT
 from .paired_statistics import paired_comparison
 from .scorecards import episode_summary, score_episode
 
-CONFIG = PROJECT_ROOT / "configs/research_evaluation_v1.toml"
+CONFIG = PROJECT_ROOT / "configs/research_evaluation.toml"
 PROTOCOL = PROJECT_ROOT / "docs/research_evaluation_protocol.md"
 TABLES = ("belief_metrics", "risk_metrics", "group_access", "fairness_shortfalls",
           "retention_by_group", "monthly_results", "solver_diagnostics", "mentor_workload")
@@ -77,23 +75,19 @@ def fingerprint():
 def freeze(output, amendment=None):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
-    versions = sorted(output.glob("configuration_manifest*.json"))
+    path = output / "configuration_manifest.json"
     current = fingerprint()
-    if versions:
-        previous = json.loads(versions[-1].read_text())
+    if path.exists():
+        previous = json.loads(path.read_text())
         if previous["file_hashes"] == current:
             return previous
         if not amendment:
             raise ValueError("frozen inputs changed: supply --amend with an explicit protocol amendment")
     config = load_config()
-    versions_count = len(versions) + 1
-    manifest = {"version": versions_count, "frozen_at_utc": datetime.now(timezone.utc).isoformat(),
+    input_digest = sha256(json.dumps(current, sort_keys=True).encode()).hexdigest()
+    manifest = {"input_digest": input_digest, "frozen_at_utc": datetime.now(timezone.utc).isoformat(),
         "configuration": config, "file_hashes": current, "amendment": amendment,
-        "previous_manifest": versions[-1].name if versions else None,
         "heldout_already_executed": any((output / "episodes").glob("evaluation*")),
-        "python": platform.python_version(), "declared_python_support": ">=3.12,<3.14",
-        "packages": {name: importlib.metadata.version(name) for name in
-                     ("numpy", "scipy", "matplotlib", "pandas", "jsonschema")},
         "solver": {"backend": "scipy.optimize.milp/HiGHS", "mip_rel_gap": 0,
             "objective_tolerance": FairnessPlanner.OBJECTIVE_TOLERANCE,
             "fairness_tolerance": FairnessPlanner.FAIRNESS_TOLERANCE,
@@ -103,21 +97,19 @@ def freeze(output, amendment=None):
             "observation": "SHA256(seed,student,month,observation:mechanism)",
             "note": "SHA256(seed,student,month,note:mechanism)",
             "policy": "deterministic canonical tie-breaking; no random policy draws"}}
-    name = "configuration_manifest.json" if not versions else f"configuration_manifest_v{versions_count:03d}.json"
-    write_json(output / name, manifest)
-    if not versions:
-        write_json(output / "protocol.json", {"version": config["version"],
-            "protocol_text": PROTOCOL.read_text(), "configuration": config,
-            "protocol_sha256": current[str(PROTOCOL.relative_to(PROJECT_ROOT))]})
-        (output / "research_evaluation_protocol_frozen.md").write_bytes(PROTOCOL.read_bytes())
+    write_json(path, manifest)
+    write_json(output / "protocol.json", {
+        "protocol_text": PROTOCOL.read_text(), "configuration": config,
+        "protocol_sha256": current[str(PROTOCOL.relative_to(PROJECT_ROOT))]})
+    (output / "research_evaluation_protocol_frozen.md").write_bytes(PROTOCOL.read_bytes())
     return manifest
 
 
 def checked_manifest(output):
-    versions = sorted(Path(output).glob("configuration_manifest*.json"))
-    if not versions:
+    path = Path(output) / "configuration_manifest.json"
+    if not path.exists():
         raise ValueError("freeze the protocol/configuration before running experiments")
-    manifest = json.loads(versions[-1].read_text())
+    manifest = json.loads(path.read_text())
     if manifest["file_hashes"] != fingerprint():
         raise ValueError("frozen source/configuration changed; record an explicit --amend before execution")
     return manifest
@@ -204,13 +196,13 @@ def run_one(output, config, manifest, phase, name, mode, seed, **options):
     settings = {k: v for k, v in options.items() if k != "extractor"}
     setting = settings.pop("setting", "primary")
     identity = {"phase": phase, "policy": name, "mode": mode, "seed": seed,
-                "setting": setting, **settings, "manifest_version": manifest["version"]}
+                "setting": setting, **settings, "input_digest": manifest["input_digest"]}
     token = sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()[:12]
     destination = Path(output) / "episodes" / f"{phase}_{name}_{mode}_{seed}_{token}"
     if (destination / "summary.json").exists():
         return json.loads((destination / "summary.json").read_text())
     execution = {"policy": name, "mode": mode, "seed": seed,
-        "manifest_version": manifest["version"],
+        "input_digest": manifest["input_digest"],
         "budget": options.get("budget", config["scenario"]["budget"]),
         "effect": options.get("effect", config["scenario"].get("effect_strength", 1.0)),
         "radius": (options.get("radius", config["uncertainty"]["radius"])
@@ -280,7 +272,7 @@ def pilot(output, config, manifest):
     if not all(truth == null_truth[0] for truth in null_truth):
         raise AssertionError("alpha0 trajectories differ despite coupled transition draws")
     write_json(Path(output) / "development_gate.json", {"passed": True, "episodes": len(rows),
-        "manifest_version": manifest["version"], "policy_order": order,
+        "input_digest": manifest["input_digest"], "policy_order": order,
         "repeat_trace_digests": expected, "null_effect_exact_truth_equal": True,
         "independent_seed_count": len(config["evaluation"]["development_seeds"])})
 
@@ -288,14 +280,14 @@ def pilot(output, config, manifest):
 def require_pilot(output, manifest):
     path = Path(output) / "development_gate.json"
     gate = json.loads(path.read_text()) if path.exists() else {}
-    if not gate.get("passed") or gate.get("manifest_version") != manifest["version"]:
+    if not gate.get("passed") or gate.get("input_digest") != manifest["input_digest"]:
         raise ValueError("run the development pilot under the active frozen configuration first")
 
 
 def primary(output, config, manifest):
     require_pilot(output, manifest)
     rows = run_pairs(output, config, manifest, "evaluation", config["evaluation"]["evaluation_seeds"])
-    write_json(Path(output) / "primary_complete.json", {"manifest_version": manifest["version"],
+    write_json(Path(output) / "primary_complete.json", {"input_digest": manifest["input_digest"],
         "n_paired_seeds": len(config["evaluation"]["evaluation_seeds"]), "episodes": len(rows)})
 
 
@@ -303,7 +295,7 @@ def secondary(output, config, manifest):
     require_pilot(output, manifest)
     primary_path = Path(output) / "primary_complete.json"
     if (not primary_path.exists() or
-            json.loads(primary_path.read_text()).get("manifest_version") != manifest["version"]):
+            json.loads(primary_path.read_text()).get("input_digest") != manifest["input_digest"]):
         raise ValueError("execute primary comparison before secondary experiments")
     seeds = config["evaluation"]["secondary_seeds"]
     for mode in ("oracle", "structured", "b_matched"):
@@ -361,7 +353,7 @@ def live(output, config, manifest):
             run_pairs(output, config, manifest, "live", [seed], mode=mode,
                       setting="sparse_real_llm", sparse=True, extractor=extractor)
     write_json(Path(output) / "live_runtime.json", {"new_inference_calls": extractor.calls,
-        "extractor_version": extractor.version, "configuration": extractor.configuration,
+        "configuration": extractor.configuration,
         "n_world_seeds": len(config["evaluation"]["live_seeds"]),
         "note": "Temperature0 is not a bitwise determinism guarantee; cache replay is deterministic."})
     live_snapshot_comparisons(output, config, extractor)
@@ -411,10 +403,10 @@ def aggregate(output):
     scores = {table: [] for table in TABLES}
     for path in sorted((output / "episodes").glob("*/summary.json")):
         summary = json.loads(path.read_text())
-        if summary["manifest_version"] != manifest["version"]:
+        if summary.get("input_digest") != manifest["input_digest"]:
             continue
         summaries.append(summary)
-        labels = {k: summary[k] for k in ("phase", "policy", "mode", "seed", "setting", "manifest_version")}
+        labels = {k: summary[k] for k in ("phase", "policy", "mode", "seed", "setting", "input_digest")}
         source = output / Path(summary["trace_path"]).parent
         for table in TABLES:
             file = source / f"{table}.json"
@@ -460,8 +452,8 @@ def aggregate(output):
 def main(default_stage=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", choices=("freeze","pilot","primary","secondary","live","report","all"), default=default_stage or "all")
-    parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "results/research_evaluation_v1")
-    parser.add_argument("--amend", help="explicit versioned amendment reason; preserves prior manifest")
+    parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "results/research_evaluation")
+    parser.add_argument("--amend", help="explicit reason for replacing the frozen input manifest")
     args = parser.parse_args()
     if args.stage in ("freeze", "all") or args.amend:
         freeze(args.output, args.amend)

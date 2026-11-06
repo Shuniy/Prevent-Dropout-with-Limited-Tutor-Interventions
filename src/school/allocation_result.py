@@ -22,9 +22,6 @@ class AllocationResult:
     remaining_budget: float | None = None
     current_month: int | None = None
     months_remaining: int | None = None
-    benefit_estimator_version: str | None = None
-    planner_version: str | None = None
-    solver_version: str | None = None
     solver_settings: tuple = ()
     lexicographic_complete: bool = False
     validation_failures: int = 0

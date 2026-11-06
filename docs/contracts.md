@@ -2,7 +2,7 @@
 
 ## School CMDP interfaces
 
-- `ScenarioConfig.load(path)` loads the versioned `[cmdp]` TOML table and optional
+- `ScenarioConfig.load(path)` loads the `[cmdp]` TOML table and optional
   `[fairness]` table. Fairness selects one authorized audit attribute, integer
   coverage target, window length and strict/shortfall-aware mode. Unknown settings
   and duplicate old/new fairness aliases fail explicitly.
@@ -64,7 +64,7 @@
   evidence only, available after the admission month. It cannot mutate truth or
   choose intervention effects. The future state estimator remains external.
 - `main.py` runs school policy comparisons; `--suite full` adds the effect
-  and budget sweep. Explicit CLI arguments override the versioned CMDP config.
+  and budget sweep. Explicit CLI arguments override the CMDP config.
   `--print-monthly` prints monthly and terminal summaries for the first development
   seed of every selected policy/scenario. Summaries are saved for every episode
   whether or not printing is enabled.
@@ -236,9 +236,9 @@ months but never refill the same month's plan.
   Nonempty review issues, invalid review JSON, unavailable review or budget overflow
   reject the session; there is no retry/repair. Model review remains fallible.
 
-### Findings version 2
+### Findings schema
 
-- `schema_version=2` is required; historical version 1 findings are not migrated.
+- Findings carry source evidence without schema revision metadata; historical findings are not migrated.
 - Every `actions` entry has `action_id`, `original_action`, `responsible_person`,
   `agreed_on`, `due_date`, `original_evidence`, `status` and `status_evidence`.
   IDs are `<history_id>:s<original session number>:a<positive ordinal>` and are reused

@@ -36,7 +36,7 @@ application dashboard was introduced.
   immutable episodes and reuse of identical default sensitivity cells.
 - [Report generation](../src/evaluation/research_report.py): all nine requested
   scientific figures, tables, twelve-section report and selected failure traces.
-- [Configuration](../configs/research_evaluation_v1.toml),
+- [Configuration](../configs/research_evaluation.toml),
   [assumptions](research_assumptions.md), README, architecture, contracts and roadmap
   document the current workflow and scientific boundaries.
 

@@ -9,7 +9,6 @@ import csv
 import hashlib
 import json
 from pathlib import Path
-import platform
 from statistics import median
 import sys
 from time import perf_counter
@@ -209,7 +208,6 @@ def main():
                      if key.startswith(kind + "/") and len(histories[key]) == 3) for kind in kinds]
     manifest = {
         "model": MODEL, "question": QUESTION, "temperature": 0, "num_ctx": 32768,
-        "python_version": platform.python_version(),
         "selection": "Lexicographically first complete exactly-three-session history per support type.",
         "system_prompts": {"rag": RAG_SYSTEM_PROMPT, "simple": SIMPLE_SYSTEM_PROMPT},
         "findings_schema": FINDINGS_SCHEMA,

@@ -46,7 +46,7 @@ def freeze_cohorts(state, grouping_attribute="disadvantage_proxy", *, end_month=
     """One audit axis, three broad oracle-observed conditions; include empty cells."""
     if grouping_attribute not in ATTRIBUTES:
         raise ValueError("select one authorized audit attribute")
-    estimated = state.observation_mode == "estimated_state_v1"
+    estimated = state.observation_mode == "estimated_state"
     if state.observation_mode != "fully_observed_benchmark" and not estimated:
         raise ValueError("frozen_condition requires the labelled oracle benchmark interface")
     groups = ("False", "True", "unknown") if grouping_attribute == "disadvantage_proxy" else ("F", "M", "unknown")

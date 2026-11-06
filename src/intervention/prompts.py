@@ -153,9 +153,9 @@ reported status/evidence; it does not imply a fresh report. Change status/eviden
 when the current session supplies evidence. A completed review is its own activity and
 cannot complete the task reviewed. Never narrow the original scope to make it completed.
 
-SOURCE EVIDENCE AND SCHEMA VERSION 2
+SOURCE EVIDENCE AND SCHEMA
 
-Set schema_version to 2. Each evidence citation includes history_id, source session_number,
+Each evidence citation includes history_id, source session_number,
 one-based turn_number and a verbatim quote substring of that speaker's utterance.
 Cite only the current or earlier supplied sources. Evidence must entail the claim rather
 than merely mention its topic. Preserve all source identifiers, including gaps.

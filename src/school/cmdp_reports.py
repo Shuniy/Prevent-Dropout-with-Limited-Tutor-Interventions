@@ -104,7 +104,6 @@ def summarize(episodes, manifest=None):
                 "episodes": len(runs),
                 "budget": runs[0].get("budget"),
                 "effect_strength": runs[0].get("effect_strength"),
-                "policy_version": runs[0].get("policy_version"),
                 "scenario_hash": runs[0].get("scenario_hash"),
                 "student_count": runs[0].get("student_count"),
                 "horizon": runs[0].get("horizon"),
@@ -195,7 +194,7 @@ def report_markdown(summaries, tiny, manifest):
     if tiny is None:
         return baseline_report(summaries, manifest)
     lines = [
-        "# CMDP v1 simulation results",
+        "# CMDP simulation results",
         "",
         "All outcomes and programme effects below are synthetic simulation results. "
         "They are not observed school dropout or measured causal effects.",

@@ -1,6 +1,5 @@
 # All transition effects, capacities and budget prices are synthetic assumptions.
 [cmdp]
-version = "cmdp_v1"
 num_students = 100
 num_mentors = 2
 horizon = 12

@@ -6,7 +6,6 @@ from dataclasses import asdict, replace
 from datetime import datetime
 import json
 from pathlib import Path
-import platform
 import tomllib
 from urllib.request import urlopen
 from urllib.error import URLError
@@ -14,17 +13,14 @@ from urllib.error import URLError
 import numpy as np
 
 from ..intervention.feedback_notes import NoteQuality
-from ..intervention.observation_extractor import (FixtureObservationExtractor,
-    LLMObservationExtractor, PROMPT_VERSION, SCHEMA_VERSION)
+from ..intervention.observation_extractor import FixtureObservationExtractor, LLMObservationExtractor
 from ..intervention.ollama_client import OllamaClient
-from .closed_loop_controller import ClosedLoopCMDPController, INFORMATION_MODES
+from .closed_loop_controller import INFORMATION_MODES
 from .cmdp_scenarios import build_school
 from .constrained_planner import ConstrainedAllocationPlanner
 from .fairness_planner import FairnessPlanner
 from .observation_model import ObservationConfig
 from .scenario_config import ScenarioConfig
-from .simulated_withdrawal_risk import SimulatedWithdrawalRiskEstimator
-from .state_estimator import StudentStateEstimator
 from .transition_model import programme_matrix
 
 
@@ -69,15 +65,11 @@ def save_episode(controller, output):
         "note_quality": asdict(controller.note_quality), "max_notes_per_month": controller.max_notes_per_month,
         "note_quality_by_student": {sid: asdict(quality) for sid, quality
                                     in controller.note_quality_by_student.items()},
-        "controller_version": controller.VERSION, "estimator": controller.estimator.configuration,
-        "risk_version": SimulatedWithdrawalRiskEstimator.VERSION,
-        "allocation_policy_version": controller.policy.VERSION,
+        "estimator": controller.estimator.configuration,
+        "allocation_policy": type(controller.policy).__name__,
         "allocation_policy_settings": controller.policy.settings,
         "fairness_stratum_rule": "enrolled_MAP_if_max_probability_at_least_0.6_else_uncertain",
         "support_need_rule": "existing_static_primary_need_no_LLM_reassignment",
-        "extractor_version": (controller.extractor.version if controller.extractor else "structured_gold_v1"),
-        "prompt_version": PROMPT_VERSION, "schema_version": SCHEMA_VERSION,
-        "environment_transition_version": "cmdp_transition_v1",
         "environment_wait_matrix": controller.environment.transition_assumptions[0],
         "environment_programme_matrix": controller.environment.transition_assumptions[1]}
     (output / "experiment_config.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
@@ -144,13 +136,11 @@ def run_feedback_experiments(config, *, output, observation_config=ObservationCo
     output.mkdir(parents=True, exist_ok=False)
     rows = []
     (output / "experiment_config.json").write_text(json.dumps({
-        "version": "cmdp_llm_feedback_v1", "stage": "development_integration_only",
+        "stage": "development_integration_only",
         "scenario": asdict(config), "observation": asdict(observation_config),
         "notes": asdict(note_quality), "noisy_notes": asdict(noisy_quality),
         "modes": modes, "policies": policies, "max_notes_per_month": max_notes_per_month,
-        "extractor_version": extractor.version, "python_version": platform.python_version(),
         "model_metadata": model_metadata,
-        "prompt_version": PROMPT_VERSION, "schema_version": SCHEMA_VERSION,
         "llm_options": ({"model": extractor.client.model, "num_ctx": extractor.client.num_ctx,
                          "temperature": 0} if isinstance(extractor, LLMObservationExtractor) else None),
         "note": "Fixture extraction is a wiring control; no held-out research claims."}, indent=2))
@@ -180,7 +170,7 @@ def run_feedback_experiments(config, *, output, observation_config=ObservationCo
                 "notes_generated": len(controller.notes), "extracted_batches": len(controller.batches),
                 "quarantined_extractions": len(controller.failures),
                 "real_llm_calls": getattr(extractor, "calls", 0) - calls_before,
-                "extractor": extractor.version if mode in ("llm_notes", "noisy_notes") else "structured_gold_v1",
+                "extractor": type(extractor).__name__ if mode in ("llm_notes", "noisy_notes") else "structured_gold",
                 "normalized_window_shortfall": sum(
                     row["outstanding_before"] / row["eligible_count"]
                     for row in controller.fairness_rows
@@ -197,7 +187,7 @@ def run_feedback_experiments(config, *, output, observation_config=ObservationCo
 
 def main(*, pilot=False):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", type=Path, default=Path("configs/cmdp_llm_feedback_v1.toml"))
+    parser.add_argument("--config", type=Path, default=Path("configs/cmdp_llm_feedback.toml"))
     parser.add_argument("--output", type=Path)
     parser.add_argument("--extractor", choices=("fixture", "ollama"), default="fixture")
     parser.add_argument("--model", default="qwen3.5:latest")
@@ -220,7 +210,7 @@ def main(*, pilot=False):
         observation["emissions"] = tuple(tuple(row) for row in observation["emissions"])
     extractor = (FixtureObservationExtractor() if args.extractor == "fixture" else
                  LLMObservationExtractor(OllamaClient(args.model, timeout=args.timeout, num_ctx=8192)))
-    output = args.output or Path("results/cmdp_llm_feedback_v1") / (
+    output = args.output or Path("results/cmdp_llm_feedback") / (
         ("pilot_" if pilot else "integration_") + datetime.now().strftime("%Y%m%d_%H%M%S_%f"))
     run_feedback_experiments(config, output=output, observation_config=ObservationConfig(**observation),
         note_quality=NoteQuality(**values.get("notes", {})),

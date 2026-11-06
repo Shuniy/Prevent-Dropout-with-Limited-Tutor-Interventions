@@ -4,12 +4,11 @@ import time
 from dataclasses import replace
 
 import numpy as np
-import scipy
 
 from .allocation_result import AllocationResult
 from .constraints import candidate_assignments, validate_allocation
 from .optimization import resource_constraints, solve_milp
-from .retention_value import BENEFIT_ESTIMATOR_VERSION, estimate_all_student_benefits
+from .retention_value import estimate_all_student_benefits
 from .money import budget_amount, integer_costs, programme_cost
 from .transition_model import P_WAIT, programme_matrix, validate_matrix
 
@@ -66,7 +65,6 @@ class ConstrainedAllocationPlanner:
     lexicographic_complete then remains false and status records the limitation.
     """
 
-    VERSION = "terminal_retention_milp_v2"
     OBJECTIVE_TOLERANCE = 1e-10
     TIE_BLOCK_SIZE = 20
 
@@ -105,8 +103,6 @@ class ConstrainedAllocationPlanner:
                                            for m in state.mentors),
                 remaining_budget=state.remaining_budget, current_month=state.month,
                 months_remaining=state.months_remaining,
-                benefit_estimator_version=BENEFIT_ESTIMATOR_VERSION,
-                planner_version=self.VERSION, solver_version=scipy.__version__,
                 solver_settings=self.settings,
                 validation_failures=int("invalid_incumbent" in allocation.status),
             )

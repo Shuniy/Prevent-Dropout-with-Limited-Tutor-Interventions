@@ -10,7 +10,7 @@ artifacts remain available. All outcomes are synthetic simulation results.
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m unittest discover -s tests
 
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m src.main \
-  --config configs/cmdp_planner_v1.toml \
+  --config configs/cmdp_planner.toml \
   --policies wait random severity need_priority longest_waiting terminal_value \
   --suite full --output results/cmdp_planner_v1/step3_20261105
 
@@ -150,7 +150,7 @@ New implementation and validation files:
 - [Planner exports and tiny comparison grid](../src/school/planner_exports.py)
 - [Step 3 acceptance tests](../tests/test_step3_acceptance.py)
 - [Independent saved-output verifier](../scripts/verify_cmdp_planner.py)
-- [Versioned planner configuration](../configs/cmdp_planner_v1.toml)
+- [Versioned planner configuration](../configs/cmdp_planner.toml)
 - [Mathematical formulation, constraints, solver settings and limitations](cmdp_planner_v1.md)
 
 Existing modules updated: [value estimator](../src/school/retention_value.py),

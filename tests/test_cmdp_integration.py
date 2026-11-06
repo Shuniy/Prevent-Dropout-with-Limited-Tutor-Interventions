@@ -51,7 +51,7 @@ class SchoolCMDPIntegrationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "must match"):
             school.create_cmdp_environment(config=ScenarioConfig(horizon=3))
 
-    def test_cmdp_is_the_default_and_uses_versioned_config(self):
+    def test_cmdp_is_the_default_and_uses_scenario_config(self):
         with tempfile.TemporaryDirectory() as directory:
             arguments = ["school-dropout", "--runner", "baselines", "--output", directory]
             with (

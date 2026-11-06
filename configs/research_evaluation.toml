@@ -1,4 +1,3 @@
-version = "research_evaluation_v1"
 
 [scenario]
 num_students = 100

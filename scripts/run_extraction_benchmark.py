@@ -4,7 +4,6 @@ import argparse
 from datetime import datetime, timezone
 import json
 from pathlib import Path
-import platform
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -16,13 +15,12 @@ from src.evaluation.extraction_evaluation import (
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output-dir", type=Path, default=Path("results/research_evaluation_v1/extraction"))
+    parser.add_argument("--output-dir", type=Path, default=Path("results/research_evaluation/extraction"))
     parser.add_argument("--live", action="store_true", help="Run actual local Ollama inference; never falls back to fixtures")
     args = parser.parse_args(argv)
     manifest = freeze_benchmark(args.output_dir)
     cases = manifest["cases"]
     summary = {"created_at_utc": datetime.now(timezone.utc).isoformat(),
-               "python_version": platform.python_version(), "benchmark_version": manifest["benchmark_version"],
                "protocol_sha256": manifest["protocol_sha256"], "gold_manifest_sha256": manifest["gold_manifest_sha256"],
                "gold_reference": {}, "exact_rule": {}, "real_llm": {"status": "not_requested"}}
     for method in ("gold_reference", "exact_rule"):

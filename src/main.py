@@ -20,7 +20,7 @@ def run_cmdp_experiments(args):
     from src.school.cmdp_experiments import run_experiments
     from src.school.scenario_config import ScenarioConfig
 
-    config_path = args.config or Path(__file__).resolve().parents[1] / "configs/cmdp_baselines_v1.toml"
+    config_path = args.config or Path(__file__).resolve().parents[1] / "configs/cmdp_baselines.toml"
     config = ScenarioConfig.load(config_path)
     fields = {
         "students": "num_students",

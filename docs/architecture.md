@@ -39,8 +39,7 @@ Both channels preserve source availability and the mode's note quality; initial
 and later monitoring still update every student's beliefs and risk without model
 calls. The optional monthly note cap selects programme events only, with the same
 selection for matched-note controls. Programme extraction failures remain failures,
-without substituting deterministic facts. The controller version is
-`closed_loop_cmdp_v2_programme_notes`; older saved results used population-wide LLM
+without substituting deterministic facts. Older saved results used population-wide LLM
 extraction and, when capped, population-wide note selection.
 
 Recorded-intervention Python APIs use the dependency direction `school → intervention`. School owns students,
@@ -136,7 +135,7 @@ Each entry adds an independent review call after JSON and deterministic source c
 Review uses only an as-of source prefix and rejects unsupported/contradictory findings;
 it remains a fallible model judgment. RAG pins original action evidence with source dates
 and reported status history separately from retrieved excerpts and generated summaries.
-Findings version 2 tracks immutable action IDs/original wording, evidence-backed progress,
+Findings track immutable action IDs/original wording, evidence-backed progress,
 intended component IDs, direct activity and external service status independently.
 A completed review cannot complete its underlying action; requested support is not receipt.
 Both receive allowlisted descriptive headers (intervention type, date, stage) alongside
@@ -172,7 +171,7 @@ Finite belief scenarios use only estimated decision inputs and documented
 missingness/freshness. Evaluator-only scorecards join truth after execution.
 Risk scoring uses the conditional WAIT reference, not treated terminal labels.
 
-Configuration/source hashes gate execution, with append-only manifest versions
-for explicit amendments. CSV summaries, compressed complete episode traces,
+Configuration/source hashes gate execution. Explicit amendments replace the single
+input manifest and require a fresh pilot. CSV summaries, compressed complete episode traces,
 configuration-complete inference caches and generated scientific figures make
 results inspectable. See [the protocol](research_evaluation_protocol.md).

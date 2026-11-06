@@ -6,7 +6,6 @@ from pathlib import Path
 
 def findings():
     return {
-        "schema_version": 2,
         "session_summary": "The task remains difficult.",
         "primary_concern": "learning_gap",
         "tracked_details": [],

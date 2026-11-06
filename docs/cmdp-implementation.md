@@ -18,7 +18,7 @@ No course-failure label is interpreted as observed school withdrawal.
 
 | New module(s) in `src/school` | Responsibility |
 | --- | --- |
-| `scenario_config`, `cmdp_scenarios` | Validated versioned TOML, deterministic enrolled population prefix, existing mentor generation, episode loop |
+| `scenario_config`, `cmdp_scenarios` | Validated TOML, deterministic enrolled population prefix, existing mentor generation, episode loop |
 | `student_condition`, `transition_model` | Four simulated conditions, assumed stochastic matrices, sensitivity interpolation, stable keyed draws |
 | `cmdp_environment`, `month_record` | Private condition, one transition per cohort student per month, admission history, atomic charges, immutable history |
 | `student_observation`, `mentor_resource`, `decision_state` | Immutable controller snapshots with scalar source-derived context and current resources |
@@ -28,7 +28,7 @@ No course-failure label is interpreted as observed school withdrawal.
 | `exact_tiny_mdp` | Exact feasible-action Bellman recursion and exact expectation of the production monthly heuristic |
 | `access_cohort`, `fairness_audit`, `fairness_window`, `fairness_planner`, `window_optimization` | Frozen cohorts, independent admission audits, strict/soft rolling-window MILP |
 | `condition_estimate`, `structured_observation`, `observation_adapter` | Explicit estimated conditions, temporally validated existing extraction results, no truth mutation |
-| `cmdp_metrics`, `cmdp_experiments`, `cmdp_reports` | Episode metrics, paired experiment execution, independent report/plot generation and version manifests |
+| `cmdp_metrics`, `cmdp_experiments`, `cmdp_reports` | Episode metrics, paired experiment execution, independent report/plot generation and configuration manifests |
 | `allocation_policy`, `allocation_policies`, `cmdp_simulation` | Small policy protocol, policy construction, monthly coordination behind `School.run_cmdp` |
 
 Each production class has its own file, following `Guidance.md`. SciPy is now an
@@ -125,7 +125,7 @@ at every hypothetical state, including solver tie choices, without future draws.
 
 - `wait`: no additional programme.
 - `random`: shuffle eligible students in stable ID order with a local generator
-  seeded by policy version, episode seed and current month. Mentor compatibility
+  seeded by episode seed and current month. Mentor compatibility
   does not affect the student order. This is not uniform sampling of joint actions.
 - `severity`: disengaged, vulnerable, stable, then student ID and cheaper mentor.
 - `need_priority`: maximum initial shared-rule need severity, then the same ties.
@@ -249,7 +249,7 @@ Output destinations must be new; existing directories are never overwritten.
 Omit `--output` to create a timestamped destination. Both `python src/main.py`
 and `python -m src.main` work, as does the installed `school-dropout`
 entry point. `--config` accepts another
-versioned TOML matching `configs/cmdp_v1.toml`. Full-suite variations intentionally
+TOML matching `configs/cmdp.toml`. Full-suite variations intentionally
 use the specified effect strengths and budgets, while retaining other configuration.
 
 Before Step 2 completion, each output included `manifest.json` with seeds, dependency versions, matrices,
@@ -278,7 +278,7 @@ findings are also preserved in [cmdp-results-v1.md](cmdp-results-v1.md).
 ## Step 2 baseline completion
 
 The current default is the five-policy Step 2 comparison, using
-`configs/cmdp_baselines_v1.toml` and timestamped `results/cmdp_baselines_v1/` outputs.
+`configs/cmdp_baselines.toml` and timestamped `results/cmdp_baselines_v1/` outputs.
 The numerical scenario is unchanged from Step 1. The commands above with explicit
 paths and opt-in optimizer policies continue to work; the earlier six-policy
 default and two-plot-only output description record the previous workflow.

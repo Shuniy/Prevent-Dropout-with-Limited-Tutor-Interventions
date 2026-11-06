@@ -1,4 +1,4 @@
-"""Versioned extraction schema; source and semantic checks run before persistence."""
+"""Extraction schema; source and semantic checks run before persistence."""
 
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
@@ -46,7 +46,6 @@ def component_schema(*statuses: str) -> dict:
 
 
 FINDINGS_SCHEMA = object_schema({
-    "schema_version": {"const": 2},
     "session_summary": TEXT,
     "primary_concern": TEXT,
     "tracked_details": {"type": "array", "items": object_schema({

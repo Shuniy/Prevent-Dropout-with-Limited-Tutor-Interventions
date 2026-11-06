@@ -1,6 +1,5 @@
 # Frozen research assumptions; 30% is illustrative, not an established standard.
 [cmdp]
-version = "cmdp_fairness_v1"
 num_students = 100
 num_mentors = 2
 horizon = 12

@@ -91,28 +91,29 @@ class ResearchInformationTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     freeze(directory)
                 second = freeze(directory, "Development correction before heldout evaluation")
-            self.assertEqual(second["version"], 2)
-            self.assertEqual(json.loads((Path(directory)/"configuration_manifest.json").read_text()), first)
+            self.assertNotEqual(second["input_digest"], first["input_digest"])
+            self.assertEqual(json.loads((Path(directory)/"configuration_manifest.json").read_text()), second)
+            self.assertEqual(len(list(Path(directory).glob("configuration_manifest*.json"))), 1)
             with self.assertRaises(ValueError):
                 require_pilot(directory, second)
 
-    def test_old_manifest_episodes_and_completion_marker_cannot_enter_active_analysis(self):
+    def test_changed_input_episodes_and_completion_marker_cannot_enter_active_analysis(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            for version in (1, 2):
-                destination = root / "episodes" / f"version{version}"
+            for digest in ("previous", "current"):
+                destination = root / "episodes" / digest
                 destination.mkdir(parents=True)
                 (destination / "summary.json").write_text(json.dumps({
                     "phase": "development", "policy": "FairPoint", "mode": "d_matched",
-                    "seed": 0, "setting": "primary", "manifest_version": version,
-                    "trace_path": f"episodes/version{version}/trace.json.gz"}))
-            with patch("src.evaluation.research_experiments.checked_manifest", return_value={"version": 2}):
+                    "seed": 0, "setting": "primary", "input_digest": digest,
+                    "trace_path": f"episodes/{digest}/trace.json.gz"}))
+            with patch("src.evaluation.research_experiments.checked_manifest", return_value={"input_digest": "current"}):
                 rows = aggregate(root)
-            self.assertEqual([row["manifest_version"] for row in rows], [2])
-            (root / "primary_complete.json").write_text(json.dumps({"manifest_version": 1}))
+            self.assertEqual([row["input_digest"] for row in rows], ["current"])
+            (root / "primary_complete.json").write_text(json.dumps({"input_digest": "previous"}))
             with patch("src.evaluation.research_experiments.require_pilot"):
                 with self.assertRaisesRegex(ValueError, "primary comparison"):
-                    secondary(root, self.config, {"version": 2})
+                    secondary(root, self.config, {"input_digest": "current"})
 
 
 if __name__ == "__main__":
