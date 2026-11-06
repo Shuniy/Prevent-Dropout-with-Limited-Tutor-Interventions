@@ -20,7 +20,6 @@ class EntrypointTests(unittest.TestCase):
             ["--allocation-only"],
             ["--method", "simple"],
             ["--method", "rag"],
-            ["--model", "example"],
             ["--history-root", "histories"],
             ["--private-output", "private"],
         ):

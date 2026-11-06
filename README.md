@@ -1,8 +1,14 @@
 # Student support simulation
 
-The default workflow runs synthetic CMDP retention experiments through
-`main → school`. School compares allocation policies under budget, mentor and
-appointment constraints and saves reports, trajectories and plots. No LLM is required.
+The default workflow compares all baseline policies and the resource/fairness planners
+in oracle, structured, matched-note, LLM-note and noisy-note modes through `main → school`.
+Every run uses the same scenario, seed, transition model and resource limits. Information
+access differs intentionally by mode; matched-note and LLM-note use the same feature schema.
+Each result and wall-clock duration is printed, followed by the full comparison, before
+Markdown, CSV, JSON, configuration and episode traces are saved in a new directory.
+Timing includes simulation and extraction but excludes report writing. Extraction failures
+are reported as quarantined observations; inspect these before interpreting LLM results.
+The default extractor is Ollama (`qwen3.5:latest`); fixture extraction is an offline control.
 Transition probabilities and intervention effects are synthetic assumptions.
 
 Recorded-intervention extraction remains available through Python APIs and the
@@ -22,21 +28,28 @@ python -m pip install --no-deps -e .
 The requirements include dependencies for preserved research notebooks.
 
 ```bash
-# Default CMDP policy comparison:
-python -m src.main --output results/cmdp_baselines_v1/my_run
+# Full comparison with real LLM extraction (requires a running Ollama model):
+python -m src.main --extractor ollama --output results/comparison/my_run
+
+# Small offline comparison of all modes:
+python src/main.py --extractor fixture --students 10 --months 3 \
+  --output results/comparison/offline_run
+
+# Legacy multi-seed baseline comparison:
+python -m src.main --runner baselines --output results/cmdp_baselines_v1/my_run
 
 # Small CMDP run with explicit scenario overrides:
-python src/main.py --students 10 --mentors 2 --months 12 \
+python src/main.py --runner baselines --students 10 --mentors 2 --months 12 \
   --development-seeds 1 --evaluation-seeds 1 --output results/cmdp_v1/small_run
 
 # Full effect and budget sweep:
-python -m src.main --suite full --output results/cmdp_baselines_v1/full_run
+python -m src.main --runner baselines --suite full --output results/cmdp_baselines_v1/full_run
 
 # Step 4: frozen-cohort fairness targets, budget and effect sensitivity (1,000 episodes):
 python scripts/run_cmdp_fairness.py --output results/cmdp_fairness_v1
 
 # Development only, to inspect results before a full comparison:
-python -m src.main --suite full --stage development \
+python -m src.main --runner baselines --suite full --stage development \
   --output results/cmdp_baselines_v1/development_run
 
 # One-call private analysis of all sessions through the cutoff:
@@ -54,7 +67,12 @@ python -m unittest discover -s tests
 ```
 
 Equivalent application entry points are `python src/main.py`, `python -m src.main`,
-and, after installation, `school-dropout`. CMDP defaults come from
+and, after installation, `school-dropout`. The combined comparison defaults come from
+`configs/cmdp_llm_feedback_v1.toml` (100 students, 2 mentors, 12 months, one monthly
+admission and five monthly appointments). Use `--policies` to select baselines,
+`--feedback-policies` to select planners, and `--modes` to select information modes.
+`--max-notes-per-month` applies to note modes and matched-note controls; structured
+and oracle retain their full information. The legacy baseline runner defaults come from
 `configs/cmdp_baselines_v1.toml`: the same Step 1 scenario with 100 students,
 2 mentors, 12 months, 5 appointments per
 programme, 10 monthly admissions, budget 150 and seed 42. Explicit CLI options

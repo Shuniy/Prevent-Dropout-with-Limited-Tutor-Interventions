@@ -12,6 +12,10 @@ if __package__ in (None, ""):
 
 def run_cmdp_experiments(args):
     """Translate CLI choices into explicit school experiment dependencies."""
+    if args.runner == "comparison":
+        from src.school.simulation_comparison import run_comparison
+
+        return run_comparison(args)
     from src.school.allocation_policies import DEFAULT_POLICIES
     from src.school.cmdp_experiments import run_experiments
     from src.school.scenario_config import ScenarioConfig
@@ -42,12 +46,23 @@ def run_cmdp_experiments(args):
         evaluation_seed_count=args.evaluation_seeds if args.evaluation_seeds is not None else 30,
         policies=args.policies if args.policies is not None else DEFAULT_POLICIES,
         print_monthly=args.print_monthly,
-        stage=args.stage,
+        stage=args.stage or "both",
     )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run synthetic CMDP experiments.")
+    parser.add_argument("--runner", choices=("comparison", "baselines"), default="comparison",
+                        help="Compare all simulations (default), or run the legacy baseline sweep")
+    parser.add_argument("--extractor", choices=("fixture", "ollama"), default="ollama")
+    parser.add_argument("--model", default="qwen3.5:latest")
+    parser.add_argument("--timeout", type=int, default=120)
+    parser.add_argument("--max-notes-per-month", type=int)
+    parser.add_argument("--feedback-policies", nargs="+", choices=("resource", "fairness"),
+                        default=["resource", "fairness"])
+    parser.add_argument("--modes", nargs="+",
+                        choices=("oracle", "structured", "b_matched", "llm_notes", "noisy_notes"),
+                        default=["oracle", "structured", "b_matched", "llm_notes", "noisy_notes"])
     parser.add_argument("--students", type=int)
     parser.add_argument("--mentors", type=int)
     parser.add_argument("--months", type=int, help="CMDP simulation horizon in months")
@@ -56,7 +71,7 @@ def main() -> None:
     parser.add_argument("--budget", type=float)
     parser.add_argument("--seed", type=int)
     parser.add_argument("--effect-strength", type=float, help="Synthetic intervention strength in [0, 1]")
-    parser.add_argument("--stage", choices=("development", "both"), default="both",
+    parser.add_argument("--stage", choices=("development", "both"), default=None,
                         help="Inspect development only, or validate development then run held-out worlds")
     parser.add_argument(
         "--print-monthly",
@@ -66,7 +81,8 @@ def main() -> None:
     )
     parser.add_argument("--output", type=Path, help="New CMDP report directory (never overwrite a run)")
     parser.add_argument(
-        "--config", type=Path, help="CMDP TOML configuration (default: configs/cmdp_baselines_v1.toml)"
+        "--config", type=Path, help="Shared TOML configuration; defaults to feedback config for "
+        "comparison, baseline config for --runner baselines"
     )
     parser.add_argument(
         "--suite",

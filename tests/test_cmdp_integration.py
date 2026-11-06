@@ -53,7 +53,7 @@ class SchoolCMDPIntegrationTests(unittest.TestCase):
 
     def test_cmdp_is_the_default_and_uses_versioned_config(self):
         with tempfile.TemporaryDirectory() as directory:
-            arguments = ["school-dropout", "--output", directory]
+            arguments = ["school-dropout", "--runner", "baselines", "--output", directory]
             with (
                 patch.object(sys, "argv", arguments),
                 patch(
@@ -78,6 +78,8 @@ class SchoolCMDPIntegrationTests(unittest.TestCase):
                     [
                         sys.executable,
                         *entry,
+                        "--runner",
+                        "baselines",
                         "--students",
                         "3",
                         "--months",
