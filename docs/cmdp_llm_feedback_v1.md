@@ -125,6 +125,12 @@ output is silently corrected. Note text is JSON-encoded untrusted data in a user
 message. Instructions inside it never become code, configuration, allocations or
 eligibility changes. Embedded/negated supported phrases are not accepted as facts.
 
+The controller sends only intervention programme notes to the LLM. Routine
+monitoring, including month-zero observations and students without interventions,
+uses the deterministic synthetic-grammar extractor. This preserves the actual
+note-supported content and timing in every mode. No programme failure is replaced
+with deterministic facts.
+
 Cache keys include note identity, a hash of the entire note record, extractor,
 prompt, schema and as-of cutoff. Only newly available notes are processed.
 Accepted results, raw model outputs, cache hits and quarantined failures are logged.
@@ -133,8 +139,8 @@ requires identical authorized note content and context.
 
 `FixtureObservationExtractor` uses fixed payloads or exact grammar lookups and
 runs the same validator. Fixture runs are explicitly labeled and never reported
-as successful LLM inference. Unavailable or invalid inference preserves the
-prediction and records the failure; it does not substitute gold facts.
+as successful LLM inference. Unavailable or invalid programme inference preserves
+the prediction and records the failure; it does not substitute gold facts.
 
 ## Estimation, risk and allocation mathematics
 
@@ -196,7 +202,8 @@ Oracle cohorts retain their original categorical-condition strata.
 At reset the environment initializes truth, emits initial observable/registry
 records, and the controller builds beliefs and risks. Each decision cutoff then:
 
-1. Processes only available notes/structured records.
+1. Processes available monitoring deterministically and sends only available
+   intervention programme notes to the LLM in C/D modes.
 2. Updates beliefs with known past admissions and recalculates risks.
 3. Builds an immutable, consistent decision snapshot and plans/validates allocation.
 4. Lets the existing environment commit resources, execute support and transition.
@@ -246,8 +253,15 @@ Run from the repository root, with the existing environment:
 
 Ollama must already serve `qwen3.5:latest`; `--model` and `OLLAMA_BASE_URL` retain
 the existing runtime choices. `--seed`, `--policies`, `--modes`, `--timeout` and
-`--max-notes-per-month` support limited development runs. B-matched and C use the
-same note limit; B retains the full structured monitoring stream.
+`--max-notes-per-month` support limited development runs. The limit selects only
+intervention programme notes per source month, identically in B-matched and C;
+routine monitoring is retained without LLM calls. Delays can bring notes from
+multiple source months to the same decision cutoff. With the default one monthly
+admission per mentor, two mentors and twelve months, each policy/LLM mode makes at most 24 calls, compared
+with the former population-wide ceiling of 1,300. Missing notes, delayed terminal
+notes, limits and cache hits can reduce this count. The controller version is now
+`closed_loop_cmdp_v2_programme_notes`; historical result reports retain their
+original population-wide extraction and note-selection semantics.
 
 Replay uses the saved configuration, seed and accepted extraction payloads with
 no model call, and verifies exact decision snapshots, admissions, resource balances

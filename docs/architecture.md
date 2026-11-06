@@ -32,6 +32,17 @@ adds the preannounced mentor calendar, with no future student truth.
 contract and does not invoke the extraction pipeline. There is no separate CMDP
 package. See [CMDP implementation](cmdp-implementation.md) for the module map.
 
+The feedback path, `School.run_cmdp_feedback` → `ClosedLoopCMDPController`,
+routes routine monitoring through the deterministic synthetic-grammar extractor.
+Only programme notes from committed interventions reach the injected LLM extractor.
+Both channels preserve source availability and the mode's note quality; initial
+and later monitoring still update every student's beliefs and risk without model
+calls. The optional monthly note cap selects programme events only, with the same
+selection for matched-note controls. Programme extraction failures remain failures,
+without substituting deterministic facts. The controller version is
+`closed_loop_cmdp_v2_programme_notes`; older saved results used population-wide LLM
+extraction and, when capped, population-wide note selection.
+
 Recorded-intervention Python APIs use the dependency direction `school → intervention`. School owns students,
 mentors, allocation, the simulation clock, performance evaluation and school
 reports. Intervention owns the confidential recorded programme and model analysis.

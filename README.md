@@ -9,6 +9,9 @@ Markdown, CSV, JSON, configuration and episode traces are saved in a new directo
 Timing includes simulation and extraction but excludes report writing. Extraction failures
 are reported as quarantined observations; inspect these before interpreting LLM results.
 The default extractor is Ollama (`qwen3.5:latest`); fixture extraction is an offline control.
+LLM calls are limited to programme notes for students admitted to interventions.
+Routine monitoring for all students uses deterministic extraction of the declared
+synthetic note grammar, retaining the selected mode's omissions, conflicts and delays.
 Transition probabilities and intervention effects are synthetic assumptions.
 
 Recorded-intervention extraction remains available through Python APIs and the
@@ -69,10 +72,18 @@ python -m unittest discover -s tests
 Equivalent application entry points are `python src/main.py`, `python -m src.main`,
 and, after installation, `school-dropout`. The combined comparison defaults come from
 `configs/cmdp_llm_feedback_v1.toml` (100 students, 2 mentors, 12 months, one monthly
-admission and five monthly appointments). Use `--policies` to select baselines,
+admission and five monthly appointments per mentor). Use `--policies` to select baselines,
 `--feedback-policies` to select planners, and `--modes` to select information modes.
-`--max-notes-per-month` applies to note modes and matched-note controls; structured
-and oracle retain their full information. The legacy baseline runner defaults come from
+`--max-notes-per-month` caps intervention programme notes per source month in note
+modes and matched-note controls. Routine monitoring consumes no LLM calls and is
+not capped; structured and oracle retain their full information. Delayed programme
+notes are processed once when available, so several source months may reach one cutoff.
+Without missing/delayed evidence or a note cap, each LLM mode makes one call per
+admitted programme, and zero calls before the first intervention. The default one
+monthly admission per mentor over twelve months allows at most 24 calls per policy/mode
+with two mentors, or 96 across the two planners and two LLM modes. Previously every student's
+monthly note reached the LLM: up to `100 × (12 + 1) = 1,300` calls per policy/mode.
+The legacy baseline runner defaults come from
 `configs/cmdp_baselines_v1.toml`: the same Step 1 scenario with 100 students,
 2 mentors, 12 months, 5 appointments per
 programme, 10 monthly admissions, budget 150 and seed 42. Explicit CLI options

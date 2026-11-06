@@ -43,6 +43,9 @@ for results, scientific limitations and remaining acceptance gaps.
 
 ## Working now
 
+- Feedback LLM extraction is limited to admitted intervention programme notes;
+  routine monitoring keeps all students' beliefs current through deterministic
+  synthetic-grammar extraction. Monthly note caps select programmes only.
 - Separate `school` and confidential `intervention` modules, with explicit exports
   and dependency direction `school → intervention` for recorded-intervention APIs.
 - Typed source loading and shared need rules for baseline/current performance.

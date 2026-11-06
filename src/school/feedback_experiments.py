@@ -202,7 +202,8 @@ def main(*, pilot=False):
     parser.add_argument("--extractor", choices=("fixture", "ollama"), default="fixture")
     parser.add_argument("--model", default="qwen3.5:latest")
     parser.add_argument("--timeout", type=int, default=120)
-    parser.add_argument("--max-notes-per-month", type=int)
+    parser.add_argument("--max-notes-per-month", type=int,
+                        help="Limit intervention programme notes per source month; routine monitoring uses no LLM")
     parser.add_argument("--modes", nargs="+", choices=INFORMATION_MODES, default=list(INFORMATION_MODES))
     parser.add_argument("--policies", nargs="+", choices=("resource", "fairness"), default=["resource", "fairness"])
     parser.add_argument("--seed", type=int)

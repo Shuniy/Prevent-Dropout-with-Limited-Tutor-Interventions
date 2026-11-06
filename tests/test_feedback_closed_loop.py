@@ -5,9 +5,12 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import Mock
 
 from src.intervention.feedback_notes import NoteQuality
-from src.intervention.observation_extractor import FixtureObservationExtractor
+from src.intervention.observation_extractor import (
+    FixtureObservationExtractor, LLMObservationExtractor, gold_payload,
+)
 from src.school.closed_loop_controller import ClosedLoopCMDPController
 from src.school.cmdp_scenarios import build_school
 from src.school.constrained_planner import ConstrainedAllocationPlanner
@@ -16,7 +19,7 @@ from src.school.fairness_planner import FairnessPlanner
 from src.school.feedback_experiments import save_episode
 from src.school.feedback_validation import FixedMonitoringRecords
 from src.school.feedback_replay import replay_feedback_episode
-from src.observations.observable_events import ObservableEvent, EnrollmentRecord
+from src.observations.observable_events import ObservableEvent, EnrollmentRecord, Note
 from src.school.observation_model import ObservationConfig, SyntheticObservationModel
 from src.school.scenario_config import ScenarioConfig
 from src.school.student_condition import StudentCondition as S
@@ -40,7 +43,88 @@ def feedback_demonstration(new_evidence):
     return controller.run_episode()
 
 
+def counted_extractor():
+    def generate(messages, schema):
+        return gold_payload(Note(**json.loads(messages[1]["content"])["note"]))
+
+    return LLMObservationExtractor(Mock(model="test", generate=Mock(side_effect=generate)))
+
+
 class ClosedLoopFeedbackTests(unittest.TestCase):
+    def test_llm_calls_only_for_admitted_programmes_and_not_monthly_monitoring(self):
+        for mode in ("llm_notes", "noisy_notes"):
+            with self.subTest(mode=mode):
+                controller, _ = setup(mode=mode, observation_config=ObservationConfig(
+                    missing_probability=0, delay_probability=0))
+                controller.extractor = counted_extractor()
+                controller.initialize()
+                controller.prepare_decision_snapshot(1)
+                self.assertEqual(controller.extractor.client.generate.call_count, 0)
+                controller.run_episode()
+                admitted = {(d["month"], sid) for d in controller.decisions for sid in d["admitted_ids"]}
+                self.assertEqual(len(admitted), 2)
+                self.assertEqual(controller.extractor.calls, len(admitted))
+                sent = [json.loads(call.args[0][1]["content"])["note"]
+                        for call in controller.extractor.client.generate.call_args_list]
+                self.assertEqual({(n["event_month"], n["student_id"]) for n in sent}, admitted)
+                self.assertTrue(all(n["note_type"] == "programme" and n["mentor_id"] for n in sent))
+                self.assertEqual(len(controller.extraction_attempts), len(admitted))
+                self.assertEqual(len(controller.estimates), 6)
+                self.assertEqual(len(controller.batches), 6 * 4)
+                controller.process_new_observations(4)
+                self.assertEqual(controller.extractor.calls, len(admitted))
+
+    def test_no_llm_calls_without_interventions(self):
+        config = ScenarioConfig(num_students=6, num_mentors=1, horizon=2,
+                                monthly_admissions=1, monthly_appointments=5, budget=10)
+        for overrides in ({"budget": 0}, {"num_mentors": 0}, {"monthly_admissions": 0}):
+            with self.subTest(overrides=overrides):
+                controller, _ = setup(config=replace(config, **overrides))
+                controller.extractor = counted_extractor()
+                controller.run_episode()
+                self.assertEqual(controller.extractor.client.generate.call_count, 0)
+                self.assertFalse(controller.failures)
+                self.assertTrue(controller.batches)
+                self.assertEqual(len(controller.estimates), config.num_students)
+
+    def test_note_limit_applies_to_programmes_and_preserves_routine_monitoring(self):
+        config = ScenarioConfig(num_students=6, num_mentors=1, horizon=2,
+                                monthly_admissions=2, monthly_appointments=10, budget=20)
+        for limit in (0, 1):
+            with self.subTest(limit=limit):
+                controller, _ = setup(config=config, max_notes_per_month=limit,
+                    observation_config=ObservationConfig(missing_probability=0, delay_probability=0))
+                controller.extractor = counted_extractor()
+                controller.run_episode()
+                admissions = sum(len(d["admitted_ids"]) for d in controller.decisions)
+                self.assertEqual(admissions, 4)
+                self.assertEqual(controller.extractor.calls, limit * config.horizon)
+                monitoring = [n for n in controller.notes if n.note_type == "monitoring"]
+                self.assertEqual(len(monitoring), config.num_students * (config.horizon + 1) - admissions)
+                matched, _ = setup(mode="b_matched", config=config, max_notes_per_month=limit,
+                    observation_config=controller.observation_model.config)
+                matched.run_episode()
+                self.assertEqual(matched.notes, controller.notes)
+                self.assertEqual(matched.snapshots, controller.snapshots)
+
+    def test_delayed_programme_note_is_called_once_only_after_availability(self):
+        controller, _ = setup(observation_config=ObservationConfig(
+            missing_probability=0, delay_probability=1),
+            note_quality=NoteQuality(delay_probability=1))
+        controller.extractor = counted_extractor()
+        controller.run_episode()
+        # Month 1's intervention becomes available at terminal cutoff 4;
+        # month 2's is still unavailable until cutoff 5.
+        self.assertEqual(controller.extractor.calls, 1)
+        call = controller.extractor.client.generate.call_args
+        context = json.loads(call.args[0][1]["content"])
+        self.assertEqual(context["note"]["event_month"], 1)
+        self.assertEqual(context["as_of_month"], 4)
+        controller.process_new_observations(4)
+        self.assertEqual(controller.extractor.calls, 1)
+        controller.process_new_observations(5)
+        self.assertEqual(controller.extractor.calls, 2)
+
     def test_new_monitoring_note_changes_untreated_students_next_allocation(self):
         updated, unchanged = feedback_demonstration(True), feedback_demonstration(False)
         first, second, third = sorted(updated.estimates)
@@ -156,19 +240,24 @@ class ClosedLoopFeedbackTests(unittest.TestCase):
                 save_episode(controller, path)
 
     def test_unavailable_extractor_keeps_prediction_and_records_failures(self):
-        class Unavailable:
-            version = "unavailable"
-            def extract(self, note, as_of_time):
-                raise RuntimeError("Ollama unavailable")
-        controller, _ = setup()
-        controller.extractor = Unavailable()
+        controller, _ = setup(observation_config=ObservationConfig(
+            missing_probability=0, delay_probability=0))
+        controller.extractor = counted_extractor()
+        controller.extractor.client.generate.side_effect = RuntimeError("Ollama unavailable")
         controller.run_episode()
-        self.assertTrue(controller.failures)
-        self.assertEqual(controller.batches, [])
+        self.assertEqual(len(controller.failures), 2)
+        programme_ids = {n.note_id for n in controller.notes if n.note_type == "programme"}
+        self.assertEqual({f["note_id"] for f in controller.failures}, programme_ids)
+        self.assertTrue(controller.batches)
+        self.assertFalse(any(b.note_id in programme_ids for b in controller.batches))
+        self.assertEqual(len(controller.extraction_attempts), 2)
+        controller.process_new_observations(4)
+        self.assertEqual(controller.extractor.calls, 2)
         self.assertEqual(len(controller.environment.records), 3)
 
     def test_saved_extractions_replay_exact_decisions_without_llm(self):
         controller, _ = setup()
+        controller.extractor = counted_extractor()
         controller.run_episode()
         with tempfile.TemporaryDirectory() as directory:
             source, replay = Path(directory) / "original", Path(directory) / "replay"

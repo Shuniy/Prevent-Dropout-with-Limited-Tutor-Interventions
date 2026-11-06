@@ -16,7 +16,7 @@ INFORMATION_MODES = ("oracle", "structured", "b_matched", "llm_notes", "noisy_no
 
 
 class ClosedLoopCMDPController:
-    VERSION = "closed_loop_cmdp_v1"
+    VERSION = "closed_loop_cmdp_v2_programme_notes"
 
     def __init__(self, environment, policy, *, mode="structured", extractor=None,
                  observation_config=ObservationConfig(), note_quality=NoteQuality(),
@@ -69,10 +69,14 @@ class ClosedLoopCMDPController:
         self.registry.extend(registry)
         selected = events
         if self.max_notes_per_month is not None:
-            # Rotate the monitored subset deterministically rather than always
-            # selecting the first IDs. Limits affect notes and matched gold only.
-            start = (registry[0].event_month * self.max_notes_per_month) % len(events) if events else 0
-            selected = (events[start:] + events[:start])[:self.max_notes_per_month]
+            # Limit intervention notes, never routine monitoring. Rotating only
+            # among programme events prevents unrelated students consuming the cap.
+            programmes = [event for event in events if event.programme_id is not None]
+            start = (programmes[0].event_month * self.max_notes_per_month) % len(programmes) if programmes else 0
+            selected_ids = {event.event_id for event in
+                            (programmes[start:] + programmes[:start])[:self.max_notes_per_month]}
+            selected = [event for event in events
+                        if event.programme_id is None or event.event_id in selected_ids]
         self.notes.extend(render_note(event, seed=self.environment.config.seed,
                                      quality=self.note_quality_by_student.get(
                                          event.student_id, self.note_quality)) for event in selected)
@@ -83,11 +87,16 @@ class ClosedLoopCMDPController:
         # facts, including exactly the same omission/delay/contradiction process.
         sources = ([render_note(event, seed=self.environment.config.seed) for event in self.events]
                    if self.mode in ("structured", "oracle") else self.notes)
-        extractor = self.gold_extractor if self.mode in ("structured", "oracle", "b_matched") else self.extractor
         for note in sources:
             if note.note_id in self.processed or note.available_from_month > month:
                 continue
             self.processed.add(note.note_id)
+            # Routine monitoring uses the declared synthetic grammar, with no
+            # LLM call. Only delivered programme notes use the injected extractor.
+            # Both paths keep the note's omissions, conflicts and availability.
+            extractor = (self.gold_extractor
+                         if self.mode in ("structured", "oracle", "b_matched")
+                         or note.note_type == "monitoring" else self.extractor)
             try:
                 batch = extractor.extract(note, month)
                 incoming.setdefault(note.student_id, []).append(batch)

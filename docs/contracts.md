@@ -301,6 +301,24 @@ application. Unknown or conflicting outcomes leave existing reported state uncha
 metrics stay unchanged, and each evaluation records the reason. There is no score,
 categorical-to-numeric mapping, automatic grade gain or model retraining.
 
+## Feedback extraction scope
+
+`School.run_cmdp_feedback` delegates to `ClosedLoopCMDPController`. In `llm_notes`
+and `noisy_notes`, the injected extractor receives only available `programme`
+notes from committed interventions. All `monitoring` notes use the existing
+deterministic synthetic-grammar extractor, including observations at month zero
+and after a student's programme. Monitoring preserves the note's omissions,
+conflicts and delays; it does not expose hidden state. Failed programme extraction
+is quarantined without retry or deterministic substitution.
+
+`max_notes_per_month` is a non-negative cap on programme notes per source month,
+shared with `b_matched`; it never removes routine monitoring. Zero disables
+programme extraction while keeping monitoring and administrative enrollment.
+Delayed notes are processed once at their first available cutoff. With no missing
+or delayed evidence and no cap, an LLM mode makes one call per admitted programme.
+Cached calls may reduce the actual request count. `oracle`, `structured` and
+`b_matched` never call the LLM.
+
 ## Step 6 evaluation contracts
 
 `FairRobustPlanner.plan(DecisionState)` preserves the hard candidate, budget,
@@ -314,7 +332,9 @@ remain exact; ordinary policies cannot obtain evaluator truth or future draws.
 validated synthetic NoteQuality records by ID at note generation. Source groups
 may determine this map outside the renderer; notes do not expose the group.
 D-matched uses the existing b_matched controller with exactly the noisy note
-channel; C/D use an explicit real extractor, with no fallback to fixtures.
+channel; C/D use an explicit real extractor for programme notes, with no fallback
+on extraction failure. Routine monitoring uses deterministic extraction in all
+note modes.
 
 `score_episode(controller)` is a post-execution read-only evaluator. The Brier
 convention sums all four class errors. WAIT risk scores use evaluator conditional
