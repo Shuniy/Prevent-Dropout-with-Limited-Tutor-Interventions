@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from src.evaluation.research_experiments import (load_config, make_controller,
     digest_controller, freeze, checked_manifest, aggregate, require_pilot, secondary)
@@ -79,12 +79,20 @@ class ResearchInformationTests(unittest.TestCase):
 
     def test_protocol_manifest_freeze_is_idempotent_and_requires_explicit_amendment(self):
         with tempfile.TemporaryDirectory() as directory:
-            with patch("src.evaluation.research_experiments.fingerprint", return_value={
+            # Test manifest mechanics against an explicit fixture. The removed
+            # research protocol must not be restored or silently fabricated.
+            from src.evaluation.research_experiments import PROTOCOL
+            protocol = Mock(wraps=PROTOCOL)
+            protocol.read_text.return_value = "Test-only protocol fixture; not a research authorization."
+            protocol.read_bytes.return_value = protocol.read_text.return_value.encode()
+            with patch("src.evaluation.research_experiments.PROTOCOL", protocol), patch(
+                    "src.evaluation.research_experiments.fingerprint", return_value={
                     "docs/research_evaluation_protocol.md": "first"}):
                 first = freeze(directory)
                 self.assertEqual(freeze(directory), first)
                 checked_manifest(directory)
-            with patch("src.evaluation.research_experiments.fingerprint", return_value={
+            with patch("src.evaluation.research_experiments.PROTOCOL", protocol), patch(
+                    "src.evaluation.research_experiments.fingerprint", return_value={
                     "docs/research_evaluation_protocol.md": "changed"}):
                 with self.assertRaises(ValueError):
                     checked_manifest(directory)

@@ -1,9 +1,15 @@
-"""Shared source/current support need rules; severity is not predicted risk."""
+"""Source-context needs; reset measurements are private, not authorized evidence."""
 
 
-def calculate_needs(student) -> list[dict]:
-    attendance = getattr(student, "initial_attendance_fraction_assumed", None)
-    engagement = getattr(student, "initial_engagement_assumed", None)
+def calculate_needs(student, *, legacy_runtime=False) -> list[dict]:
+    """Public source needs by default.
+
+    legacy_runtime is restricted to recorded-history performance evaluation,
+    whose numeric measurements predate the categorical observation contract.
+    Categorical condition estimates do not imply numeric attendance/engagement.
+    """
+    attendance = getattr(student, "initial_attendance_fraction_assumed", None) if legacy_runtime else None
+    engagement = getattr(student, "initial_engagement_assumed", None) if legacy_runtime else None
     for name, value in (("attendance", attendance), ("engagement", engagement)):
         if value is not None and not 0 <= value <= 1:
             raise ValueError(f"initial {name} must be between 0 and 1")
@@ -13,7 +19,7 @@ def calculate_needs(student) -> list[dict]:
         problems.append({"problem": problem, "support_type": support_type,
                          "severity": round(severity, 4)})
 
-    if getattr(student, "enrolled_initial_assumed", None) is False:
+    if legacy_runtime and getattr(student, "enrolled_initial_assumed", None) is False:
         add("return_to_learning", "reentry_support", 1.0)
     if student.learning_gap > 0 or student.past_failures_count > 0:
         add("learning_gap", "tutoring", max(student.learning_gap, min(1, student.past_failures_count / 4)))

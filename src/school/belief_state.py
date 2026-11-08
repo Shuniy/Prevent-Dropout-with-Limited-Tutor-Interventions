@@ -24,6 +24,7 @@ class EstimatedStudentState:
     unresolved_observations: tuple = ()
     observed_support_history: tuple = ()
     observation_uncertainty: tuple = ()
+    # Latest successfully assimilated condition emission source month; excludes registry/workflow.
     last_observation_month: int | None = None
     # Source-time evidence for deterministic late-arrival filtering; no truth.
     observation_history: tuple = ()

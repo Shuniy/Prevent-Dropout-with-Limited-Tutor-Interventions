@@ -37,7 +37,11 @@ def initial_condition(student) -> StudentCondition | None:
     engagement = student.initial_engagement_assumed
     if attendance < 0.70 or engagement < 0.40:
         return StudentCondition.DISENGAGED
-    if attendance < 0.85 or engagement < 0.60 or student.learning_gap >= 0.30:
+    # Private reset preserves the legacy initialization model. This grade
+    # combination is never exported as an ordinary decision feature.
+    from .student import grade_shortfall
+    reset_gap = grade_shortfall(student.anchor_grade1_0_20, student.math_grade1_0_20)
+    if attendance < 0.85 or engagement < 0.60 or reset_gap >= 0.30:
         return StudentCondition.VULNERABLE
     return StudentCondition.STABLE
 

@@ -55,7 +55,7 @@ def build_belief_scenarios(state, config, wait_matrix, programme_matrix):
 
     For each eligible estimated student, rho_i is bounded by one and equals
     radius * missingness_multiplier**missing * (1 + min(age,F)/F).
-    Age is the observed signal age relative to cutoff minus one; unknown age
+    Age is the successfully assimilated condition signal source age relative to cutoff minus one; unknown age
     defaults to F. The two disjoint subsets are current/fresh versus missing or
     stale. Each scenario mixes a subset's beliefs toward the live condition
     with largest/smallest current-horizon benefit. Oracle labels remain exact.

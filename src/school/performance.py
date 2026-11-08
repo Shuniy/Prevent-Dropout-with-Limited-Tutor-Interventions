@@ -23,7 +23,7 @@ def current_needs(student, performance: StudentPerformance) -> list[dict]:
     inputs.initial_attendance_fraction_assumed = performance.attendance_fraction
     inputs.initial_engagement_assumed = performance.engagement
     inputs.enrolled_initial_assumed = performance.enrolled
-    return calculate_needs(inputs)
+    return calculate_needs(inputs, legacy_runtime=True)
 
 
 def snapshot(student, performance: StudentPerformance) -> PerformanceSnapshot:

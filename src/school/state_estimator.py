@@ -92,6 +92,7 @@ class StudentStateEstimator:
             by_time[fact.source_month][fact.event_id].append(fact)
         probabilities = np.asarray(self.prior)
         unresolved = []
+        assimilated_months = set()
         reverse = {phrase: signal for signal, phrase in SIGNAL_PHRASES.items()}
         for time in range(cutoff):
             if time:
@@ -101,6 +102,7 @@ class StudentStateEstimator:
                 mask = np.asarray([1, 1, 1, 0] if enrolled else [0, 0, 0, 1])
                 probabilities = self._normalize(probabilities * mask, "impossible registry observation")
             for event_id, facts in sorted(by_time[time].items()):
+                facts = sorted(facts, key=lambda f: f.evidence_id)
                 signals = {reverse[f.evidence] for f in facts if f.evidence in reverse}
                 conflict = any(f.assertion_status == "conflicting" for f in facts) or len(signals) > 1
                 if conflict:
@@ -117,12 +119,12 @@ class StudentStateEstimator:
                     rejected.append((event_id, "zero_likelihood_preserved_prediction"))
                     continue
                 probabilities = weighted / weighted.sum()
+                assimilated_months.add(time)
         posterior = validate_belief(probabilities)
         facts = tuple(sorted(history.values(), key=lambda f: (f.source_month, f.event_id, f.evidence_id)))
-        last = max((f.source_month for f in facts), default=None)
+        last = max(assimilated_months, default=None)
         entropy = -sum(p * np.log(p) for p in posterior if p > 0)
-        uncertainty = (("entropy_nats", float(entropy)), ("missing_current_signal", not any(
-            f.source_month == cutoff - 1 and f.evidence in reverse for f in facts)),
+        uncertainty = (("entropy_nats", float(entropy)), ("missing_current_signal", cutoff - 1 not in assimilated_months),
             ("unresolved_count", len(unresolved)), ("likelihoods_empirically_calibrated", False))
         identity = {"student_id": sid, "cutoff": cutoff, "belief": posterior,
                     "facts": [asdict(f) for f in facts], "actions": actions,

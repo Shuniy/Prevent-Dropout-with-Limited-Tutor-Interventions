@@ -38,17 +38,20 @@ class StudentModelTests(unittest.TestCase):
         self.assertEqual(student.primary_support_type, "transport_assessment")
         self.assertEqual(student.need_score, 1)
 
-    def test_need_properties_reject_invalid_optional_fractions(self):
+    def test_public_needs_ignore_private_fractions_but_legacy_validates(self):
+        from src.school.needs import calculate_needs
         for field_name in ("initial_attendance_fraction_assumed", "initial_engagement_assumed"):
             for value in (-0.1, 1.1, float("nan")):
                 with self.subTest(field=field_name, value=value):
+                    changed = replace(self.low_need_student(), **{field_name: value})
+                    self.assertEqual(changed.need_profile, self.low_need_student().need_profile)
                     with self.assertRaises(ValueError):
-                        replace(self.low_need_student(), **{field_name: value}).need_profile
+                        calculate_needs(changed, legacy_runtime=True)
 
     def test_learning_gap_uses_available_grades(self):
         student = self.low_need_student()
         self.assertEqual(replace(student, anchor_grade1_0_20=2).learning_gap, 0.8)
-        self.assertEqual(replace(student, anchor_grade1_0_20=2, math_grade1_0_20=10).learning_gap, 0.4)
+        self.assertEqual(replace(student, anchor_grade1_0_20=2, math_grade1_0_20=10).learning_gap, 0.8)
         self.assertEqual(replace(student, anchor_grade1_0_20=18).learning_gap, 0)
 
     def test_access_properties_reflect_source_values(self):
@@ -64,15 +67,12 @@ class StudentModelTests(unittest.TestCase):
 
     def test_support_rules_select_the_expected_support(self):
         cases = [
-            ({"enrolled_initial_assumed": False}, "reentry_support"),
             ({"past_failures_count": 1}, "tutoring"),
-            ({"initial_attendance_fraction_assumed": 0.7}, "attendance_planning"),
             ({"internet_at_home": False}, "device_access"),
             ({"travel_time_category": 3}, "transport_assessment"),
             ({"study_time_category": 1}, "homework_support"),
             ({"family_relationship_rating": 2}, "family_liaison"),
             ({"health_self_rating": 2}, "wellbeing_checkin"),
-            ({"initial_engagement_assumed": 0.5}, "peer_support"),
             ({"financial_need_verified": True}, "family_finances"),
         ]
         for changes, support in cases:
@@ -84,3 +84,15 @@ class StudentModelTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LegacyRuntimeNeedTests(unittest.TestCase):
+    def test_recorded_history_still_uses_explicit_runtime_measurements(self):
+        from src.school.needs import calculate_needs
+        base = StudentModelTests().low_need_student()
+        for changes, support in (({"enrolled_initial_assumed": False}, "reentry_support"),
+                ({"initial_attendance_fraction_assumed": .7}, "attendance_planning"),
+                ({"initial_engagement_assumed": .5}, "peer_support")):
+            student = replace(base, **changes)
+            self.assertEqual(student.need_score, 0)
+            self.assertEqual(calculate_needs(student, legacy_runtime=True)[0]['support_type'], support)

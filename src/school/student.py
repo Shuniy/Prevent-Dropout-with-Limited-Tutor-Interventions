@@ -75,22 +75,20 @@ class Student:
 
     @property
     def learning_gap(self) -> float:
-        """Grade shortfall below 10, normalized to [0, 1]."""
-        grades = [self.anchor_grade1_0_20]
+        """Portuguese G1 shortfall at the assumed first-period decision landmark.
 
-        if self.math_grade1_0_20 is not None:
-            grades.append(self.math_grade1_0_20)
-
-        average_grade = sum(grades) / len(grades)
-        return min(1.0, max(0.0, (10 - average_grade) / 10))
+        Mathematics G1 is retained in the source record but never operationally
+        available in this benchmark: no synchronized availability is verified.
+        """
+        return grade_shortfall(self.anchor_grade1_0_20)
 
 
     @property
     def need_profile(self) -> list[dict]:
-        """Ranked hypothetical support needs derived from current properties.
+        """Ranked source-context needs; generated reset measurements are excluded.
 
         Severity lies in [0, 1]. It is a scenario priority, not dropout risk or
-        treatment benefit. Optional simulation inputs stay unknown when absent.
+        treatment benefit. Condition-dependent numeric needs remain unknown until authorized.
         Each access returns a fresh profile so source changes are reflected.
         """
         from .needs import calculate_needs
@@ -105,3 +103,9 @@ class Student:
     def primary_support_type(self) -> SupportType:
         """Support addressing the highest need; ties use the concern name."""
         return self.need_profile[0]["support_type"]
+
+
+def grade_shortfall(*grades) -> float:
+    """Normalized mean shortfall for an explicitly selected set of grades."""
+    available = [grade for grade in grades if grade is not None]
+    return min(1.0, max(0.0, (10 - sum(available) / len(available)) / 10))
