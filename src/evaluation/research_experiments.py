@@ -1,6 +1,7 @@
 """Staged Step 6 evaluation using the existing closed-loop environment and policies."""
 
 import argparse
+from copy import deepcopy
 from dataclasses import asdict, replace
 from datetime import datetime, timezone
 import gzip
@@ -162,7 +163,9 @@ def make_controller(config, name, mode, seed, *, setting="primary", budget=None,
         make_policy(policy_config, name, radius=radius), mode=controller_mode,
         extractor=extractor, observation_config=ObservationConfig(**config["observation"]),
         note_quality=quality, note_quality_by_student=qualities,
-        max_notes_per_month=config["evaluation"]["llm_notes_per_month"] if sparse else None)
+        max_notes_per_month=config["evaluation"]["llm_notes_per_month"] if sparse else None,
+        max_monitoring_notes_per_month=config["evaluation"].get("monitoring_notes_per_month", 1),
+        extraction_contract=config["evaluation"].get("extraction_contract", "actionable_monitoring"))
 
 
 def digest_controller(controller):
@@ -178,6 +181,12 @@ def save_trace(controller, destination):
     """Compressed complete inputs/outputs, preserving previous Step1–5 outputs."""
     payload = {"configuration": asdict(controller.environment.config),
         "mode": controller.mode, "note_quality": asdict(controller.note_quality),
+        "extraction_contract": controller.extraction_contract,
+        "max_monitoring_notes_per_month": controller.max_monitoring_notes_per_month,
+        "max_notes_per_month": controller.max_notes_per_month,
+        "note_selection": controller.note_selection,
+        "extraction_diagnostics": controller.extraction_diagnostics(),
+        "decision_diagnostics": controller.decision_diagnostics,
         "note_quality_by_student": {sid: asdict(q) for sid, q in controller.note_quality_by_student.items()},
         "observations": [asdict(e) for e in controller.events],
         "registry": [asdict(e) for e in controller.registry],
@@ -228,6 +237,7 @@ def run_one(output, config, manifest, phase, name, mode, seed, **options):
         "trace_digest": digest_controller(controller),
         "execution_key": execution_key,
         "extraction_failures": len(controller.failures),
+        **controller.extraction_diagnostics(),
         "note_count": len(controller.notes),
         "trace_path": str(destination.relative_to(output) / "trace.json.gz")}
     destination.mkdir(parents=True, exist_ok=True)
@@ -352,27 +362,48 @@ def live(output, config, manifest):
         for mode in ("b_matched", "llm_notes", "d_matched", "noisy_notes"):
             run_pairs(output, config, manifest, "live", [seed], mode=mode,
                       setting="sparse_real_llm", sparse=True, extractor=extractor)
+    closed_loop_calls = extractor.calls
+    live_snapshot_comparisons(output, config, extractor)
     write_json(Path(output) / "live_runtime.json", {"new_inference_calls": extractor.calls,
+        "closed_loop_inference_calls": closed_loop_calls,
+        "snapshot_inference_calls": extractor.calls - closed_loop_calls,
         "configuration": extractor.configuration,
         "n_world_seeds": len(config["evaluation"]["live_seeds"]),
         "note": "Temperature0 is not a bitwise determinism guarantee; cache replay is deterministic."})
-    live_snapshot_comparisons(output, config, extractor)
 
 
 def live_snapshot_comparisons(output, config, extractor):
+    """Fork a shared gold month-1 history immediately before cutoff-2 extraction.
+
+    These are conditional extraction contrasts, not unrelated closed-loop worlds.
+    No observations after the forked decision are reused across trajectories.
+    """
+    if config["scenario"]["horizon"] < 2:
+        raise ValueError("snapshot comparison requires at least two decision months")
     rows = []
     for seed in config["evaluation"]["live_seeds"]:
         for gold_mode, llm_mode in (("b_matched", "llm_notes"), ("d_matched", "noisy_notes")):
+            common = make_controller(config, "FairPoint", gold_mode, seed, sparse=True)
+            common.run_month()
             controls = []
             for mode in (gold_mode, llm_mode):
-                controller = make_controller(config, "FairPoint", mode, seed, extractor=extractor, sparse=True)
-                controller.initialize()
-                state = controller.prepare_decision_snapshot(1)
-                allocation = make_policy(config, "FairPoint").plan(state)
+                controller = deepcopy(common)
+                controller.mode = "b_matched" if mode == "d_matched" else mode
+                controller.extractor = extractor
+                state = controller.prepare_decision_snapshot(2)
+                allocation = controller.allocate(state)
                 controls.append((controller, state, allocation))
             left, right = controls
-            if left[0].notes != right[0].notes:
-                raise AssertionError("gold/LLM snapshot notes differ")
+            if (left[0].notes != right[0].notes or left[0].note_selection != right[0].note_selection
+                    or left[1].mentors != right[1].mentors
+                    or left[1].remaining_budget_exact != right[1].remaining_budget_exact
+                    or [(s.student_id, s.eligible, s.programme_months) for s in left[1].students]
+                    != [(s.student_id, s.eligible, s.programme_months) for s in right[1].students]):
+                raise AssertionError("gold/LLM comparison inputs differ")
+            diagnostics = right[0].extraction_diagnostics(2)
+            status = ("UNAVAILABLE / NOT EXERCISED" if not diagnostics["extractor_attempts"] else
+                      "UNAVAILABLE / UNUSABLE" if not diagnostics["eligible_students_with_new_usable_evidence"] else "EXERCISED")
+            exercised = diagnostics["extractor_attempts"] > 0
             lbenefit = estimate_all_student_benefits(left[1], left[0].policy.wait_matrix, left[0].policy.programme_matrix)
             rbenefit = estimate_all_student_benefits(right[1], right[0].policy.wait_matrix, right[0].policy.programme_matrix)
             ids = sorted(lbenefit.keys() | rbenefit.keys())
@@ -382,18 +413,28 @@ def live_snapshot_comparisons(output, config, extractor):
             rrisks = {r.student_id: r.probability for r in right[1].risk_estimates}
             for a, b in zip(left[1].students, right[1].students):
                 rows.append({"seed": seed, "gold_mode": gold_mode, "llm_mode": llm_mode,
-                    "month": 1, "student_id": a.student_id, "same_notes": True,
-                    "belief_l1": sum(abs(x-y) for x,y in zip(a.condition_probabilities,b.condition_probabilities)),
-                    "risk_difference": rrisks[a.student_id]-lrisks[a.student_id],
-                    "benefit_difference": rbenefit.get(a.student_id,0)-lbenefit.get(a.student_id,0),
+                    "month": 2, "student_id": a.student_id, "same_notes": True,
+                    "status": status, **diagnostics,
+                    "belief_l1": sum(abs(x-y) for x,y in zip(a.condition_probabilities,b.condition_probabilities)) if exercised else None,
+                    "risk_difference": rrisks[a.student_id]-lrisks[a.student_id] if exercised else None,
+                    "benefit_difference": rbenefit.get(a.student_id,0)-lbenefit.get(a.student_id,0) if exercised else None,
                     "eligibility_changed": a.eligible != b.eligible,
                     "selected_gold": a.student_id in lassign, "selected_llm": a.student_id in rassign,
-                    "mentor_changed": lassign.get(a.student_id) != rassign.get(a.student_id)})
-            ranks = spearmanr([lbenefit.get(sid,0) for sid in ids], [rbenefit.get(sid,0) for sid in ids])
+                    "mentor_changed": (lassign.get(a.student_id) != rassign.get(a.student_id)) if exercised else None})
+            lv, rv = [lbenefit.get(sid,0) for sid in ids], [rbenefit.get(sid,0) for sid in ids]
+            rank = (float(spearmanr(lv, rv).statistic) if status == "EXERCISED"
+                    and len(set(lv)) > 1 and len(set(rv)) > 1 else None)
             write_json(Path(output) / f"live_snapshot_rank_{seed}_{gold_mode}.json",
-                {"spearman_average_ties": float(ranks.statistic) if np.isfinite(ranks.statistic) else None,
-                 "same_notes": True, "cutoff": 1, "seed": seed})
+                {"spearman_average_ties": rank, "status": status, **diagnostics,
+                 "decision_cutoffs_compared": [2] if exercised else [],
+                 "same_notes": True, "cutoff": 2, "seed": seed,
+                 "shared_history": common.decisions,
+                 "selection": [s for s in right[0].note_selection if s["cutoff"] == 2],
+                 "attempts": [a for a in right[0].extraction_attempts if a["as_of_month"] == 2],
+                 "gold_snapshot": asdict(left[1]), "extracted_snapshot": asdict(right[1]),
+                 "gold_allocation": asdict(left[2]), "extracted_allocation": asdict(right[2])})
     write_csv(Path(output) / "extraction_snapshot_comparison.csv", rows)
+    return rows
 
 
 def aggregate(output):

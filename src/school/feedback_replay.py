@@ -40,7 +40,11 @@ def replay_feedback_episode(source, output):
         mode=manifest["information_mode"], extractor=extractor,
         observation_config=ObservationConfig(**observation),
         note_quality=NoteQuality(**manifest["note_quality"]),
-        max_notes_per_month=manifest["max_notes_per_month"])
+        note_quality_by_student={sid: NoteQuality(**quality) for sid, quality
+                                 in manifest.get("note_quality_by_student", {}).items()},
+        max_notes_per_month=manifest["max_notes_per_month"],
+        max_monitoring_notes_per_month=manifest.get("max_monitoring_notes_per_month", 1),
+        extraction_contract=manifest.get("extraction_contract", "legacy_programme_only"))
     expected = read_jsonl(source / "allocation_decisions.jsonl")
     if any(list(actual["admitted_ids"]) != old["admitted_ids"]
            or actual["remaining_budget_after"] != old["remaining_budget_after"]

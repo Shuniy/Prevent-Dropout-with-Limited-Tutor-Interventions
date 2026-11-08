@@ -21,6 +21,9 @@ budgets = [50.0,150.0,300.0]
 effect_strengths = [0.0,0.25,0.5,1.0]
 uncertainty_radii = [0.0,0.1,0.25,0.5]
 llm_notes_per_month = 1
+# Phase 2 development amendment: separate bound for actionable school monitoring.
+monitoring_notes_per_month = 1
+extraction_contract = "actionable_monitoring"
 
 [uncertainty]
 radius = 0.25

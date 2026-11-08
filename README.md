@@ -9,9 +9,10 @@ Markdown, CSV, JSON, configuration and episode traces are saved in a new directo
 Timing includes simulation and extraction but excludes report writing. Extraction failures
 are reported as quarantined observations; inspect these before interpreting LLM results.
 The default extractor is Ollama (`qwen3.5:latest`); fixture extraction is an offline control.
-LLM calls are limited to programme notes for students admitted to interventions.
-Routine monitoring for all students uses deterministic extraction of the declared
-synthetic note grammar, retaining the selected mode's omissions, conflicts and delays.
+LLM-note modes extract selected authorized school monitoring notes before admission,
+with a separate default bound of one actionable monitoring note per decision cutoff.
+Programme notes retain their own limit. Matched controls receive exactly the same
+selected note content and timing. Unselected or failed notes supply no gold fallback.
 Transition probabilities and intervention effects are synthetic assumptions.
 
 Recorded-intervention extraction remains available through Python APIs and the
@@ -31,6 +32,9 @@ R14). Missing mathematics grades are excluded without imputation. Public needs
 and private simulator initialization share the same grade-shortfall calculation.
 The [Phase 1 correction record](docs/phase1_scientific_correctness.md) documents
 these requirements, the superseded anchor-only rule, and scientific limits.
+The [Phase 2 implementation and verification report](docs/phase2_scientific_correctness.md)
+documents actionable monitoring extraction (R01), non-vacuous common-history snapshot
+comparisons (R04), the selection contract, tests and remaining research limitations.
 
 Check current implemented behavior against `src/`, `configs/` and `tests/`.
 Code and passing tests establish tested behavior, not scientific correctness.
@@ -110,15 +114,27 @@ and, after installation, `school-dropout`. The combined comparison defaults come
 `configs/cmdp_llm_feedback.toml` (100 students, 2 mentors, 12 months, one monthly
 admission and five monthly appointments per mentor). Use `--policies` to select baselines,
 `--feedback-policies` to select planners, and `--modes` to select information modes.
-`--max-notes-per-month` caps intervention programme notes per source month in note
-modes and matched-note controls. Routine monitoring consumes no LLM calls and is
-not capped; structured and oracle retain their full information. Delayed programme
-notes are processed once when available, so several source months may reach one cutoff.
-Without missing/delayed evidence or a note cap, each LLM mode makes one call per
-admitted programme, and zero calls before the first intervention. The default one
-monthly admission per mentor over twelve months allows at most 24 calls per policy/mode
-with two mentors, or 96 across the two planners and two LLM modes. Previously every student's
-monthly note reached the LLM: up to `100 × (12 + 1) = 1,300` calls per policy/mode.
+`--max-notes-per-month` still caps intervention programme notes per source month.
+`--max-monitoring-notes-per-month` separately caps actionable monitoring notes per
+decision cutoff (default 1; 0 disables this channel). The Python API accepts `None`
+to select all available actionable monitoring notes. Selection uses a reproducible
+seeded hash of cutoff and note identity, independent of group, need and hidden truth.
+Eligibility uses authorized enrollment and prior admissions. Cap-excluded notes
+are logged and discarded; unavailable notes wait until their availability cutoff.
+No monitoring model calls are made after the final decision. Structured and oracle
+modes retain all authorized structured observations regardless of these note caps.
+Delayed programme notes retain their source-month cap and are processed once when
+available, so several source months can reach one cutoff. With two mentors, one
+admission each per month, and a twelve-month horizon, the default allows at most
+12 monitoring plus 24 programme calls per policy/LLM mode (144 across two planners
+and two LLM modes). Cache hits can reduce model invocations. Attempts, actual calls,
+cache hits, accepted/quarantined results and note-selection reasons are saved separately.
+
+`--extraction-contract legacy_programme_only` preserves the historical routing:
+all routine monitoring uses exact grammar extraction and only programme notes use
+the injected extractor. It retains its old note-cap meaning but does not establish
+actionable LLM feedback. Programme-note feedback remains non-actionable for the
+recipient under the single-programme benchmark; repeat or continuing support is deferred.
 The legacy baseline runner defaults come from
 `configs/cmdp_baselines.toml`: the same Step 1 scenario with 100 students,
 2 mentors, 12 months, 5 appointments per
@@ -141,7 +157,10 @@ tentative.
 Step 5 connects dated monitoring/programme notes to validated LLM extraction,
 categorical beliefs, synthetic withdrawal risk and both existing CMDP planners.
 Run `python scripts/run_cmdp_feedback_pilot.py` for the offline fixture pilot, or
-add `--extractor ollama --max-notes-per-month 1` for the existing local model.
+add `--extractor ollama --max-notes-per-month 1 --max-monitoring-notes-per-month 1`
+for the existing local model. Run `python scripts/verify_phase2.py --output
+results/phase2_new_run` for the bounded offline extraction-sensitivity harness;
+it uses regression fixtures and requires a new output directory.
 
 Standalone extraction commands require a local Ollama server and model:
 

@@ -56,6 +56,8 @@ def save_episode(controller, output):
         ("extraction_failures", controller.failures), ("fairness_windows", controller.fairness_rows)):
         write_jsonl(output / f"{filename}.jsonl", records)
     write_jsonl(output / "extraction_attempts.jsonl", controller.extraction_attempts)
+    write_jsonl(output / "note_selection.jsonl", controller.note_selection)
+    write_jsonl(output / "decision_extraction_diagnostics.jsonl", controller.decision_diagnostics)
     # Evaluation-only directory is never handed to a policy or extractor.
     evaluator = output / "evaluator_only"
     evaluator.mkdir()
@@ -63,6 +65,9 @@ def save_episode(controller, output):
     manifest = {"scenario": asdict(config), "information_mode": controller.mode,
         "observation_model": asdict(controller.observation_model.config),
         "note_quality": asdict(controller.note_quality), "max_notes_per_month": controller.max_notes_per_month,
+        "extraction_contract": controller.extraction_contract,
+        "max_monitoring_notes_per_month": controller.max_monitoring_notes_per_month,
+        "extraction_diagnostics": controller.extraction_diagnostics(),
         "note_quality_by_student": {sid: asdict(quality) for sid, quality
                                     in controller.note_quality_by_student.items()},
         "estimator": controller.estimator.configuration,
@@ -118,7 +123,8 @@ def run_feedback_experiments(config, *, output, observation_config=ObservationCo
         note_quality=NoteQuality(), noisy_quality=NoteQuality(omission_probability=.35,
         conflict_probability=.2, misleading_probability=.1, delay_probability=.25),
         modes=INFORMATION_MODES, policies=("resource", "fairness"), extractor=None,
-        max_notes_per_month=None):
+        max_notes_per_month=None, max_monitoring_notes_per_month=1,
+        extraction_contract="actionable_monitoring"):
     output = Path(output)
     if not modes or any(m not in INFORMATION_MODES for m in modes):
         raise ValueError("select valid information modes")
@@ -140,6 +146,8 @@ def run_feedback_experiments(config, *, output, observation_config=ObservationCo
         "scenario": asdict(config), "observation": asdict(observation_config),
         "notes": asdict(note_quality), "noisy_notes": asdict(noisy_quality),
         "modes": modes, "policies": policies, "max_notes_per_month": max_notes_per_month,
+        "max_monitoring_notes_per_month": max_monitoring_notes_per_month,
+        "extraction_contract": extraction_contract,
         "model_metadata": model_metadata,
         "llm_options": ({"model": extractor.client.model, "num_ctx": extractor.client.num_ctx,
                          "temperature": 0} if isinstance(extractor, LLMObservationExtractor) else None),
@@ -156,7 +164,9 @@ def run_feedback_experiments(config, *, output, observation_config=ObservationCo
             controller = build_school(config).run_cmdp_feedback(policy, config=config,
                 mode=mode, extractor=extractor, observation_config=observation_config,
                 note_quality=noisy_quality if mode == "noisy_notes" else note_quality,
-                max_notes_per_month=max_notes_per_month)
+                max_notes_per_month=max_notes_per_month,
+                max_monitoring_notes_per_month=max_monitoring_notes_per_month,
+                extraction_contract=extraction_contract)
             destination = output / f"{name}_{mode}_seed_{config.seed}"
             save_episode(controller, destination)
             # Shared models, separate realized trajectories for every policy/mode.
@@ -169,6 +179,7 @@ def run_feedback_experiments(config, *, output, observation_config=ObservationCo
                 "spent_budget": config.budget - controller.environment.records[-1].remaining_budget,
                 "notes_generated": len(controller.notes), "extracted_batches": len(controller.batches),
                 "quarantined_extractions": len(controller.failures),
+                **controller.extraction_diagnostics(),
                 "real_llm_calls": getattr(extractor, "calls", 0) - calls_before,
                 "extractor": type(extractor).__name__ if mode in ("llm_notes", "noisy_notes") else "structured_gold",
                 "normalized_window_shortfall": sum(
@@ -193,7 +204,11 @@ def main(*, pilot=False):
     parser.add_argument("--model", default="qwen3.5:latest")
     parser.add_argument("--timeout", type=int, default=120)
     parser.add_argument("--max-notes-per-month", type=int,
-                        help="Limit intervention programme notes per source month; routine monitoring uses no LLM")
+                        help="Limit intervention programme notes per source month")
+    parser.add_argument("--max-monitoring-notes-per-month", type=int, default=1,
+                        help="Limit actionable monitoring notes per decision cutoff (default: 1)")
+    parser.add_argument("--extraction-contract", choices=("actionable_monitoring", "legacy_programme_only"),
+                        default="actionable_monitoring")
     parser.add_argument("--modes", nargs="+", choices=INFORMATION_MODES, default=list(INFORMATION_MODES))
     parser.add_argument("--policies", nargs="+", choices=("resource", "fairness"), default=["resource", "fairness"])
     parser.add_argument("--seed", type=int)
@@ -215,5 +230,7 @@ def main(*, pilot=False):
     run_feedback_experiments(config, output=output, observation_config=ObservationConfig(**observation),
         note_quality=NoteQuality(**values.get("notes", {})),
         noisy_quality=NoteQuality(**values.get("noisy_notes", {})), extractor=extractor,
-        modes=tuple(args.modes), policies=tuple(args.policies), max_notes_per_month=args.max_notes_per_month)
+        modes=tuple(args.modes), policies=tuple(args.policies), max_notes_per_month=args.max_notes_per_month,
+        max_monitoring_notes_per_month=args.max_monitoring_notes_per_month,
+        extraction_contract=args.extraction_contract)
     print(f"Saved Step 5 development results: {output}")

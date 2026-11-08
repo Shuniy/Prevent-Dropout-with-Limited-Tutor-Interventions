@@ -84,6 +84,22 @@ class ObservationExtractor(Protocol):
     def extract(self, note: Note, as_of_time: int) -> ExtractedObservationBatch: ...
 
 
+def validate_batch(batch, note, as_of_month):
+    """Revalidate even injected adapters; a dataclass alone is not validation."""
+    if not isinstance(batch, ExtractedObservationBatch) or batch.as_of_month != as_of_month:
+        raise ValueError("extractor must return a current ExtractedObservationBatch")
+    if any(not isinstance(fact, ExtractedFact) for fact in batch.facts):
+        raise ValueError("invalid extracted fact schema")
+    payload = {"student_id": batch.student_id, "note_id": batch.note_id,
+        "observations": [{k: v for k, v in asdict(f).items()
+                          if k not in ("event_id", "evidence_id")} for f in batch.facts]}
+    validated = validate_extraction(payload, note, as_of_month)
+    identities = {(f.event_id, f.evidence_id) for f in validated.facts}
+    if any((f.event_id, f.evidence_id) not in identities for f in batch.facts):
+        raise ValueError("unsupported evidence identity")
+    return validated
+
+
 def gold_payload(note):
     """B-matched gold contains only sentences actually retained in this note."""
     facts = []

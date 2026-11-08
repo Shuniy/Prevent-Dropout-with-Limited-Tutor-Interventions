@@ -26,6 +26,8 @@ from src.school.student_condition import StudentCondition as S
 
 
 def setup(mode="llm_notes", *, policy=None, config=None, **kwargs):
+    # Preserve historical programme-only regressions under their explicit contract.
+    kwargs.setdefault("extraction_contract", "legacy_programme_only")
     config = config or ScenarioConfig(num_students=6, num_mentors=1, horizon=3,
                                       monthly_admissions=1, monthly_appointments=5, budget=10)
     school = build_school(config)
@@ -68,7 +70,7 @@ class ClosedLoopFeedbackTests(unittest.TestCase):
                         for call in controller.extractor.client.generate.call_args_list]
                 self.assertEqual({(n["event_month"], n["student_id"]) for n in sent}, admitted)
                 self.assertTrue(all(n["note_type"] == "programme" and n["mentor_id"] for n in sent))
-                self.assertEqual(len(controller.extraction_attempts), len(admitted))
+                self.assertEqual(controller.extraction_diagnostics()["extractor_attempts"], len(admitted))
                 self.assertEqual(len(controller.estimates), 6)
                 self.assertEqual(len(controller.batches), 6 * 4)
                 controller.process_new_observations(4)
@@ -250,7 +252,7 @@ class ClosedLoopFeedbackTests(unittest.TestCase):
         self.assertEqual({f["note_id"] for f in controller.failures}, programme_ids)
         self.assertTrue(controller.batches)
         self.assertFalse(any(b.note_id in programme_ids for b in controller.batches))
-        self.assertEqual(len(controller.extraction_attempts), 2)
+        self.assertEqual(controller.extraction_diagnostics()["extractor_attempts"], 2)
         controller.process_new_observations(4)
         self.assertEqual(controller.extractor.calls, 2)
         self.assertEqual(len(controller.environment.records), 3)

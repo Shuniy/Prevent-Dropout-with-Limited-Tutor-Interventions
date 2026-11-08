@@ -58,7 +58,11 @@ def main() -> None:
     parser.add_argument("--model", default="qwen3.5:latest")
     parser.add_argument("--timeout", type=int, default=120)
     parser.add_argument("--max-notes-per-month", type=int,
-                        help="Limit intervention programme notes per source month; routine monitoring uses no LLM")
+                        help="Limit intervention programme notes per source month")
+    parser.add_argument("--max-monitoring-notes-per-month", type=int, default=1,
+                        help="Limit actionable monitoring notes per decision cutoff (default: 1)")
+    parser.add_argument("--extraction-contract", choices=("actionable_monitoring", "legacy_programme_only"),
+                        default="actionable_monitoring")
     parser.add_argument("--feedback-policies", nargs="+", choices=("resource", "fairness"),
                         default=["resource", "fairness"])
     parser.add_argument("--modes", nargs="+",

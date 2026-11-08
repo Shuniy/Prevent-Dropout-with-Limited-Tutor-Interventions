@@ -70,7 +70,10 @@ def run_comparison(args):
         row = dict(policy=name, mode=mode, seed=config.seed, students=config.num_students,
                    months=config.horizon, terminal_enrolled=enrolled, programmes=programmes,
                    spent_budget=spent, seconds=seconds, quarantined_extractions=failures,
-                   real_llm_calls=calls, extractor=extractor)
+                   real_llm_calls=calls, extractor=extractor, extractor_attempts=0,
+                   actual_model_invocations=0, cache_hits=0, accepted_extractions=0,
+                   selected_notes=0, eligible_students_with_usable_evidence=0,
+                   monitoring_extractor_attempts=0, eligible_students_with_new_usable_evidence=0)
         rows.append(row)
         print(f"{name}/{mode}: enrolled={enrolled}/{config.num_students}, programmes={programmes}, "
               f"spent={spent:.2f}, time={seconds:.3f}s, quarantined={failures}, LLM calls={calls}", flush=True)
@@ -93,7 +96,9 @@ def run_comparison(args):
             controller = build_school(config).run_cmdp_feedback(
                 policy, config=config, mode=mode, extractor=extractor,
                 observation_config=observation, note_quality=noisy if mode == "noisy_notes" else quality,
-                max_notes_per_month=args.max_notes_per_month)
+                max_notes_per_month=args.max_notes_per_month,
+                max_monitoring_notes_per_month=args.max_monitoring_notes_per_month,
+                extraction_contract=args.extraction_contract)
             elapsed = perf_counter() - start
             validate_feedback_episode(controller)
             record(name, mode, elapsed, controller.environment.terminal_reward(),
@@ -101,6 +106,7 @@ def run_comparison(args):
                    config.budget - controller.environment.records[-1].remaining_budget,
                    len(controller.failures), getattr(extractor, "calls", 0),
                    type(extractor).__name__ if mode in ("llm_notes", "noisy_notes") else "structured_gold")
+            rows[-1].update(controller.extraction_diagnostics())
             artifacts.append((f"{name}_{mode}", controller))
 
     lines = ["# Simulation comparison", "", CAVEAT, "",
@@ -118,6 +124,8 @@ def run_comparison(args):
     output.mkdir(parents=True, exist_ok=False)
     manifest = dict(scenario=asdict(config), observation=asdict(observation), notes=asdict(quality),
                     noisy_notes=asdict(noisy), max_notes_per_month=args.max_notes_per_month,
+                    max_monitoring_notes_per_month=args.max_monitoring_notes_per_month,
+                    extraction_contract=args.extraction_contract,
                     extractor=args.extractor, model=args.model, timeout=args.timeout,
                     num_ctx=8192, temperature=0, policies=policies,
                     feedback_policies=args.feedback_policies, modes=args.modes, caveat=CAVEAT)

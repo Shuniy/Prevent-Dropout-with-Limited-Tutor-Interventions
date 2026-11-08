@@ -313,10 +313,7 @@ class School:
 
     def run_cmdp_feedback(self, policy: AllocationPolicy, *, config: ScenarioConfig | None = None,
                           **feedback_options):
-        """Run feedback with LLM extraction limited to intervention programme notes.
-
-        Routine monitoring still updates every student's beliefs without LLM calls.
-        """
+        """Run bounded actionable monitoring feedback (or explicit legacy routing)."""
         from .closed_loop_controller import ClosedLoopCMDPController
 
         return ClosedLoopCMDPController(self.create_cmdp_environment(config=config), policy,
