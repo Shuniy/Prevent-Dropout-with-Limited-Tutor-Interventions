@@ -1,0 +1,390 @@
+{
+  "revision": "7eb519d18ef0e1fe6be0ab2dc2c7b89d5cd05317",
+  "python": "3.14.8 (main, Sep 30 2026, 17:55:09) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "llm_influence": [
+    {
+      "policy": "resource",
+      "seed": 0,
+      "extractor_calls": [
+        6,
+        6,
+        6
+      ],
+      "all_injected_calls_are_programme_notes": true,
+      "assignments_equal_despite_empty_and_failed_extraction": true,
+      "all_truth_equal": true,
+      "cutoff_beliefs_differ": [
+        true,
+        true
+      ],
+      "extraction_failures": [
+        0,
+        0,
+        6
+      ]
+    },
+    {
+      "policy": "resource",
+      "seed": 1,
+      "extractor_calls": [
+        6,
+        6,
+        6
+      ],
+      "all_injected_calls_are_programme_notes": true,
+      "assignments_equal_despite_empty_and_failed_extraction": true,
+      "all_truth_equal": true,
+      "cutoff_beliefs_differ": [
+        true,
+        true
+      ],
+      "extraction_failures": [
+        0,
+        0,
+        6
+      ]
+    },
+    {
+      "policy": "resource",
+      "seed": 42,
+      "extractor_calls": [
+        6,
+        6,
+        6
+      ],
+      "all_injected_calls_are_programme_notes": true,
+      "assignments_equal_despite_empty_and_failed_extraction": true,
+      "all_truth_equal": true,
+      "cutoff_beliefs_differ": [
+        true,
+        true
+      ],
+      "extraction_failures": [
+        0,
+        0,
+        6
+      ]
+    },
+    {
+      "policy": "fairness",
+      "seed": 0,
+      "extractor_calls": [
+        6,
+        6,
+        6
+      ],
+      "all_injected_calls_are_programme_notes": true,
+      "assignments_equal_despite_empty_and_failed_extraction": true,
+      "all_truth_equal": true,
+      "cutoff_beliefs_differ": [
+        true,
+        true
+      ],
+      "extraction_failures": [
+        0,
+        0,
+        6
+      ]
+    },
+    {
+      "policy": "fairness",
+      "seed": 1,
+      "extractor_calls": [
+        6,
+        6,
+        6
+      ],
+      "all_injected_calls_are_programme_notes": true,
+      "assignments_equal_despite_empty_and_failed_extraction": true,
+      "all_truth_equal": true,
+      "cutoff_beliefs_differ": [
+        true,
+        true
+      ],
+      "extraction_failures": [
+        0,
+        0,
+        6
+      ]
+    },
+    {
+      "policy": "fairness",
+      "seed": 42,
+      "extractor_calls": [
+        6,
+        6,
+        6
+      ],
+      "all_injected_calls_are_programme_notes": true,
+      "assignments_equal_despite_empty_and_failed_extraction": true,
+      "all_truth_equal": true,
+      "cutoff_beliefs_differ": [
+        true,
+        true
+      ],
+      "extraction_failures": [
+        0,
+        0,
+        6
+      ]
+    },
+    {
+      "policy": "robust",
+      "seed": 0,
+      "extractor_calls": [
+        6,
+        6,
+        6
+      ],
+      "all_injected_calls_are_programme_notes": true,
+      "assignments_equal_despite_empty_and_failed_extraction": true,
+      "all_truth_equal": true,
+      "cutoff_beliefs_differ": [
+        true,
+        true
+      ],
+      "extraction_failures": [
+        0,
+        0,
+        6
+      ]
+    },
+    {
+      "policy": "robust",
+      "seed": 1,
+      "extractor_calls": [
+        6,
+        6,
+        6
+      ],
+      "all_injected_calls_are_programme_notes": true,
+      "assignments_equal_despite_empty_and_failed_extraction": true,
+      "all_truth_equal": true,
+      "cutoff_beliefs_differ": [
+        true,
+        true
+      ],
+      "extraction_failures": [
+        0,
+        0,
+        6
+      ]
+    },
+    {
+      "policy": "robust",
+      "seed": 42,
+      "extractor_calls": [
+        6,
+        6,
+        6
+      ],
+      "all_injected_calls_are_programme_notes": true,
+      "assignments_equal_despite_empty_and_failed_extraction": true,
+      "all_truth_equal": true,
+      "cutoff_beliefs_differ": [
+        true,
+        true
+      ],
+      "extraction_failures": [
+        0,
+        0,
+        6
+      ]
+    }
+  ],
+  "freshness": [
+    {
+      "case": "conflict",
+      "posterior_equals_no_new_condition_evidence": true,
+      "last_observation_month": 1,
+      "missing_current_signal": false,
+      "robust_uncertainty": {
+        "mixture_radius": 0.25,
+        "missing_current_signal": false,
+        "signal_age_months": 0,
+        "last_observation_month": 1,
+        "documentation_subset": "fresh_documented",
+        "estimate_id": "bd032b56b6153a8a35d1c96a0cd9535e6a81a5a0ede19ff01cc18b86fc3e8dd6",
+        "source": "decision_state_estimate"
+      },
+      "rejections": [
+        [
+          "new",
+          "conflicting_correlated_event"
+        ]
+      ]
+    },
+    {
+      "case": "insufficient_evidence",
+      "posterior_equals_no_new_condition_evidence": true,
+      "last_observation_month": 1,
+      "missing_current_signal": true,
+      "robust_uncertainty": {
+        "mixture_radius": 0.375,
+        "missing_current_signal": true,
+        "signal_age_months": 0,
+        "last_observation_month": 1,
+        "documentation_subset": "missing_or_stale",
+        "estimate_id": "e100c90030b0f7c5629aabc9878181efb928cd7839fd7a6404c3616b40c95d86",
+        "source": "decision_state_estimate"
+      },
+      "rejections": []
+    },
+    {
+      "case": "completion_only",
+      "posterior_equals_no_new_condition_evidence": true,
+      "last_observation_month": 1,
+      "missing_current_signal": true,
+      "robust_uncertainty": {
+        "mixture_radius": 0.375,
+        "missing_current_signal": true,
+        "signal_age_months": 0,
+        "last_observation_month": 1,
+        "documentation_subset": "missing_or_stale",
+        "estimate_id": "fac0718cf80f7009c9ed2bd78dab74c21e3166aecab3e9497dade64b9bbfb9b0",
+        "source": "decision_state_estimate"
+      },
+      "rejections": []
+    },
+    {
+      "case": "no_new_evidence",
+      "posterior_equals_no_new_condition_evidence": true,
+      "last_observation_month": 0,
+      "missing_current_signal": true,
+      "robust_uncertainty": {
+        "mixture_radius": 0.5,
+        "missing_current_signal": true,
+        "signal_age_months": 1,
+        "last_observation_month": 0,
+        "documentation_subset": "missing_or_stale",
+        "estimate_id": "ebe9c9f1f596947fc509073e6981bb899ca3fd3d7c427b7348b7a84b450be5b3",
+        "source": "decision_state_estimate"
+      },
+      "rejections": []
+    }
+  ],
+  "baseline_feedback": [
+    {
+      "policy": "wait",
+      "error": "AttributeError",
+      "message": "'BaselinePolicy' object has no attribute 'wait_matrix'"
+    },
+    {
+      "policy": "random",
+      "error": "AttributeError",
+      "message": "'BaselinePolicy' object has no attribute 'wait_matrix'"
+    },
+    {
+      "policy": "severity",
+      "error": "AttributeError",
+      "message": "'BaselinePolicy' object has no attribute 'wait_matrix'"
+    },
+    {
+      "policy": "need_priority",
+      "error": "AttributeError",
+      "message": "'BaselinePolicy' object has no attribute 'wait_matrix'"
+    },
+    {
+      "policy": "longest_waiting",
+      "error": "AttributeError",
+      "message": "'BaselinePolicy' object has no attribute 'wait_matrix'"
+    }
+  ],
+  "live_snapshot_comparison": {
+    "extractor_calls": 0,
+    "exported_comparison_rows": 24,
+    "all_belief_differences_zero": true,
+    "all_mentor_assignments_equal": true
+  },
+  "replay_group_quality": {
+    "saved_per_student_quality_count": 12,
+    "error": "ValueError",
+    "message": "replay allocation/resource mismatch"
+  },
+  "historic_source_hashes": {
+    "changed_count": 50,
+    "missing_count": 1,
+    "unchanged_count": 69,
+    "changed": [
+      "src/basic_examples/agent_based_modelling.py",
+      "src/basic_examples/budgeted_mdp.py",
+      "src/basic_examples/cmdp.py",
+      "src/basic_examples/markov_chains.py",
+      "src/basic_examples/markov_decision_process.py",
+      "src/basic_examples/simple_agent.py",
+      "src/evaluation/cached_observation_extractor.py",
+      "src/evaluation/extraction_evaluation.py",
+      "src/evaluation/research_experiments.py",
+      "src/evaluation/research_report.py",
+      "src/evaluation/scorecards.py",
+      "src/intervention/feedback_notes.py",
+      "src/intervention/findings.py",
+      "src/intervention/observation_extractor.py",
+      "src/intervention/prompts.py",
+      "src/intervention/student_mentor_dialogues/tools/dialogue_banks_and_generator.py",
+      "src/main.py",
+      "src/observations/observable_events.py",
+      "src/school/allocation_result.py",
+      "src/school/baseline_exports.py",
+      "src/school/baseline_policy.py",
+      "src/school/belief_state.py",
+      "src/school/closed_loop_controller.py",
+      "src/school/cmdp_environment.py",
+      "src/school/cmdp_experiments.py",
+      "src/school/cmdp_reports.py",
+      "src/school/constrained_planner.py",
+      "src/school/decision_state.py",
+      "src/school/fairness_audit.py",
+      "src/school/fairness_experiments.py",
+      "src/school/fairness_planner.py",
+      "src/school/feedback_experiments.py",
+      "src/school/feedback_replay.py",
+      "src/school/feedback_validation.py",
+      "src/school/observation_model.py",
+      "src/school/planner_exports.py",
+      "src/school/retention_value.py",
+      "src/school/robust_fair_planner.py",
+      "src/school/scenario_config.py",
+      "src/school/school.py",
+      "src/school/simulated_withdrawal_risk.py",
+      "src/school/state_estimator.py",
+      "src/school/student_observation.py",
+      "src/school/uncertainty_scenarios.py",
+      "src/utils/constants.py",
+      "scripts/evaluate_intervention_types.py",
+      "scripts/run_cmdp_fairness.py",
+      "scripts/run_extraction_benchmark.py",
+      "scripts/verify_cmdp_fairness.py",
+      "docs/research_evaluation_protocol.md"
+    ],
+    "missing": [
+      "configs/research_evaluation_v1.toml"
+    ]
+  },
+  "free_programmes": {
+    "zero_budget": 0,
+    "programme_price": 0,
+    "random_programmes": 12,
+    "random_spending": 0.0,
+    "legitimate_truth_difference": true,
+    "runner_error": {
+      "type": "ValueError",
+      "message": "zero-effect/zero-budget matched trajectories differ"
+    }
+  },
+  "ignored_fairness_flag": {
+    "configured_enabled": false,
+    "actual_planner_enabled": {
+      "FairPoint": true,
+      "FairRobust": true
+    }
+  },
+  "manifest_amendment": {
+    "input_digest_changed": true,
+    "heldout_already_executed": true,
+    "manifest_files": [
+      "configuration_manifest.json"
+    ],
+    "old_digest_still_in_any_manifest": false
+  }
+}
