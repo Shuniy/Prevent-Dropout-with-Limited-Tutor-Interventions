@@ -80,7 +80,7 @@ class Student:
         Mathematics G1 is retained in the source record but never operationally
         available in this benchmark: no synchronized availability is verified.
         """
-        return grade_shortfall(self.anchor_grade1_0_20)
+        return grade_shortfall(self.anchor_grade1_0_20, self.math_grade1_0_20)
 
 
     @property
