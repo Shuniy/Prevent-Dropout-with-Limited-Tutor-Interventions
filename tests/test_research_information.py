@@ -1,5 +1,6 @@
 """Matched note channels, honest manifests and policy-facing information boundaries."""
 from dataclasses import asdict, replace
+from hashlib import sha256
 import json
 from pathlib import Path
 import tempfile
@@ -7,7 +8,8 @@ import unittest
 from unittest.mock import Mock, patch
 
 from src.evaluation.research_experiments import (load_config, make_controller,
-    digest_controller, freeze, checked_manifest, aggregate, require_pilot, secondary)
+    digest_controller, fingerprint, freeze, checked_manifest, aggregate, require_pilot,
+    secondary, PROTOCOL)
 from src.intervention.feedback_notes import NoteQuality, render_note
 from src.intervention.observation_extractor import FixtureObservationExtractor
 from src.school.student_condition import StudentCondition as S
@@ -77,11 +79,29 @@ class ResearchInformationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             replace(inputs[0], month=2).validate_estimates()
 
+    def test_real_protocol_is_fingerprinted_frozen_and_checked(self):
+        protocol_bytes = PROTOCOL.read_bytes()
+        protocol_key = "docs/research_evaluation_protocol.md"
+        protocol_hash = sha256(protocol_bytes).hexdigest()
+        hashes = fingerprint()
+        self.assertEqual(hashes[protocol_key], protocol_hash)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            manifest = freeze(output)
+            self.assertEqual(manifest["file_hashes"], hashes)
+            self.assertEqual(json.loads((output / "configuration_manifest.json").read_text()),
+                             manifest)
+            frozen = json.loads((output / "protocol.json").read_text())
+            self.assertEqual(frozen["protocol_text"], protocol_bytes.decode("utf-8"))
+            self.assertEqual(frozen["protocol_sha256"], protocol_hash)
+            self.assertEqual((output / "research_evaluation_protocol_frozen.md").read_bytes(),
+                             protocol_bytes)
+            self.assertEqual(checked_manifest(output), manifest)
+
     def test_protocol_manifest_freeze_is_idempotent_and_requires_explicit_amendment(self):
         with tempfile.TemporaryDirectory() as directory:
-            # Test manifest mechanics against an explicit fixture. The removed
-            # research protocol must not be restored or silently fabricated.
-            from src.evaluation.research_experiments import PROTOCOL
+            # Synthetic inputs isolate amendment behavior; the real-file test
+            # above separately exercises the production protocol dependency.
             protocol = Mock(wraps=PROTOCOL)
             protocol.read_text.return_value = "Test-only protocol fixture; not a research authorization."
             protocol.read_bytes.return_value = protocol.read_text.return_value.encode()

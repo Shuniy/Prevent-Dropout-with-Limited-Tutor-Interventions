@@ -5,6 +5,11 @@ Phase 1 task on 2026-11-08; deleted historical guidance was not consulted or
 restored. This is a contract and implementation report, not a research protocol
 or validation of past experimental results.
 
+Documentation recovery note (2026-11-09): the historical evaluation protocol has
+since been restored unchanged. References below to its deletion describe the
+Phase 1 checkout before recovery. See the [README authority policy](../README.md#documentation-navigation-and-authority)
+for its historical status and future protocol/amendment requirements.
+
 ## Information contract
 
 Ordinary closed-loop policies receive immutable `DecisionState` snapshots built

@@ -17,6 +17,40 @@ Transition probabilities and intervention effects are synthetic assumptions.
 Recorded-intervention extraction remains available through Python APIs and the
 standalone simple/RAG analysis commands described below.
 
+## Documentation navigation and authority
+
+The current research objective is to evaluate limited educational-support allocation
+under uncertain language-derived information in a synthetic benchmark. Simulated
+withdrawal is not observed school dropout or evidence of real intervention effects.
+The accepted Phase 1 requirements are: only successfully assimilated condition
+evidence refreshes condition freshness (R02); hidden reset attendance/engagement
+cannot enter ordinary policy inputs without authorized observations (R03); and
+operational learning gaps use Portuguese G1, excluding unverified mathematics G1
+(R14). The [Phase 1 correction record](docs/phase1_scientific_correctness.md)
+documents these requirements, changes and limits. Private reset use of mathematics
+G1 remains an unresolved modelling question.
+
+Check current implemented behavior against `src/`, `configs/` and `tests/`.
+Code and passing tests establish tested behavior, not scientific correctness.
+This README provides navigation and commands, not a complete research design.
+The [research evaluation protocol](docs/research_evaluation_protocol.md) is a
+historical frozen specification, restored unchanged from pre-deletion main
+(`3e9ccbe`), and a required input to experiment fingerprinting/freezing. It is not
+an authoritative plan for future phases. Historical results have not been validated
+under the Phase 1 corrections. A future experiment needs a separately versioned
+protocol or explicit dated amendment; preserve historical methodology and run artifacts.
+
+Use the [data role guide](data/README.md) and retained
+[variable dictionary](data/external/variable_dictionary.csv) for input provenance.
+Archived plans, specifications, audits and result summaries are historical evidence,
+not instructions for future implementation; their availability assumptions may be
+superseded. Do not reproduce known bugs to match them.
+
+When sources conflict, identify the precise contradiction, distinguish intended
+scientific requirements from current behavior, and consult verified research
+requirements and evidence. Do not choose a source merely because it is newest.
+Report unresolved scientific design decisions rather than guessing.
+
 ## Setup and commands
 
 Use Python 3.12 or 3.13, as declared in `pyproject.toml`:
@@ -100,15 +134,12 @@ explicit opt-ins and are excluded from the Step 2 comparison.
 Step 4 adds strict or shortfall-aware minimum programme-access coverage with
 four-month frozen condition strata and one explicitly selected audit attribute.
 The rolling MILP executes only current-month admissions; future schedules remain
-tentative. See the [fairness definition and reproduction commands](docs/cmdp_fairness_v1.md)
-and [computed results and acceptance checks](docs/cmdp_fairness_v1_results.md).
+tentative.
 
 Step 5 connects dated monitoring/programme notes to validated LLM extraction,
 categorical beliefs, synthetic withdrawal risk and both existing CMDP planners.
 Run `python scripts/run_cmdp_feedback_pilot.py` for the offline fixture pilot, or
 add `--extractor ollama --max-notes-per-month 1` for the existing local model.
-See the [feedback contracts and reproduction commands](docs/cmdp_llm_feedback_v1.md)
-and [actual integration results](docs/cmdp_llm_feedback_v1_results.md).
 
 Standalone extraction commands require a local Ollama server and model:
 
@@ -161,8 +192,7 @@ increase. Unknown/conflicting/failed extraction leaves relevant measures unchang
 why. There is no calibrated intervention score or trained predictive model.
 
 Python callers construct `Intervention(load_sessions(), client, seed=...)` explicitly and call
-`school.run_simulation(intervention, output_dir=...)` once; see the
-[contracts](docs/contracts.md) for a complete example. `school.allocate_programmes()`
+`school.run_simulation(intervention, output_dir=...)` once. `school.allocate_programmes()`
 provides the old allocation-only operation and returns monthly maps. It reserves
 planned costs without claiming completed attendance. `reset()` restores baseline
 performance, initial mentor caseloads and run accounting under a fresh run ID.
@@ -170,8 +200,11 @@ performance, initial mentor caseloads and run accounting under a fresh run ID.
 ### Support rules
 
 Severity is a scenario priority in `[0, 1]`, not a predicted dropout probability.
-`learning_gap` is the grade shortfall below 10 divided by 10, using the average
-anchor/math grade when math is available, and clipped to `[0, 1]`.
+`learning_gap` is the Portuguese G1 anchor shortfall below 10 divided by 10,
+clipped to `[0, 1]`. Mathematics G1 is excluded without verified availability.
+The assumed enrollment, attendance and engagement rows below apply only to the
+recorded-history performance evaluator's explicit legacy opt-in. Ordinary
+policy-facing source needs exclude these hidden reset measurements.
 
 | Condition | Support | Severity |
 | --- | --- | --- |
@@ -336,9 +369,7 @@ package exports and plain functions for loading, need rules, validation and repo
 School-specific loading/validation helpers moved from `src.utils.school` to
 `src.school.loading`; imports use `src.school`, with no legacy `src.models` alias.
 Cohort orchestration moved from intervention to school. There are no school objects
-or mutation callbacks in intervention. See [architecture](docs/architecture.md),
-[contracts](docs/contracts.md), [roadmap](docs/roadmap.md) and
-[implementation guidance](Guidance.md).
+or mutation callbacks in intervention.
 
 ## Teaching examples and research material
 
@@ -402,21 +433,24 @@ Waiting counts only months survived without a programme; a withdrawal month adds
 no waiting time. `--print-monthly` prints the first development world for each
 policy/scenario; large sweeps otherwise keep their usual progress output.
 
-See [Step 2 baseline policies, commands and acceptance checks](docs/cmdp_baselines_v1.md),
-[Step 3 constrained planner and reproducible commands](docs/cmdp_planner_v1.md),
-[implementation, formulae, assumptions and full commands](docs/cmdp-implementation.md),
-[executed simulation results](docs/cmdp-results-v1.md), and
-[baseline configuration](configs/cmdp_baselines.toml). Use a new output directory for each run.
+See the [baseline configuration](configs/cmdp_baselines.toml).
+Use a new output directory for each run.
 
 ## Step 6 research contribution evaluation
 
-The [frozen evaluation protocol](docs/research_evaluation_protocol.md) and
-[configuration](configs/research_evaluation.toml) define a staged comparison of
+The historical [frozen evaluation protocol](docs/research_evaluation_protocol.md) and
+retained [configuration](configs/research_evaluation.toml) specify a staged comparison of
 FairPoint and finite-scenario FairRobust, reusing the Step5 feedback engine.
 The primary comparison uses group-dependent corrupted note-supported gold facts
 (D-matched); actual Qwen extraction is separately benchmarked and compared with
 exact-content sparse controls. This distinction prevents attributing observation
 or note loss to an extractor. Outcome claims concern simulated withdrawal only.
+These commands describe the existing runner, not authorization to repeat held-out
+analyses under the old scientific assumptions. The saved historical run retains
+its own [frozen protocol](results/research_evaluation_v1/research_evaluation_protocol_frozen.md)
+and [manifest](results/research_evaluation_v1/configuration_manifest.json); its
+protocol hash differs from the restored main copy after historical naming/wording
+edits. Preserve that record rather than amending it to match the current checkout.
 
 ```sh
 .venv/bin/python scripts/run_research_evaluation.py --stage freeze
@@ -448,7 +482,5 @@ checks do not require Ollama:
 .venv/bin/python -m unittest discover -s tests
 ```
 
-See [the implementation inventory and full reproduction commands](docs/research_implementation.md),
-[the executed research report](docs/research_results.md), and
-[the acceptance audit](results/research_evaluation_v1/acceptance_audit.json) for the
-completed evaluation and its remaining scope gaps.
+The historical [acceptance audit](results/research_evaluation_v1/acceptance_audit.json)
+records the old evaluation's scope gaps; it does not validate the Phase 1 implementation.
