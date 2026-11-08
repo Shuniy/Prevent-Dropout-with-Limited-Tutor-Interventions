@@ -1,9 +1,10 @@
 import unittest
+import csv
 from dataclasses import fields, replace
 
 from src.school.student import Student
 from src.utils.constants import DEFAULT_STUDENT_DATA_PATH
-from src.school.loading import load_students
+from src.school.loading import load_students, student_from_row
 
 
 class StudentModelTests(unittest.TestCase):
@@ -50,9 +51,29 @@ class StudentModelTests(unittest.TestCase):
 
     def test_learning_gap_uses_available_grades(self):
         student = self.low_need_student()
-        self.assertEqual(replace(student, anchor_grade1_0_20=2).learning_gap, 0.8)
-        self.assertEqual(replace(student, anchor_grade1_0_20=2, math_grade1_0_20=10).learning_gap, 0.8)
-        self.assertEqual(replace(student, anchor_grade1_0_20=18).learning_gap, 0)
+        for anchor, math, expected in (
+            (8, None, 0.2), (8, 6, 0.3), (2, 10, 0.4),
+            (10, 0, 0.5), (18, None, 0.0), (18, 10, 0.0),
+            (2, None, 0.8), (0, 0, 1.0),
+        ):
+            with self.subTest(anchor=anchor, math=math):
+                changed = replace(student, anchor_grade1_0_20=anchor,
+                                  math_grade1_0_20=math)
+                self.assertAlmostEqual(changed.learning_gap, expected)
+                self.assertAlmostEqual(changed.need_score, expected)
+                self.assertEqual(changed.anchor_grade1_0_20, anchor)
+                self.assertEqual(changed.math_grade1_0_20, math)
+
+    def test_loading_preserves_missing_and_zero_math_grades(self):
+        with DEFAULT_STUDENT_DATA_PATH.open(newline="", encoding="utf-8") as source:
+            row = next(csv.DictReader(source))
+        for raw, expected in (("", None), (" ", None), ("0", 0), ("6", 6)):
+            with self.subTest(raw=raw):
+                inputs = dict(row, anchor_grade1_0_20="8", math_grade1_0_20=raw)
+                student = student_from_row(inputs)
+                self.assertEqual(student.anchor_grade1_0_20, 8)
+                self.assertEqual(student.math_grade1_0_20, expected)
+                self.assertEqual(inputs["math_grade1_0_20"], raw)
 
     def test_access_properties_reflect_source_values(self):
         student = replace(self.low_need_student(), mother_education_code=2,

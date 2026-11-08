@@ -10,6 +10,7 @@ from src.school.state_estimator import StudentStateEstimator
 from src.school.observation_model import ObservationConfig
 from src.school.simulated_withdrawal_risk import SimulatedWithdrawalRiskEstimator
 from src.school.cmdp_environment import CMDPEnvironment
+from src.school.student_condition import StudentCondition
 from src.school.baseline_policy import BaselinePolicy
 from src.school.allocation_result import AllocationResult
 from src.school.transition_model import sample_condition
@@ -108,8 +109,16 @@ class PublicInputTests(unittest.TestCase):
         return base, altered, worlds, [snapshot(w, estimate) for w in worlds]
 
     def test_hidden_reset_does_not_enter_public_inputs(self):
-        base, altered, worlds, states = self.worlds(dict(
-            initial_attendance_fraction_assumed=.01, initial_engagement_assumed=.1))
+        for changes in (
+            dict(initial_attendance_fraction_assumed=.01),
+            dict(initial_engagement_assumed=.1),
+            dict(initial_attendance_fraction_assumed=.01, initial_engagement_assumed=.1),
+        ):
+            with self.subTest(changes=changes):
+                self.assert_hidden_reset_separation(changes)
+
+    def assert_hidden_reset_separation(self, changes):
+        base, altered, worlds, states = self.worlds(changes)
         self.assertNotEqual(worlds[0].observe().students[0].condition,
                             worlds[1].observe().students[0].condition)
         self.assertEqual(states[0], states[1])
@@ -129,16 +138,37 @@ class PublicInputTests(unittest.TestCase):
             world.step(AllocationResult(()))
             self.assertEqual(world.observe().students[0].condition, expected)
 
-    def test_unavailable_math_does_not_enter_public_inputs(self):
+    def test_public_and_private_initialization_use_available_grades(self):
+        for anchor, math, expected in (
+            (8, None, .2), (8, 6, .3), (2, 10, .4),
+            (10, 0, .5), (18, None, .0), (18, 10, .0),
+        ):
+            with self.subTest(anchor=anchor, math=math):
+                _, student, worlds, states = self.worlds(dict(
+                    anchor_grade1_0_20=anchor, math_grade1_0_20=math))
+                self.assertAlmostEqual(student.learning_gap, expected)
+                self.assertAlmostEqual(states[1].students[0].need_score, expected)
+                expected_condition = (StudentCondition.VULNERABLE if expected >= .3
+                                      else StudentCondition.STABLE)
+                self.assertEqual(worlds[1].observe().students[0].condition,
+                                 expected_condition)
+                self.assertEqual(student.anchor_grade1_0_20, anchor)
+                self.assertEqual(student.math_grade1_0_20, math)
+
+    def test_available_math_changes_public_learning_needs_and_priority(self):
         base, altered, _, states = self.worlds(dict(math_grade1_0_20=0))
         self.assertIsNone(base.math_grade1_0_20)
         self.assertEqual(altered.math_grade1_0_20, 0)
-        self.assertEqual(base.learning_gap, altered.learning_gap)
-        self.assertEqual(base.need_profile, altered.need_profile)
-        self.assertEqual(states[0], states[1])
-        # A second student makes priority-order invariance nontrivial.
+        self.assertEqual(base.learning_gap, 0)
+        self.assertEqual(altered.learning_gap, .5)
+        self.assertEqual(base.need_profile[0]['problem'], 'routine_learning_checkin')
+        self.assertEqual(altered.need_profile[0]['problem'], 'learning_gap')
+        self.assertEqual(states[0].students[0].need_score, 0)
+        self.assertEqual(states[1].students[0].need_score, .5)
+        # Authorized academic information can change priority against a peer.
         comparator = replace(states[0].students[0], student_id='comparator', need_score=.25)
-        ordered = [BaselinePolicy('need_priority').rank_students(
-            replace(state, students=(*state.students, comparator))) for state in states]
-        self.assertEqual(ordered[0], ordered[1])
-        self.assertEqual(replace(base, anchor_grade1_0_20=2).learning_gap, .8)
+        ordered = [tuple(student.student_id for student in
+            BaselinePolicy('need_priority').rank_students(
+                replace(state, students=(*state.students, comparator)))) for state in states]
+        self.assertEqual(ordered[0], ('comparator', base.student_id))
+        self.assertEqual(ordered[1], (base.student_id, 'comparator'))

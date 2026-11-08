@@ -25,10 +25,12 @@ withdrawal is not observed school dropout or evidence of real intervention effec
 The accepted Phase 1 requirements are: only successfully assimilated condition
 evidence refreshes condition freshness (R02); hidden reset attendance/engagement
 cannot enter ordinary policy inputs without authorized observations (R03); and
-operational learning gaps use Portuguese G1, excluding unverified mathematics G1
-(R14). The [Phase 1 correction record](docs/phase1_scientific_correctness.md)
-documents these requirements, changes and limits. Private reset use of mathematics
-G1 remains an unresolved modelling question.
+operational learning gaps use the mean of available first-period anchor and
+mathematics grades under a declared synthetic decision-time assumption (revised
+R14). Missing mathematics grades are excluded without imputation. Public needs
+and private simulator initialization share the same grade-shortfall calculation.
+The [Phase 1 correction record](docs/phase1_scientific_correctness.md) documents
+these requirements, the superseded anchor-only rule, and scientific limits.
 
 Check current implemented behavior against `src/`, `configs/` and `tests/`.
 Code and passing tests establish tested behavior, not scientific correctness.
@@ -200,8 +202,20 @@ performance, initial mentor caseloads and run accounting under a fresh run ID.
 ### Support rules
 
 Severity is a scenario priority in `[0, 1]`, not a predicted dropout probability.
-`learning_gap` is the Portuguese G1 anchor shortfall below 10 divided by 10,
-clipped to `[0, 1]`. Mathematics G1 is excluded without verified availability.
+At the initial simulated decision point, available first-period anchor and
+mathematics grades are treated as known academic measurements. The learning gap
+uses their mean. Missing mathematics grades are excluded from the mean without
+imputation. Their synchronized real-world availability has not been independently
+established; this is a synthetic benchmark assumption.
+
+`learning_gap = clip((10 - mean(available G1 grades)) / 10, 0, 1)`.
+A valid mathematics grade of `0` contributes to the mean; `None` does not.
+For example, anchor/math grades `8`/`None`, `8`/`6`, `2`/`10` and `10`/`0`
+give gaps `0.2`, `0.3`, `0.4` and `0.5`, respectively. Anchor `18` gives `0.0`
+with either missing math or math `10`. Source grades and missing values are
+preserved. Public learning needs and private initialization use this same formula;
+the realized initial condition remains private.
+
 The assumed enrollment, attendance and engagement rows below apply only to the
 recorded-history performance evaluator's explicit legacy opt-in. Ordinary
 policy-facing source needs exclude these hidden reset measurements.

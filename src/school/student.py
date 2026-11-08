@@ -75,10 +75,13 @@ class Student:
 
     @property
     def learning_gap(self) -> float:
-        """Portuguese G1 shortfall at the assumed first-period decision landmark.
+        """Clipped shortfall from the mean of available anchor and mathematics G1.
 
-        Mathematics G1 is retained in the source record but never operationally
-        available in this benchmark: no synchronized availability is verified.
+        Both first-period grades are treated as known at the initial simulated
+        decision point. Their synchronized real-world availability has not been
+        independently established; this is a synthetic benchmark assumption.
+        Missing mathematics grades are excluded without imputation; zero counts.
+        Public needs and private initialization share this grade-shortfall rule.
         """
         return grade_shortfall(self.anchor_grade1_0_20, self.math_grade1_0_20)
 
@@ -106,6 +109,10 @@ class Student:
 
 
 def grade_shortfall(*grades) -> float:
-    """Normalized mean shortfall for an explicitly selected set of grades."""
+    """Clip (10 - mean of available grades) / 10 to [0, 1].
+
+    At least one grade must be available. Exclude None without imputation and
+    include valid zero grades; the source values are never modified.
+    """
     available = [grade for grade in grades if grade is not None]
     return min(1.0, max(0.0, (10 - sum(available) / len(available)) / 10))
