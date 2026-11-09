@@ -18,16 +18,19 @@ from .fairness_audit import audit_access, group_retention
 from .student_condition import StudentCondition
 from .constrained_planner import ConstrainedAllocationPlanner
 from .transition_model import P_WAIT, programme_matrix
+from .money import amount, programme_cost
 
 
 BUDGETS = (0, 50, 150, 300, 500)
 
 
 def run_policy(config, name, *, school=None):
+    """Privileged oracle diagnostic; ordinary comparisons use the feedback controller."""
     school = build_school(config) if school is None else school
     simulation = school.run_cmdp(make_policy(name, config), config=config)
     env = simulation.environment
     metrics = episode_metrics(env, simulation.initial_state, simulation.initial_cohorts)
+    metrics['information_mode'] = 'privileged_oracle_diagnostic'
     metrics["initial_state_hash"] = config_hash(asdict(simulation.initial_state))
 
     metrics["fairness_windows"] = [
@@ -192,10 +195,18 @@ def run_experiments(
                                 "resource_constraints_valid": True,
                                 **metrics,
                             }
-                            if alpha == 0 or budget == 0:
+                            # Monetary zero alone permits free programmes. The
+                            # homogeneous benchmark cost/calendar defines when
+                            # there can be no extra service at any cutoff.
+                            no_service = (selected.num_mentors == 0 or selected.monthly_admissions == 0
+                                or selected.monthly_appointments < selected.appointments_per_programme
+                                or amount(selected.budget) < programme_cost(selected.cost_per_appointment))
+                            if no_service and metrics["programmes"]:
+                                raise ValueError("no-feasible-service control made an assignment")
+                            if alpha == 0 or no_service:
                                 conditions = [record["conditions"] for record in trajectory]
                                 if null_trajectory is not None and conditions != null_trajectory:
-                                    raise ValueError("zero-effect/zero-budget matched trajectories differ")
+                                    raise ValueError("zero-effect/no-feasible-service matched trajectories differ")
                                 null_trajectory = conditions
                             episodes.append(row)
                             episode_file.write(json.dumps(row) + "\n")
@@ -214,7 +225,7 @@ def run_experiments(
                     (output / "development_validation.json").write_text(json.dumps({
                         "status": "passed", "episodes": len(episodes),
                         "checks": ["complete manifest grid", "identical initial worlds", "resource ledgers",
-                                   "full zero-effect and zero-budget trajectory equality"],
+                                   "zero-effect trajectory equality", "no-feasible-service control equality"],
                         "extreme_retention_means": [
                             {"scenario": row["scenario"], "policy": row["policy"], "rate": row["mean_retention_rate"]}
                             for row in development_summary

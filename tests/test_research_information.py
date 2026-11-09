@@ -120,7 +120,8 @@ class ResearchInformationTests(unittest.TestCase):
                     freeze(directory)
                 second = freeze(directory, "Development correction before heldout evaluation")
             self.assertNotEqual(second["input_digest"], first["input_digest"])
-            self.assertEqual(json.loads((Path(directory)/"configuration_manifest.json").read_text()), second)
+            self.assertEqual(json.loads((Path(directory)/"configuration_manifest.json").read_text()), first)
+            self.assertEqual(second['predecessor'], first['input_digest'])
             self.assertEqual(len(list(Path(directory).glob("configuration_manifest*.json"))), 1)
             with self.assertRaises(ValueError):
                 require_pilot(directory, second)
@@ -136,8 +137,8 @@ class ResearchInformationTests(unittest.TestCase):
                     "seed": 0, "setting": "primary", "input_digest": digest,
                     "trace_path": f"episodes/{digest}/trace.json.gz"}))
             with patch("src.evaluation.research_experiments.checked_manifest", return_value={"input_digest": "current"}):
-                rows = aggregate(root)
-            self.assertEqual([row["input_digest"] for row in rows], ["current"])
+                with self.assertRaisesRegex(ValueError, 'incompatible'):
+                    aggregate(root)
             (root / "primary_complete.json").write_text(json.dumps({"input_digest": "previous"}))
             with patch("src.evaluation.research_experiments.require_pilot"):
                 with self.assertRaisesRegex(ValueError, "primary comparison"):

@@ -43,9 +43,9 @@ class BaselinePolicy:
 
         def priority(student):
             if self.name == "severity":
-                if student.condition is None:
-                    raise ValueError("severity policy requires an observed or estimated condition")
-                score = STATES.index(student.condition)
+                # Ordinary snapshots contain authorized MAP estimates. Missing
+                # estimates rank after known conditions, tied by stable ID.
+                score = -1 if student.condition is None else STATES.index(student.condition)
             elif self.name == "need_priority":
                 score = student.need_score
             else:

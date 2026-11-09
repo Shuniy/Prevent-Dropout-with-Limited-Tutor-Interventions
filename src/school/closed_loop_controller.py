@@ -15,6 +15,7 @@ from .observation_model import ObservationConfig, SyntheticObservationModel
 from .retention_value import estimate_all_student_benefits
 from .simulated_withdrawal_risk import SimulatedWithdrawalRiskEstimator
 from .state_estimator import StudentStateEstimator
+from .transition_model import P_WAIT, programme_matrix, validate_matrix
 
 
 INFORMATION_MODES = ("oracle", "structured", "b_matched", "llm_notes", "noisy_notes")
@@ -25,7 +26,8 @@ class ClosedLoopCMDPController:
     def __init__(self, environment, policy, *, mode="structured", extractor=None,
                  observation_config=ObservationConfig(), note_quality=NoteQuality(),
                  max_notes_per_month=None, estimator=None, note_quality_by_student=None,
-                 max_monitoring_notes_per_month=1, extraction_contract="actionable_monitoring"):
+                 max_monitoring_notes_per_month=1, extraction_contract="actionable_monitoring",
+                 wait_matrix=None, treatment_matrix=None):
         if mode not in INFORMATION_MODES:
             raise ValueError("unknown information mode")
         if mode in ("llm_notes", "noisy_notes") and extractor is None:
@@ -40,6 +42,8 @@ class ClosedLoopCMDPController:
         self.extraction_contract = extraction_contract
         self.max_monitoring_notes_per_month = max_monitoring_notes_per_month
         self.environment, self.policy, self.mode = environment, policy, mode
+        self.experiment_identity: str | None = None
+        self.recorded_extractor_identity: dict | None = None
         self.extractor = extractor
         self.gold_extractor: ObservationExtractor = FixtureObservationExtractor()
         self.observation_model = SyntheticObservationModel(observation_config)
@@ -51,11 +55,16 @@ class ClosedLoopCMDPController:
         if any(not isinstance(quality, NoteQuality)
                for quality in self.note_quality_by_student.values()):
             raise ValueError("student note qualities must be NoteQuality records")
-        # Assumed controller matrices come from the planner, recorded separately
-        # from the environment parameters for future misspecification studies.
+        # Controller dynamics are independent of the allocation algorithm. A
+        # supplied estimator defines the default diagnostic model; explicit
+        # matrices permit separately declared diagnostic assumptions.
+        self.wait_matrix = validate_matrix(wait_matrix if wait_matrix is not None else
+                                          estimator.wait if estimator is not None else P_WAIT)
+        self.programme_matrix = validate_matrix(treatment_matrix if treatment_matrix is not None else
+            estimator.programme if estimator is not None else programme_matrix(environment.config.effect_strength))
         self.estimator = estimator or StudentStateEstimator(
-            observation_config=observation_config, wait_matrix=policy.wait_matrix,
-            treatment_matrix=policy.programme_matrix)
+            observation_config=observation_config, wait_matrix=self.wait_matrix,
+            treatment_matrix=self.programme_matrix)
         self.risk_estimator = SimulatedWithdrawalRiskEstimator(self.estimator.wait)
         self.events, self.registry, self.notes, self.batches = [], [], [], []
         self.extraction_attempts = []
@@ -317,7 +326,7 @@ class ClosedLoopCMDPController:
         window = self.windows[-1]
         window.update(snapshot)
         allocation = self.allocate(snapshot)
-        benefits = estimate_all_student_benefits(snapshot, self.policy.wait_matrix, self.policy.programme_matrix)
+        benefits = estimate_all_student_benefits(snapshot, self.wait_matrix, self.programme_matrix)
         # Independent environment validation precedes all spending/transitions.
         record = self.environment.step(allocation)
         admitted = tuple(a.student_id for a in allocation.assignments)

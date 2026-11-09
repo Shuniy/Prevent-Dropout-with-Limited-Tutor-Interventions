@@ -37,6 +37,10 @@ documents actionable monitoring extraction (R01), non-vacuous common-history sna
 comparisons (R04), historical evidence coverage and deterministic extraction-outcome
 replay. Its finalization record identifies the source revision plus working-tree
 fingerprint and reports 69 focused / 260 offline tests on Python 3.12.12.
+The [Phase 3 experimental correctness report](docs/phase3_experimental_correctness.md)
+documents shared baseline information, exact versioned replay, fairness configuration,
+free-service controls and immutable experiment amendments. Its bounded offline
+verification is available through `python scripts/verify_phase3.py --output results/phase3_new_run`.
 
 Check current implemented behavior against `src/`, `configs/` and `tests/`.
 Code and passing tests establish tested behavior, not scientific correctness.
@@ -80,7 +84,7 @@ python -m src.main --extractor ollama --output results/comparison/my_run
 python src/main.py --extractor fixture --students 10 --months 3 \
   --output results/comparison/offline_run
 
-# Legacy multi-seed baseline comparison:
+# Privileged oracle diagnostic sweep (not an ordinary-information comparison):
 python -m src.main --runner baselines --output results/cmdp_baselines/my_run
 
 # Small CMDP run with explicit scenario overrides:
@@ -128,8 +132,11 @@ modes retain all authorized structured observations regardless of these note cap
 Delayed programme notes retain their source-month cap and are processed once when
 available, so several source months can reach one cutoff. With two mentors, one
 admission each per month, and a twelve-month horizon, the default allows at most
-12 monitoring plus 24 programme calls per policy/LLM mode (144 across two planners
-and two LLM modes). Cache hits can reduce model invocations. Attempts, actual calls,
+12 monitoring plus 24 programme calls per policy/LLM mode (504 across the default
+seven policies and two LLM modes). Baselines now use the same extraction pipeline.
+`--feedback-policies resource fairness robust` also includes the robust planner;
+its default declared uncertainty radius is .25. `terminal_value` is canonicalized
+to `resource` to avoid duplicate runs. Cache hits can reduce model invocations. Attempts, actual calls,
 cache hits, accepted/quarantined results and note-selection reasons are saved separately.
 
 `--extraction-contract legacy_programme_only` preserves the historical routing:
@@ -167,8 +174,10 @@ evidence-to-allocation traces plus successful, empty, mixed and failed extractio
 replays. It records Git revision, source fingerprints and dependency versions.
 Use a fresh output directory; generated results and logs are ignored by Git and
 are not distributed with the repository. Replay preserves original failure/cache
-provenance and reports zero new model calls; incomplete legacy recordings and
-arbitrary robust/custom policy configurations are outside its exact-replay contract.
+provenance and reports zero new model calls. Phase 3 replay contract version 3
+supports all five baselines and the resource, fair and robust planners, including
+nondefault dynamics, estimators, uncertainty and note settings. Incomplete historical
+records and arbitrary custom policy implementations are explicitly rejected.
 
 Standalone extraction commands require a local Ollama server and model:
 
@@ -507,7 +516,14 @@ Use `--output results/research_evaluation/new_run` on every research command for
 an independent run; give the extraction command the corresponding
 `--output-dir results/research_evaluation/new_run/extraction`. Existing completed
 cells resume from saved artifacts. Input/source hash changes require an explicit
-`--amend 'reason'`, replace the single input manifest, and require a fresh pilot.
+`--amend 'reason'`, create an immutable linked version under `versions/<identity>/`,
+and require a fresh pilot. The original root manifest and protocol remain unchanged;
+`current_version.json` selects the active version. New episodes, tables and reports
+live inside that version. Historical unversioned runs cannot be amended in place.
+Use `python scripts/verify_experiment_records.py <run-directory>` to verify all
+retained manifests, protocols, predecessor links and completed episode artifacts
+without rerunning experiments. Aggregation rejects incompatible identities and
+reports missing or failed cells in `aggregation_status.json`.
 Do not amend a held-out analysis to select favorable policies. The real-model
 cache records complete note/context, prompt/schema, source and model digest.
 Failed extractions remain unknown and are recorded, never replaced with fixtures.

@@ -28,6 +28,12 @@ from ..school.uncertainty_scenarios import UncertaintyScenarioConfig
 from ..utils.constants import DEFAULT_STUDENT_DATA_PATH, PROJECT_ROOT
 from .paired_statistics import paired_comparison
 from .scorecards import episode_summary, score_episode
+from .provenance import (active_directory, digest as content_digest, extractor_identity, runtime_identity,
+    source_fingerprints, verify_manifest, verify_versions, write_exclusive,
+    seal_directory, verify_directory)
+from ..school.policy_configuration import serialize_policy
+from ..school.state_estimator import StudentStateEstimator
+from ..school.transition_model import programme_matrix
 
 CONFIG = PROJECT_ROOT / "configs/research_evaluation.toml"
 PROTOCOL = PROJECT_ROOT / "docs/research_evaluation_protocol.md"
@@ -56,6 +62,10 @@ def write_csv(path, rows):
 def load_config(path=CONFIG):
     with Path(path).open("rb") as stream:
         config = tomllib.load(stream)
+    return validate_config(config)
+
+
+def validate_config(config):
     development = set(config["evaluation"]["development_seeds"])
     heldout = set(config["evaluation"]["evaluation_seeds"])
     if development & heldout or not development or not heldout:
@@ -67,28 +77,35 @@ def load_config(path=CONFIG):
 
 
 def fingerprint():
-    paths = sorted((PROJECT_ROOT / "src").rglob("*.py"))
-    paths += sorted((PROJECT_ROOT / "scripts").glob("*.py"))
-    paths += [CONFIG, PROTOCOL, DEFAULT_STUDENT_DATA_PATH, PROJECT_ROOT / "requirements.txt"]
-    return {str(p.relative_to(PROJECT_ROOT)): sha256(p.read_bytes()).hexdigest() for p in paths}
+    return {**source_fingerprints(), **{str(p.relative_to(PROJECT_ROOT)): sha256(p.read_bytes()).hexdigest()
+            for p in (CONFIG, PROTOCOL, DEFAULT_STUDENT_DATA_PATH)}}
 
 
-def freeze(output, amendment=None):
+def freeze(output, amendment=None, *, configuration=None):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
-    path = output / "configuration_manifest.json"
     current = fingerprint()
-    if path.exists():
-        previous = json.loads(path.read_text())
-        if previous["file_hashes"] == current:
+    runtime = runtime_identity()
+    config = load_config() if configuration is None else validate_config(deepcopy(configuration))
+    previous = None
+    if (output / "configuration_manifest.json").exists():
+        verify_versions(output)
+        previous = verify_manifest(active_directory(output))
+        if (previous["file_hashes"] == current and previous['runtime'] == runtime
+                and previous['configuration'] == config and previous['protocol_text'] == PROTOCOL.read_text()):
             return previous
-        if not amendment:
+        if not amendment or not amendment.strip():
             raise ValueError("frozen inputs changed: supply --amend with an explicit protocol amendment")
-    config = load_config()
-    input_digest = sha256(json.dumps(current, sort_keys=True).encode()).hexdigest()
-    manifest = {"input_digest": input_digest, "frozen_at_utc": datetime.now(timezone.utc).isoformat(),
+    manifest = {'manifest_version': 3, 'runtime': runtime,
+        'predecessor': previous['input_digest'] if previous else None,
+        'protocol_text': PROTOCOL.read_text(),
+        'effective_policies': {name: serialize_policy(make_policy(config, name))
+            for name in ('ResourceOnlyPoint', 'FairPoint', 'FairRobust')},
+        'estimator': StudentStateEstimator(observation_config=ObservationConfig(**config['observation']),
+            treatment_matrix=programme_matrix(config['scenario'].get('effect_strength', 1))).configuration,
+        'extractor_contract': extractor_identity(None),
         "configuration": config, "file_hashes": current, "amendment": amendment,
-        "heldout_already_executed": any((output / "episodes").glob("evaluation*")),
+        "heldout_already_executed": any(output.glob("**/episodes/evaluation*/summary.json")),
         "solver": {"backend": "scipy.optimize.milp/HiGHS", "mip_rel_gap": 0,
             "objective_tolerance": FairnessPlanner.OBJECTIVE_TOLERANCE,
             "fairness_tolerance": FairnessPlanner.FAIRNESS_TOLERANCE,
@@ -98,32 +115,39 @@ def freeze(output, amendment=None):
             "observation": "SHA256(seed,student,month,observation:mechanism)",
             "note": "SHA256(seed,student,month,note:mechanism)",
             "policy": "deterministic canonical tie-breaking; no random policy draws"}}
-    write_json(path, manifest)
-    write_json(output / "protocol.json", {
-        "protocol_text": PROTOCOL.read_text(), "configuration": config,
-        "protocol_sha256": current[str(PROTOCOL.relative_to(PROJECT_ROOT))]})
-    (output / "research_evaluation_protocol_frozen.md").write_bytes(PROTOCOL.read_bytes())
+    manifest['input_digest'] = content_digest(manifest)
+    manifest['frozen_at_utc'] = datetime.now(timezone.utc).isoformat()
+    manifest = json.loads(json.dumps(manifest))
+    version = output/'versions'/manifest['input_digest']
+    version.mkdir(parents=True, exist_ok=False)
+    for destination in ([version, output] if previous is None else [version]):
+        write_exclusive(destination/'configuration_manifest.json', manifest)
+        write_exclusive(destination/'protocol.json', {'protocol_text': manifest['protocol_text'],
+            'configuration': config, 'protocol_sha256': sha256(manifest['protocol_text'].encode()).hexdigest()})
+        with (destination/'research_evaluation_protocol_frozen.md').open('x', encoding='utf-8') as stream:
+            stream.write(manifest['protocol_text'])
+    pointer = output/'current_version.tmp'
+    write_json(pointer, {'input_digest': manifest['input_digest']})
+    pointer.replace(output/'current_version.json')
     return manifest
 
 
 def checked_manifest(output):
-    path = Path(output) / "configuration_manifest.json"
-    if not path.exists():
-        raise ValueError("freeze the protocol/configuration before running experiments")
-    manifest = json.loads(path.read_text())
-    if manifest["file_hashes"] != fingerprint():
+    manifest = verify_manifest(active_directory(output))
+    if manifest["file_hashes"] != fingerprint() or manifest['runtime'] != runtime_identity():
         raise ValueError("frozen source/configuration changed; record an explicit --amend before execution")
     return manifest
 
 
 def make_policy(config, name, *, radius=None):
     scenario = ScenarioConfig(**config["scenario"])
-    from ..school.transition_model import programme_matrix
     kwargs = {"time_limit": scenario.planner_time_limit,
         "failure_mode": scenario.planner_failure_mode,
         "treatment_matrix": programme_matrix(scenario.effect_strength)}
     if name == "ResourceOnlyPoint":
         return ConstrainedAllocationPlanner(**kwargs)
+    if not scenario.fairness_enabled:
+        raise ValueError("named fair research policies require fairness_enabled=True; use ResourceOnlyPoint for the ablation")
     fair = {"minimum_access": scenario.fairness_min_access,
         "window_months": scenario.fairness_window,
         "grouping_attribute": scenario.fairness_grouping_attribute,
@@ -199,48 +223,74 @@ def save_trace(controller, destination):
         "risk_estimates": [asdict(r) for r in controller.risks]}
     with gzip.open(destination / "trace.json.gz", "wt", encoding="utf-8") as stream:
         json.dump(payload, stream, allow_nan=False)
+    # Canonical replay directory includes all model settings, outcome evidence,
+    # posterior updates, fairness ledgers and the exact initial synthetic world.
+    from ..school.feedback_experiments import save_episode
+    save_episode(controller, destination/'replay')
 
 
 def run_one(output, config, manifest, phase, name, mode, seed, **options):
+    if config != manifest['configuration']:
+        raise ValueError('execution configuration differs from immutable manifest')
+    output = active_directory(output)
+    checked = checked_manifest(output)
+    if checked['input_digest'] != manifest['input_digest']:
+        raise ValueError('incompatible active experiment identity')
     settings = {k: v for k, v in options.items() if k != "extractor"}
+    settings['extractor_identity'] = extractor_identity(options.get('extractor'))
     setting = settings.pop("setting", "primary")
     identity = {"phase": phase, "policy": name, "mode": mode, "seed": seed,
                 "setting": setting, **settings, "input_digest": manifest["input_digest"]}
     token = sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()[:12]
     destination = Path(output) / "episodes" / f"{phase}_{name}_{mode}_{seed}_{token}"
     if (destination / "summary.json").exists():
-        return json.loads((destination / "summary.json").read_text())
-    execution = {"policy": name, "mode": mode, "seed": seed,
+        verify_directory(destination)
+        saved = json.loads((destination / "summary.json").read_text())
+        if any(saved.get(k) != v for k, v in identity.items()):
+            raise ValueError('cached experiment identity mismatch')
+        return saved
+    execution = {"policy": name, "mode": mode, "seed": seed, 'phase': phase, 'setting': setting,
         "input_digest": manifest["input_digest"],
         "budget": options.get("budget", config["scenario"]["budget"]),
         "effect": options.get("effect", config["scenario"].get("effect_strength", 1.0)),
         "radius": (options.get("radius", config["uncertainty"]["radius"])
                    if name == "FairRobust" else None),
-        "missingness": options.get("missingness"), "sparse": options.get("sparse", False)}
+        "missingness": options.get("missingness"), "sparse": options.get("sparse", False),
+        'extractor_identity': settings['extractor_identity']}
     execution_key = sha256(json.dumps(execution, sort_keys=True).encode()).hexdigest()
-    # A default sensitivity cell is exactly the already executed primary world.
-    # Reference its immutable trace instead of solving or inferring again.
+    # Reuse requires the complete identity, including phase and information split.
     for previous in sorted((Path(output) / "episodes").glob("*/summary.json")):
         saved = json.loads(previous.read_text())
         if saved.get("execution_key") == execution_key:
+            verify_directory(previous.parent)
+            verify_directory(output/Path(saved['trace_path']).parent)
             summary = {**saved, **identity, "reused_from": str(previous.relative_to(output))}
             destination.mkdir(parents=True, exist_ok=True)
             write_json(destination / "summary.json", summary)
+            seal_directory(destination)
             return summary
     controller = make_controller(config, name, mode, seed, **options)
+    controller.experiment_identity = manifest['input_digest']
     started = time.perf_counter()
-    controller.run_episode()
-    validate_feedback_episode(controller)
+    destination.mkdir(parents=True, exist_ok=False)
+    write_exclusive(destination/'execution.json', identity)
+    try:
+        controller.run_episode()
+        validate_feedback_episode(controller)
+    except Exception as exc:
+        write_exclusive(destination/'failure.json', {**identity, 'status': 'failed',
+            'error_type': type(exc).__name__, 'error': str(exc)})
+        raise
     scores = score_episode(controller)
     summary = {**episode_summary(controller, name, mode, setting, seed), **identity,
         "wall_seconds": time.perf_counter() - started,
         "trace_digest": digest_controller(controller),
         "execution_key": execution_key,
+        'execution_inputs': execution,
         "extraction_failures": len(controller.failures),
         **controller.extraction_diagnostics(),
         "note_count": len(controller.notes),
         "trace_path": str(destination.relative_to(output) / "trace.json.gz")}
-    destination.mkdir(parents=True, exist_ok=True)
     save_trace(controller, destination)
     for table, rows in scores.items():
         if table.endswith("records"):
@@ -250,6 +300,7 @@ def run_one(output, config, manifest, phase, name, mode, seed, **options):
         else:
             write_json(destination / f"{table}.json", rows)
     write_json(destination / "summary.json", summary)  # completion marker last
+    seal_directory(destination)
     print(f"{phase} {setting}: {name}/{mode} seed={seed} retention={summary['retention_rate']:.3f}", flush=True)
     return summary
 
@@ -438,21 +489,50 @@ def live_snapshot_comparisons(output, config, extractor):
 
 
 def aggregate(output):
-    output = Path(output)
+    output = active_directory(output)
     manifest = checked_manifest(output)
     summaries = []
     scores = {table: [] for table in TABLES}
-    for path in sorted((output / "episodes").glob("*/summary.json")):
-        summary = json.loads(path.read_text())
+    records = [(path, json.loads(path.read_text()))
+               for path in sorted((output/'episodes').glob('*/summary.json'))]
+    for path, summary in records:
         if summary.get("input_digest") != manifest["input_digest"]:
-            continue
+            raise ValueError(f'incompatible experiment identity: {path}')
+    extractor_versions = {}
+    cell_configurations = {}
+    for path, summary in records:
+        extraction = summary.get('extractor_identity')
+        key = summary['mode']
+        if key in extractor_versions and extractor_versions[key] != extraction:
+            raise ValueError('incompatible extractor/model versions in aggregation')
+        extractor_versions[key] = extraction
+        verify_directory(path.parent)
+        if 'execution_inputs' not in summary:
+            raise ValueError('missing execution configuration provenance')
+        cell = tuple(summary[k] for k in ('phase', 'setting', 'mode', 'policy'))
+        effective = {k: v for k, v in summary['execution_inputs'].items() if k != 'seed'}
+        if cell in cell_configurations and cell_configurations[cell] != effective:
+            raise ValueError('incompatible execution settings within an aggregation cell')
+        cell_configurations[cell] = effective
         summaries.append(summary)
         labels = {k: summary[k] for k in ("phase", "policy", "mode", "seed", "setting", "input_digest")}
         source = output / Path(summary["trace_path"]).parent
+        verify_directory(source)
         for table in TABLES:
             file = source / f"{table}.json"
-            if file.exists():
-                scores[table].extend({**labels, **row} for row in json.loads(file.read_text()))
+            if not file.exists():
+                raise ValueError(f'missing scorecard provenance: {file}')
+            scores[table].extend({**labels, **row} for row in json.loads(file.read_text()))
+    incomplete = [str(p.relative_to(output)) for p in sorted((output/'episodes').glob('*'))
+                  if not (p/'summary.json').exists()]
+    expected = {(name, seed) for name in ('FairPoint', 'FairRobust')
+                for seed in manifest.get('configuration', {}).get('evaluation', {}).get('evaluation_seeds', ())}
+    actual = {(r['policy'], r['seed']) for r in summaries
+              if r['phase'] == 'evaluation' and r['setting'] == 'primary'}
+    write_json(output/'aggregation_status.json', {'input_digest': manifest['input_digest'],
+        'complete_episodes': len(summaries), 'incomplete_or_failed': incomplete,
+        'missing_primary_cells': sorted(expected-actual), 'excluded_episodes': [],
+        'primary_complete': bool(expected) and expected == actual and not incomplete})
     write_csv(output / "episode_results.csv", summaries)
     for table, rows in scores.items():
         write_csv(output / f"{table}.csv", rows)
@@ -494,13 +574,14 @@ def main(default_stage=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", choices=("freeze","pilot","primary","secondary","live","report","all"), default=default_stage or "all")
     parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "results/research_evaluation")
-    parser.add_argument("--amend", help="explicit reason for replacing the frozen input manifest")
+    parser.add_argument("--amend", help="explicit reason for creating a new immutable experiment version")
     args = parser.parse_args()
     if args.stage in ("freeze", "all") or args.amend:
         freeze(args.output, args.amend)
     if args.stage == "freeze":
         return
     manifest = checked_manifest(args.output)
+    args.output = active_directory(args.output)
     config = manifest["configuration"]
     stages = ("pilot","primary","secondary","live","report") if args.stage == "all" else (args.stage,)
     for stage in stages:

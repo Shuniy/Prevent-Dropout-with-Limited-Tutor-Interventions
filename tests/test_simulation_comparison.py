@@ -29,7 +29,8 @@ class ComparisonTests(unittest.TestCase):
                     patch.object(simulation_comparison, "write_csv", side_effect=check_order):
                 main()
             rows = json.loads((output / "comparison.json").read_text())
-            self.assertEqual(len(rows), 17)
+            self.assertEqual(len(rows), 35)
+            self.assertFalse(any(row['mode'] == 'baseline_oracle' for row in rows))
             self.assertTrue(all(row["seed"] == 73 and row["students"] == 3 and
                                 row["months"] == 2 and row["seconds"] >= 0 for row in rows))
             self.assertTrue(all(row["real_llm_calls"] == 0 for row in rows))

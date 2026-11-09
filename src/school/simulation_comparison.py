@@ -8,20 +8,23 @@ from time import perf_counter
 import tomllib
 
 from .allocation_policies import POLICY_NAMES, make_policy
-from .cmdp_experiments import run_policy
 from .cmdp_scenarios import build_school
 from .feedback_experiments import save_episode, write_csv, write_jsonl
 from .feedback_validation import validate_feedback_episode
 from .observation_model import ObservationConfig
 from .scenario_config import ScenarioConfig
+from .uncertainty_scenarios import UncertaintyScenarioConfig
 from src.intervention.feedback_notes import NoteQuality
 from src.intervention.observation_extractor import FixtureObservationExtractor, LLMObservationExtractor
 from src.intervention.ollama_client import OllamaClient
+from src.evaluation.provenance import digest, runtime_identity, source_fingerprints
+from src.utils.constants import DEFAULT_STUDENT_DATA_PATH
+from hashlib import sha256
 
 
 CAVEAT = (
     "All runs share the scenario, population seed, transition assumptions and resource limits. "
-    "Baselines and oracle see true state; structured sees full observations; b_matched and "
+    "Every policy uses the same information pipeline. Only explicitly labelled oracle runs see true state; structured sees full observations; b_matched and "
     "llm_notes use the same note feature schema and note-quality settings. noisy_notes deliberately "
     "changes note quality. Realized trajectories may diverge after different allocations. "
     "Fixture extraction is an offline wiring control, not an LLM result. "
@@ -45,7 +48,7 @@ def run_comparison(args):
     config = replace(config, **{field: getattr(args, key) for key, field in fields.items()
                                 if getattr(args, key) is not None})
     policies = tuple(args.policies if args.policies is not None else POLICY_NAMES)
-    for names, allowed in ((policies, POLICY_NAMES), (args.feedback_policies, ("resource", "fairness"))):
+    for names, allowed in ((policies, POLICY_NAMES), (args.feedback_policies, ("resource", "fairness", "robust"))):
         if not names or len(set(names)) != len(names) or any(name not in allowed for name in names):
             raise ValueError("policies must contain distinct supported names")
     if len(set(args.modes)) != len(args.modes):
@@ -58,6 +61,7 @@ def run_comparison(args):
     observation = ObservationConfig(**observation_values)
     quality = NoteQuality(**values.get("notes", {}))
     noisy = NoteQuality(**values.get("noisy_notes", {}))
+    uncertainty = UncertaintyScenarioConfig(**values.get('uncertainty', {}))
     output = args.output or Path("results/simulation_comparison") / datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     output = Path(output)
     if output.exists():
@@ -78,20 +82,16 @@ def run_comparison(args):
         print(f"{name}/{mode}: enrolled={enrolled}/{config.num_students}, programmes={programmes}, "
               f"spent={spent:.2f}, time={seconds:.3f}s, quarantined={failures}, LLM calls={calls}", flush=True)
 
-    for name in policies:
-        print(f"Running baseline/{name} ...", flush=True)
-        start = perf_counter()
-        metrics, trajectory = run_policy(config, name)
-        elapsed = perf_counter() - start
-        record(name, "baseline_oracle", elapsed, metrics["terminal_enrolled"], metrics["programmes"], metrics["spending"])
-        artifacts.append((f"baseline_{name}", (metrics, trajectory)))
-    for name in args.feedback_policies:
+    selected = tuple(dict.fromkeys('resource' if name == 'terminal_value' else name
+                                  for name in (*policies, *args.feedback_policies)))
+    for name in selected:
         for mode in args.modes:
             print(f"Running {name}/{mode} ({args.extractor}) ...", flush=True)
             # Fresh extractor and school prevent mutable state leaking between runs.
             extractor = (FixtureObservationExtractor() if args.extractor == "fixture" else
                          LLMObservationExtractor(OllamaClient(args.model, timeout=args.timeout, num_ctx=8192)))
-            policy = make_policy("terminal_value" if name == "resource" else name, config)
+            policy = make_policy("terminal_value" if name == "resource" else name, config,
+                                 uncertainty_config=uncertainty)
             start = perf_counter()
             controller = build_school(config).run_cmdp_feedback(
                 policy, config=config, mode=mode, extractor=extractor,
@@ -129,11 +129,18 @@ def run_comparison(args):
                     extractor=args.extractor, model=args.model, timeout=args.timeout,
                     num_ctx=8192, temperature=0, policies=policies,
                     feedback_policies=args.feedback_policies, modes=args.modes, caveat=CAVEAT)
+    manifest['effective_policy_names'] = selected
+    manifest['uncertainty'] = asdict(uncertainty)
+    manifest.update(manifest_version=3, runtime=runtime_identity(), file_hashes=source_fingerprints(),
+        source_population_sha256=sha256(DEFAULT_STUDENT_DATA_PATH.read_bytes()).hexdigest(),
+        protocol={'name': 'ordinary_information_comparison_v3', 'contents': CAVEAT})
+    manifest['experiment_identity'] = digest(manifest)
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    # Baselines have no extraction pipeline. Use null for inapplicable coverage
-    # fields while retaining a common CSV schema across baseline/feedback rows.
+    # Keep a common diagnostic schema across all policy families.
     columns = dict.fromkeys(key for row in rows for key in row)
     rows = [{key: row.get(key) for key in columns} for row in rows]
+    for row in rows:
+        row['experiment_identity'] = manifest['experiment_identity']
     write_csv(output / "comparison.csv", rows)
     (output / "comparison.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
     (output / "report.md").write_text(report, encoding="utf-8")
@@ -145,5 +152,6 @@ def run_comparison(args):
             (destination / "metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
             write_jsonl(destination / "trajectory.jsonl", trajectory)
         else:
+            artifact.experiment_identity = manifest['experiment_identity']
             save_episode(artifact, output / name)
     return output

@@ -1,6 +1,7 @@
 """Synthetic environment with hard realized resource accounting and private truth."""
 
 from copy import deepcopy
+from dataclasses import asdict
 import math
 from .money import amount, programme_cost
 
@@ -58,6 +59,9 @@ class CMDPEnvironment:
         self.config = config
         students = deepcopy(list(students))
         self._mentors = deepcopy(list(mentors))
+        # Evaluator-only reconstruction inputs; never part of DecisionState.
+        self.reconstruction_inputs = {'students': [asdict(s) for s in students],
+                                      'mentors': [asdict(m) for m in self._mentors]}
         validate_unique_ids(students, self._mentors)
         self._wait_matrix = validate_matrix(P_WAIT if wait_matrix is None else wait_matrix)
         treatment = (

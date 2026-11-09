@@ -22,6 +22,10 @@ from .fairness_planner import FairnessPlanner
 from .observation_model import ObservationConfig
 from .scenario_config import ScenarioConfig
 from .transition_model import programme_matrix
+from .policy_configuration import serialize_policy
+from hashlib import sha256
+from ..evaluation.provenance import digest, extractor_identity, runtime_identity, source_fingerprints
+from ..utils.constants import DEFAULT_STUDENT_DATA_PATH
 
 
 def write_jsonl(path, records):
@@ -62,7 +66,18 @@ def save_episode(controller, output):
     evaluator = output / "evaluator_only"
     evaluator.mkdir()
     write_jsonl(evaluator / "truth_trajectories.jsonl", controller.evaluator_truth)
-    manifest = {"scenario": asdict(config), "information_mode": controller.mode,
+    (evaluator / 'initial_world.json').write_text(json.dumps(controller.environment.reconstruction_inputs, sort_keys=True))
+    write_jsonl(output / 'environment_records.jsonl', controller.environment.records)
+    write_jsonl(output / 'final_beliefs.jsonl', controller.estimates.values())
+    manifest = {"replay_contract_version": 3,
+        'experiment_identity': getattr(controller, 'experiment_identity', None),
+        'provenance': {'runtime': runtime_identity(), 'file_hashes': source_fingerprints(),
+            'source_population_sha256': sha256(DEFAULT_STUDENT_DATA_PATH.read_bytes()).hexdigest()},
+        'extractor': getattr(controller, 'recorded_extractor_identity', None) or extractor_identity(controller.extractor),
+        "policy": serialize_policy(controller.policy),
+        "controller_model": {"wait_matrix": controller.wait_matrix.tolist(),
+                             "treatment_matrix": controller.programme_matrix.tolist()},
+        "scenario": asdict(config), "information_mode": controller.mode,
         "observation_model": asdict(controller.observation_model.config),
         "note_quality": asdict(controller.note_quality), "max_notes_per_month": controller.max_notes_per_month,
         "extraction_contract": controller.extraction_contract,
@@ -72,14 +87,18 @@ def save_episode(controller, output):
                                     in controller.note_quality_by_student.items()},
         "estimator": controller.estimator.configuration,
         "allocation_policy": type(controller.policy).__name__,
-        "allocation_policy_settings": controller.policy.settings,
+        "allocation_policy_settings": getattr(controller.policy, "settings", ()),
         "fairness_stratum_rule": "enrolled_MAP_if_max_probability_at_least_0.6_else_uncertain",
         "support_need_rule": "existing_static_primary_need_no_LLM_reassignment",
         "environment_wait_matrix": controller.environment.transition_assumptions[0],
         "environment_programme_matrix": controller.environment.transition_assumptions[1]}
+    manifest['episode_identity'] = digest(manifest)
     if hasattr(controller, "replay_provenance"):
         manifest["replay_provenance"] = controller.replay_provenance
     (output / "experiment_config.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    hashes = {str(path.relative_to(output)): sha256(path.read_bytes()).hexdigest()
+              for path in sorted(output.rglob('*')) if path.is_file()}
+    (output / 'record_integrity.json').write_text(json.dumps(hashes, indent=2))
 
 
 def plot_episode(controller, output):
@@ -161,7 +180,8 @@ def run_feedback_experiments(config, *, output, observation_config=ObservationCo
             policy = (ConstrainedAllocationPlanner(**kwargs) if name == "resource" else
                 FairnessPlanner(minimum_access=config.fairness_min_access,
                     window_months=config.fairness_window, grouping_attribute=config.fairness_grouping_attribute,
-                    allow_shortfall=config.fairness_allow_shortfall, **kwargs))
+                    allow_shortfall=config.fairness_allow_shortfall,
+                    enabled=config.fairness_enabled, **kwargs))
             calls_before = getattr(extractor, "calls", 0)
             controller = build_school(config).run_cmdp_feedback(policy, config=config,
                 mode=mode, extractor=extractor, observation_config=observation_config,

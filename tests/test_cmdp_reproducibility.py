@@ -65,8 +65,10 @@ class ReproducibilityTests(unittest.TestCase):
         self.assertFalse(hasattr(snapshot, "_conditions"))
         with self.assertRaises(FrozenInstanceError):
             snapshot.students[0].condition = StudentCondition.WITHDRAWN
-        with self.assertRaises(ValueError):
-            BaselinePolicy("severity").plan(snapshot)
+        # Phase 3 defines missing estimates as the lowest priority, with ID
+        # tie-breaking. No hidden label is required to produce an allocation.
+        self.assertEqual([s.student_id for s in BaselinePolicy("severity").rank_students(snapshot)],
+                         sorted(s.student_id for s in snapshot.students if s.eligible))
         student_id = snapshot.students[0].student_id
         estimate = ConditionEstimate(
             student_id, 1, StudentCondition.DISENGAGED, "explicit_test_estimator"
@@ -74,6 +76,7 @@ class ReproducibilityTests(unittest.TestCase):
         before = env.observe()
         observed = env.observe(fully_observed=False, estimates=(estimate,))
         self.assertEqual(observed.students[0].condition, StudentCondition.DISENGAGED)
+        self.assertEqual(BaselinePolicy("severity").rank_students(observed)[0].student_id, student_id)
         self.assertEqual(before, env.observe())
         with self.assertRaises(ValueError):
             env.observe(

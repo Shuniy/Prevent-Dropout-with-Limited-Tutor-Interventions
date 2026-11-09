@@ -63,7 +63,7 @@ def main() -> None:
                         help="Limit actionable monitoring notes per decision cutoff (default: 1)")
     parser.add_argument("--extraction-contract", choices=("actionable_monitoring", "legacy_programme_only"),
                         default="actionable_monitoring")
-    parser.add_argument("--feedback-policies", nargs="+", choices=("resource", "fairness"),
+    parser.add_argument("--feedback-policies", nargs="+", choices=("resource", "fairness", "robust"),
                         default=["resource", "fairness"])
     parser.add_argument("--modes", nargs="+",
                         choices=("oracle", "structured", "b_matched", "llm_notes", "noisy_notes"),

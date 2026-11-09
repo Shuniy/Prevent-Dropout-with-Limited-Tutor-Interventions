@@ -67,6 +67,8 @@ class FairnessPlanner(ConstrainedAllocationPlanner):
     @property
     def settings(self):
         return (*super().settings, ("fairness_tolerance", self.FAIRNESS_TOLERANCE),
+                ("enabled", self.enabled), ("minimum_access", self.minimum_access),
+                ("window_months", self.window_months),
                 ("grouping_attribute", self.grouping_attribute),
                 ("allow_shortfall", self.allow_shortfall),
                 ("projection", "announced_calendar_current_candidates_wait_values"))

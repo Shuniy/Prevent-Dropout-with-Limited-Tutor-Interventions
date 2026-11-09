@@ -1,20 +1,23 @@
 """Replay one recorded episode without invoking a language model."""
 
 import json
+from hashlib import sha256
 from pathlib import Path
 
 from ..intervention.feedback_notes import NoteQuality
 from ..intervention.observation_extractor import RecordedOutcomeExtractor
 from ..observations.observable_events import EnrollmentRecord, Note, ObservableEvent
 from .closed_loop_controller import ClosedLoopCMDPController
-from .cmdp_scenarios import build_school
-from .constrained_planner import ConstrainedAllocationPlanner
-from .fairness_planner import FairnessPlanner
 from .feedback_experiments import save_episode
 from .observation_model import ObservationConfig, SyntheticObservationModel
 from .scenario_config import ScenarioConfig
 from .state_estimator import StudentStateEstimator
-from .transition_model import programme_matrix
+from .policy_configuration import reconstruct_policy
+from .cmdp_environment import CMDPEnvironment
+from .student_simulation import StudentSimulation
+from .mentor import Mentor
+from .mentor_availability import MentorAvailability
+from ..evaluation.provenance import digest, source_fingerprints, runtime_identity
 
 
 def read_jsonl(path):
@@ -49,6 +52,10 @@ class ReplayController(ClosedLoopCMDPController):
 def replay_feedback_episode(source, output):
     source, output = Path(source), Path(output)
     manifest = json.loads((source / "experiment_config.json").read_text())
+    if manifest.get('replay_contract_version') != 3:
+        raise ValueError('incomplete historical record: exact replay requires contract version 3')
+    if digest({k: v for k, v in manifest.items() if k not in ('episode_identity', 'replay_provenance')}) != manifest.get('episode_identity'):
+        raise ValueError('replay configuration identity/integrity mismatch')
     config = ScenarioConfig(**manifest["scenario"])
     attempts_path = source / "extraction_attempts.jsonl"
     if not attempts_path.exists():
@@ -56,18 +63,25 @@ def replay_feedback_episode(source, output):
     attempts = read_jsonl(attempts_path)
     batches = read_jsonl(source / "extracted_observations.jsonl")
     extractor = RecordedOutcomeExtractor(attempts, batches)
-    if manifest["allocation_policy"] not in ("FairnessPlanner", "ConstrainedAllocationPlanner"):
-        raise ValueError("replay does not reconstruct this policy configuration")
-    settings = dict(manifest["allocation_policy_settings"])
-    kwargs = {"time_limit": settings["time_limit"], "failure_mode": settings["failure_mode"],
-              "treatment_matrix": programme_matrix(config.effect_strength)}
-    policy = (FairnessPlanner(minimum_access=config.fairness_min_access,
-        window_months=config.fairness_window, grouping_attribute=settings["grouping_attribute"],
-        allow_shortfall=settings["allow_shortfall"], **kwargs)
-        if manifest["allocation_policy"] == "FairnessPlanner" else ConstrainedAllocationPlanner(**kwargs))
-    if dict(policy.settings) != settings:
-        raise ValueError("replay cannot restore the recorded planner settings")
-    observation = manifest["observation_model"]
+    integrity_path = source / 'record_integrity.json'
+    if not integrity_path.exists():
+        raise ValueError('missing replay record integrity/provenance')
+    integrity = json.loads(integrity_path.read_text())
+    actual = {str(p.relative_to(source)) for p in source.rglob('*') if p.is_file()
+              and p.name not in ('record_integrity.json', 'replay_result.json')}
+    if set(integrity) != actual:
+        raise ValueError('incomplete replay record inventory')
+    for name, expected_hash in integrity.items():
+        if sha256((source / name).read_bytes()).hexdigest() != expected_hash:
+            raise ValueError(f'replay record integrity mismatch: {name}')
+    policy = reconstruct_policy(manifest['policy'])
+    if manifest['provenance']['file_hashes'] != source_fingerprints():
+        raise ValueError('exact replay requires the recorded source/configuration versions')
+    runtime = runtime_identity()
+    original_runtime = manifest['provenance']['runtime']
+    if any(runtime[k] != original_runtime[k] for k in ('python', 'implementation', 'dependencies')):
+        raise ValueError('exact replay requires the recorded interpreter/dependency versions')
+    observation = dict(manifest["observation_model"])
     observation["emissions"] = tuple(tuple(row) for row in observation["emissions"])
     estimator_config = manifest["estimator"]
     estimator_observation = dict(estimator_config["observation_config"])
@@ -75,7 +89,13 @@ def replay_feedback_episode(source, output):
     estimator = StudentStateEstimator(prior=estimator_config["prior"],
         wait_matrix=estimator_config["wait_matrix"], treatment_matrix=estimator_config["programme_matrix"],
         observation_config=ObservationConfig(**estimator_observation))
-    result = ReplayController(build_school(config).create_cmdp_environment(config=config), policy,
+    world = json.loads((source / 'evaluator_only/initial_world.json').read_text())
+    environment = CMDPEnvironment([StudentSimulation(**s) for s in world['students']],
+        [Mentor(**{**m, 'availability_by_step': [MentorAvailability(**a)
+            for a in m['availability_by_step']]}) for m in world['mentors']], config,
+        wait_matrix=manifest['environment_wait_matrix'],
+        treatment_matrix=manifest['environment_programme_matrix'])
+    result = ReplayController(environment, policy,
         source=source, replay_provenance={
             "original_model_invocations": sum(a["model_invocations"] for a in attempts),
             "original_cache_hits": sum(a["cache_hit"] for a in attempts),
@@ -83,14 +103,17 @@ def replay_feedback_episode(source, output):
             "attempt_provenance": "historical original execution, not replay inference"},
         mode=manifest["information_mode"], extractor=extractor,
         estimator=estimator,
+        **manifest['controller_model'],
         observation_config=ObservationConfig(**observation),
         note_quality=NoteQuality(**manifest["note_quality"]),
         note_quality_by_student={sid: NoteQuality(**quality) for sid, quality
-                                 in manifest.get("note_quality_by_student", {}).items()},
+                                 in manifest["note_quality_by_student"].items()},
         max_notes_per_month=manifest["max_notes_per_month"],
-        max_monitoring_notes_per_month=manifest.get("max_monitoring_notes_per_month", 1),
-        extraction_contract=manifest.get("extraction_contract", "legacy_programme_only"))
+        max_monitoring_notes_per_month=manifest["max_monitoring_notes_per_month"],
+        extraction_contract=manifest["extraction_contract"])
     result.observation_model = RecordedObservations(source, ObservationConfig(**observation))
+    result.experiment_identity = manifest['experiment_identity']
+    result.recorded_extractor_identity = manifest['extractor']
     # Gold routing is determined by identity in the controller; keep a separate
     # recorded adapter so injected routes remain explicitly injected.
     gold_attempts = [a for a in attempts if a["route"] == "gold"]
@@ -115,13 +138,30 @@ def replay_feedback_episode(source, output):
     if json.loads(json.dumps(result.evaluator_truth)) != expected_truth:
         raise ValueError("replay transition mismatch")
     save_episode(result, output)
+    restored = json.loads((output/'experiment_config.json').read_text())
+    for name in ('scenario', 'information_mode', 'observation_model', 'note_quality',
+                 'max_notes_per_month', 'extraction_contract', 'max_monitoring_notes_per_month',
+                 'note_quality_by_student', 'estimator', 'policy', 'controller_model',
+                 'environment_wait_matrix', 'environment_programme_matrix', 'extractor',
+                 'allocation_policy_settings', 'fairness_stratum_rule', 'support_need_rule',
+                 'extraction_diagnostics'):
+        if restored[name] != manifest[name]:
+            raise ValueError(f'replay configuration mismatch: {name}')
     checked = ("mentor_notes", "note_selection", "extracted_observations", "extraction_attempts",
                "extraction_failures", "estimate_updates", "risk_estimates", "decision_snapshots",
-               "decision_extraction_diagnostics", "observable_events", "administrative_enrollment")
+               "decision_extraction_diagnostics", "observable_events", "administrative_enrollment",
+               "fairness_windows", "final_beliefs", "initial_observations")
     for name in checked:
         if read_jsonl(output / f"{name}.jsonl") != read_jsonl(source / f"{name}.jsonl"):
             raise ValueError(f"replay {name} mismatch")
+    if deterministic_decisions(read_jsonl(output / 'environment_records.jsonl')) != deterministic_decisions(
+            read_jsonl(source / 'environment_records.jsonl')):
+        raise ValueError('replay environment resource ledger mismatch')
+    deterministic = {name: read_jsonl(output / f'{name}.jsonl') for name in checked}
+    deterministic.update(decisions=deterministic_decisions(result.decisions), truth=expected_truth,
+        environment_records=deterministic_decisions(read_jsonl(output / 'environment_records.jsonl')))
     summary = {"source": str(source), "decisions_reproduced": len(result.decisions),
+               "deterministic_digest": sha256(json.dumps(deterministic, sort_keys=True).encode()).hexdigest(),
                "terminal_enrolled": result.environment.terminal_reward(), "real_llm_calls": 0,
                "snapshots_allocations_resources_and_truth_match": True,
                "evidence_processing_history_match": True, "checked_records": checked,
