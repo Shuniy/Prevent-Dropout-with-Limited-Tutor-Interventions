@@ -9,6 +9,48 @@ from .provenance import (artifact_hashes, digest, read_record, seal_directory,
     staged_artifacts, verify_directory, verify_manifest, write_exclusive)
 
 
+# Diagnostic inputs are captured in seals, but their mutable originals are not
+# report aliases. All other top-level artifact names are reserved once published.
+_NON_ALIASES = frozenset({'attempt.json', 'artifact_integrity.json', 'report_manifest.json',
+    'snapshot_assignment_comparison.csv', 'extraction_snapshot_comparison.csv',
+    'live_runtime.json', 'development_gate.json', 'extraction'})
+
+
+def _alias_names(artifacts):
+    return {Path(name).parts[0] for name in artifacts} - _NON_ALIASES
+
+
+def _alias_inventory(version, index):
+    """Recover ownership from retained manifests, including older generations."""
+    managed, expected = set(), set()
+    for entry in index:
+        manifest = read_record(version/'reports'/entry['generation']/'report_manifest.json')
+        expected = _alias_names(manifest['artifacts'])
+        managed.update(expected)
+    return managed, expected
+
+
+def _check_alias_target(alias):
+    if not alias.is_symlink() or alias.readlink() != Path('.current_report')/alias.name:
+        raise ValueError(f'substituted or unmanaged finalized artifact alias: {alias.name}')
+
+
+def _reconcile_aliases(version, managed, expected):
+    """Remove only owned links; never overwrite user files or other symlinks."""
+    for name in sorted(managed - expected):
+        alias = version/name
+        if alias.is_symlink() or alias.exists():
+            _check_alias_target(alias)
+            alias.unlink()
+    for name in sorted(expected):
+        alias = version/name
+        if alias.is_symlink() or alias.exists():
+            _check_alias_target(alias)
+        else:
+            alias.symlink_to(Path('.current_report')/name,
+                target_is_directory=(version/'.current_report'/name).is_dir())
+
+
 def _sources(version, sources):
     for source in sources:
         relative = Path(source['path'])
@@ -43,7 +85,7 @@ def report_index(version):
 
 
 def verify_reports(version):
-    """Check every registered generation, its exact file inventory and inputs."""
+    """Check all sealed generations, inputs, pointers and historical alias names."""
     version = Path(version)
     index = report_index(version)
     actual = {p.name for p in (version/'reports').glob('*') if not p.name.startswith('.')}
@@ -74,22 +116,24 @@ def verify_reports(version):
         if not required <= files.keys():
             raise ValueError('incomplete finalized report')
     pointer = version/'current_report.json'
+    current = version/'.current_report'
     if index:
         if read_record(pointer) != {k: index[-1][k] for k in ('generation', 'report_identity')}:
             raise ValueError('invalid current report pointer')
-        current = version/'.current_report'
         if not current.is_symlink() or current.readlink().as_posix() != 'reports/'+index[-1]['generation']:
             raise ValueError('invalid current report alias')
-        generation = version/'reports'/index[-1]['generation']
-        auxiliary = {'snapshot_assignment_comparison.csv', 'extraction_snapshot_comparison.csv',
-                     'live_runtime.json', 'development_gate.json', 'extraction'}
-        for item in generation.iterdir():
-            if item.name in {'attempt.json', 'artifact_integrity.json', 'report_manifest.json'} | auxiliary:
+        managed, expected = _alias_inventory(version, index)
+        for name in sorted(managed):
+            alias = version/name
+            present = alias.is_symlink() or alias.exists()
+            if name not in expected:
+                if present:
+                    raise ValueError(f'obsolete managed artifact alias or unmanaged conflict: {name}')
                 continue
-            alias = version/item.name
-            if not alias.is_symlink() or alias.readlink() != Path('.current_report')/item.name:
-                raise ValueError(f'substituted finalized artifact alias: {item.name}')
-    elif pointer.exists():
+            _check_alias_target(alias)
+            if not alias.exists():
+                raise ValueError(f'dangling finalized artifact alias: {name}')
+    elif pointer.exists() or pointer.is_symlink() or current.exists() or current.is_symlink():
         raise ValueError('report pointer without finalized generation')
     return len(index)
 
@@ -105,6 +149,8 @@ def report_generation(version, kind):
     lock.mkdir(exist_ok=False)
     try:
         verify_reports(version)
+        index = report_index(version)
+        managed, _ = _alias_inventory(version, index)
         generation = uuid4().hex
         destination = version/'reports'/generation
         with staged_artifacts(destination, identity={'kind': kind, 'input_digest': manifest['input_digest']}) as stage:
@@ -112,31 +158,30 @@ def report_generation(version, kind):
             status = read_record(stage/'aggregation_status.json')
             sources = status['contributing_episodes']
             _sources(version, sources)
-            auxiliary = {'snapshot_assignment_comparison.csv', 'extraction_snapshot_comparison.csv',
-                         'live_runtime.json', 'development_gate.json', 'extraction'}
-            for item in stage.iterdir():
-                if item.name == 'attempt.json' or item.name in auxiliary:
-                    continue
-                target = version/item.name
-                if target.is_symlink():
-                    if target.readlink() != Path('.current_report')/item.name:
-                        raise ValueError(f'substituted finalized artifact alias: {item.name}')
-                elif target.exists():
-                    raise ValueError(f'unmanaged report artifact exists: {target}')
+            artifacts = artifact_hashes(stage)
+            expected = _alias_names(artifacts)
+            for name in sorted(expected):
+                target = version/name
+                if target.is_symlink() or target.exists():
+                    if name in managed:
+                        _check_alias_target(target)
+                    else:
+                        raise ValueError(f'unmanaged report artifact exists: {target}')
             payload = {'report_contract_version': 1, 'generation': generation, 'kind': kind,
                 'input_digest': manifest['input_digest'], 'contributing_episodes': sources,
                 'primary_complete': status['primary_complete'],
                 'created_at_utc': datetime.now(timezone.utc).isoformat(),
-                'artifacts': artifact_hashes(stage)}
+                'artifacts': artifacts}
             write_exclusive(stage/'report_manifest.json', {**payload, 'report_identity': digest(payload)})
             seal_directory(stage)
             verify_directory(stage)
-        index = report_index(version)
         entry = {'generation': generation, 'report_identity': digest(payload),
                  'previous': index[-1]['entry_digest'] if index else None}
         entry['entry_digest'] = digest(entry)
-        # A crash between publication and registration fails verification rather
-        # than silently hiding an unregistered finalized generation.
+        # Publication order: sealed directory, registry, JSON pointer, directory
+        # pointer, then aliases. These renames/unlinks are not one transaction.
+        # Any inconsistent intermediate state must fail verify_reports(); retained
+        # sealed generations are never rewritten. No power-loss durability claim.
         temporary = version/('report_generations.'+uuid4().hex+'.tmp')
         write_exclusive(temporary, index+[entry])
         temporary.replace(version/'report_generations.json')
@@ -146,21 +191,7 @@ def report_generation(version, kind):
         alias = version/('.current_report.'+uuid4().hex)
         alias.symlink_to(Path('reports')/generation, target_is_directory=True)
         alias.replace(version/'.current_report')
-        # Convenience aliases always resolve into sealed generations. Producers
-        # write staging paths, never through these links into finalized bytes.
-        for item in destination.iterdir():
-            if item.name in ('attempt.json', 'artifact_integrity.json', 'report_manifest.json'):
-                continue
-            target = version/item.name
-            if target.is_symlink():
-                continue
-            if target.exists():
-                # Optional diagnostic input files remain source inputs; their
-                # captured bytes, rather than these mutable originals, are sealed.
-                if item.name in ('snapshot_assignment_comparison.csv', 'extraction_snapshot_comparison.csv',
-                                 'live_runtime.json', 'development_gate.json', 'extraction'):
-                    continue
-                raise ValueError(f'unmanaged report artifact exists: {target}')
-            target.symlink_to(Path('.current_report')/item.name, target_is_directory=item.is_dir())
+        _reconcile_aliases(version, managed, expected)
+        verify_reports(version)
     finally:
         lock.rmdir()

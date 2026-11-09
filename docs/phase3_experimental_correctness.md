@@ -711,3 +711,138 @@ workflow still targets Python 3.12 and 3.13 and was not changed. No CI run for
 these final uncommitted changes has completed; Python 3.13 execution remains
 unverified here. No commit, push, merge, historical evidence rewrite, full
 research grid or Phase 4 work was performed.
+
+## Final Report Alias Lifecycle Correction
+
+### Root cause and reproduction
+
+At baseline commit `f68f3c16691aa6b0ca818bf0d85b8dce47dbf229`,
+[report_generation](../src/evaluation/report_artifacts.py) created convenience
+links for the newly published directory, without retiring names absent from that
+directory (baseline line 151). The verifier inspected only the latest directory's
+names (baseline line 86). Consequently, full report → aggregate left a dangling
+root `research_results.md` link while verification still succeeded. The original
+sealed report's continued existence did not make that root link valid.
+
+The two deterministic offline reproductions failed before the implementation
+change: the obsolete link was still a symlink, and the verifier raised no error
+for the dangling managed alias. The exact
+[pre-fix log](../results/phase3_alias_lifecycle_20261109/before_fix.log) records
+**2 tests, 2 failures**. No live model or research grid was used.
+
+### Alias ownership and verification
+
+Ownership is reconstructed from the top-level artifact names in **all retained,
+verified report manifests**. These names remain reserved for that experiment
+version, including after the corresponding artifact leaves the current
+generation. The latest manifest supplies the expected set. This uses the existing
+immutable records; it introduces no mutable alias registry or resealing.
+
+Generation files remain immutable. The JSON current pointer and `.current_report`
+directory link remain mutable publication metadata. Managed convenience links
+must point exactly to `.current_report/<same-name>`. Optional diagnostic inputs
+(`snapshot_assignment_comparison.csv`, `extraction_snapshot_comparison.csv`,
+`live_runtime.json`, `development_gate.json`, and `extraction`) and generation
+metadata/seals are excluded from convenience aliases. Diagnostic snapshots remain
+inside their sealed generations; their root originals are untouched.
+
+Publication removes obsolete managed links and creates missing expected ones.
+An unrelated symlink is not automatically owned. A user file, directory or
+different symlink at a reserved name is rejected and preserved. Even an
+alias-shaped link at a newly required, previously unowned name blocks publication.
+The complete managed-name inventory is checked for missing expected links,
+ordinary-file substitutions, dangling links, outside/historical targets and
+obsolete aliases or user conflicts. Checking `is_symlink()` also detects dangling
+links for which `exists()` is false. Existing seal, manifest, registry and
+contributing-episode checks remain in force; publication finishes by verifying
+the resulting report state.
+
+### Failure boundaries and preservation
+
+The cooperating-writer lock and private staging/sealing remain. Update order is:
+publish the sealed generation directory; atomically replace the generation
+registry; replace the JSON current pointer; replace `.current_report`; remove
+obsolete aliases and create expected aliases; verify the complete state. Prior
+generation bytes are never rewritten.
+
+These filesystem operations are not one transaction. Readers can observe an
+intermediate state, and interruption can leave an unregistered generation,
+mismatched pointers, missing links or obsolete dangling links. Such inconsistent
+states fail verification and require inspection/recovery; there is no automatic
+rollback or power-loss durability/fsync guarantee. A correctly completed alias
+state may verify even if the writer stops immediately afterward. The hashes
+remain integrity evidence rather than protection against rewriting both bytes
+and attestations, and the lock does not serialize unrelated external writers.
+Pre-existing invalid aliases are rejected before another generation is published.
+
+The 18 added methods in
+[test_phase3_final_repairs.py](../tests/test_phase3_final_repairs.py) cover all four
+aggregate/report sequences, deletion and substitution, obsolete links after
+multiple aggregate generations, old/outside targets, user file/directory/symlink
+conflicts, optional diagnostics, interrupted alias creation/removal, interrupted
+registry/pointer replacements, historical byte preservation and amendment into
+a new version. All original tests remain intact.
+
+The separate [skeptical review](../results/phase3_alias_lifecycle_20261109/skeptical_review.json)
+created a tiny retained experiment, published a full report followed by an
+aggregate, and verified that the obsolete alias was absent while the original
+immutable report remained accessible with identical hashes. Reintroducing the
+exact dangling link made the CLI exit **1** with
+`obsolete managed artifact alias or unmanaged conflict: research_results.md`.
+After removing that injected link, the CLI verified both retained generations;
+the user file and unmanaged dangling symlink remained unchanged.
+
+### Executed verification and source identity
+
+The branch remains `fix/phase-3-repair-experimental-comparisons`, at commit
+`f68f3c16691aa6b0ca818bf0d85b8dce47dbf229` plus the uncommitted correction.
+The final executable-source/test/configuration SHA-256 is
+`39b3e4b88abd5d61034ed4e7e751f991a5af4c1fded043e95a4db9bafadbd255`.
+Documentation is excluded from this fingerprint to avoid a circular identity.
+Local execution uses CPython **3.12.12** on macOS arm64 via
+`/tmp/phase1-python312/bin/python`.
+
+| Direct command (using the interpreter above) | Result |
+| --- | --- |
+| `-m unittest tests.test_phase3_final_repairs.ReportAliasLifecycleTests -v` | 18 passed in 13.149 seconds |
+| `-m unittest tests.test_phase3_final_repairs -v` | 75 passed in 47.025 seconds |
+| `-m unittest discover -s tests` | 350 passed in 109.964 seconds; original 332 retained |
+| `scripts/verify_experiment_records.py results/phase3_alias_lifecycle_20261109/skeptical_records` | Exit 0; 1 version, 2 sealed generations fully verified |
+| `git diff --check`, `git status --short`, `git diff --stat` | Exit 0; targeted implementation, tests and this appended record |
+
+The [new verification directory](../results/phase3_alias_lifecycle_20261109/)
+retains the reproduction, direct test logs and skeptical CLI evidence. Prior
+verification directories and historical documentation results are preserved.
+
+The bounded harness ran against the final source fingerprint above using the
+fresh destination below:
+
+```sh
+/tmp/phase1-python312/bin/python scripts/verify_phase3.py --output results/phase3_alias_lifecycle_20261109/acceptance
+```
+
+The [final verification record](../results/phase3_alias_lifecycle_20261109/acceptance/verification.json)
+reports:
+
+| Final acceptance check | Result |
+| --- | --- |
+| Combined Phase 1–3/information/comparison regressions | 124 passed in 65.067 seconds |
+| Full offline discovery on the final source | 350 passed in 110.602 seconds; 0 failures, errors or skips |
+| Git whitespace/status/stat commands | All exited 0 |
+| Bounded policy/information scenario | 40 validated episodes; 8 policies, 5 modes |
+| Exact offline replay | 8 policies replayed twice with matching deterministic digests |
+| Retained experiment CLI verification | Exit 0; 2 versions, 6 sealed generations fully verified |
+| Historical preservation | All 4,774 inventoried files unchanged; prior manifests, episodes and sealed reports preserved |
+| Source stability | Fingerprint unchanged from harness start through completion |
+| Real model calls | 0 |
+
+The final skeptical review confirms the originally reported condition is
+prevented by normal publication and rejected if deliberately reintroduced. No
+transition, fairness, information-boundary, seed, policy, completion, extractor,
+episode or replay semantics were changed. User-facing report paths and commands
+are unchanged, so the README was not modified.
+
+**Verdict: READY TO MERGE on local Python 3.12 acceptance.** Python 3.13 and CI
+were not rerun for these uncommitted changes. No commit, push, merge, full research
+grid or Phase 4 work was performed. The explicit filesystem/crash and scientific
+limitations above remain.

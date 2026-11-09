@@ -203,6 +203,267 @@ class ReportIntegrityTests(RepairFixture):
         self.assertEqual(before, inventory(target))
 
 
+class ReportAliasLifecycleTests(RepairFixture):
+    def assert_current_alias(self, name):
+        alias = self.version/name
+        self.assertTrue(alias.is_symlink())
+        self.assertTrue(alias.exists())
+        self.assertEqual(alias.readlink(), Path('.current_report')/name)
+        current = json.loads((self.version/'current_report.json').read_text())
+        self.assertEqual(alias.resolve(), (self.version/'reports'/current['generation']/name).resolve())
+
+    def test_aggregate_then_aggregate(self):
+        experiments.aggregate(self.version)
+        before = inventory(self.version/'reports')
+        experiments.aggregate(self.version)
+        self.assert_current_alias('episode_results.csv')
+        self.assertFalse((self.version/'research_results.md').is_symlink())
+        self.assertEqual(verify_reports(self.version), 2)
+        for name, expected in before.items():
+            self.assertEqual(sha256((self.version/'reports'/name).read_bytes()).hexdigest(), expected)
+
+    def test_aggregate_then_full_report(self):
+        experiments.aggregate(self.version)
+        self.report()
+        for name in ('episode_results.csv', 'research_results.md', 'figures'):
+            self.assert_current_alias(name)
+        self.assertEqual(verify_reports(self.version), 2)
+
+    def test_full_report_then_aggregate_removes_obsolete_aliases(self):
+        report = self.report()
+        self.assertTrue(report.exists())
+        before = inventory(report.parent)
+        experiments.aggregate(self.version)
+        alias = self.version/'research_results.md'
+        # exists() alone misses the original dangling-link defect.
+        self.assertFalse(alias.is_symlink())
+        self.assertFalse(alias.exists())
+        self.assertFalse((self.version/'figures').is_symlink())
+        self.assertEqual(before, inventory(report.parent))
+        self.assertTrue(report.exists())
+        self.assertEqual(verify_reports(self.version), 2)
+
+    def test_obsolete_dangling_managed_alias_fails_verification(self):
+        self.report()
+        experiments.aggregate(self.version)
+        experiments.aggregate(self.version)
+        alias = self.version/'research_results.md'
+        if not alias.is_symlink():
+            alias.symlink_to('.current_report/research_results.md')
+        self.assertFalse(alias.exists())
+        self.assertTrue(alias.is_symlink())
+        with self.assertRaises(ValueError):
+            verify_reports(self.version)
+
+    def test_full_report_aggregate_full_report_and_amendment_preserve_history(self):
+        first = self.report()
+        original = inventory(first.parent)
+        experiments.aggregate(self.version)
+        self.assertTrue(provenance.verify_versions(self.root)['fully_verified'])
+        second = self.report()
+        self.assertNotEqual(first.parent, second.parent)
+        for name in ('episode_results.csv', 'research_results.md', 'figures'):
+            self.assert_current_alias(name)
+        self.assertEqual(original, inventory(first.parent))
+        previous = inventory(self.version)
+        updated = deepcopy(self.config)
+        updated['uncertainty']['radius'] = .44
+        experiments.freeze(self.root, 'Alias lifecycle amendment', configuration=updated)
+        amended_version = provenance.active_directory(self.root)
+        generate_report(amended_version)
+        experiments.aggregate(amended_version)
+        self.assertEqual(previous, inventory(self.version))
+        self.assertEqual(verify_reports(self.version), 3)
+        self.assertEqual(provenance.verify_versions(self.root)['verified_report_generations'], 5)
+
+    def test_missing_expected_alias_rejected(self):
+        experiments.aggregate(self.version)
+        (self.version/'episode_results.csv').unlink()
+        with self.assertRaises(ValueError):
+            verify_reports(self.version)
+
+    def test_expected_alias_replaced_by_regular_file_rejected_and_preserved(self):
+        experiments.aggregate(self.version)
+        alias = self.version/'episode_results.csv'
+        content = alias.read_bytes()
+        alias.unlink()
+        alias.write_bytes(content)
+        with self.assertRaises(ValueError):
+            verify_reports(self.version)
+        with self.assertRaises(ValueError):
+            experiments.aggregate(self.version)
+        self.assertFalse(alias.is_symlink())
+        self.assertEqual(alias.read_bytes(), content)
+
+    def test_dangling_expected_alias_rejected(self):
+        experiments.aggregate(self.version)
+        alias = self.version/'episode_results.csv'
+        alias.unlink()
+        alias.symlink_to('missing.csv')
+        with self.assertRaises(ValueError):
+            verify_reports(self.version)
+
+    def test_expected_alias_to_older_generation_rejected(self):
+        first = self.report()
+        self.report()
+        alias = self.version/'research_results.md'
+        alias.unlink()
+        alias.symlink_to(first)
+        self.assertTrue(alias.exists())
+        with self.assertRaises(ValueError):
+            verify_reports(self.version)
+
+    def test_expected_alias_outside_generation_rejected_even_with_identical_bytes(self):
+        report = self.report()
+        outside = self.root/'user-report.md'
+        outside.write_bytes(report.read_bytes())
+        alias = self.version/'research_results.md'
+        alias.unlink()
+        alias.symlink_to(outside)
+        with self.assertRaises(ValueError):
+            verify_reports(self.version)
+        self.assertEqual(outside.read_bytes(), report.read_bytes())
+
+    def test_obsolete_alias_to_historical_report_rejected(self):
+        report = self.report()
+        experiments.aggregate(self.version)
+        alias = self.version/'research_results.md'
+        alias.symlink_to(report)
+        self.assertTrue(alias.exists())
+        with self.assertRaises(ValueError):
+            verify_reports(self.version)
+
+    def test_user_file_at_obsolete_managed_name_rejected_and_preserved(self):
+        self.report()
+        experiments.aggregate(self.version)
+        alias = self.version/'research_results.md'
+        alias.write_text('user notes')
+        with self.assertRaises(ValueError):
+            verify_reports(self.version)
+        with self.assertRaises(ValueError):
+            self.report()
+        self.assertEqual(alias.read_text(), 'user notes')
+
+    def test_unmanaged_files_directories_and_symlinks_preserved(self):
+        (self.version/'notes.txt').write_text('user notes')
+        (self.version/'user-directory').mkdir()
+        (self.version/'user-directory/data').write_text('user data')
+        (self.version/'user-link').symlink_to('notes.txt')
+        (self.version/'user-dangling-link').symlink_to('absent')
+        self.report()
+        experiments.aggregate(self.version)
+        self.assertEqual((self.version/'notes.txt').read_text(), 'user notes')
+        self.assertEqual((self.version/'user-directory/data').read_text(), 'user data')
+        self.assertEqual((self.version/'user-link').readlink(), Path('notes.txt'))
+        self.assertEqual((self.version/'user-dangling-link').readlink(), Path('absent'))
+        self.assertEqual(verify_reports(self.version), 2)
+
+    def test_unmanaged_conflicts_block_publication_without_overwrite(self):
+        # Even a link with the usual spelling is unowned without a sealed history.
+        for kind in ('file', 'directory', 'symlink', 'alias-shaped-symlink'):
+            with self.subTest(kind=kind):
+                alias = self.version/'research_results.md'
+                if kind == 'file':
+                    alias.write_text('user data')
+                elif kind == 'directory':
+                    alias.mkdir()
+                else:
+                    alias.symlink_to('.current_report/research_results.md'
+                        if kind == 'alias-shaped-symlink' else 'user-missing')
+                with self.assertRaisesRegex(ValueError, 'unmanaged'):
+                    self.report()
+                if kind == 'file':
+                    self.assertEqual(alias.read_text(), 'user data')
+                    alias.unlink()
+                elif kind == 'directory':
+                    self.assertTrue(alias.is_dir())
+                    alias.rmdir()
+                else:
+                    self.assertTrue(alias.is_symlink())
+                    alias.unlink()
+                self.assertEqual(verify_reports(self.version), 0)
+
+    def test_diagnostic_inputs_are_captured_but_never_convenience_aliases(self):
+        diagnostic = self.version/'live_runtime.json'
+        diagnostic.write_text('{}')
+        extraction = self.version/'extraction'
+        extraction.mkdir()
+        (extraction/'metrics.json').write_text('{}')
+        report = self.report()
+        self.assertTrue((report.parent/'live_runtime.json').is_file())
+        self.assertTrue((report.parent/'extraction/metrics.json').is_file())
+        experiments.aggregate(self.version)
+        self.assertFalse(diagnostic.is_symlink())
+        self.assertFalse(extraction.is_symlink())
+        self.assertEqual(diagnostic.read_text(), '{}')
+        self.assertEqual((extraction/'metrics.json').read_text(), '{}')
+        self.assertEqual(verify_reports(self.version), 2)
+        diagnostic.unlink()
+        shutil.rmtree(extraction)
+        self.report()
+        self.assertFalse(diagnostic.is_symlink())
+        self.assertFalse(extraction.is_symlink())
+        self.assertEqual(verify_reports(self.version), 3)
+
+    def test_alias_removal_failure_rejected_without_mutating_history(self):
+        report = self.report()
+        before = inventory(report.parent)
+        original_unlink = Path.unlink
+
+        def fail_report_unlink(path, *args, **kwargs):
+            if path == self.version/'research_results.md':
+                raise OSError('alias removal interrupted')
+            return original_unlink(path, *args, **kwargs)
+
+        with patch.object(Path, 'unlink', fail_report_unlink):
+            with self.assertRaisesRegex(OSError, 'alias removal interrupted'):
+                experiments.aggregate(self.version)
+        self.assertEqual(before, inventory(report.parent))
+        self.assertTrue((self.version/'research_results.md').is_symlink())
+        with self.assertRaises(ValueError):
+            provenance.verify_versions(self.root)
+
+    def test_alias_creation_failure_rejected_without_mutating_history(self):
+        experiments.aggregate(self.version)
+        before = inventory(self.version/'reports')
+        original_symlink = Path.symlink_to
+
+        def fail_report_symlink(path, *args, **kwargs):
+            if path == self.version/'research_results.md':
+                raise OSError('alias creation interrupted')
+            return original_symlink(path, *args, **kwargs)
+
+        with patch.object(Path, 'symlink_to', fail_report_symlink):
+            with self.assertRaisesRegex(OSError, 'alias creation interrupted'):
+                self.report()
+        for name, expected in before.items():
+            self.assertEqual(sha256((self.version/'reports'/name).read_bytes()).hexdigest(), expected)
+        with self.assertRaises(ValueError):
+            provenance.verify_versions(self.root)
+
+    def test_interrupted_registry_and_pointer_updates_rejected(self):
+        report = self.report()
+        before = inventory(report.parent)
+        original_replace = Path.replace
+        for name in ('report_generations.json', 'current_report.json', '.current_report'):
+            with self.subTest(interrupted_before=name):
+                copied = self.root.with_name('interrupted-'+name)
+                shutil.copytree(self.root, copied, symlinks=True)
+                version = provenance.active_directory(copied)
+
+                def fail_replace(path, target, version=version, name=name):
+                    if Path(target) == version/name:
+                        raise OSError('pointer publication interrupted')
+                    return original_replace(path, target)
+
+                with patch.object(Path, 'replace', fail_replace):
+                    with self.assertRaisesRegex(OSError, 'pointer publication interrupted'):
+                        experiments.aggregate(version)
+                self.assertEqual(before, inventory(version/'reports'/report.parent.name))
+                with self.assertRaises(ValueError):
+                    provenance.verify_versions(copied)
+
+
 class PrimaryCompletionTests(RepairFixture):
     def test_supported_sensitivity_overrides_keep_valid_reconstruction(self):
         for setting, options in (('effect_test', {'effect': .4}),
