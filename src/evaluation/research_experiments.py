@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import time
 import tomllib
+from urllib.parse import urlsplit
 
 import numpy as np
 from scipy.stats import spearmanr
@@ -30,10 +31,13 @@ from .paired_statistics import paired_comparison
 from .scorecards import episode_summary, score_episode
 from .provenance import (active_directory, digest as content_digest, extractor_identity, runtime_identity,
     source_fingerprints, verify_manifest, verify_versions, write_exclusive,
-    seal_directory, verify_directory)
+    seal_directory, verify_directory, staged_artifacts, read_record)
+from .research_records import (primary_design, execution_inputs, completed_records,
+    primary_completion, trace_directory, validate_execution_configuration)
+from .report_artifacts import report_generation
 from ..school.policy_configuration import serialize_policy
 from ..school.state_estimator import StudentStateEstimator
-from ..school.transition_model import programme_matrix
+from ..school.transition_model import P_WAIT, programme_matrix
 
 CONFIG = PROJECT_ROOT / "configs/research_evaluation.toml"
 PROTOCOL = PROJECT_ROOT / "docs/research_evaluation_protocol.md"
@@ -66,6 +70,25 @@ def load_config(path=CONFIG):
 
 
 def validate_config(config):
+    def reject_credentials(value):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if str(key).lower().replace('-', '_') in {
+                        'api_key', 'access_token', 'auth_token', 'authorization', 'password', 'secret', 'token'}:
+                    raise ValueError('credentials must be supplied outside frozen experiment configuration')
+                if key == 'base_url' and isinstance(item, str):
+                    endpoint = urlsplit(item)
+                    if endpoint.username or endpoint.password or endpoint.query or endpoint.fragment:
+                        raise ValueError('authentication URL components must not enter frozen configuration')
+                reject_credentials(item)
+        elif isinstance(value, (list, tuple)):
+            for item in value:
+                reject_credentials(item)
+    reject_credentials(config)
+    for name in ('development_seeds', 'evaluation_seeds', 'secondary_seeds', 'live_seeds'):
+        seeds = config['evaluation'][name]
+        if any(type(s) is not int for s in seeds) or len(seeds) != len(set(seeds)):
+            raise ValueError(f'{name} must contain unique integer seeds')
     development = set(config["evaluation"]["development_seeds"])
     heldout = set(config["evaluation"]["evaluation_seeds"])
     if development & heldout or not development or not heldout:
@@ -91,12 +114,22 @@ def freeze(output, amendment=None, *, configuration=None):
     if (output / "configuration_manifest.json").exists():
         verify_versions(output)
         previous = verify_manifest(active_directory(output))
-        if (previous["file_hashes"] == current and previous['runtime'] == runtime
+        if (previous['manifest_version'] == 4 and previous["file_hashes"] == current and previous['runtime'] == runtime
                 and previous['configuration'] == config and previous['protocol_text'] == PROTOCOL.read_text()):
             return previous
         if not amendment or not amendment.strip():
             raise ValueError("frozen inputs changed: supply --amend with an explicit protocol amendment")
-    manifest = {'manifest_version': 3, 'runtime': runtime,
+    manifest = {'manifest_version': 4, 'runtime': runtime,
+        'report_contract_version': 1, 'primary_evaluation': primary_design(config),
+        'execution_defaults': {
+            'scenario': asdict(ScenarioConfig(**config['scenario'])),
+            'observation_model': asdict(ObservationConfig(**config['observation'])),
+            'note_quality': asdict(NoteQuality(**config['notes'])),
+            'matched_note_quality_by_student': {s.student_id: asdict(NoteQuality(**config[
+                'primary_notes_true' if s.disadvantage_proxy_group is True else 'primary_notes_false']))
+                for s in build_school(ScenarioConfig(**config['scenario'])).students},
+            'wait_matrix': P_WAIT.tolist(), 'programme_matrix_alpha1': programme_matrix(1).tolist(),
+            'programme_interpolation': 'wait_plus_alpha_times_programme_minus_wait_v1'},
         'predecessor': previous['input_digest'] if previous else None,
         'protocol_text': PROTOCOL.read_text(),
         'effective_policies': {name: serialize_policy(make_policy(config, name))
@@ -134,6 +167,8 @@ def freeze(output, amendment=None, *, configuration=None):
 
 def checked_manifest(output):
     manifest = verify_manifest(active_directory(output))
+    if manifest['manifest_version'] != 4:
+        raise ValueError('historical execution identity; create an explicit amended experiment version')
     if manifest["file_hashes"] != fingerprint() or manifest['runtime'] != runtime_identity():
         raise ValueError("frozen source/configuration changed; record an explicit --amend before execution")
     return manifest
@@ -230,18 +265,25 @@ def save_trace(controller, destination):
 
 
 def run_one(output, config, manifest, phase, name, mode, seed, **options):
+    if set(options)-{'setting', 'budget', 'effect', 'radius', 'missingness', 'sparse', 'extractor'}:
+        raise ValueError('unsupported execution options; only allowlisted settings may enter provenance')
+    if type(seed) is not int or phase not in ('development', 'evaluation', 'secondary', 'live'):
+        raise ValueError('execution requires an integer seed and a declared research phase')
     if config != manifest['configuration']:
         raise ValueError('execution configuration differs from immutable manifest')
     output = active_directory(output)
     checked = checked_manifest(output)
     if checked['input_digest'] != manifest['input_digest']:
         raise ValueError('incompatible active experiment identity')
-    settings = {k: v for k, v in options.items() if k != "extractor"}
-    settings['extractor_identity'] = extractor_identity(options.get('extractor'))
-    setting = settings.pop("setting", "primary")
-    identity = {"phase": phase, "policy": name, "mode": mode, "seed": seed,
-                "setting": setting, **settings, "input_digest": manifest["input_digest"]}
-    token = sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()[:12]
+    setting = options.get('setting', 'primary')
+    execution = execution_inputs(config, manifest['input_digest'], phase, name, mode, seed,
+        **{k: v for k, v in options.items() if k not in ('extractor', 'setting')},
+        setting=setting, extractor_identity=extractor_identity(options.get('extractor')))
+    # Canonical effective defaults prevent an explicit-default spelling from
+    # becoming an unrecorded retry or duplicate primary cell.
+    identity = dict(execution)
+    execution_key = content_digest(execution)
+    token = execution_key[:12]
     destination = Path(output) / "episodes" / f"{phase}_{name}_{mode}_{seed}_{token}"
     if (destination / "summary.json").exists():
         verify_directory(destination)
@@ -249,58 +291,35 @@ def run_one(output, config, manifest, phase, name, mode, seed, **options):
         if any(saved.get(k) != v for k, v in identity.items()):
             raise ValueError('cached experiment identity mismatch')
         return saved
-    execution = {"policy": name, "mode": mode, "seed": seed, 'phase': phase, 'setting': setting,
-        "input_digest": manifest["input_digest"],
-        "budget": options.get("budget", config["scenario"]["budget"]),
-        "effect": options.get("effect", config["scenario"].get("effect_strength", 1.0)),
-        "radius": (options.get("radius", config["uncertainty"]["radius"])
-                   if name == "FairRobust" else None),
-        "missingness": options.get("missingness"), "sparse": options.get("sparse", False),
-        'extractor_identity': settings['extractor_identity']}
-    execution_key = sha256(json.dumps(execution, sort_keys=True).encode()).hexdigest()
-    # Reuse requires the complete identity, including phase and information split.
-    for previous in sorted((Path(output) / "episodes").glob("*/summary.json")):
-        saved = json.loads(previous.read_text())
-        if saved.get("execution_key") == execution_key:
-            verify_directory(previous.parent)
-            verify_directory(output/Path(saved['trace_path']).parent)
-            summary = {**saved, **identity, "reused_from": str(previous.relative_to(output))}
-            destination.mkdir(parents=True, exist_ok=True)
-            write_json(destination / "summary.json", summary)
-            seal_directory(destination)
-            return summary
-    controller = make_controller(config, name, mode, seed, **options)
-    controller.experiment_identity = manifest['input_digest']
-    started = time.perf_counter()
-    destination.mkdir(parents=True, exist_ok=False)
-    write_exclusive(destination/'execution.json', identity)
-    try:
+    with staged_artifacts(destination, identity=identity, failure_marker=True) as staging:
+        write_exclusive(staging/'execution.json', identity)
+        controller = make_controller(config, name, mode, seed, **options)
+        controller.experiment_identity = manifest['input_digest']
+        started = time.perf_counter()
         controller.run_episode()
         validate_feedback_episode(controller)
-    except Exception as exc:
-        write_exclusive(destination/'failure.json', {**identity, 'status': 'failed',
-            'error_type': type(exc).__name__, 'error': str(exc)})
-        raise
-    scores = score_episode(controller)
-    summary = {**episode_summary(controller, name, mode, setting, seed), **identity,
-        "wall_seconds": time.perf_counter() - started,
-        "trace_digest": digest_controller(controller),
-        "execution_key": execution_key,
-        'execution_inputs': execution,
-        "extraction_failures": len(controller.failures),
-        **controller.extraction_diagnostics(),
-        "note_count": len(controller.notes),
-        "trace_path": str(destination.relative_to(output) / "trace.json.gz")}
-    save_trace(controller, destination)
-    for table, rows in scores.items():
-        if table.endswith("records"):
-            # Fine-grained records for calibration/failure analysis; compressed.
-            with gzip.open(destination / f"{table}.json.gz", "wt", encoding="utf-8") as stream:
-                json.dump(rows, stream, allow_nan=False)
-        else:
-            write_json(destination / f"{table}.json", rows)
-    write_json(destination / "summary.json", summary)  # completion marker last
-    seal_directory(destination)
+        scores = score_episode(controller)
+        summary = {**episode_summary(controller, name, mode, setting, seed), **identity,
+            'validation': {'scientific_and_resource_invariants': True},
+            "wall_seconds": time.perf_counter() - started,
+            "trace_digest": digest_controller(controller),
+            "execution_key": execution_key, 'execution_inputs': execution,
+            "extraction_failures": len(controller.failures), **controller.extraction_diagnostics(),
+            "note_count": len(controller.notes),
+            "trace_path": str(destination.relative_to(output) / "trace.json.gz")}
+        save_trace(controller, staging)
+        reconstruction = read_record(staging/'replay/experiment_config.json')
+        summary['episode_identity'] = reconstruction['episode_identity']
+        validate_execution_configuration(manifest, summary, reconstruction)
+        for table, rows in scores.items():
+            if table.endswith("records"):
+                with gzip.open(staging / f"{table}.json.gz", "wt", encoding="utf-8") as stream:
+                    json.dump(rows, stream, allow_nan=False)
+            else:
+                write_json(staging / f"{table}.json", rows)
+        write_json(staging/'summary.json', summary)
+        seal_directory(staging)
+        verify_directory(staging)
     print(f"{phase} {setting}: {name}/{mode} seed={seed} retention={summary['retention_rate']:.3f}", flush=True)
     return summary
 
@@ -347,9 +366,11 @@ def require_pilot(output, manifest):
 
 def primary(output, config, manifest):
     require_pilot(output, manifest)
-    rows = run_pairs(output, config, manifest, "evaluation", config["evaluation"]["evaluation_seeds"])
-    write_json(Path(output) / "primary_complete.json", {"input_digest": manifest["input_digest"],
-        "n_paired_seeds": len(config["evaluation"]["evaluation_seeds"]), "episodes": len(rows)})
+    run_pairs(output, config, manifest, "evaluation", config["evaluation"]["evaluation_seeds"])
+    aggregate(output)
+    status = read_record(active_directory(output)/'aggregation_status.json')
+    if not status['primary_complete']:
+        raise ValueError('primary comparison did not complete the frozen validated matrix')
 
 
 def secondary(output, config, manifest):
@@ -358,6 +379,9 @@ def secondary(output, config, manifest):
     if (not primary_path.exists() or
             json.loads(primary_path.read_text()).get("input_digest") != manifest["input_digest"]):
         raise ValueError("execute primary comparison before secondary experiments")
+    current = primary_completion(Path(output), manifest, completed_records(output, manifest))
+    if not current['primary_complete']:
+        raise ValueError('execute complete validated primary comparison before secondary experiments')
     seeds = config["evaluation"]["secondary_seeds"]
     for mode in ("oracle", "structured", "b_matched"):
         run_pairs(output, config, manifest, "secondary", seeds, mode=mode, setting="information")
@@ -488,16 +512,18 @@ def live_snapshot_comparisons(output, config, extractor):
     return rows
 
 
-def aggregate(output):
+def _aggregate(output, destination):
     output = active_directory(output)
     manifest = checked_manifest(output)
     summaries = []
     scores = {table: [] for table in TABLES}
-    records = [(path, json.loads(path.read_text()))
+    records = [(path, read_record(path))
                for path in sorted((output/'episodes').glob('*/summary.json'))]
     for path, summary in records:
         if summary.get("input_digest") != manifest["input_digest"]:
             raise ValueError(f'incompatible experiment identity: {path}')
+    records = completed_records(output, manifest)
+    status = primary_completion(output, manifest, records)
     extractor_versions = {}
     cell_configurations = {}
     for path, summary in records:
@@ -516,57 +542,88 @@ def aggregate(output):
         cell_configurations[cell] = effective
         summaries.append(summary)
         labels = {k: summary[k] for k in ("phase", "policy", "mode", "seed", "setting", "input_digest")}
-        source = output / Path(summary["trace_path"]).parent
+        labels['primary_cell_valid'] = ((summary['phase'], summary['setting'], summary['mode']) ==
+            ('evaluation', 'primary', 'd_matched') and
+            [summary['policy'], summary['seed']] in status['completed_primary_cells'])
+        source = trace_directory(output, summary)
         verify_directory(source)
         for table in TABLES:
             file = source / f"{table}.json"
             if not file.exists():
                 raise ValueError(f'missing scorecard provenance: {file}')
             scores[table].extend({**labels, **row} for row in json.loads(file.read_text()))
-    incomplete = [str(p.relative_to(output)) for p in sorted((output/'episodes').glob('*'))
-                  if not (p/'summary.json').exists()]
-    expected = {(name, seed) for name in ('FairPoint', 'FairRobust')
-                for seed in manifest.get('configuration', {}).get('evaluation', {}).get('evaluation_seeds', ())}
-    actual = {(r['policy'], r['seed']) for r in summaries
-              if r['phase'] == 'evaluation' and r['setting'] == 'primary'}
-    write_json(output/'aggregation_status.json', {'input_digest': manifest['input_digest'],
-        'complete_episodes': len(summaries), 'incomplete_or_failed': incomplete,
-        'missing_primary_cells': sorted(expected-actual), 'excluded_episodes': [],
-        'primary_complete': bool(expected) and expected == actual and not incomplete})
-    write_csv(output / "episode_results.csv", summaries)
+    output = destination
+    write_json(output/'aggregation_status.json', status)
+    if status['primary_complete']:
+        write_json(output/'primary_complete.json', {'input_digest': manifest['input_digest'],
+            'n_paired_seeds': status['completed_paired_seeds'], 'episodes': status['actual_primary_episodes'],
+            'contributing_episodes': status['contributing_episodes']})
+    write_csv(output/'episode_results.csv', [{**row, 'primary_cell_valid':
+        (row['phase'], row['setting'], row['mode']) == ('evaluation', 'primary', 'd_matched')
+        and [row['policy'], row['seed']] in status['completed_primary_cells']} for row in summaries])
     for table, rows in scores.items():
         write_csv(output / f"{table}.csv", rows)
     metrics = ("retention_rate", "normalized_shortfall", "access_gap", "worst_group_access",
                "waiting_disparity", "spending", "solver_runtime_seconds")
     comparisons = []
+    def matched(a, b):
+        seeds = {r['seed'] for r in a} & {r['seed'] for r in b}
+        return [r for r in a if r['seed'] in seeds], [r for r in b if r['seed'] in seeds]
     keys = sorted({(r["phase"],r["setting"],r["mode"]) for r in summaries})
     for phase, setting, mode in keys:
         subset = [r for r in summaries if (r["phase"],r["setting"],r["mode"]) == (phase,setting,mode)]
+        if (phase, setting, mode) == ('evaluation', 'primary', 'd_matched'):
+            subset = [r for r in subset if [r['policy'], r['seed']] in status['completed_primary_cells']]
         for metric in metrics:
             p = [r for r in subset if r["policy"] == "FairPoint"]
             q = [r for r in subset if r["policy"] == "FairRobust"]
+            p, q = matched(p, q)
             if p and q:
                 comparison = paired_comparison(q, p, metric)
-                comparisons.append({"phase":phase,"setting":setting,"mode":mode,"metric":metric, **comparison})
+                comparisons.append({"phase":phase,"setting":setting,"mode":mode,"metric":metric,
+                    'primary_evaluation_complete': status['primary_complete'],
+                    'statistics_scope': status['statistics_scope'] if (phase, setting, mode) ==
+                        ('evaluation', 'primary', 'd_matched') else 'exploratory_completed_subset', **comparison})
     write_csv(output / "all_policy_comparisons.csv", comparisons)
-    write_csv(output / "primary_policy_comparison.csv", [r for r in comparisons if r["phase"] == "evaluation"])
+    primary_comparisons = [r for r in comparisons if (r['phase'], r['setting'], r['mode']) ==
+                           ('evaluation', 'primary', 'd_matched')]
+    # A partial paired CI remains available in an explicitly exploratory table.
+    write_csv(output/'exploratory_primary_comparison.csv', primary_comparisons if not status['primary_complete'] else [])
+    write_csv(output/'primary_policy_comparison.csv', primary_comparisons if status['primary_complete'] else [])
     for label in ("budget", "effect", "uncertainty", "missingness"):
         write_csv(output / f"{label}_sensitivity.csv", [r for r in comparisons if r["setting"].startswith(label+"_")])
     info = []
     for mode in ("oracle", "structured", "b_matched"):
         for metric in metrics:
             a = [r for r in summaries if r["phase"] == "secondary" and r["setting"] == "information" and r["policy"] == "FairPoint" and r["mode"] == mode]
-            b = [r for r in summaries if r["phase"] == "evaluation" and r["policy"] == "FairPoint" and r["seed"] in {x["seed"] for x in a}]
+            b = [r for r in summaries if (r['phase'], r['setting'], r['mode'], r['policy']) ==
+                 ('evaluation', 'primary', 'd_matched', 'FairPoint')]
+            a, b = matched(a, b)
             if a and b:
                 info.append({"mode":mode,"reference_mode":"d_matched","metric":metric, **paired_comparison(a,b,metric)})
     write_csv(output / "information_mode_comparison.csv", info)
     ablations = [r for r in comparisons if r["setting"].startswith("uncertainty_")]
     for metric in metrics:
         a = [r for r in summaries if r["setting"] == "fairness_ablation"]
-        b = [r for r in summaries if r["phase"] == "evaluation" and r["policy"] == "FairPoint" and r["seed"] in {x["seed"] for x in a}]
+        b = [r for r in summaries if (r['phase'], r['setting'], r['mode'], r['policy']) ==
+             ('evaluation', 'primary', 'd_matched', 'FairPoint')]
+        a, b = matched(a, b)
         if a and b:
             ablations.append({"phase":"secondary","setting":"ResourceOnlyPoint_minus_FairPoint","mode":"d_matched","metric":metric, **paired_comparison(a,b,metric)})
     write_csv(output / "ablation_results.csv", ablations)
+    return summaries
+
+
+def aggregate(output):
+    """Publish a sealed aggregate snapshot, retaining every earlier generation."""
+    version = active_directory(output)
+    # Check identity conflicts before opening any generation lifecycle.
+    records = [(p, read_record(p)) for p in sorted((version/'episodes').glob('*/summary.json'))]
+    manifest = checked_manifest(version)
+    if any(row.get('input_digest') != manifest['input_digest'] for _, row in records):
+        raise ValueError('incompatible experiment identity in aggregation')
+    with report_generation(version, 'aggregate') as staging:
+        summaries = _aggregate(version, staging)
     return summaries
 
 

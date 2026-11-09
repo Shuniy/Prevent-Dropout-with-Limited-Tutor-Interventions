@@ -7,8 +7,6 @@ from datetime import datetime
 import json
 from pathlib import Path
 import tomllib
-from urllib.request import urlopen
-from urllib.error import URLError
 
 import numpy as np
 
@@ -24,7 +22,8 @@ from .scenario_config import ScenarioConfig
 from .transition_model import programme_matrix
 from .policy_configuration import serialize_policy
 from hashlib import sha256
-from ..evaluation.provenance import digest, extractor_identity, runtime_identity, source_fingerprints
+from ..evaluation.provenance import (digest, extractor_identity, runtime_identity, source_fingerprints,
+    staged_artifacts, seal_directory, verify_directory)
 from ..utils.constants import DEFAULT_STUDENT_DATA_PATH
 
 
@@ -44,10 +43,10 @@ def write_csv(path, rows):
         writer.writerows(rows)
 
 
-def save_episode(controller, output):
+def _write_episode(controller, output):
+    """Write only to an unpublished staging directory owned by the caller."""
     from .feedback_validation import validate_feedback_episode
     validate_feedback_episode(controller)
-    output.mkdir(parents=True, exist_ok=False)
     config = controller.environment.config
     write_jsonl(output / "initial_observations.jsonl", [
         {"kind": "event", **asdict(e)} for e in controller.events if e.event_month == 0] + [
@@ -69,7 +68,7 @@ def save_episode(controller, output):
     (evaluator / 'initial_world.json').write_text(json.dumps(controller.environment.reconstruction_inputs, sort_keys=True))
     write_jsonl(output / 'environment_records.jsonl', controller.environment.records)
     write_jsonl(output / 'final_beliefs.jsonl', controller.estimates.values())
-    manifest = {"replay_contract_version": 3,
+    manifest = {"replay_contract_version": 3, 'persistence_contract_version': 1,
         'experiment_identity': getattr(controller, 'experiment_identity', None),
         'provenance': {'runtime': runtime_identity(), 'file_hashes': source_fingerprints(),
             'source_population_sha256': sha256(DEFAULT_STUDENT_DATA_PATH.read_bytes()).hexdigest()},
@@ -96,9 +95,14 @@ def save_episode(controller, output):
     if hasattr(controller, "replay_provenance"):
         manifest["replay_provenance"] = controller.replay_provenance
     (output / "experiment_config.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    hashes = {str(path.relative_to(output)): sha256(path.read_bytes()).hexdigest()
-              for path in sorted(output.rglob('*')) if path.is_file()}
-    (output / 'record_integrity.json').write_text(json.dumps(hashes, indent=2))
+
+
+def save_episode(controller, output):
+    """Publish a validated complete replay record once, after persistence/sealing."""
+    with staged_artifacts(output, identity={'operation': 'save_feedback_episode'}) as staging:
+        _write_episode(controller, staging)
+        seal_directory(staging, 'record_integrity.json')
+        verify_directory(staging, 'record_integrity.json')
 
 
 def plot_episode(controller, output):
@@ -152,14 +156,7 @@ def run_feedback_experiments(config, *, output, observation_config=ObservationCo
     if not policies or any(p not in ("resource", "fairness") for p in policies):
         raise ValueError("select resource and/or fairness planners")
     extractor = extractor or FixtureObservationExtractor()
-    model_metadata = None
-    if isinstance(extractor, LLMObservationExtractor):
-        try:
-            with urlopen(extractor.client.base_url + "/api/tags", timeout=5) as response:
-                model_metadata = next((m for m in json.load(response).get("models", [])
-                    if m["name"] == extractor.client.model), None)
-        except (OSError, URLError, ValueError) as exc:
-            model_metadata = {"unavailable_reason": str(exc)}
+    execution_identity = extractor_identity(extractor)
     output.mkdir(parents=True, exist_ok=False)
     rows = []
     (output / "experiment_config.json").write_text(json.dumps({
@@ -169,9 +166,10 @@ def run_feedback_experiments(config, *, output, observation_config=ObservationCo
         "modes": modes, "policies": policies, "max_notes_per_month": max_notes_per_month,
         "max_monitoring_notes_per_month": max_monitoring_notes_per_month,
         "extraction_contract": extraction_contract,
-        "model_metadata": model_metadata,
-        "llm_options": ({"model": extractor.client.model, "num_ctx": extractor.client.num_ctx,
-                         "temperature": 0} if isinstance(extractor, LLMObservationExtractor) else None),
+        'extractor_identity': execution_identity,
+        'llm_options': ({key: execution_identity[key] for key in
+            ('model', 'num_ctx', 'temperature', 'timeout_seconds', 'think', 'stream')}
+            if isinstance(extractor, LLMObservationExtractor) else None),
         "note": "Fixture extraction is a wiring control; no held-out research claims."}, indent=2))
     for name in policies:
         for mode in modes:

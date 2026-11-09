@@ -10,8 +10,11 @@ import gzip
 import json
 from pathlib import Path
 import re
+import shutil
 
 import numpy as np
+from .provenance import active_directory, read_record, verify_manifest
+from .report_artifacts import report_generation
 
 
 def _json(path, default=None):
@@ -45,6 +48,10 @@ def _mean(rows, key):
 
 def _truthy(value):
     return value is True or value == "True" or value == "1" or value == 1
+
+
+def _primary(row):
+    return _truthy(row.get('primary_cell_valid'))
 
 
 def _write_csv(path, rows):
@@ -98,12 +105,12 @@ def _load_gzip(path):
         return json.load(stream)
 
 
-def _episode_directories(output, primary_seeds=5):
+def _episode_directories(output, episodes, primary_seeds=5):
     candidates = []
-    active_paths = {row.get("trace_path") for row in _csv(output / "episode_results.csv")}
+    active_paths = {row.get('trace_path') for row in episodes if _primary(row)}
     for path in sorted((output / "episodes").glob("*/summary.json")):
         summary = _json(path)
-        if summary.get("phase") == "evaluation" and summary.get("trace_path") in active_paths:
+        if summary.get("trace_path") in active_paths:
             candidates.append((summary, (output / summary["trace_path"]).parent))
     seeds = sorted({row["seed"] for row, _ in candidates})[:primary_seeds]
     return [(row, folder) for row, folder in candidates if row["seed"] in seeds]
@@ -161,7 +168,8 @@ def _figures(output, episodes, comparisons, extraction_rows, beliefs, risks):
                       transform=axis.transAxes)
             axis.set_xticks([])
             axis.set_yticks([])
-        axis.set_title(title)
+        status = read_record(output/'aggregation_status.json')
+        axis.set_title(title if status['primary_complete'] else 'INCOMPLETE / EXPLORATORY\n'+title)
         fig.tight_layout()
         fig.savefig(destination / f"{name}.png", dpi=160)
         plt.close(fig)
@@ -225,7 +233,7 @@ def _figures(output, episodes, comparisons, extraction_rows, beliefs, risks):
 
     def information_plot(axis):
         selected = [row for row in episodes if (row["phase"] == "secondary" and row["setting"] == "information")
-                    or (row["phase"] == "evaluation")]
+                    or _primary(row)]
         seeds = {r["seed"] for r in selected if r["phase"] == "secondary"}
         selected = [r for r in selected if r["policy"] == "FairPoint" and r["seed"] in seeds]
         if not selected:
@@ -236,7 +244,7 @@ def _figures(output, episodes, comparisons, extraction_rows, beliefs, risks):
     save("retention_by_information_mode", information_plot, "FairPoint retention by information mode")
 
     def primary_plot(axis):
-        selected = [r for r in episodes if r["phase"] == "evaluation"]
+        selected = [r for r in episodes if _primary(r)]
         indexed = {(r["policy"], r["seed"]): r for r in selected}
         seeds = sorted({r["seed"] for r in selected})
         if not seeds:
@@ -245,13 +253,16 @@ def _figures(output, episodes, comparisons, extraction_rows, beliefs, risks):
             if ("FairPoint", seed) in indexed and ("FairRobust", seed) in indexed:
                 axis.plot([0, 1], [100 * float(indexed[(p, seed)]["retention_rate"])
                                    for p in ("FairPoint", "FairRobust")], color="#c4cbd0", alpha=.65)
-        policies = ("FairPoint", "FairRobust")
-        axis.scatter([0, 1], [100 * _mean([r for r in selected if r["policy"] == p], "retention_rate") for p in policies], color="#19798e", s=70, zorder=4)
+        policies = ('FairPoint', 'FairRobust')
+        available = [(i, _mean([r for r in selected if r['policy'] == p], 'retention_rate'))
+                     for i, p in enumerate(policies)]
+        available = [(i, value) for i, value in available if value is not None]
+        axis.scatter([i for i, _ in available], [100*value for _, value in available], color="#19798e", s=70, zorder=4)
         axis.set(xticks=[0, 1], xticklabels=policies, ylabel="Terminal retention (%)")
     save("point_vs_robust", primary_plot, "Primary paired worlds: raw terminal retention")
 
     def tradeoff_plot(axis):
-        selected = [r for r in episodes if r["phase"] == "evaluation"]
+        selected = [r for r in episodes if _primary(r)]
         if not selected:
             return False
         for policy, marker in (("FairPoint", "o"), ("FairRobust", "^")):
@@ -281,13 +292,14 @@ def _figures(output, episodes, comparisons, extraction_rows, beliefs, risks):
 
     access = _csv(output / "group_access.csv")
     def group_plot(axis):
-        selected = [r for r in access if r.get("phase") == "evaluation" and _number(r.get("access_rate")) is not None]
+        selected = [r for r in access if _primary(r) and _number(r.get("access_rate")) is not None]
         if not selected:
             return False
         groups = sorted({r["group"] for r in selected})
         positions = np.arange(len(groups))
         for index, policy in enumerate(("FairPoint", "FairRobust")):
             values = [_mean([r for r in selected if r["policy"] == policy and r["group"] == group], "access_rate") for group in groups]
+            values = [np.nan if value is None else value for value in values]
             axis.bar(positions + (index-.5)*.35, values, width=.35, label=policy)
         axis.set(xticks=positions, xticklabels=groups, xlabel="Authorized disadvantage proxy group",
                  ylabel="Mean nonempty frozen-cell access rate")
@@ -330,11 +342,12 @@ def _case_excerpt(trace, sid, cutoff):
         "interpretation": "Observed trace only. Later withdrawal does not establish that support was unnecessary or causally ineffective."}
 
 
-def failure_analysis(output, episodes, directories, beliefs):
+def failure_analysis(output, episodes, directories, beliefs, *, source=None):
     """Select actual adverse examples deterministically, without inventing cases."""
     from ..utils.keyed_random import keyed_uniform
     cases, omissions = [], []
-    primary = [r for r in episodes if r.get("phase") == "evaluation"]
+    source = output if source is None else source
+    primary = [r for r in episodes if _primary(r)]
     indexed = {(r["policy"], str(r["seed"])): r for r in primary}
     negative = []
     for row in primary:
@@ -348,7 +361,7 @@ def failure_analysis(output, episodes, directories, beliefs):
     selected_directories = list(directories)
     if negative:
         difference, seed, robust, point = min(negative, key=lambda r: (r[0], r[1]))
-        traces = [_load_gzip(output / row["trace_path"]) for row in (point, robust)]
+        traces = [_load_gzip(source / row["trace_path"]) for row in (point, robust)]
         cutoff, sid = 1, None
         for a, b in zip(traces[0]["decisions"], traces[1]["decisions"]):
             changed = sorted(set(a["admitted_ids"]) ^ set(b["admitted_ids"]))
@@ -360,7 +373,7 @@ def failure_analysis(output, episodes, directories, beliefs):
         cases.append({"case_type": "largest_negative_primary_robust_difference", "seed": seed,
             "retention_difference_pp": 100*difference, "selection_rule": "minimum paired primary retention difference; seed breaks ties",
             "point_trace": _case_excerpt(traces[0], sid, cutoff), "robust_trace": _case_excerpt(traces[1], sid, cutoff)})
-        selected_directories += [(row, (output / row["trace_path"]).parent) for row in (point, robust)]
+        selected_directories += [(row, (source / row["trace_path"]).parent) for row in (point, robust)]
     else:
         omissions.append("No negative primary robust-minus-point retention difference was observed.")
     if beliefs:
@@ -410,28 +423,36 @@ def failure_analysis(output, episodes, directories, beliefs):
     return cases, omissions
 
 
-def generate_report(output):
-    """Write research_results.md, extraction_metrics.csv, figures and case traces."""
-    output = Path(output)
-    output.mkdir(parents=True, exist_ok=True)
+def _render_report(source, output):
+    """Render only from the freshly validated aggregate in private staging."""
     episodes = _csv(output / "episode_results.csv")
     comparisons = _csv(output / "all_policy_comparisons.csv")
-    extraction = _json(output / "extraction" / "metrics.json", {})
+    extraction = _json(output/'extraction/metrics.json', {})
     extraction_rows = _extraction_rows(extraction)
     _write_csv(output / "extraction_metrics.csv", extraction_rows)
-    directories = _episode_directories(output)
+    directories = _episode_directories(source, episodes)
     beliefs = _individual_records(directories, "belief_records")
     risks = _individual_records(directories, "risk_records")
     figures = _figures(output, episodes, comparisons, extraction_rows, beliefs, risks)
-    cases, missing_cases = failure_analysis(output, episodes, directories, beliefs)
-    manifest_path = output / "configuration_manifest.json"
+    cases, missing_cases = failure_analysis(output, episodes, directories, beliefs, source=source)
+    manifest_path = source / "configuration_manifest.json"
     manifest = _json(manifest_path, {})
     configuration = manifest.get("configuration", {})
     scenario = configuration.get("scenario", {})
     evaluation = configuration.get("evaluation", {})
     primary = [r for r in comparisons if r.get("phase") == "evaluation" and r.get("setting") == "primary"]
+    primary = [r for r in primary if r.get('mode') == 'd_matched']
+    status = read_record(output/'aggregation_status.json')
+    complete = status['primary_complete']
+    completion_text = (f"**{'COMPLETE PRIMARY EVALUATION' if complete else 'INCOMPLETE / EXPLORATORY'}**. "
+        f"Validated primary episodes: {status['actual_primary_episodes']} / {status['expected_primary_episodes']}; "
+        f"paired seeds: {status['completed_paired_seeds']} / {status['expected_paired_seeds']}. "
+        f"Evaluation status: {status['evaluation_status']}. "
+        f"Missing cells: {json.dumps(status['missing_primary_cells'])}. "
+        f"Failed cells: {json.dumps(status['failed_primary_cells'])}. "
+        f"Invalid cells: {json.dumps(status['invalid_primary_cells'])}.")
     retention = next((r for r in primary if r["metric"] == "retention_rate"), None)
-    if retention:
+    if retention and complete:
         low, high = _number(retention.get("ci95_low")), _number(retention.get("ci95_high"))
         estimate = 100 * float(retention["mean"])
         interpretation = ("The interval favors FairRobust on simulated retention." if low is not None and low > 0 else
@@ -442,8 +463,9 @@ def generate_report(output):
             f"{_fmt(100*high if high is not None else None, 3)}], n={retention.get('paired_episodes', retention.get('n'))} worlds. "
             f"Raw mean retention: FairPoint {_fmt(retention.get('reference_mean'))}; FairRobust {_fmt(retention.get('cell_mean'))}. " + interpretation)
     else:
-        primary_text = "The primary comparison has not been completed. No primary effect estimate is available."
-    primary_episodes = [r for r in episodes if r.get("phase") == "evaluation"]
+        primary_text = (completion_text + '\n\nStatistics below are exploratory and conditional on the completed subset. '
+            'The preregistered primary result is unavailable; subset confidence intervals do not establish primary completion.')
+    primary_episodes = [r for r in episodes if _primary(r)]
     information = _csv(output / "information_mode_comparison.csv")
     sensitivity = [r for r in comparisons if r.get("phase") == "secondary" and r.get("setting", "").split("_")[0] in ("budget", "effect", "uncertainty", "missingness")]
     sensitivity_retention = [r for r in sensitivity if r["metric"] == "retention_rate"]
@@ -636,5 +658,33 @@ The implemented contribution is a reproducible, auditable evaluation of an exist
 The observed direction and uncertainty apply to the frozen synthetic setting. Extraction accuracy, state/risk diagnostics, access outcomes, operational cost and negative cases remain part of the result. A positive retention estimate alone does not establish a superior fairness trade-off, and an interval spanning zero is not equivalence.
 """
     path = output / "research_results.md"
+    report = report.replace('# Step 6 research evaluation results\n',
+        '# Step 6 research evaluation results\n\n'+completion_text+'\n\n'
+        + ('Finalized research report: complete frozen primary matrix.\n' if complete else
+           'Finalized exploratory snapshot; primary research evaluation remains incomplete.\n'), 1)
+    if not complete:
+        report = report.replace('95% paired CI', 'Exploratory 95% CI (completed subset)')
+    report = report.replace('](configuration_manifest.json)', '](../../configuration_manifest.json)')
+    report = report.replace('](research_evaluation_protocol_frozen.md)', '](../../research_evaluation_protocol_frozen.md)')
     path.write_text(report, encoding="utf-8")
     return path
+
+
+def generate_report(output):
+    """Publish an immutable report generation with a fresh validated aggregate."""
+    from .research_experiments import _aggregate
+    version = active_directory(output)
+    verify_manifest(version)
+    with report_generation(version, 'report') as staging:
+        _aggregate(version, staging)
+        # Capture optional diagnostic inputs used by this renderer in its seal.
+        for name in ('snapshot_assignment_comparison.csv', 'extraction_snapshot_comparison.csv',
+                     'live_runtime.json', 'development_gate.json', 'extraction/metrics.json'):
+            source = version/name
+            if source.is_file():
+                target = staging/name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(source, target)
+        _render_report(version, staging)
+        generation = read_record(staging/'attempt.json')['destination']
+    return version/'reports'/generation/'research_results.md'

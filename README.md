@@ -522,8 +522,46 @@ and require a fresh pilot. The original root manifest and protocol remain unchan
 live inside that version. Historical unversioned runs cannot be amended in place.
 Use `python scripts/verify_experiment_records.py <run-directory>` to verify all
 retained manifests, protocols, predecessor links and completed episode artifacts
-without rerunning experiments. Aggregation rejects incompatible identities and
-reports missing or failed cells in `aggregation_status.json`.
+without rerunning experiments. New manifest version 4 also seals aggregates and
+reports in append-only `versions/<identity>/reports/<generation>/` directories.
+Each report manifest identifies its source experiment, contributing episodes and
+the digest of every table, figure and report file. Convenience table/report paths
+in the version directory point into the current sealed generation. Regenerating
+a report preserves all earlier generations; editing, deleting or adding a file
+inside one, or substituting a convenience link, fails verification.
+
+Aggregation reports actual/expected primary cells and missing, failed or invalid
+cells in `aggregation_status.json`. Primary completion requires both frozen
+policies on every held-out seed in the primary D-matched setting, with validated,
+compatible execution records. Partial reports and figures say
+`INCOMPLETE / EXPLORATORY`; their paired statistics are conditional on completed
+pairs and are exported as `exploratory_primary_comparison.csv`. A completed
+`primary_policy_comparison.csv` and `primary_complete.json` are published only
+after the full frozen matrix validates. Sealing an exploratory snapshot does not
+make its research evaluation complete.
+
+Episode and replay files are written in private staging directories and published
+by rename only after validation, persistence and sealing. Research failures retain
+an explicit failed-cell record and quarantined diagnostics; the same identity is
+not silently retried. Interrupted locks/staging remain visible for diagnosis.
+Use a fresh experiment identity/directory after inspecting a failed attempt.
+Replay failures leave diagnostics outside the requested destination; an existing
+successful replay is never replaced.
+
+The verifier exits 0 for a fully verified current-contract record, 1 for a failed
+integrity check, and 2 for partial historical verification. Version-3 records can
+verify their original manifests and completed episodes, but lack the new derived
+artifact guarantee. `--allow-historical` permits exit 0 while still reporting
+`historical_partial` and `fully_verified: false`. Older unversioned evidence is
+explicitly rejected. Historical records are never silently upgraded or resealed;
+create an explicit amendment or a new run directory for the new contracts.
+
+Extractor identity now includes backend implementation, a canonical endpoint
+hash, actual execution options, available weight digest, prompt/schema hashes
+and implementation fingerprints. Missing weight digests are explicitly labelled
+as mutable model tags. Identities require no inference request. Authentication
+URL components and arbitrary configuration/metadata are excluded from extractor
+provenance and cache contexts; credentials must stay outside frozen configuration.
 Do not amend a held-out analysis to select favorable policies. The real-model
 cache records complete note/context, prompt/schema, source and model digest.
 Failed extractions remain unknown and are recorded, never replaced with fixtures.

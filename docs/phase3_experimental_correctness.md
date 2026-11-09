@@ -359,3 +359,355 @@ declared transition/observation models remain assumptions. No live LLM evaluatio
 expensive full grid, trained risk model, multi-session scheduling, new population
 generator, RAG, QLoRA, or agent orchestration was added. No historical numerical
 results are validated by this phase.
+
+## Final Phase 3 Review Repairs and Verification
+
+This additional record starts from a clean
+`fix/phase-3-repair-experimental-comparisons` checkout at
+`68a97f61cf4e530177d1a8a407aaabfad40cd5a7`. It preserves the preceding
+verification records. These corrections are working-tree changes on that commit;
+the final executable source fingerprint and local results are recorded below.
+
+### Reproductions and already satisfied contracts
+
+The supported baseline was CPython 3.12.12 in
+`/tmp/phase1-python312/bin/python`: **275 tests passed in 60.315 seconds**,
+with no failures or skips. The selected workspace environment had been Python
+3.14.8; it was not used for scientific verification. Resolved dependencies and
+the clean source identity are retained in the new local `baseline.json`.
+
+Seven regression methods were run against the original implementation before
+production edits. All seven failed: aggregate CSV modification was undetected;
+the wrong information mode could complete the primary matrix; a one-seed subset
+was called the prespecified primary estimate; scoring failures lacked failure
+records; sealing failures left successful summaries; late replay mismatches left
+published destinations; and distinct endpoints had identical extractor identities.
+The new `before_repairs.log` retains the actual failures.
+
+Review then reproduced two additional invariant gaps: replacing a convenience
+table link with an ordinary file hid the change, and actual controller settings
+could differ from declared settings. Both failed in `reviewer_reproductions.log`
+before correction. Expanded tests also found a report-rendering crash when only
+FairPoint was available. The final implementation handles that partial state.
+
+Existing protections were retained: source/protocol identity hashing, predecessor
+chains, sealed completed episodes, exact-cell cache verification, independent
+allocation validation, all baseline/controller information boundaries, explicit
+oracle privilege, fairness enablement, and free positive-effect zero-budget
+controls. The earlier regression tests were not weakened or removed.
+
+### A: finalized derived-artifact contract
+
+New experiment manifests use **manifest version 4**, report contract **1**, and
+extractor identity **2**. The frozen experiment includes its primary design,
+fully expanded execution defaults, planner/estimator configurations and declared
+transition interpolation assumptions. Retained-record verification compares
+against those frozen values rather than constructing today's policies or models.
+It does not need the original checkout or invoke inference.
+
+The three identities have distinct purposes:
+
+1. The immutable experiment identifies source/configuration/protocol/runtime.
+2. A completed episode records its execution identity, validated reconstruction,
+   summary and sealed artifact inventory.
+3. Each finalized aggregate/report generation records the experiment identity,
+   contributing episode paths, summary identities, reconstruction identities and
+   episode-seal digests, plus a SHA-256 digest for every generated artifact.
+
+```text
+versions/<experiment-identity>/
+  configuration_manifest.json
+  episodes/<cell-identity>/
+    execution.json
+    summary.json
+    artifact_integrity.json
+    ... unchanged scientific/reconstruction records ...
+  reports/<unique-generation>/
+    aggregation_status.json
+    episode_results.csv
+    primary_policy_comparison.csv
+    exploratory_primary_comparison.csv
+    ... aggregate tables ...
+    research_results.md                      # report generations only
+    figures/                                # report generations only
+    report_manifest.json
+    artifact_integrity.json
+  report_generations.json                    # hash-linked retained inventory
+  current_report.json                       # mutable convenience pointer
+  .current_report -> reports/<generation>
+  episode_results.csv -> .current_report/episode_results.csv
+```
+
+All regular files recursively inside a sealed generation are inventoried, except
+its single root integrity file, which records the other digests. Nested files
+with the same seal filename are still inventoried. Symlinks inside sealed
+directories are rejected. Added, deleted, modified or substituted artifacts fail
+verification, as do a deleted whole generation, broken registry, wrong source
+episode identity or replaced finalized convenience link. New generations never
+write through links into prior finalized bytes. The registry and current pointers
+are updated under a filesystem writer lock.
+
+Optional diagnostic inputs used by the renderer are copied into the generation
+and covered by its seal. Their original working files and extraction caches are
+inputs, not finalized reporting artifacts. The verifier's declared completed
+scope covers immutable experiment records, every completed episode, every
+registered finalized generation and its finalized convenience links. Private
+staging/failure directories are excluded and reported separately.
+
+Version-3 experiments receive `historical_partial`, with
+`fully_verified: false` and an explicit list of versions whose derived artifacts
+cannot be verified. The verification CLI exits **2** by default for that case;
+`--allow-historical` allows exit **0** without changing the partial status.
+Integrity errors exit **1**. Older unsupported/unversioned manifests fail with an
+explicit historical-provenance error. Existing evidence is never retrofitted,
+rehashed or rewritten. A new contract requires a declared amendment/new version
+or a new run directory.
+
+### B: completion and publication semantics
+
+The frozen primary design requires exactly FairPoint and FairRobust, every frozen
+held-out seed, phase `evaluation`, setting `primary` and mode `d_matched`.
+Development/secondary/wrong-mode/wrong-setting runs do not count. Duplicate or
+malformed cells fail. Every counted cell must have a valid seal, experiment
+identity, execution key, independent validation record and compatible saved
+scenario, policy, estimator, matrices, observation/note settings, extraction
+route and monitoring limits. Sensitive/unknown execution options cannot enter
+attempt provenance.
+
+`aggregation_status.json` records actual/expected episode and paired-seed counts,
+completed/missing/failed/invalid primary cells, excluded cells and contributing
+episodes. `COMPLETE` means the full validated matrix. Missing cells produce
+`INCOMPLETE / EXPLORATORY`; failed or incompatible primary cells produce
+`FAILED / INCOMPLETE`. An unrelated secondary failure cannot falsely complete or
+block an otherwise valid primary matrix.
+
+Available paired subsets remain useful exploratory summaries. They are explicitly
+conditional on completed pairs and exported separately as
+`exploratory_primary_comparison.csv`. The completed primary table and successful
+`primary_complete.json` declaration exist only for the full valid matrix. Unequal
+policy seed sets yield only their explicitly labelled completed pairs, without
+fabricating missing observations. The renderer rebuilds its aggregate from
+validated episode records, reads its completion state, displays actual/expected
+counts and missing/failed/invalid cells, and marks incomplete prose and figures
+`INCOMPLETE / EXPLORATORY`. It cannot call a partial CI the prespecified completed
+primary result.
+
+A finalized report is an immutable **snapshot**, which may honestly document an
+incomplete experiment. Finalizing that snapshot does not declare primary
+scientific completion. Additional episodes produce another auditable generation.
+
+### C: execution, failure and retry lifecycle
+
+Research execution, standalone episode persistence and replay now use uniquely
+named private staging directories, exclusive writer locks and one-filesystem
+rename publication. The entire construction/simulation/optimization/validation/
+scoring/serialization/trace/sealing/publication path is inside the failure scope.
+A successful destination appears only after all required writes and validation
+succeed and the seal verifies. Replay writes its success record only after every
+late deterministic comparison, then seals that record too before publication.
+
+Failures retain identity, destination, error type/message and attempt metadata
+with partial diagnostic artifacts under `.failed/`. Research failures also retain
+an explicit failed-cell marker without a successful summary. Unpublished summary,
+replay-result and seal files are labelled `.unpublished`. Existing destinations
+are never replaced. Failed identities are not silently retried; inspect the
+failure and use a new experiment identity/directory. Replay diagnostics live
+outside its requested destination, so a failed replay leaves that destination
+absent. An abrupt process termination leaves explicit staging/lock state and
+cannot create a completed inventory; locks are not automatically cleared and
+overwritten. Temporary records do not enter aggregation.
+
+Review also reproduced a retry through explicit-default option spelling, retained
+in `retry_reproduction.log`. Execution identities now canonicalize effective
+defaults, so that spelling resolves to the same completed cache or failed-cell
+reservation rather than creating an unmarked retry.
+
+### D: safe extractor execution identity
+
+The allowlisted identity records extractor/client implementation and code hashes,
+backend, canonical endpoint SHA-256, model tag and available weight digest,
+context length, actual temperature, timeout, fixed think/stream settings,
+system-prompt/schema hashes, and validation-code/evidence-contract versions.
+Fixture payloads and recorded outcomes receive fingerprints and remain distinct
+from real inference. Unknown adapters and historical/partial identities are
+explicitly labelled and cannot enter current research aggregation.
+
+Endpoint normalization folds hostname/scheme case and default ports and removes
+authentication, query and fragment components before hashing routing. Raw private
+endpoints, arbitrary metadata/configuration, environment values, API keys and
+tokens are not serialized into extractor identities or cache contexts. Frozen
+configuration rejects credential fields and authentication URL components.
+The existing Ollama client reports safe endpoint hashes/status codes in failures
+without serializing authentication URLs or raw HTTP error bodies.
+
+Unavailable model weights remain `null`, with
+`mutable_tag_without_weight_digest`; no digest is invented and no inference call
+is made merely to collect identity. An available digest is recorded without
+claiming independent attestation. Both in-memory and persistent cache keys use
+the same current execution identity, including after client settings change.
+Aggregation rejects incompatible extractor versions within an information mode.
+
+A final adversarial probe also reproduced leakage of an arbitrary field added
+to the cache adapter's configuration dictionary. The cache writer now reconstructs
+its entire persisted configuration from the allowlist on each extraction, rather
+than merging arbitrary existing fields. `cache_privacy_reproduction.log` retains
+the failing regression before this correction.
+
+The feedback runner's redundant descriptive `llm_options` now comes from the
+same identity too. A nondefault-temperature regression reproduced a stale
+hardcoded zero in that description; the retained metadata reproduction shows
+declared zero versus actual `.4` before correction. No new model call is needed.
+
+### Regression and verification commands
+
+The added [regression module](../tests/test_phase3_final_repairs.py) exercises
+artifact tampering/deletion/substitution/inventory changes; report generations,
+amendments and legacy policy; empty, partial, failed, complete and incompatible
+primary matrices; errors at construction, simulation, scoring, JSON, gzip,
+sealing, late replay and final publication; cache reuse, duplicate destinations,
+unpublished staging; endpoint/digest/options/prompt/schema identity and privacy.
+It also checks retained-record verification without today's factories and valid
+nondefault effect, radius and missingness settings.
+
+Run on supported Python 3.12 or 3.13 from the repository root:
+
+```sh
+python -m unittest tests.test_phase3_final_repairs -v
+python -m unittest discover -s tests
+python scripts/verify_phase3.py --output results/phase3_fresh_verification
+python scripts/verify_experiment_records.py <run-directory>
+git diff --check
+git status --short
+git diff --stat
+```
+
+The expanded verification harness uses six students, two mentors and three
+months, all baselines and resource/fair/robust policies, fixture extraction,
+partial primary summaries and a tiny explicitly frozen two-seed primary design.
+It checks successive sealed reports, deliberate CSV corruption, late failed
+replay, immutable amendment and both retained versions. It fingerprints the
+source/runtime and compares earlier Phase 2/3 verification and historical
+research artifacts before and after execution. Generated evidence stays in a
+new ignored local directory and is not claimed to be committed or available on
+GitHub. Final measured outcomes are appended below.
+
+### Remaining limits
+
+SHA-256 detects changed evidence relative to retained hashes; it is not a signed
+external ledger and cannot defeat rewriting both evidence and every hash/registry.
+Filesystem publication assumes a local filesystem with atomic same-volume
+rename and cooperating writer locks. Power-loss durability and automatic stale
+lock recovery are not claimed. A crash between report publication and registry/
+pointer updates fails closed and needs explicit inspection; it does not silently
+accept an unregistered generation. A completely unwritable filesystem can also
+prevent writing diagnostics; the original exception is retained.
+
+Exact replay still requires its recorded source/dependency environment, preserves
+recorded extraction outcomes offline and makes zero new model calls. Mutable
+model tags cannot establish immutable weights. Arbitrary undocumented adapters
+are not certified. The tiny completion test validates the execution/reporting
+contract, not research effectiveness, calibrated uncertainty, real LLM accuracy
+or real-world fairness. No full held-out research grid, new scientific phase,
+commit, push or merge is part of these repairs.
+
+### Final repair file inventory
+
+The final diff changes twelve existing files and adds three files:
+
+- [provenance.py](../src/evaluation/provenance.py): version compatibility,
+  allowlisted identities, strict inventories and staged artifact lifecycle.
+- [report_artifacts.py](../src/evaluation/report_artifacts.py) (new): sealed
+  generations, linked registry, contributing episodes and convenience-link checks.
+- [research_records.py](../src/evaluation/research_records.py) (new): completed
+  execution validation against frozen defaults and primary-matrix completion.
+- [research_experiments.py](../src/evaluation/research_experiments.py): version-4
+  freeze, canonical execution/cache identity, atomic publication and aggregation.
+- [research_report.py](../src/evaluation/research_report.py): sealed rendering,
+  completion-aware prose/figures and valid one-policy exploratory reports.
+- [cached_observation_extractor.py](../src/evaluation/cached_observation_extractor.py),
+  [observation_extractor.py](../src/intervention/observation_extractor.py) and
+  [ollama_client.py](../src/intervention/ollama_client.py): safe complete execution
+  configuration, compatible cache keys and credential-safe failure messages.
+- [feedback_experiments.py](../src/school/feedback_experiments.py) and
+  [feedback_replay.py](../src/school/feedback_replay.py): atomic persistence,
+  deterministic comparisons before publication and consistent model metadata.
+- [verify_experiment_records.py](../scripts/verify_experiment_records.py) and
+  [verify_phase3.py](../scripts/verify_phase3.py): explicit verification exits,
+  bounded lifecycle/corruption checks and historical-byte comparison.
+- [test_phase3_final_repairs.py](../tests/test_phase3_final_repairs.py) (new):
+  adversarial regressions. Existing test files remain unchanged.
+- [README](../README.md) and this append-only correction record: current
+  execution, reporting, failure and historical-compatibility semantics.
+
+### Final local acceptance record — 9 November 2026
+
+The final acceptance run passed on CPython **3.12.12**, macOS arm64, using
+`/tmp/phase1-python312/bin/python`. The branch remains
+`fix/phase-3-repair-experimental-comparisons`, based on commit
+`68a97f61cf4e530177d1a8a407aaabfad40cd5a7`. The tested working-tree executable
+source/configuration SHA-256 is
+`8a44ee0bbcd89a895825822c3b460c388878a9a6dfe6588ef744eaa07980bcef`.
+This fingerprint identifies the uncommitted implementation, not a new commit.
+The harness confirmed the source did not change during verification. This final
+documentation append does not change that executable-source fingerprint.
+
+The exact acceptance command was:
+
+```sh
+/tmp/phase1-python312/bin/python scripts/verify_phase3.py --output results/phase3_final_repairs_20261109/acceptance
+```
+
+The retained [verification record](../results/phase3_final_repairs_20261109/acceptance/verification.json)
+contains resolved dependency versions, per-file source hashes, immutable
+experiment identities, historical artifact hashes, bounded results and the
+commands' exit statuses. The final measured checks were:
+
+| Check | Result |
+| --- | --- |
+| Focused Phase 1–3/information/comparison regressions | 106 passed in 51.550 seconds; 0 failed, 0 errors, 0 skipped |
+| Full offline test discovery | 332 passed in 97.144 seconds; 0 failed, 0 errors, 0 skipped |
+| New repair regressions | 57 methods; all original 275 tests retained |
+| Bounded policy/information grid | 40 validated episodes: 8 policies across 5 information modes |
+| Offline exact replay | All 8 policies replayed twice with equal deterministic digests |
+| Primary completion progression | 0/4, then 2/4 exploratory, then 4/4 COMPLETE for frozen seeds 10073 and 10074 |
+| Finalized derived artifacts | 6 sealed report/aggregate generations verified across 2 immutable experiment versions |
+| Deliberately corrupted report | Rejected: `corrupted artifact: primary_policy_comparison.csv` |
+| Deliberately late replay mismatch | Rejected: `replay final_beliefs mismatch`; requested replay destination absent |
+| Historical preservation | All 4,774 inventoried historical files had identical before/after SHA-256 hashes |
+| Prior immutable records and reports | Original manifest/episode bytes and previous finalized report bytes preserved |
+| Real LLM calls | 0 |
+| Whitespace and editor diagnostics | `git diff --check` passed; no editor errors in changed modules |
+
+The zero-effect and paid zero-budget controls produced no outcome improvement.
+The free positive-effect zero-budget control admitted four programmes and
+changed the synthetic trajectory; removing service capacity prevented programmes
+and restored equal trajectories. No transition matrices or treatment effects
+were edited for these checks. Development episodes were explicitly excluded
+from primary completion. The immutable amendment used a different uncertainty
+radius and preserved verification of the preceding version.
+
+The [pre-fix reproduction log](../results/phase3_final_repairs_20261109/before_repairs.log)
+records seven failing methods covering A–D. Additional failing adversarial
+reproductions are retained beside it for alias substitution, execution-setting
+drift, explicit-default retry, cache-configuration privacy and descriptive model
+metadata. All corresponding regressions pass in the final
+[focused log](../results/phase3_final_repairs_20261109/acceptance/focused.log) and
+[full-suite log](../results/phase3_final_repairs_20261109/acceptance/offline.log).
+Earlier intermediate verification directories remain intact and are not
+presented as the final tested source identity.
+
+The final skeptical review covered incomplete prose/figures and primary counts,
+sealed tables and aliases, cache configuration and credentials, frozen execution
+compatibility, offline replay publication, strict artifact inventories,
+interruption/failure paths, historical version policy, information boundaries
+and preservation of old tests/protocols. The additional defects found during
+that review were repaired and reproduced with regression tests before this
+acceptance run. No residual merge-blocking correctness defect was identified.
+The filesystem, hash-attestation, mutable-model-tag and scientific limits above
+remain explicit limitations rather than claims validated by this tiny scenario.
+
+**Verdict: READY TO MERGE on the basis of local acceptance.** The existing CI
+workflow still targets Python 3.12 and 3.13 and was not changed. No CI run for
+these final uncommitted changes has completed; Python 3.13 execution remains
+unverified here. No commit, push, merge, historical evidence rewrite, full
+research grid or Phase 4 work was performed.

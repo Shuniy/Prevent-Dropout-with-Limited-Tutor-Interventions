@@ -232,8 +232,9 @@ class LLMObservationExtractor:
     def extract(self, note, as_of_time):
         if note.available_from_month > as_of_time or note.event_month >= as_of_time:
             raise ValueError("note is not available at this decision cutoff")
+        from ..evaluation.provenance import extractor_identity, digest
         key = (note.note_id, sha256(json.dumps(asdict(note), sort_keys=True).encode()).hexdigest(),
-               self.client.model, as_of_time)
+               digest(extractor_identity(self)), as_of_time)
         audit = {"note_id": note.note_id, "as_of_month": as_of_time, "cache_key": key,
                  "cache_hit": key in self.cache}
         if key not in self.cache:

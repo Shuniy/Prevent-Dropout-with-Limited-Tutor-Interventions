@@ -9,12 +9,13 @@ from pathlib import Path
 import time
 from urllib.request import urlopen
 
-from src.intervention import observation_extractor, ollama_client
 from src.intervention.observation_extractor import (
-    EXTRACTION_SCHEMA, LLMObservationExtractor,
-    SYSTEM_PROMPT, source_spans, validate_extraction,
+    LLMObservationExtractor, source_spans, validate_extraction,
 )
 from src.intervention.ollama_client import OllamaClient
+from .provenance import extractor_identity
+
+RAW_OUTPUT_SCOPE = 'Parsed JSON returned by existing OllamaClient; no HTTP envelope or malformed body capture'
 
 
 def content_digest(value):
@@ -37,15 +38,10 @@ class CachedObservationExtractor:
         selected = next((m for m in tags.get("models", []) if m.get("name") == model), None)
         if not selected or not selected.get("digest"):
             raise RuntimeError(f"Ollama model {model} has no installed digest")
+        self.client.model_digest = selected['digest']
         self.configuration = {
-            "model": model, "model_metadata": selected, "base_url": self.client.base_url,
-            "timeout_seconds": timeout, "options": {"temperature": 0, "num_ctx": num_ctx},
-            "think": False, "stream": False, "system_prompt": SYSTEM_PROMPT,
-            "schema": EXTRACTION_SCHEMA,
-            "extractor_code_sha256": sha256(Path(observation_extractor.__file__).read_bytes()).hexdigest(),
-            "client_code_sha256": sha256(Path(ollama_client.__file__).read_bytes()).hexdigest(),
-            "cache_adapter_code_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
-            "raw_output_scope": "Parsed JSON returned by existing OllamaClient; no HTTP envelope or malformed body capture",
+            **extractor_identity(self),
+            'raw_output_scope': RAW_OUTPUT_SCOPE,
         }
         self.cache_path = Path(cache_path)
         self.cache_path.mkdir(parents=True, exist_ok=True)
@@ -57,6 +53,9 @@ class CachedObservationExtractor:
         # Reject timing before looking up or populating any model cache.
         if note.available_from_month > as_of_time or note.event_month >= as_of_time:
             raise ValueError("note is not available at this decision cutoff")
+        # Recompute from actual execution settings, so a mutated client cannot
+        # reuse entries under a stale constructor-time configuration.
+        self.configuration = {**extractor_identity(self), 'raw_output_scope': RAW_OUTPUT_SCOPE}
         context = {"configuration": self.configuration, "note": asdict(note),
                    "as_of_month": as_of_time, "source_spans": source_spans(note.text)}
         key = content_digest(context)
