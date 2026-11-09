@@ -63,9 +63,9 @@ class ResourceTests(unittest.TestCase):
     def test_existing_commitments_block_then_release_future_slots(self):
         env = world(weekly_mentor_hours=1, weekly_session_capacity=1)
         env.step(DeliveryAction((SupportOffer('s0','m0',1),)))
-        self.assertNotIn(SupportOffer('s1','m0',2), feasible_offers(env.observe(), env.config))
+        self.assertNotIn(SupportOffer('s1','m0',2), feasible_offers(env.prepare_decision(), env.config))
         env.step(DeliveryAction(cancel_programme_ids=(env.programmes[0].programme_id,)))
-        self.assertIn(SupportOffer('s1','m0',3), feasible_offers(env.observe(), env.config))
+        self.assertIn(SupportOffer('s1','m0',3), feasible_offers(env.prepare_decision(), env.config))
 
     def test_zero_budget_and_zero_cost_services(self):
         env = world(budget=0, cost_per_session=0, administrative_offer_cost=0)
@@ -99,7 +99,7 @@ class ResourceTests(unittest.TestCase):
     def test_three_students_two_mentors_hand_calculated_overlapping_demand(self):
         env = world(weekly_mentor_hours=1, weekly_session_capacity=1, max_concurrent_students=1,
             cost_per_session=.2, administrative_offer_cost=.1, budget=3, fairness_target=1)
-        initial = env.observe()
+        initial = env.prepare_decision()
         self.assertEqual(sum(len(c.student_ids) for c in initial.fairness_window.cohorts), 3)
         env.step(DeliveryAction((SupportOffer('s0','m0',1), SupportOffer('s1','m1',1))))
         self.assertAlmostEqual(float(env.ledger.reserved), 1.6)
@@ -112,8 +112,12 @@ class ResourceTests(unittest.TestCase):
         self.assertAlmostEqual(float(env.ledger.spent), 2.2)
         self.assertAlmostEqual(float(env.ledger.spendable), .8)
         rows = offer_fairness_rows(initial.fairness_window, env.events, env.config)
-        false = next(r for r in rows if r['group']=='False' and r['frozen_eligible_students'])
-        true = next(r for r in rows if r['group']=='True' and r['frozen_eligible_students'])
+        # Need strata now use processed evidence at explicit preparation. Sum
+        # group counts across those strata for this resource-accounting check.
+        false = {k: sum(r[k] for r in rows if r['group']=='False') for k in (
+            'frozen_eligible_students', 'unique_offers', 'shortfall', 'completed_students')}
+        true = {k: sum(r[k] for r in rows if r['group']=='True') for k in (
+            'frozen_eligible_students', 'unique_offers', 'shortfall', 'completed_students')}
         self.assertEqual((false['frozen_eligible_students'], false['unique_offers'], false['shortfall']), (2,1,1))
         self.assertEqual((true['frozen_eligible_students'], true['unique_offers'], true['shortfall']), (1,1,0))
         self.assertEqual((false['completed_students'], true['completed_students']), (1,1))
@@ -122,7 +126,7 @@ class ResourceTests(unittest.TestCase):
 class FairnessTests(unittest.TestCase):
     def test_accepted_and_multiple_deliveries_still_count_one_offer(self):
         env = world()
-        window = env.observe().fairness_window
+        window = env.prepare_decision().fairness_window
         env.step(DeliveryAction((SupportOffer('s0','m0',1),)))
         for _ in range(2):
             env.step(DeliveryAction())
@@ -134,14 +138,14 @@ class FairnessTests(unittest.TestCase):
     def test_strict_infeasibility_never_relaxes_hard_capacity(self):
         env = world(budget=0, fairness_target=1, fairness_allow_shortfall=False)
         for mode in ('fair_point','fair_robust'):
-            action = WeeklyDeliveryPolicy(env.config,mode).plan(env.observe())
+            action = WeeklyDeliveryPolicy(env.config,mode).plan(env.prepare_decision())
             self.assertEqual(action.status,'fairness_infeasible')
             self.assertFalse(action.offers)
-            validate_offers(env.observe(),action,env.config)
+            validate_offers(env.prepare_decision(),action,env.config)
 
     def test_repeat_refusals_count_once_and_never_count_as_completion(self):
         env = world()
-        window = env.observe().fairness_window
+        window = env.prepare_decision().fairness_window
         for week in (1,2):
             env.step(DeliveryAction((SupportOffer('s0','m0',week),)), outcomes={('s0','acceptance',week):False})
         rows = offer_fairness_rows(window, env.events, env.config)
@@ -152,11 +156,11 @@ class FairnessTests(unittest.TestCase):
 
     def test_five_week_programme_keeps_original_offer_window(self):
         env = world()
-        first = env.observe().fairness_window
+        first = env.prepare_decision().fairness_window
         env.step(DeliveryAction((SupportOffer('s0','m0',1),)))
         for _ in range(3):
             env.step(DeliveryAction())
-        second = env.observe().fairness_window
+        second = env.prepare_decision().fairness_window
         self.assertEqual((second.start_week, second.end_week), (5,8))
         env.step(DeliveryAction())
         rows = offer_fairness_rows(first, env.events, env.config)
@@ -168,16 +172,16 @@ class FairnessTests(unittest.TestCase):
     def test_frozen_denominator_survives_withdrawal(self):
         withdraw = ((0.,0.,0.,1.),)*4
         env = world(weekly_wait_matrix=withdraw, weekly_tutoring_matrix=withdraw)
-        window = env.observe().fairness_window
+        window = env.prepare_decision().fairness_window
         env.step(DeliveryAction())
         self.assertEqual(sum(len(c.student_ids) for c in window.cohorts), 3)
         rows = offer_fairness_rows(window, env.events, env.config)
         self.assertEqual(sum(r['frozen_eligible_students'] for r in rows), 3)
-        self.assertEqual(sum(s.eligible for s in env.observe().students), 0)
+        self.assertEqual(sum(s.eligible for s in env.prepare_decision().students), 0)
 
     def test_empty_small_groups_and_infeasible_targets_expose_shortfall(self):
         env = world(budget=0, fairness_target=1)
-        state = env.observe()
+        state = env.prepare_decision()
         action = WeeklyDeliveryPolicy(env.config, 'fair_point').plan(state)
         self.assertFalse(action.offers)
         self.assertGreater(action.projected_normalized_shortfall, 0)
@@ -190,9 +194,9 @@ class FairnessTests(unittest.TestCase):
 class ScientificTests(unittest.TestCase):
     def test_future_draw_changes_are_absent_from_current_snapshot(self):
         env=world()
-        state=env.observe()
+        state=env.prepare_decision()
         env.exogenous_draws.append({'key':('s0','attendance',5),'outcome':False})
-        self.assertEqual(state,env.observe())
+        self.assertEqual(state,env.prepare_decision())
 
     def test_withdrawal_cancels_only_future_delivery_at_next_cutoff(self):
         withdraw = ((0.,0.,0.,1.),)*4
@@ -205,7 +209,7 @@ class ScientificTests(unittest.TestCase):
         self.assertEqual(float(env.ledger.reserved),0)
         cancellation = next(e for e in env.events if e.kind=='programme_cancelled')
         self.assertEqual((cancellation.source_week,cancellation.available_week),(1,2))
-        self.assertIn(cancellation.event_id,env.observe().authorized_event_ids)
+        self.assertIn(cancellation.event_id,env.prepare_decision().authorized_event_ids)
 
     def test_failed_note_extraction_does_not_change_hidden_delivery(self):
         class BrokenExtractor:
@@ -266,10 +270,10 @@ class ScientificTests(unittest.TestCase):
         a, b = world(), world()
         # Hold all authorized inputs fixed; modify evaluator truth alone.
         b._conditions['s0'] = StudentCondition.DISENGAGED
-        self.assertEqual(a.observe(), b.observe())
+        self.assertEqual(a.prepare_decision(), b.prepare_decision())
         for mode in WeeklyDeliveryPolicy.MODES:
-            self.assertEqual(WeeklyDeliveryPolicy(a.config, mode).plan(a.observe()),
-                             WeeklyDeliveryPolicy(b.config, mode).plan(b.observe()))
+            self.assertEqual(WeeklyDeliveryPolicy(a.config, mode).plan(a.prepare_decision()),
+                             WeeklyDeliveryPolicy(b.config, mode).plan(b.prepare_decision()))
 
     def test_delayed_note_cannot_rewrite_earlier_snapshot(self):
         env = world()
@@ -338,7 +342,7 @@ class ExecutionTests(unittest.TestCase):
         env=world(count=2,mentors=1,weekly_mentor_hours=1,max_concurrent_students=1,
             weekly_wait_matrix=WEEKLY_WAIT_V1,weekly_tutoring_matrix=WEEKLY_TUTORING_V1,
             fairness_target=1,budget=6)
-        state=env.observe()
+        state=env.prepare_decision()
         candidates=feasible_offers(state,env.config,end_week=4)
         feasible=[]
         for size in range(3):

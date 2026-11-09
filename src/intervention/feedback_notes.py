@@ -33,6 +33,15 @@ PHRASES = {
         ("participation", "reported", "worsened", "present", "unknown", "unknown", "unknown"),
 }
 SIGNAL_PHRASES = dict(zip(SIGNALS, tuple(PHRASES)[:4]))
+MENTOR_SIGNAL_PHRASES = dict(zip(SIGNALS, (
+    'The mentor reports regular participation in recent activities.',
+    'The student reports difficulty completing assignments during the mentor session.',
+    'The mentor reports low participation in recent activities.',
+    'The mentor reports difficulty maintaining contact outside the session.',
+)))
+# Same qualitative signal categories and likelihood, different declared source.
+MENTOR_PHRASES = {phrase: PHRASES[SIGNAL_PHRASES[signal]]
+                  for signal, phrase in MENTOR_SIGNAL_PHRASES.items()}
 
 
 @dataclass(frozen=True)
@@ -56,16 +65,17 @@ class NoteQuality:
             raise ValueError("delay_months must be positive")
 
 
-def render_note(event: ObservableEvent, *, seed, quality=NoteQuality()):
+def render_note(event: ObservableEvent, *, seed, quality=NoteQuality(),
+                signal_phrases=SIGNAL_PHRASES, random_namespace='note:'):
     if not isinstance(event, ObservableEvent):
         raise TypeError("note renderer accepts only ObservableEvent")
-    draw = lambda name: keyed_uniform(seed, event.student_id, event.event_month, "note:" + name)
+    draw = lambda name: keyed_uniform(seed, event.student_id, event.event_month, random_namespace + name)
     pieces = []
     if draw("omission") >= quality.omission_probability:
         signal = event.signal
         if draw("misleading") < quality.misleading_probability:
             signal = SIGNALS[(SIGNALS.index(signal) + 1) % len(SIGNALS)]
-        phrase = SIGNAL_PHRASES[signal]
+        phrase = signal_phrases[signal]
         if draw("ambiguity") < quality.ambiguity_probability:
             phrase = "There is insufficient evidence about participation."
         elif signal == "assignment_difficulty" and draw("negation") < quality.negation_probability:
@@ -74,7 +84,7 @@ def render_note(event: ObservableEvent, *, seed, quality=NoteQuality()):
             phrase = "The student reports greater participation, but progress is not yet consistent."
         pieces.append(phrase)
         if draw("conflict") < quality.conflict_probability:
-            pieces.extend([SIGNAL_PHRASES[SIGNALS[(SIGNALS.index(signal) + 2) % len(SIGNALS)]],
+            pieces.extend([signal_phrases[SIGNALS[(SIGNALS.index(signal) + 2) % len(SIGNALS)]],
                            "Reports about participation conflict and remain unresolved."])
     if event.support_completed:
         pieces.append("The student completed the scheduled mentoring appointments.")

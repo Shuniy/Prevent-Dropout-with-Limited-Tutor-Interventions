@@ -98,6 +98,8 @@ class WeeklyDeliveryPolicy:
             optimization_scope='deterministic_start_schedule_approximation')
 
     def plan(self, state):
+        if not state.decision_prepared:
+            raise ValueError('allocation requires prepare_decision() after authorized evidence processing')
         state.validate_estimates()
         self.last_uncertainty_sets = weekly_uncertainty_sets(state, self.uncertainty_radius)
         all_scenarios = weekly_belief_scenarios(state, self.last_uncertainty_sets,

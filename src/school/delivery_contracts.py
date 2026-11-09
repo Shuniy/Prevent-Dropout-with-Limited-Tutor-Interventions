@@ -222,7 +222,8 @@ class WeeklyDecisionState:
     ledger: LedgerSnapshot
     fairness_window: OfferWindow
     authorized_event_ids: tuple[str, ...]
-    contract: str = 'scheduled_weekly/decision/v2'
+    contract: str = 'scheduled_weekly/decision/v3'
+    decision_prepared: bool = False
 
     def validate_estimates(self):
         for s in self.students:
@@ -253,11 +254,17 @@ class WeeklyNote:
     source_event_ids: tuple[str, ...]
     mentor_id: str | None = None
     programme_id: str | None = None
+    session_id: str | None = None
+    delivery_event_id: str | None = None
+    observation_contract: str | None = None
 
     def __post_init__(self):
         if (not self.note_id or not self.student_id or len(self.source_event_ids) != 1
                 or type(self.source_week) is not int or self.source_week < 0
-                or type(self.available_week) is not int or self.available_week <= self.source_week):
+                or type(self.available_week) is not int or self.available_week <= self.source_week
+                or (self.mentor_id is None) != (self.programme_id is None)
+                or (self.session_id is not None and not all((self.mentor_id,
+                    self.programme_id, self.delivery_event_id, self.observation_contract)))):
             raise ValueError('weekly note requires source provenance and future availability')
 
     @property
@@ -267,6 +274,10 @@ class WeeklyNote:
     @property
     def available_from_month(self):
         return self.available_week
+
+    @property
+    def extraction_period_adapter(self):
+        return 'week_indices_in_legacy_schema/v1'
 
     @property
     def creation_time(self):

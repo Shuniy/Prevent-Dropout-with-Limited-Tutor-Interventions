@@ -9,9 +9,11 @@ from src.school.delivery_resources import audit_delivery_events
 from src.school.mentor import Mentor
 from src.school.mentor_availability import MentorAvailability
 from src.school.student_condition import StudentCondition
+from src.school.observation_model import ObservationConfig
 
 
-def world(*, count=3, mentors=2, **overrides):
+def world(*, count=3, mentors=2, observation_config=ObservationConfig(),
+          mentor_observations_enabled=True, **overrides):
     identity = tuple(tuple(float(i == j) for j in range(4)) for i in range(4))
     overrides.setdefault('weekly_wait_matrix', identity)
     overrides.setdefault('weekly_tutoring_matrix', identity)
@@ -25,7 +27,8 @@ def world(*, count=3, mentors=2, **overrides):
             config.weekly_session_capacity) for w in range(1, config.horizon_weeks + 1)],
         cost_units_per_session=config.cost_per_session) for i in range(mentors))
     return WeeklyDeliveryEnvironment(profiles, staff, config,
-        initial_conditions=tuple((p.student_id, StudentCondition.VULNERABLE) for p in profiles))
+        initial_conditions=tuple((p.student_id, StudentCondition.VULNERABLE) for p in profiles),
+        observation_config=observation_config, mentor_observations_enabled=mentor_observations_enabled)
 
 
 class LifecycleTests(unittest.TestCase):

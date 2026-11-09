@@ -1,4 +1,4 @@
-"""Immutable weekly v1 episodes, exact offline replay, and bounded scorecards."""
+"""Versioned immutable weekly episodes, exact replay, and bounded scorecards."""
 import argparse
 from dataclasses import asdict
 import json
@@ -21,7 +21,7 @@ from .money import amount
 from .observation_model import ObservationConfig
 
 
-PROTOCOL_PATH = Path(__file__).resolve().parents[2]/'docs'/'phase4_1_adaptive_delivery_correctness.md'
+PROTOCOL_PATH = Path(__file__).resolve().parents[2]/'docs'/'phase4_2_mentor_feedback_and_fairness_determinism.md'
 
 
 def normalized(value):
@@ -85,7 +85,7 @@ def scorecard(controller):
 def episode_payload(controller):
     controller.validate()
     env = controller.environment
-    return dict(contract='scheduled_weekly/replay/v2',
+    return dict(contract='scheduled_weekly/replay/v3',
         notes=[{**asdict(n), 'creation_time': n.creation_time} for n in controller.notes],
         extraction_attempts=controller.attempts,
         actionable_extraction_diagnostics=controller.extraction_diagnostics,
@@ -96,6 +96,8 @@ def episode_payload(controller):
         decision_snapshots=controller.snapshots, allocation_decisions=controller.decisions,
         final_snapshot=controller.final_snapshot, events=env.events, programmes=env.programmes,
         resource_records=env.records, fairness_windows=env.windows,
+        fairness_initializations=env.window_initializations,
+        mentor_observations=env.emitted_mentor_signals,
         authorized_signals=[dict(event_id=e.event_id, student_id=e.student_id, source_week=e.event_month,
             available_week=e.available_from_month, signal=e.signal) for e in env.emitted_signals],
         administrative_enrollment=[dict(student_id=r.student_id, source_week=r.event_month,
@@ -106,10 +108,15 @@ def save_delivery_episode(controller, output):
     """Validate, serialize, seal, verify, publish once; never replace a run."""
     payload = normalized(episode_payload(controller))
     env = controller.environment
-    manifest = dict(contract='scheduled_weekly/replay/v2', scenario=asdict(env.config),
+    from .delivery_observations import MENTOR_OBSERVATION_CONTRACT
+    manifest = dict(contract='scheduled_weekly/replay/v3', scenario=asdict(env.config),
         policy=controller.policy.configuration, note_quality=asdict(controller.note_quality),
         estimator=controller.estimator.configuration,
         observation_config=asdict(env.observation_config),
+        mentor_observation_protocol=dict(contract=MENTOR_OBSERVATION_CONTRACT,
+            enabled=env.mentor_observations_enabled,
+            likelihood='same_declared_ObservationConfig_conditional_independence'),
+        fairness_lifecycle='explicit_post_assimilation_preparation/v1',
         initial_authorized_profiles=[asdict(p) for p in env.profiles],
         initial_and_future_mentor_calendars=[asdict(m) for m in env.mentors],
         extractor=extractor_identity(controller.extractor),
@@ -126,22 +133,24 @@ def save_delivery_episode(controller, output):
         evaluator.mkdir()
         (evaluator/'world.json').write_text(json.dumps(normalized(dict(
             initial_conditions=env.initial_conditions, truth=env.evaluator_truth,
-            exogenous_draws=env.exogenous_draws)), sort_keys=True, indent=2))
+            exogenous_draws=env.exogenous_draws,
+            mentor_signal_overrides=tuple(sorted(env.mentor_signal_overrides.items())))), sort_keys=True, indent=2))
         seal_directory(staging)
         verify_directory(staging)
     return manifest['episode_identity']
 
 
 def read_delivery_episode(source):
-    """Read/verify v1 or v2 artifacts without claiming execution compatibility.
+    """Read/verify v1, v2 or v3 artifacts without claiming execution compatibility.
 
-    Historical v1 exact execution belongs to its fingerprinted original checkout
+    Historical v1/v2 exact execution belongs to its fingerprinted original checkout
     and runtime. This reader preserves access without weakening those guards.
     """
     source = Path(source)
     verify_directory(source)
     manifest = json.loads((source/'manifest.json').read_text())
-    if manifest.get('contract') not in ('scheduled_weekly/replay/v1', 'scheduled_weekly/replay/v2'):
+    if manifest.get('contract') not in ('scheduled_weekly/replay/v1', 'scheduled_weekly/replay/v2',
+                                        'scheduled_weekly/replay/v3'):
         raise ValueError('unsupported weekly replay contract')
     if digest({k:v for k,v in manifest.items() if k != 'episode_identity'}) != manifest['episode_identity']:
         raise ValueError('weekly manifest identity mismatch')
@@ -159,8 +168,8 @@ def replay_delivery_episode(source, output=None):
     manifest,payload = read_delivery_episode(source)
     if source_fingerprints() != manifest['provenance']['source_fingerprints']:
         raise ValueError('exact weekly replay requires recorded source/configuration versions')
-    if manifest['contract'] == 'scheduled_weekly/replay/v1':
-        raise ValueError('v1 remains readable; exact execution requires its archived v1 source and runtime')
+    if manifest['contract'] != 'scheduled_weekly/replay/v3':
+        raise ValueError('historical weekly episodes remain readable; exact execution requires archived source and runtime')
     if (manifest['protocol_text'] != PROTOCOL_PATH.read_text()
             or digest(manifest['protocol_text']) != manifest['protocol_sha256']):
         raise ValueError('weekly protocol version mismatch')
@@ -176,7 +185,15 @@ def replay_delivery_episode(source, output=None):
     world = json.loads((source/'evaluator_only'/'world.json').read_text())
     env = WeeklyDeliveryEnvironment(tuple(StudentProfile(**p) for p in manifest['initial_authorized_profiles']),
         mentors, config, initial_conditions=tuple(tuple(row) for row in world['initial_conditions']),
-        observation_config=ObservationConfig(**manifest['observation_config']))
+        observation_config=ObservationConfig(**manifest['observation_config']),
+        mentor_observations_enabled=manifest['mentor_observation_protocol']['enabled'],
+        mentor_signal_overrides=tuple(tuple(row) for row in world['mentor_signal_overrides']))
+    from .delivery_observations import MENTOR_OBSERVATION_CONTRACT
+    if (manifest['mentor_observation_protocol']['contract'] != MENTOR_OBSERVATION_CONTRACT
+            or manifest['mentor_observation_protocol']['likelihood'] !=
+                'same_declared_ObservationConfig_conditional_independence'
+            or manifest['fairness_lifecycle'] != 'explicit_post_assimilation_preparation/v1'):
+        raise ValueError('weekly scientific protocol version mismatch')
     policy_record = manifest['policy']
     policy = WeeklyDeliveryPolicy(config, policy_record['mode'], uncertainty_radius=policy_record['uncertainty_radius'],
         continuation_margin=policy_record['continuation_margin'],
@@ -188,6 +205,8 @@ def replay_delivery_episode(source, output=None):
     extractor = RecordedOutcomeExtractor(payload['extraction_attempts'], payload['extracted_batches'])
     controller = WeeklyFeedbackController(env, policy, extractor=extractor,
         note_quality=NoteQuality(**manifest['note_quality']), recorded_notes=notes)
+    if normalized(controller.estimator.configuration) != manifest['estimator']:
+        raise ValueError('weekly estimator configuration mismatch')
     overrides = {}
     for row in world['exogenous_draws']:
         if 'outcome' in row:
@@ -198,7 +217,8 @@ def replay_delivery_episode(source, output=None):
     if normalized(scorecard(controller)) != json.loads((source/'summary.json').read_text()):
         raise ValueError('weekly replay summary mismatch in risk labels, fairness feasibility or resource diagnostics')
     if normalized(dict(initial_conditions=env.initial_conditions, truth=env.evaluator_truth,
-                       exogenous_draws=env.exogenous_draws)) != world:
+                       exogenous_draws=env.exogenous_draws,
+                       mentor_signal_overrides=tuple(sorted(env.mentor_signal_overrides.items())))) != world:
         raise ValueError('weekly replay evaluator trajectory/randomness mismatch')
     result = dict(status='exact_replay_verified', episode_identity=manifest['episode_identity'],
                   compared='all_decisions_events_resources_observations_estimates_fairness_and_hidden_trajectories')

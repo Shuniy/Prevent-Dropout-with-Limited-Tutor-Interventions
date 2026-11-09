@@ -39,12 +39,18 @@ jobs:
         run: python -m unittest discover -s tests 2>&1 | tee "$RUNNER_TEMP/phase41/logs/full-suite.log"
       - name: Execute matched examples, exact replay and independent resource audit
         run: python -m src.school.delivery_acceptance --output "$RUNNER_TEMP/phase41/acceptance" 2>&1 | tee "$RUNNER_TEMP/phase41/logs/acceptance.log"
+      - name: Execute actual-session feedback and fairness read-order acceptance
+        run: python -m src.school.delivery_feedback_acceptance --output "$RUNNER_TEMP/phase41/mentor_acceptance" 2>&1 | tee "$RUNNER_TEMP/phase41/logs/mentor-acceptance.log"
       - name: Verify required artifacts
         run: |
           test -s "$RUNNER_TEMP/phase41/acceptance/acceptance_report.json"
           test -s "$RUNNER_TEMP/phase41/acceptance/regular/summary.json"
           test -s "$RUNNER_TEMP/phase41/acceptance/regular_replay/replay_result.json"
           test -s "$RUNNER_TEMP/phase41/acceptance/artifact_integrity.json"
+          test -s "$RUNNER_TEMP/phase41/mentor_acceptance/acceptance_report.json"
+          test -s "$RUNNER_TEMP/phase41/mentor_acceptance/regular/episode.json"
+          test -s "$RUNNER_TEMP/phase41/mentor_acceptance/extra_reads_replay/replay_result.json"
+          test -s "$RUNNER_TEMP/phase41/mentor_acceptance/artifact_integrity.json"
       - name: Upload synthetic evidence and logs
         if: always()
         uses: actions/upload-artifact@v4

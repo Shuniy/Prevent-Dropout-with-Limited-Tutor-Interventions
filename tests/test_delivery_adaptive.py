@@ -39,7 +39,7 @@ class AdaptiveReproductions(unittest.TestCase):
     def test_fairness_feasibility_does_not_remove_denominator(self):
         from src.school.delivery_fairness import offer_feasibility_diagnostics
         env = world()
-        state = env.observe()
+        state = env.prepare_decision()
         diagnostic = offer_feasibility_diagnostics(state, env.config)
         self.assertEqual(diagnostic['frozen_eligible_students'], 3)
 
@@ -220,8 +220,8 @@ class InformationQualityTests(unittest.TestCase):
         a,b = world(),world()
         from src.school.student_condition import StudentCondition
         b._conditions['s0'] = StudentCondition.DISENGAGED
-        self.assertEqual(weekly_uncertainty_sets(a.observe()),weekly_uncertainty_sets(b.observe()))
-        self.assertEqual(weekly_uncertainty_sets(a.observe()),weekly_uncertainty_sets(a.observe()))
+        self.assertEqual(weekly_uncertainty_sets(a.prepare_decision()),weekly_uncertainty_sets(b.prepare_decision()))
+        self.assertEqual(weekly_uncertainty_sets(a.prepare_decision()),weekly_uncertainty_sets(a.prepare_decision()))
 
     def test_new_valid_signal_can_supersede_an_older_conflict(self):
         c = self.controller()
@@ -253,7 +253,7 @@ class InformationQualityTests(unittest.TestCase):
 
     def test_candidate_order_and_zero_radius_point_equivalence(self):
         env = world(weekly_wait_matrix=WEEKLY_WAIT_V1,weekly_tutoring_matrix=WEEKLY_TUTORING_V1)
-        state = env.observe()
+        state = env.prepare_decision()
         point,robust = (WeeklyDeliveryPolicy(env.config,m,uncertainty_radius=0).plan(state)
                         for m in ('fair_point','fair_robust'))
         self.assertEqual(point.offers,robust.offers)
@@ -272,7 +272,7 @@ class InformationQualityTests(unittest.TestCase):
         env = world(count=2,mentors=1,weekly_mentor_hours=1,max_concurrent_students=1,
             weekly_wait_matrix=WEEKLY_WAIT_V1,weekly_tutoring_matrix=WEEKLY_TUTORING_V1,
             budget=6,fairness_target=1)
-        state = env.observe()
+        state = env.prepare_decision()
         policy = WeeklyDeliveryPolicy(env.config,'fair_robust')
         action = policy.plan(state)
         candidates = feasible_offers(state,env.config,end_week=4)
@@ -306,7 +306,7 @@ class CommittedForecastTests(unittest.TestCase):
 
     def test_active_forecast_differs_and_no_commitments_agree(self):
         env = self.active()
-        state = env.observe()
+        state = env.prepare_decision()
         self.assertLess(state.students[0].committed_risk.probability,state.students[0].risk.probability)
         for s in state.students[1:]:
             self.assertAlmostEqual(s.committed_risk.probability,s.risk.probability)
@@ -315,10 +315,10 @@ class CommittedForecastTests(unittest.TestCase):
     def test_cancelled_and_zero_effect_forecasts_agree(self):
         env = self.active()
         env.step(DeliveryAction(cancel_programme_ids=(env.programmes[0].programme_id,)))
-        for s in env.observe().students:
+        for s in env.prepare_decision().students:
             self.assertAlmostEqual(s.risk.probability,s.committed_risk.probability)
         zero = self.active(effect_strength=0)
-        for s in zero.observe().students:
+        for s in zero.prepare_decision().students:
             self.assertAlmostEqual(s.risk.probability,s.committed_risk.probability)
 
     def test_accepted_does_not_receive_offer_probability_twice(self):
@@ -351,15 +351,15 @@ class CommittedForecastTests(unittest.TestCase):
         modified = replace(p,sessions=(replace(p.sessions[0],status='MISSED'),*p.sessions[1:]))
         np.testing.assert_allclose(remaining_marginals(env.config,2,p),remaining_marginals(env.config,2,modified))
         from src.school.delivery_forecasts import committed_support_risk
-        s = env.observe().students[0]
+        s = env.prepare_decision().students[0]
         r = committed_support_risk(env.config,s.estimate,(replace(p,status='COMPLETED'),))
         self.assertAlmostEqual(r.probability,s.risk.probability)
 
     def test_forecast_uses_assumptions_not_future_draws_and_checks_versions(self):
         env = self.active()
-        state = env.observe()
+        state = env.prepare_decision()
         env.exogenous_draws.append({'future_attendance':False})
-        self.assertEqual(state,env.observe())
+        self.assertEqual(state,env.prepare_decision())
         for s in state.students:
             self.assertTrue(0 <= s.risk.probability <= 1)
             self.assertTrue(0 <= s.committed_risk.probability <= 1)
@@ -377,7 +377,7 @@ class FairnessBoundTests(unittest.TestCase):
             weekly_wait_matrix=identity,weekly_tutoring_matrix=identity))
         for _ in range(8):
             env.step(DeliveryAction())
-        state = env.observe()
+        state = env.prepare_decision()
         d = offer_feasibility_diagnostics(state,env.config)
         self.assertEqual(d['frozen_eligible_students'],3)
         self.assertEqual(d['maximum_attainable_unique_offers'],0)
@@ -391,7 +391,7 @@ class FairnessBoundTests(unittest.TestCase):
         for hours in (1,2,3):
             env = world(count=3,mentors=1,weekly_mentor_hours=hours,
                 weekly_session_capacity=hours,max_concurrent_students=hours,budget=30,fairness_target=1)
-            state = env.observe()
+            state = env.prepare_decision()
             candidates = feasible_offers(state,env.config,end_week=4)
             maximum = 0
             for size in range(1,4):
@@ -411,14 +411,14 @@ class FairnessBoundTests(unittest.TestCase):
 
     def test_shared_budget_limits_unique_starts(self):
         env = world(budget=5.1,fairness_target=1)
-        d = offer_feasibility_diagnostics(env.observe(),env.config)
+        d = offer_feasibility_diagnostics(env.prepare_decision(),env.config)
         self.assertEqual(d['maximum_attainable_unique_offers'],1)
         self.assertEqual(d['unavoidable_shortfall_under_frozen_model'],2)
 
     def test_refusal_duplicates_and_cancellation_do_not_erase_offer(self):
         from src.school.delivery_fairness import offer_fairness_rows
         env = world(count=1,mentors=1)
-        frozen = env.observe()
+        frozen = env.prepare_decision()
         for w in (1,2):
             env.step(DeliveryAction((SupportOffer('s0','m0',w),)),outcomes={('s0','acceptance',w):False})
         d = offer_feasibility_diagnostics(frozen,env.config,env.events)
@@ -441,8 +441,8 @@ class VersionedReplayTests(unittest.TestCase):
             path = Path(directory)/'episode'
             save_delivery_episode(c,path)
             manifest,payload = read_delivery_episode(path)
-            self.assertEqual(manifest['contract'],'scheduled_weekly/replay/v2')
-            self.assertEqual(payload['decision_snapshots'][1]['contract'],'scheduled_weekly/decision/v2')
+            self.assertEqual(manifest['contract'],'scheduled_weekly/replay/v3')
+            self.assertEqual(payload['decision_snapshots'][1]['contract'],'scheduled_weekly/decision/v3')
             self.assertEqual(replay_delivery_episode(path)['status'],'exact_replay_verified')
             summary = json.loads((path/'summary.json').read_text())
             self.assertIn('no future tutoring',summary['risk_targets']['usual_support'])

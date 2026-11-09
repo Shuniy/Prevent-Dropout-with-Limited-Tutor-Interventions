@@ -51,7 +51,8 @@ def boundary_episode(text=REGULAR, *, mode='point', information='accurate', marg
     env = WeeklyDeliveryEnvironment(original.profiles,
         # Reuse explicit immutable calendars via ordinary mentor construction.
         _mentors(config),config,initial_conditions=original.initial_conditions,
-        observation_config=ObservationConfig(missing_probability=0,delay_probability=0))
+        observation_config=ObservationConfig(missing_probability=0,delay_probability=0),
+        mentor_observations_enabled=False)  # Preserve the historical school-note counterfactual.
     policy = WeeklyDeliveryPolicy(config,mode,continuation_margin=margin)
     return InformationConditionController(env,policy,changed_text=text,information=information,
         boundary=boundary).run_episode()

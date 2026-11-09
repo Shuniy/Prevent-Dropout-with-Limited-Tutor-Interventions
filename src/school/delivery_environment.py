@@ -16,13 +16,16 @@ from .delivery_forecasts import committed_support_risk
 from .delivery_resources import audit_delivery_events, mentor_contracts, validate_offers
 from .money import amount
 from .observation_model import SyntheticObservationModel, ObservationConfig
+from .delivery_observations import MentorSessionObservationModel
+from ..observations.observable_events import SIGNALS
 from .student_condition import STATES, StudentCondition
 from .transition_model import keyed_uniform, sample_condition, validate_matrix
 from ..evaluation.provenance import digest
 
 
 class WeeklyDeliveryEnvironment:
-    def __init__(self, profiles, mentors, config, *, initial_conditions, observation_config=ObservationConfig()):
+    def __init__(self, profiles, mentors, config, *, initial_conditions, observation_config=ObservationConfig(),
+                 mentor_signal_overrides=(), mentor_observations_enabled=True):
         if not isinstance(config, DeliveryConfig):
             raise ValueError('weekly environment requires DeliveryConfig')
         self.config = config
@@ -47,8 +50,22 @@ class WeeklyDeliveryEnvironment:
         self._observations, self._registry = [], []
         self._window = None
         self._windows = []
+        self._window_initializations = []
+        self._prepared_state = None
+        self._direct_controller = None
         self.observation_config = observation_config
         self._observation_model = SyntheticObservationModel(observation_config)
+        self._mentor_observation_model = MentorSessionObservationModel(observation_config)
+        self._mentor_observations = []
+        if type(mentor_observations_enabled) is not bool:
+            raise ValueError('mentor observation enablement must be boolean')
+        self.mentor_observations_enabled = mentor_observations_enabled
+        # Evaluator-owned controlled observation channel, never policy input.
+        overrides = tuple(mentor_signal_overrides)
+        self.mentor_signal_overrides = dict(overrides)
+        if (len(self.mentor_signal_overrides) != len(overrides)
+                or any(not session or signal not in SIGNALS for session, signal in overrides)):
+            raise ValueError('invalid controlled mentor observation channel')
         self.exogenous_draws, self.evaluator_truth, self.records = [], [], []
         self._emit_observations(0)
         self.evaluator_truth.append((0, tuple(self._conditions.items())))
@@ -72,6 +89,15 @@ class WeeklyDeliveryEnvironment:
     @property
     def windows(self):
         return tuple(self._windows)
+
+    @property
+    def window_initializations(self):
+        """Immutable authorized estimates/history used to freeze each cohort."""
+        return tuple(self._window_initializations)
+
+    @property
+    def emitted_mentor_signals(self):
+        return tuple(self._mentor_observations)
 
     def authorized_observations(self, cutoff):
         return (tuple(e for e in self._observations if e.available_from_month <= cutoff),
@@ -110,8 +136,15 @@ class WeeklyDeliveryEnvironment:
         self._registry.extend(registry)
 
     def observe(self, *, estimates=(), risks=()):
-        """Public registry and event history only; no oracle/default truth path."""
+        """Read-only public view. Unprepared cutoffs have no frozen cohort.
+
+        Use prepare_decision() for allocation. Extra reads never freeze windows,
+        process notes, consume draws or modify a decision identity.
+        """
         cutoff = self.week
+        if (not estimates and not risks and self._prepared_state is not None
+                and self._prepared_state.week == cutoff):
+            return self._prepared_state
         _, registry, events = self.authorized_observations(cutoff)
         enrolled = {r.student_id: r.enrolled for r in registry}
         estimates = {e.student_id: e for e in estimates}
@@ -134,17 +167,47 @@ class WeeklyDeliveryEnvironment:
             students.append(WeeklyStudent(profile, enrolled[sid], estimate, risk, eligible,
                 cutoff - 1 if eligible else 0, prior_offers, known,
                 committed_support_risk(self.config, estimate, known)))
-        placeholder = self._window or OfferWindow(1, min(4, self.config.horizon_weeks), ())
+        start = ((cutoff-1)//4)*4+1
+        placeholder = (self._window if self._window and (cutoff <= self._window.end_week or self.done)
+                       else OfferWindow(start, min(start+3, self.config.horizon_weeks), ()))
         state = WeeklyDecisionState(cutoff, max(0, self.config.horizon_weeks-cutoff+1),
             tuple(students), self.mentors, self.ledger, placeholder, tuple(e.event_id for e in events))
-        if not self.done and (self._window is None or cutoff > self._window.end_week):
+        state.validate_estimates()
+        return state
+
+    def prepare_decision(self, *, estimates=None, risks=None):
+        """Canonical explicit fairness lifecycle AFTER authorized filtering.
+
+        Without estimates, a persistent fixture-extraction controller prepares
+        the direct-simulation decision using the same evidence/filter path.
+        step() uses this adapter if this cutoff has not already been prepared.
+        """
+        if estimates is None and risks is None:
+            if self._prepared_state is not None and self._prepared_state.week == self.week:
+                return self._prepared_state
+            if self._direct_controller is None:
+                from .delivery_controller import WeeklyFeedbackController
+                from .delivery_policy import WeeklyDeliveryPolicy
+                self._direct_controller = WeeklyFeedbackController(self, WeeklyDeliveryPolicy(self.config, 'wait'))
+            return self._direct_controller.prepare_decision_snapshot()
+        if (estimates is None or risks is None
+                or len(estimates) != len(self.profiles) or len(risks) != len(self.profiles)
+                or {e.student_id for e in estimates} != {p.student_id for p in self.profiles}
+                or {r.student_id for r in risks} != {p.student_id for p in self.profiles}):
+            raise ValueError('decision preparation requires complete authorized estimates and risks')
+        state = self.observe(estimates=estimates, risks=risks)
+        _, _, events = self.authorized_observations(self.week)
+        # Finalize the preceding window's last-week offers before advancing.
+        self._windows = [update_offer_window(w, events) for w in self._windows]
+        self._window = self._windows[-1] if self._windows else None
+        if not self.done and (self._window is None or self.week > self._window.end_week):
             self._window = freeze_offer_window(state, self.config)
             self._windows.append(self._window)
-        if self._window:
-            self._window = update_offer_window(self._window, events)
-            self._windows[-1] = self._window
-            state = replace(state, fairness_window=self._window)
+            self._window_initializations.append(replace(state,
+                fairness_window=self._window, decision_prepared=True))
+        state = replace(state, fairness_window=self._window or state.fairness_window, decision_prepared=True)
         state.validate_estimates()
+        self._prepared_state = state
         return state
 
     def _event(self, kind, p, session=None, *, money='0', reason='', stream=None):
@@ -190,7 +253,7 @@ class WeeklyDeliveryEnvironment:
             raise ValueError('exogenous delivery outcomes must be boolean')
         # Recompute hard constraints from public records and the event ledger.
         # Private truth never selects feasibility for an ordinary action.
-        validate_offers(self.observe(), action, self.config)
+        validate_offers(self.prepare_decision(), action, self.config)
         start_event = len(self._events)
         for pid in action.cancel_programme_ids:
             self._cancel(self._programmes[pid], 'controller_cancellation')
@@ -267,6 +330,17 @@ class WeeklyDeliveryEnvironment:
                 if p.status in ('SCHEDULED', 'ACTIVE') and self._conditions[p.student_id] == StudentCondition.WITHDRAWN:
                     self._cancel(p, 'authorized_withdrawal_registry')
         self._emit_observations(self.week)
+        # Distinct measurements of the post-transition interval state. A miss
+        # never enters this boundary; programme completion is entirely separate.
+        for delivery in self._events[start_event:]:
+            if delivery.kind != 'session_delivered' or not self.mentor_observations_enabled:
+                continue
+            signal, draws = self._mentor_observation_model.generate(delivery,
+                self._conditions[delivery.student_id], seed=self.config.seed,
+                signal_override=self.mentor_signal_overrides.get(delivery.session_id))
+            self.exogenous_draws.extend(draws)
+            if signal is not None:
+                self._mentor_observations.append(signal)
         self.evaluator_truth.append((self.week, tuple(self._conditions.items())))
         ledger = self.ledger
         self.records.append(dict(week=self.week, action=action, ledger=ledger,

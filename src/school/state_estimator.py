@@ -10,7 +10,7 @@ from hashlib import sha256
 import json
 import numpy as np
 
-from ..intervention.feedback_notes import SIGNAL_PHRASES
+from ..intervention.feedback_notes import SIGNAL_PHRASES, MENTOR_SIGNAL_PHRASES
 from ..intervention.observation_extractor import ExtractedObservationBatch
 from .belief_state import EstimatedStudentState, validate_belief
 from .observation_model import ObservationConfig, SIGNALS
@@ -54,6 +54,8 @@ class StudentStateEstimator:
         # Preserve the exact legacy configuration identity and replay hashes.
         if self.action_contract != 'atomic_monthly':
             result['action_contract'] = self.action_contract
+            from .delivery_observations import MENTOR_OBSERVATION_CONTRACT
+            result['mentor_observation_contract'] = MENTOR_OBSERVATION_CONTRACT
         return result
 
     def initialize(self, student_id, initial_observations=(), *, registry=(), as_of_month=1, known_actions=()):
@@ -105,6 +107,8 @@ class StudentStateEstimator:
         assimilated_months = set()
         assimilated_ids = set()
         reverse = {phrase: signal for signal, phrase in SIGNAL_PHRASES.items()}
+        if self.action_contract == 'weekly_delivered_v1':
+            reverse.update({phrase: signal for signal, phrase in MENTOR_SIGNAL_PHRASES.items()})
         for time in range(cutoff):
             if time:
                 probabilities = probabilities @ (self.programme if time in actions else self.wait)

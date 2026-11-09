@@ -13,7 +13,7 @@ from typing import Protocol
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
-from .feedback_notes import PHRASES
+from .feedback_notes import PHRASES, MENTOR_PHRASES
 from src.intervention.findings import choice, object_schema
 from ..observations.observable_events import Note
 
@@ -84,6 +84,12 @@ class ObservationExtractor(Protocol):
     def extract(self, note: Note, as_of_time: int) -> ExtractedObservationBatch: ...
 
 
+def supported_phrases(note):
+    """Weekly grammar extension; preserve the historical monthly language."""
+    weekly = getattr(note, 'extraction_period_adapter', None) == 'week_indices_in_legacy_schema/v1'
+    return {**PHRASES, **MENTOR_PHRASES} if weekly else PHRASES
+
+
 def validate_batch(batch, note, as_of_month):
     """Revalidate even injected adapters; a dataclass alone is not validation."""
     if not isinstance(batch, ExtractedObservationBatch) or batch.as_of_month != as_of_month:
@@ -103,11 +109,12 @@ def validate_batch(batch, note, as_of_month):
 def gold_payload(note):
     """B-matched gold contains only sentences actually retained in this note."""
     facts = []
+    phrases = supported_phrases(note)
     for span in source_spans(note.text):
         phrase = span["text"]
-        if phrase not in PHRASES:
+        if phrase not in phrases:
             continue
-        concepts = PHRASES[phrase]
+        concepts = phrases[phrase]
         start = span["start_offset"]
         facts.append({**dict(zip(CONCEPTS, concepts)), "numeric_value": None, "unit": None,
                       "evidence": phrase, "start_offset": start, "end_offset": start + len(phrase),
@@ -140,6 +147,7 @@ def validate_extraction(payload, note, as_of_month):
     if payload["student_id"] != note.student_id or payload["note_id"] != note.note_id:
         raise ValueError("extraction identity mismatch")
     facts, seen = [], set()
+    phrases = supported_phrases(note)
     spans = {(s["start_offset"], s["end_offset"], s["text"]) for s in source_spans(note.text)}
     for item in payload["observations"]:
         start, end, quote = item["start_offset"], item["end_offset"], item["evidence"]
@@ -147,7 +155,7 @@ def validate_extraction(payload, note, as_of_month):
             raise ValueError("invalid evidence span")
         if item["source_month"] != note.event_month:
             raise ValueError("unsupported source timestamp")
-        if quote not in PHRASES or tuple(item[k] for k in CONCEPTS) != PHRASES[quote]:
+        if quote not in phrases or tuple(item[k] for k in CONCEPTS) != phrases[quote]:
             raise ValueError("unsupported assertion: evidence does not entail controlled-language fields")
         # The same phrase/event cannot acquire extra independent weight via note copies.
         evidence_id = sha256(json.dumps([note.student_id, note.source_event_ids[0], quote]).encode()).hexdigest()
@@ -238,7 +246,11 @@ class LLMObservationExtractor:
         audit = {"note_id": note.note_id, "as_of_month": as_of_time, "cache_key": key,
                  "cache_hit": key in self.cache}
         if key not in self.cache:
-            messages = [{"role": "system", "content": SYSTEM_PROMPT},
+            prompt = SYSTEM_PROMPT
+            if supported_phrases(note) is not PHRASES:
+                prompt += '\nWeekly mentor grammar, using the same evidence rules:\n' + json.dumps(
+                    {phrase: dict(zip(CONCEPTS, values)) for phrase, values in MENTOR_PHRASES.items()})
+            messages = [{"role": "system", "content": prompt},
                         {"role": "user", "content": json.dumps({"note": asdict(note),
                          "as_of_month": as_of_time, "source_spans": source_spans(note.text)})}]
             try:

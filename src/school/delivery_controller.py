@@ -9,6 +9,7 @@ from .delivery_contracts import WeeklyEstimate, WeeklyNote, WeeklyRisk
 from .delivery_resources import validate_offers
 from .simulated_withdrawal_risk import SimulatedWithdrawalRiskEstimator
 from .state_estimator import StudentStateEstimator
+from .delivery_observations import render_mentor_note, validate_note_source
 
 
 LIFECYCLE_TEXT = {
@@ -54,6 +55,11 @@ class WeeklyFeedbackController:
             notes.append(WeeklyNote(rendered.note_id, rendered.student_id, event.event_month,
                 rendered.available_from_month, rendered.text, rendered.source_event_ids))
             self._generated.add(event.event_id)
+        for event in env.emitted_mentor_signals:
+            if event.event_id in self._generated:
+                continue
+            notes.append(render_mentor_note(event, seed=env.config.seed, quality=self.note_quality))
+            self._generated.add(event.event_id)
         for event in env.events:
             if event.event_id in self._generated or event.kind not in LIFECYCLE_TEXT:
                 continue
@@ -68,14 +74,15 @@ class WeeklyFeedbackController:
                     raise ValueError('missing recorded weekly note')
                 # Recorded prose may be generated externally; regenerate timing
                 # and identities and verify them before accepting that prose.
-                if (expected.student_id != note.student_id or expected.source_week != note.source_week
-                        or expected.source_event_ids != note.source_event_ids):
+                from dataclasses import replace
+                if replace(expected, text=note.text) != note:
                     raise ValueError('recorded weekly note provenance mismatch')
                 note = expected
             self.notes.append(note)
 
     def prepare_decision_snapshot(self):
         env, cutoff = self.environment, self.environment.week
+        self._generate_notes()
         _, registry, lifecycle = env.authorized_observations(cutoff)
         incoming = {p.student_id: [] for p in env.profiles}
         previously_usable = {sid for sid,e in self.estimates.items() if e.last_observation_month is not None}
@@ -87,11 +94,13 @@ class WeeklyFeedbackController:
             attempt = dict(note_id=note.note_id, student_id=note.student_id,
                 as_of_month=cutoff, source_week=note.source_week, available_week=note.available_week,
                 source_event_ids=note.source_event_ids, time_unit='week', evidence_ids=(),
-                note_type='programme' if note.programme_id else 'monitoring')
+                note_type='mentor' if note.observation_contract else 'programme' if note.programme_id else 'monitoring')
             calls_before = getattr(self.extractor, 'calls', 0)
             audits_before = len(getattr(self.extractor, 'audit_records', ()))
             try:
+                validate_note_source(note, env, cutoff)
                 batch = validate_batch(self.extractor.extract(note, cutoff), note, cutoff)
+                validate_note_source(note, env, cutoff, batch)
                 self.batches.append(batch)
                 incoming[note.student_id].append(batch)
                 attempt.update(status='accepted', evidence_ids=tuple(f.evidence_id for f in batch.facts),
@@ -129,7 +138,7 @@ class WeeklyFeedbackController:
             # Audit only current condition-note attempts. Lifecycle prose and
             # repeated citations cannot manufacture a fresh condition reading.
             current = [a for a in self.attempts if a['student_id'] == sid
-                       and a['as_of_month'] == cutoff and a['note_type'] == 'monitoring']
+                       and a['as_of_month'] == cutoff and a['note_type'] in ('monitoring', 'mentor')]
             conflict_events = {event for event,reason in update.rejected_observations
                                if reason == 'conflicting_correlated_event'}
             conflict = any(f.event_id in conflict_events and
@@ -144,7 +153,7 @@ class WeeklyFeedbackController:
                 estimate.estimate_id, estimate.evidence_ids, estimate.last_observation_month,
                 quality))
             risks.append(WeeklyRisk(sid, cutoff, risk.months_remaining, risk.input_estimate_id, risk.probability))
-        state = env.observe(estimates=tuple(wrapped), risks=tuple(risks))
+        state = env.prepare_decision(estimates=tuple(wrapped), risks=tuple(risks))
         eligible = {s.student_id for s in state.students if s.eligible}
         attempts = [a for a in self.attempts if a['as_of_month'] == cutoff]
         self._cutoff_diagnostics.setdefault(cutoff,dict(cutoff_week=cutoff,
@@ -155,6 +164,7 @@ class WeeklyFeedbackController:
             actionable_extraction_attempts=sum(a['student_id'] in eligible for a in attempts),
             monitoring_attempts=sum(a['note_type']=='monitoring' for a in attempts),
             programme_attempts=sum(a['note_type']=='programme' for a in attempts),
+            mentor_condition_attempts=sum(a['note_type']=='mentor' for a in attempts),
             quarantined=sum(a['status']=='quarantined' for a in attempts),
             empty_extractions=sum(a.get('result')=='empty' for a in attempts),
             model_invocations=sum(a['model_invocations'] for a in attempts)))
@@ -200,4 +210,20 @@ class WeeklyFeedbackController:
                 raise ValueError('decision snapshot resource ledger mismatch')
             if any(e.available_week > state.week for e in env.events if e.event_id in state.authorized_event_ids):
                 raise ValueError('future event leaked into decision snapshot')
+        from .delivery_fairness import freeze_offer_window, update_offer_window
+        if len(env.window_initializations) != len(env.windows):
+            raise ValueError('missing authoritative fairness initialization')
+        for initial, window in zip(env.window_initializations, env.windows):
+            initial.validate_estimates()
+            decision = next(s for s in self.snapshots if s.week == initial.week)
+            if (initial.students != decision.students or initial.ledger != decision.ledger
+                    or initial.authorized_event_ids != decision.authorized_event_ids):
+                raise ValueError('fairness initialization differs from its actual decision inputs')
+            authorized = tuple(e for e in env.events if e.available_week <= initial.week)
+            if initial.authorized_event_ids != tuple(e.event_id for e in authorized):
+                raise ValueError('fairness initialization authorized history mismatch')
+            if freeze_offer_window(initial, env.config) != initial.fairness_window:
+                raise ValueError('fairness cohort does not match its initialization estimates')
+            if update_offer_window(initial.fairness_window, env.events) != window:
+                raise ValueError('frozen fairness history changed or lost unique offers')
         return ledger
