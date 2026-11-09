@@ -28,6 +28,7 @@ class EstimateUpdate:
     updated_belief: tuple
     estimate_id: str
     uncertainty: tuple
+    assimilated_condition_evidence_ids: tuple
 
 
 class StudentStateEstimator:
@@ -93,6 +94,7 @@ class StudentStateEstimator:
         probabilities = np.asarray(self.prior)
         unresolved = []
         assimilated_months = set()
+        assimilated_ids = set()
         reverse = {phrase: signal for signal, phrase in SIGNAL_PHRASES.items()}
         for time in range(cutoff):
             if time:
@@ -120,6 +122,7 @@ class StudentStateEstimator:
                     continue
                 probabilities = weighted / weighted.sum()
                 assimilated_months.add(time)
+                assimilated_ids.update(f.evidence_id for f in facts if f.evidence in reverse)
         posterior = validate_belief(probabilities)
         facts = tuple(sorted(history.values(), key=lambda f: (f.source_month, f.event_id, f.evidence_id)))
         last = max(assimilated_months, default=None)
@@ -143,7 +146,7 @@ class StudentStateEstimator:
         self.updates.append(EstimateUpdate(sid, cutoff,
                             previous.condition_probabilities if previous else self.prior,
                             tuple(predicted), tuple(accepted), tuple(rejected), posterior,
-                            estimate_id, uncertainty))
+                            estimate_id, uncertainty, tuple(sorted(assimilated_ids))))
         return result
 
     @staticmethod

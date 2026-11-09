@@ -34,7 +34,9 @@ The [Phase 1 correction record](docs/phase1_scientific_correctness.md) documents
 these requirements, the superseded anchor-only rule, and scientific limits.
 The [Phase 2 implementation and verification report](docs/phase2_scientific_correctness.md)
 documents actionable monitoring extraction (R01), non-vacuous common-history snapshot
-comparisons (R04), the selection contract, tests and remaining research limitations.
+comparisons (R04), historical evidence coverage and deterministic extraction-outcome
+replay. Its finalization record identifies the source revision plus working-tree
+fingerprint and reports 69 focused / 260 offline tests on Python 3.12.12.
 
 Check current implemented behavior against `src/`, `configs/` and `tests/`.
 Code and passing tests establish tested behavior, not scientific correctness.
@@ -159,8 +161,14 @@ categorical beliefs, synthetic withdrawal risk and both existing CMDP planners.
 Run `python scripts/run_cmdp_feedback_pilot.py` for the offline fixture pilot, or
 add `--extractor ollama --max-notes-per-month 1 --max-monitoring-notes-per-month 1`
 for the existing local model. Run `python scripts/verify_phase2.py --output
-results/phase2_new_run` for the bounded offline extraction-sensitivity harness;
-it uses regression fixtures and requires a new output directory.
+results/phase2_new_run` on Python 3.12 or 3.13 for the offline verification harness.
+It runs the focused and full test suites, checks the diff, and saves deterministic
+evidence-to-allocation traces plus successful, empty, mixed and failed extraction
+replays. It records Git revision, source fingerprints and dependency versions.
+Use a fresh output directory; generated results and logs are ignored by Git and
+are not distributed with the repository. Replay preserves original failure/cache
+provenance and reports zero new model calls; incomplete legacy recordings and
+arbitrary robust/custom policy configurations are outside its exact-replay contract.
 
 Standalone extraction commands require a local Ollama server and model:
 

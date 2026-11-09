@@ -170,6 +170,57 @@ class FixtureObservationExtractor:
         return validate_extraction(payload, note, as_of_time)
 
 
+class RecordedExtractionFailure(Exception):
+    """A historical quarantine, not a new external exception or model call."""
+
+    def __init__(self, outcome):
+        super().__init__(outcome["reason"])
+        self.original_error_type = outcome["error_type"]
+
+
+class RecordedOutcomeExtractor:
+    """Replay complete outcomes and original provenance without live inference.
+
+    Accepted batches still pass the current validators. Missing or inconsistent
+    recordings fail replay; they are never silently substituted with gold.
+    """
+    calls = 0
+
+    def __init__(self, attempts, batches):
+        self.outcomes = {(a["note_id"], a["as_of_month"]): a for a in attempts}
+        self.batches = {(b["note_id"], b["as_of_month"]): ExtractedObservationBatch(
+            b["student_id"], b["note_id"], b["as_of_month"],
+            tuple(ExtractedFact(**f) for f in b["facts"])) for b in batches}
+        if len(self.outcomes) != len(attempts) or len(self.batches) != len(batches):
+            raise ValueError("duplicate recorded extraction outcome")
+        accepted = {key for key, outcome in self.outcomes.items() if outcome["status"] == "accepted"}
+        if set(self.batches) != accepted:
+            raise ValueError("recorded accepted outcomes and batches do not match")
+        self.used = set()
+
+    def extract(self, note, as_of_time):
+        key = (note.note_id, as_of_time)
+        if key not in self.outcomes:
+            raise ValueError("missing recorded extraction outcome")
+        outcome = self.outcomes[key]
+        self.used.add(key)
+        if outcome["status"] == "quarantined":
+            raise RecordedExtractionFailure(outcome)
+        return self.batches[key]
+
+    def restore_provenance(self, actual):
+        expected = self.outcomes.get((actual["note_id"], actual["as_of_month"]))
+        if expected is None:
+            raise ValueError("missing recorded extraction outcome")
+        # Only invocation/cache audit data may differ in a replay. Validate all
+        # identities, timing, route, result category and accepted evidence IDs.
+        provenance = {"model_invocations", "cache_hit", "extractor_audit"}
+        normalize = lambda row: json.loads(json.dumps({k: v for k, v in row.items() if k not in provenance}))
+        if normalize(actual) != normalize(expected):
+            raise ValueError("recorded extraction outcome mismatch")
+        return dict(expected)
+
+
 class LLMObservationExtractor:
     def __init__(self, client):
         self.client = client

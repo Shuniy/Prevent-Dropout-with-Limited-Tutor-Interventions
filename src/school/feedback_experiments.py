@@ -77,6 +77,8 @@ def save_episode(controller, output):
         "support_need_rule": "existing_static_primary_need_no_LLM_reassignment",
         "environment_wait_matrix": controller.environment.transition_assumptions[0],
         "environment_programme_matrix": controller.environment.transition_assumptions[1]}
+    if hasattr(controller, "replay_provenance"):
+        manifest["replay_provenance"] = controller.replay_provenance
     (output / "experiment_config.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
 

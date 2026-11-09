@@ -72,6 +72,116 @@ def standard_controller(mode="llm_notes", *, limit=2, budget=10, extractor=None,
 
 
 class Phase2Reproductions(unittest.TestCase):
+    def test_repeated_evidence_at_later_cutoff_is_not_new_coverage(self):
+        c = controlled_episode(run=False)
+        c.run_month()
+        old = next(n for n in c.notes if n.student_id == "SYN00003" and n.event_month == 0)
+        c.notes = [n for n in c.notes if n.event_month == 0]
+        c.notes.append(replace(old, note_id=old.note_id + ":duplicate"))
+        c.prepare_decision_snapshot(2)
+        self.assertEqual(c.extraction_diagnostics(2)["accepted_extractions"], 1)
+        self.assertEqual(c.extraction_diagnostics(2)["eligible_students_with_new_usable_evidence"], 0)
+        self.assertEqual(c.extraction_diagnostics()["historical_student_cutoff_pairs_with_new_usable_evidence"], 3)
+
+    def test_incomplete_recording_fails_replay_without_gold_fallback(self):
+        c = standard_controller().run_episode()
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "source"
+            save_episode(c, source)
+            path = source / "extraction_attempts.jsonl"
+            path.write_text("\n".join(path.read_text().splitlines()[1:]) + "\n")
+            with self.assertRaisesRegex(ValueError, "recorded accepted outcomes"):
+                replay_feedback_episode(source, Path(directory) / "replay")
+
+    def test_historical_coverage_survives_admission_and_duplicate_processing(self):
+        c = controlled_episode()
+        cutoff = c.extraction_diagnostics(2)
+        self.assertEqual(cutoff["eligible_students"], 2)
+        self.assertEqual(cutoff["eligible_students_with_new_usable_evidence"], 2)
+        self.assertIn("SYN00003", cutoff["new_usable_student_ids"])
+        episode = c.extraction_diagnostics()
+        self.assertEqual(episode["historical_students_with_usable_injected_evidence"], 3)
+        self.assertEqual(episode["historical_student_cutoff_pairs_with_new_usable_evidence"], 6)
+        self.assertEqual(episode["final_students_eligible"], 1)
+        self.assertEqual(episode["final_students_previously_admitted"], 2)
+        self.assertEqual(episode["final_students_enrolled"], 3)
+        c.process_new_observations(4)
+        self.assertEqual(c.extraction_diagnostics(), episode)
+        self.assertEqual(c.extraction_diagnostics(2), cutoff)
+
+    def test_unusable_and_duplicate_evidence_do_not_inflate_coverage(self):
+        for kind in ("empty", "unknown", "conflicting", "exception", "zero_likelihood", "duplicate"):
+            with self.subTest(kind=kind):
+                c = controlled_episode(run=False)
+                if kind == "exception":
+                    c.extractor = CountingExtractor(fail=True)
+                c.initialize()
+                text = {"empty": "No supported observations are available.",
+                    "unknown": "There is insufficient evidence about participation.",
+                    "conflicting": "The school reports low participation in recent activities. "
+                        "The school reports regular participation in recent activities. "
+                        "Reports about participation conflict and remain unresolved."}.get(kind)
+                if text:
+                    c.notes = [replace(n, text=text) for n in c.notes]
+                if kind == "zero_likelihood":
+                    c.estimator.likelihoods[:, 0] = 0
+                if kind == "duplicate":
+                    class DuplicateExtractor:
+                        def extract(self, note, cutoff):
+                            batch = FixtureObservationExtractor().extract(note, cutoff)
+                            return replace(batch, facts=batch.facts * 2)
+                    c.extractor = DuplicateExtractor()
+                c.prepare_decision_snapshot(1)
+                d = c.extraction_diagnostics(1)
+                expected = 3 if kind == "duplicate" else 0
+                self.assertEqual(d["eligible_students_with_new_usable_evidence"], expected)
+                self.assertEqual(c.extraction_diagnostics()[
+                    "historical_students_with_usable_injected_evidence"], expected)
+                self.assertEqual(d["extractor_attempts"], 3)
+
+    def test_recorded_outcome_replay_preserves_success_empty_mixed_failure_and_cache(self):
+        class Outcomes:
+            def __init__(self, kind):
+                self.kind = kind
+                self.calls = 0
+                self.audit_records = []
+
+            def extract(self, note, cutoff):
+                cached = self.kind == "cached"
+                self.calls += int(not cached)  # offline invocation provenance fixture
+                self.audit_records.append({"cache_hit": cached, "origin": "offline_fixture"})
+                if self.kind == "failure" or (self.kind == "mixed" and note.student_id == "SYN00002"):
+                    raise RuntimeError("model unavailable")
+                batch = FixtureObservationExtractor().extract(note, cutoff)
+                if self.kind == "invalid":
+                    return replace(batch, facts=(replace(batch.facts[0], evidence_id="forged"),))
+                return replace(batch, facts=()) if self.kind == "empty" else batch
+
+        for kind in ("success", "empty", "mixed", "failure", "invalid", "cached", "conflicting", "unknown"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as directory:
+                c = controlled_episode(run=False)
+                c.extractor = Outcomes(kind)
+                c.initialize()
+                if kind in ("unknown", "conflicting"):
+                    text = ("There is insufficient evidence about participation." if kind == "unknown" else
+                        "The school reports low participation in recent activities. "
+                        "The school reports regular participation in recent activities. "
+                        "Reports about participation conflict and remain unresolved.")
+                    c.notes = [replace(n, text=text) for n in c.notes]
+                c.run_episode()
+                source, replay = Path(directory) / "source", Path(directory) / "replay"
+                save_episode(c, source)
+                with patch("src.intervention.ollama_client.OllamaClient.generate",
+                           side_effect=AssertionError("live inference during replay")):
+                    summary = replay_feedback_episode(source, replay)
+                for filename in ("extraction_attempts", "extraction_failures", "extracted_observations",
+                                 "note_selection", "estimate_updates", "risk_estimates", "decision_snapshots"):
+                    self.assertEqual((source / f"{filename}.jsonl").read_text(),
+                                     (replay / f"{filename}.jsonl").read_text(), filename)
+                self.assertEqual(summary["replay_model_invocations"], 0)
+                self.assertEqual(summary["original_model_invocations"], c.extractor.calls)
+                self.assertEqual(summary["original_cache_hits"], sum(a["cache_hit"] for a in c.extraction_attempts))
+
     def test_changed_extraction_alone_changes_month_two_feasible_action(self):
         gold, omitted = controlled_episode(), controlled_episode(omit=True)
         self.assertEqual(gold.snapshots[0], omitted.snapshots[0])

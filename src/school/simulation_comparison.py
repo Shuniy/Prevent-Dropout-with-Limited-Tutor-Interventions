@@ -130,6 +130,10 @@ def run_comparison(args):
                     num_ctx=8192, temperature=0, policies=policies,
                     feedback_policies=args.feedback_policies, modes=args.modes, caveat=CAVEAT)
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    # Baselines have no extraction pipeline. Use null for inapplicable coverage
+    # fields while retaining a common CSV schema across baseline/feedback rows.
+    columns = dict.fromkeys(key for row in rows for key in row)
+    rows = [{key: row.get(key) for key in columns} for row in rows]
     write_csv(output / "comparison.csv", rows)
     (output / "comparison.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
     (output / "report.md").write_text(report, encoding="utf-8")

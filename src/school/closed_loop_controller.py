@@ -4,8 +4,11 @@ from dataclasses import asdict, replace
 from hashlib import sha256
 import json
 
-from ..intervention.feedback_notes import NoteQuality, SIGNAL_PHRASES, render_note
-from ..intervention.observation_extractor import FixtureObservationExtractor, validate_batch
+from ..intervention.feedback_notes import NoteQuality, render_note
+from ..intervention.observation_extractor import (
+    FixtureObservationExtractor, ObservationExtractor, RecordedExtractionFailure,
+    RecordedOutcomeExtractor, validate_batch,
+)
 from .constraints import validate_allocation
 from .fairness_window import FairnessWindow
 from .observation_model import ObservationConfig, SyntheticObservationModel
@@ -38,7 +41,7 @@ class ClosedLoopCMDPController:
         self.max_monitoring_notes_per_month = max_monitoring_notes_per_month
         self.environment, self.policy, self.mode = environment, policy, mode
         self.extractor = extractor
-        self.gold_extractor = FixtureObservationExtractor()
+        self.gold_extractor: ObservationExtractor = FixtureObservationExtractor()
         self.observation_model = SyntheticObservationModel(observation_config)
         self.note_quality, self.max_notes_per_month = note_quality, max_notes_per_month
         # Synthetic information-quality experiments may assign an authorized
@@ -61,6 +64,7 @@ class ClosedLoopCMDPController:
         self.estimates, self.processed, self.failures = {}, set(), []
         self.decisions, self.snapshots, self.risks, self.fairness_rows = [], [], [], []
         self.decision_diagnostics = []
+        self._cutoff_evidence = {}
         self.evaluator_truth, self.windows = [], []
         self._initialized = False
 
@@ -144,6 +148,8 @@ class ClosedLoopCMDPController:
 
     def process_new_observations(self, month):
         incoming = {sid: [] for sid in self.estimates}
+        previously_usable = {sid for sid, estimate in self.estimates.items()
+                             if estimate.last_observation_month is not None}
         # B uses full structured emissions. B-matched contains only note-supported
         # facts, including exactly the same omission/delay/contradiction process.
         sources = ([render_note(event, seed=self.environment.config.seed) for event in self.events]
@@ -176,16 +182,22 @@ class ClosedLoopCMDPController:
                 # Plugin boundary: failures are quarantined, never replaced by gold.
                 attempt.update(status="quarantined", reason=str(exc), error_type=type(exc).__name__,
                                evidence_ids=())
-                self.failures.append(dict(attempt))
+                if isinstance(exc, RecordedExtractionFailure):
+                    attempt["error_type"] = exc.original_error_type
             finally:
                 audits = getattr(extractor, "audit_records", ())
                 if len(audits) > audits_before:
                     attempt["extractor_audit"] = audits[-1]
                     attempt["cache_hit"] = bool(audits[-1].get("cache_hit"))
                 attempt["model_invocations"] = getattr(extractor, "calls", 0) - calls_before
+                if isinstance(extractor, RecordedOutcomeExtractor):
+                    attempt = extractor.restore_provenance(attempt)
                 self.extraction_attempts.append(attempt)
+                if attempt["status"] == "quarantined":
+                    self.failures.append(dict(attempt))
         current_registry = tuple(r for r in self.registry if r.event_month == month - 1)
         history = self.decisions
+        newly_assimilated = {}
         for record in current_registry:
             sid = record.student_id
             actions = tuple(row["month"] for row in history if sid in row["admitted_ids"])
@@ -194,6 +206,25 @@ class ClosedLoopCMDPController:
             self.estimates[sid] = (self.estimator.update(previous, incoming.get(sid, ()), actions,
                 as_of_month=month, registry=records) if previous else
                 self.estimator.initialize(sid, incoming.get(sid, ()), registry=records, as_of_month=month))
+            update = self.estimator.updates[-1]
+            newly_assimilated[sid] = (set(update.accepted_observations)
+                                     & set(update.assimilated_condition_evidence_ids))
+        if month <= self.environment.config.horizon:
+            admitted = {sid for d in history if d["month"] < month for sid in d["admitted_ids"]}
+            eligible = {r.student_id for r in current_registry
+                        if r.available_from_month <= month and r.enrolled} - admitted
+            injected_ids = {eid for a in self.extraction_attempts
+                            if a["route"] == "injected" and a["as_of_month"] == month
+                            for eid in a["evidence_ids"]}
+            new_usable = {sid for sid in eligible if newly_assimilated.get(sid, set()) & injected_ids}
+            usable = {sid for sid in eligible if self.estimates[sid].last_observation_month is not None}
+            # Freeze pre-allocation eligibility; repeated processing of the same
+            # cutoff cannot erase or double-count its historical evidence.
+            record = self._cutoff_evidence.setdefault(month, {
+                "eligible": eligible, "previously_usable": eligible & previously_usable,
+                "usable": set(), "new_usable": set()})
+            record["usable"] = usable
+            record["new_usable"].update(new_usable)
         return current_registry
 
     def prepare_decision_snapshot(self, month):
@@ -220,25 +251,43 @@ class ClosedLoopCMDPController:
                     and (month is None or a["as_of_month"] == month)]
         selections = [s for s in self.note_selection if s["selected"]
                       and (month is None or s["cutoff"] == month)]
-        eligible = {r.student_id for r in self.registry
-                    if r.event_month == (month or len(self.environment.records) + 1) - 1 and r.enrolled}
-        admitted = {sid for d in self.decisions if month is None or d["month"] < month
-                    for sid in d["admitted_ids"]}
-        usable = {sid for sid, e in self.estimates.items() if sid in eligible - admitted
-                  and e.last_observation_month is not None}
-        new_ids = {eid for a in attempts if a["note_type"] == "monitoring" for eid in a["evidence_ids"]}
-        new_usable = {sid for sid, e in self.estimates.items() if sid in eligible - admitted
-            and any(f.evidence_id in new_ids and f.evidence in SIGNAL_PHRASES.values()
-                    and f not in e.unresolved_observations for f in e.observation_history)}
-        return {"extractor_attempts": len(attempts),
+        if month is None:
+            cutoffs = list(self._cutoff_evidence.values())
+        else:
+            cutoffs = [self._cutoff_evidence[month]] if month in self._cutoff_evidence else []
+        usable = set().union(*(r["usable"] for r in cutoffs))
+        new_usable = set().union(*(r["new_usable"] for r in cutoffs))
+        result = {"extractor_attempts": len(attempts),
             "monitoring_extractor_attempts": sum(a["note_type"] == "monitoring" for a in attempts),
             "actual_model_invocations": sum(a["model_invocations"] for a in attempts),
             "cache_hits": sum(a["cache_hit"] for a in attempts),
             "accepted_extractions": sum(a["status"] == "accepted" for a in attempts),
+            "empty_extractions": sum(a.get("result") == "empty" for a in attempts),
+            "unknown_extractions": sum(a.get("result") == "unknown" for a in attempts),
+            "conflicting_extractions": sum(a.get("result") == "conflicting" for a in attempts),
             "quarantined_extractions": sum(a["status"] == "quarantined" for a in attempts),
             "selected_notes": len(selections),
             "eligible_students_with_usable_evidence": len(usable),
             "eligible_students_with_new_usable_evidence": len(new_usable)}
+        if month is not None:
+            result.update(eligible_students=sum(len(r["eligible"]) for r in cutoffs),
+                eligible_students_with_previously_usable_evidence=sum(len(r["previously_usable"]) for r in cutoffs),
+                new_usable_student_ids=tuple(sorted(new_usable)))
+        else:
+            result.update(historical_students_with_usable_injected_evidence=len(new_usable),
+                historical_student_cutoff_pairs_with_new_usable_evidence=sum(len(r["new_usable"]) for r in cutoffs),
+                # An opportunity is a selected injected attempt for an eligible
+                # student at a real decision cutoff, including failed attempts.
+                actionable_extraction_opportunities=sum(
+                    a["student_id"] in self._cutoff_evidence.get(a["as_of_month"], {}).get("eligible", ())
+                    for a in attempts))
+            if self.environment.done:
+                admitted = {sid for d in self.decisions for sid in d["admitted_ids"]}
+                enrolled = {r.student_id for r in self.registry
+                            if r.event_month == self.environment.config.horizon and r.enrolled}
+                result.update(final_students_eligible=len(enrolled - admitted),
+                    final_students_previously_admitted=len(admitted), final_students_enrolled=len(enrolled))
+        return result
 
     def run_episode(self):
         if not self._initialized:
