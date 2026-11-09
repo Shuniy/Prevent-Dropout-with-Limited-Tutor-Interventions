@@ -41,6 +41,12 @@ The [Phase 3 experimental correctness report](docs/phase3_experimental_correctne
 documents shared baseline information, exact versioned replay, fairness configuration,
 free-service controls and immutable experiment amendments. Its bounded offline
 verification is available through `python scripts/verify_phase3.py --output results/phase3_new_run`.
+The [Phase 4 delivery and offer-fairness report](docs/phase4_delivery_and_fairness.md)
+documents the separate weekly lifecycle, multi-week commitments, four-week unique
+offers, delivery-driven effects and exact weekly replay. Its
+[versioned weekly protocol](docs/phase4_delivery_protocol_v1.md) and
+[configuration](configs/delivery_weekly_v1.toml) are synthetic assumptions.
+Old configurations continue to select the atomic monthly benchmark.
 
 Check current implemented behavior against `src/`, `configs/` and `tests/`.
 Code and passing tests establish tested behavior, not scientific correctness.
@@ -77,6 +83,14 @@ python -m pip install --no-deps -e .
 The requirements include dependencies for preserved research notebooks.
 
 ```bash
+# Offline weekly delivery demonstration and exact replays, in a new output path:
+python -m src.main --runner delivery --weeks 12 --output results/delivery/my_run
+# Equivalent dedicated entrypoint:
+python -m src.school.delivery_experiments --output results/delivery/another_run
+# Replay a saved weekly policy episode without a live LLM:
+python -m src.school.delivery_experiments --replay results/delivery/my_run/fair_point \
+  --output results/delivery/fair_point_replay
+
 # Full comparison with real LLM extraction (requires a running Ollama model):
 python -m src.main --extractor ollama --output results/comparison/my_run
 

@@ -12,6 +12,22 @@ if __package__ in (None, ""):
 
 def run_cmdp_experiments(args):
     """Translate CLI choices into explicit school experiment dependencies."""
+    if args.runner == 'delivery':
+        from src.school.delivery_config import DeliveryConfig
+        from src.school.delivery_experiments import run_demonstration
+        if args.months is not None or args.capacity is not None:
+            raise ValueError('weekly delivery requires --weeks and explicit weekly calendar settings, not monthly units')
+        config = DeliveryConfig.load(args.config or Path(__file__).resolve().parents[1] / 'configs/delivery_weekly_v1.toml')
+        fields = {'students':'num_students', 'mentors':'num_mentors', 'weeks':'horizon_weeks',
+                  'sessions':'sessions_required', 'budget':'budget', 'seed':'seed', 'effect_strength':'effect_strength'}
+        config = replace(config, **{field:getattr(args, key) for key,field in fields.items()
+                                   if getattr(args, key) is not None})
+        if args.output is None:
+            raise ValueError('weekly delivery demonstration requires a new --output directory')
+        run_demonstration(config, args.output)
+        return args.output
+    if getattr(args, 'weeks', None) is not None:
+        raise ValueError('--weeks requires --runner delivery; monthly runners use --months')
     if args.runner == "comparison":
         from src.school.simulation_comparison import run_comparison
 
@@ -52,8 +68,8 @@ def run_cmdp_experiments(args):
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run synthetic CMDP experiments.")
-    parser.add_argument("--runner", choices=("comparison", "baselines"), default="comparison",
-                        help="Compare all simulations (default), or run the legacy baseline sweep")
+    parser.add_argument("--runner", choices=("comparison", "baselines", "delivery"), default="comparison",
+                        help="Monthly comparison (default), legacy baselines, or offline weekly delivery demonstration")
     parser.add_argument("--extractor", choices=("fixture", "ollama"), default="ollama")
     parser.add_argument("--model", default="qwen3.5:latest")
     parser.add_argument("--timeout", type=int, default=120)
@@ -71,6 +87,7 @@ def main() -> None:
     parser.add_argument("--students", type=int)
     parser.add_argument("--mentors", type=int)
     parser.add_argument("--months", type=int, help="CMDP simulation horizon in months")
+    parser.add_argument('--weeks', type=int, help='Weekly delivery horizon (requires --runner delivery)')
     parser.add_argument("--sessions", type=int, help="Total planned appointments per student")
     parser.add_argument("--capacity", type=int, help="Maximum monthly programme admissions")
     parser.add_argument("--budget", type=float)

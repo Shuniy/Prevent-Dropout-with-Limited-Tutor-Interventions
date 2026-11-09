@@ -56,6 +56,8 @@ class CMDPEnvironment:
     """
 
     def __init__(self, students, mentors, config, *, wait_matrix=None, treatment_matrix=None):
+        if getattr(config, 'world_mode', 'atomic_monthly') != 'atomic_monthly':
+            raise ValueError('CMDPEnvironment requires atomic_monthly; use WeeklyDeliveryEnvironment for weekly delivery')
         self.config = config
         students = deepcopy(list(students))
         self._mentors = deepcopy(list(mentors))

@@ -33,7 +33,10 @@ class EstimateUpdate:
 
 class StudentStateEstimator:
     def __init__(self, *, observation_config=ObservationConfig(), wait_matrix=P_WAIT,
-                 treatment_matrix=None, prior=(1/3, 1/3, 1/3, 0)):
+                 treatment_matrix=None, prior=(1/3, 1/3, 1/3, 0), action_contract='atomic_monthly'):
+        if action_contract not in ('atomic_monthly', 'weekly_delivered_v1'):
+            raise ValueError('unknown estimator action contract')
+        self.action_contract = action_contract
         self.prior = validate_belief(prior)
         self.wait = validate_matrix(wait_matrix)
         self.programme = validate_matrix(programme_matrix() if treatment_matrix is None else treatment_matrix)
@@ -43,11 +46,15 @@ class StudentStateEstimator:
 
     @property
     def configuration(self):
-        return {"prior": self.prior, "wait_matrix": self.wait.tolist(),
+        result = {"prior": self.prior, "wait_matrix": self.wait.tolist(),
                 "programme_matrix": self.programme.tolist(),
                 "observation_config": asdict(self.observation_config),
                 "registry_model": "exact_administrative_enrollment",
                 "correlation_rule": "one_signal_per_event_conflicts_quarantined"}
+        # Preserve the exact legacy configuration identity and replay hashes.
+        if self.action_contract != 'atomic_monthly':
+            result['action_contract'] = self.action_contract
+        return result
 
     def initialize(self, student_id, initial_observations=(), *, registry=(), as_of_month=1):
         return self._update(student_id, None, initial_observations, (), as_of_month, registry)
@@ -63,7 +70,9 @@ class StudentStateEstimator:
         if type(cutoff) is not int or cutoff < 1:
             raise ValueError("decision cutoff must be a positive month")
         actions = tuple(actions)
-        if (len(actions) > 1 or any(type(m) is not int or not 1 <= m < cutoff for m in actions)
+        if ((self.action_contract == 'atomic_monthly' and len(actions) > 1)
+                or len(actions) != len(set(actions))
+                or any(type(m) is not int or not 1 <= m < cutoff for m in actions)
                 or (previous and not set(previous.known_actions) <= set(actions))):
             raise ValueError("known admission history must preserve the single past programme")
         history = {f.evidence_id: f for f in previous.observation_history} if previous else {}

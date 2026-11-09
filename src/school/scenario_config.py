@@ -32,6 +32,14 @@ class ScenarioConfig:
     planner_time_limit: float = 10.0
     planner_failure_mode: str = "raise"
 
+    @property
+    def world_mode(self):
+        return 'atomic_monthly'
+
+    @property
+    def time_unit(self):
+        return 'month'
+
     def __post_init__(self):
         for name in (
             "num_students",
