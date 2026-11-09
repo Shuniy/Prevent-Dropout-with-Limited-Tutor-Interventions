@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 from src.school.delivery_config import DeliveryConfig, load_world_config
-from src.school.delivery_contracts import DeliveryAction, SupportOffer, WeeklyNote
+from src.school.delivery_contracts import DeliveryAction, SupportOffer
 from src.school.delivery_controller import WeeklyFeedbackController
 from src.school.delivery_experiments import save_delivery_episode, replay_delivery_episode, normalized, scorecard
 from src.school.delivery_fairness import offer_fairness_rows
@@ -278,14 +278,17 @@ class ScientificTests(unittest.TestCase):
     def test_delayed_note_cannot_rewrite_earlier_snapshot(self):
         env = world()
         c = WeeklyFeedbackController(env, WeeklyDeliveryPolicy(env.config, 'wait'))
+        note = next(n for n in c.notes if n.student_id == 's0' and n.source_week == 0)
+        c.notes.remove(note)
         c.run_week()
         previous = c.snapshots[0]
-        c.notes.append(WeeklyNote('delayed', 's0', 0, 3,
-            'The school reports low participation in recent activities.', ('delayed-event',)))
+        c.notes.append(replace(note, note_id='delayed', available_week=3,
+            text='The school reports low participation in recent activities.'))
         c.run_week()
         self.assertNotIn('delayed', c.processed)
         c.run_week()
         self.assertIn('delayed', c.processed)
+        self.assertEqual(next(a['status'] for a in c.attempts if a['note_id'] == 'delayed'), 'accepted')
         self.assertEqual(c.snapshots[0], previous)
 
     def test_estimate_and_risk_versions_match_and_snapshot_has_no_future_draws(self):

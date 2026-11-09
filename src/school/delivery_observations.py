@@ -85,7 +85,7 @@ def render_mentor_note(event, *, seed, quality):
 
 
 def validate_note_source(note, environment, cutoff, batch=None):
-    """Bind programme prose to public source records, never evaluator truth.
+    """Bind note prose to public source records, never evaluator truth.
 
     Delayed copies may arrive later but cannot change source time or identity.
     Lifecycle records can attest delivery workflow, never educational condition.
@@ -119,5 +119,16 @@ def validate_note_source(note, environment, cutoff, batch=None):
             raise ValueError('programme note source provenance mismatch')
         if batch is not None and any(f.field != 'mentoring_support' for f in batch.facts):
             raise ValueError('operational event cannot attest an educational condition')
-    elif batch is not None and any(f.evidence in MENTOR_SIGNAL_PHRASES.values() for f in batch.facts):
-        raise ValueError('mentor condition prose requires delivered-session provenance')
+    else:
+        observation = next((e for e in environment.emitted_signals if e.event_id == source_id), None)
+        if (observation is None
+                or (note.student_id, note.source_week) !=
+                   (observation.student_id, observation.event_month)
+                or observation.available_from_month > cutoff
+                or note.available_week < observation.available_from_month
+                or note.available_week > cutoff
+                or any(value is not None for value in (note.mentor_id, note.programme_id,
+                    note.session_id, note.delivery_event_id, note.observation_contract))):
+            raise ValueError('school monitoring note source provenance mismatch')
+        if batch is not None and any(f.evidence in MENTOR_SIGNAL_PHRASES.values() for f in batch.facts):
+            raise ValueError('mentor condition prose requires delivered-session provenance')

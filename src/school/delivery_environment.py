@@ -181,6 +181,7 @@ class WeeklyDeliveryEnvironment:
         Without estimates, a persistent fixture-extraction controller prepares
         the direct-simulation decision using the same evidence/filter path.
         step() uses this adapter if this cutoff has not already been prepared.
+        A prepared cutoff is immutable; equivalent inputs reuse its state.
         """
         if estimates is None and risks is None:
             if self._prepared_state is not None and self._prepared_state.week == self.week:
@@ -195,6 +196,13 @@ class WeeklyDeliveryEnvironment:
                 or {e.student_id for e in estimates} != {p.student_id for p in self.profiles}
                 or {r.student_id for r in risks} != {p.student_id for p in self.profiles}):
             raise ValueError('decision preparation requires complete authorized estimates and risks')
+        if self._prepared_state is not None and self._prepared_state.week == self.week:
+            if ({e.student_id: e for e in estimates} !=
+                    {s.student_id: s.estimate for s in self._prepared_state.students}
+                    or {r.student_id: r for r in risks} !=
+                    {s.student_id: s.risk for s in self._prepared_state.students}):
+                raise ValueError('decision cutoff already prepared with different estimates or risks')
+            return self._prepared_state
         state = self.observe(estimates=estimates, risks=risks)
         _, _, events = self.authorized_observations(self.week)
         # Finalize the preceding window's last-week offers before advancing.

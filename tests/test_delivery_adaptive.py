@@ -1,5 +1,6 @@
 """Phase 4.1 regressions, with independent finite-instance checks."""
 from dataclasses import replace
+from copy import deepcopy
 import unittest
 
 from test_delivery_lifecycle import world
@@ -144,7 +145,8 @@ class InformationQualityTests(unittest.TestCase):
     def controller(self):
         env = world()
         c = WeeklyFeedbackController(env,WeeklyDeliveryPolicy(env.config,'wait'))
-        c.notes = [WeeklyNote('base','s0',0,1,LOW,('source0',))]
+        c.notes = [replace(next(n for n in c.notes if n.student_id == 's0' and n.source_week == 0),
+                           note_id='base', text=LOW)]
         return c
 
     def test_fresh_stale_missing_and_clipping_rule(self):
@@ -179,9 +181,10 @@ class InformationQualityTests(unittest.TestCase):
     def test_conflicting_evidence_neither_refreshes_nor_shrinks(self):
         c = self.controller()
         c.run_week()
+        note = next(n for n in c.notes if n.student_id == 's0' and n.source_week == 1)
         c.notes = [n for n in c.notes if n.source_week == 0]
-        baseline = c.prepare_decision_snapshot()
-        c.notes.append(WeeklyNote('conflict','s0',1,2,REGULAR+' '+LOW,('conflict1',)))
+        baseline = deepcopy(c).prepare_decision_snapshot()
+        c.notes.append(replace(note, note_id='conflict', text=REGULAR+' '+LOW))
         after = c.prepare_decision_snapshot()
         self.assertEqual(after.students[0].estimate.last_observation_week,0)
         self.assertEqual(after.students[0].estimate.condition_probabilities,baseline.students[0].estimate.condition_probabilities)
@@ -192,12 +195,13 @@ class InformationQualityTests(unittest.TestCase):
     def test_quarantine_does_not_manufacture_condition_measurement(self):
         c = self.controller()
         c.run_week()
+        note = next(n for n in c.notes if n.student_id == 's0' and n.source_week == 1)
         c.notes = [n for n in c.notes if n.source_week == 0]
         class Reject:
             def extract(self,*args):
                 raise ValueError('invalid assertion')
         c.extractor = Reject()
-        c.notes.append(WeeklyNote('rejected','s0',1,2,REGULAR,('new1',)))
+        c.notes.append(replace(note, note_id='rejected', text=REGULAR))
         state = c.prepare_decision_snapshot()
         u = weekly_uncertainty_sets(state)[0]
         self.assertEqual(u.latest_assimilated_source_week,0)
@@ -227,7 +231,8 @@ class InformationQualityTests(unittest.TestCase):
         c = self.controller()
         c.notes[0] = replace(c.notes[0],text=REGULAR+' '+LOW)
         c.run_week()
-        c.notes = [c.notes[0],WeeklyNote('fresh','s0',1,2,LOW,('source1',))]
+        note = next(n for n in c.notes if n.student_id == 's0' and n.source_week == 1)
+        c.notes = [c.notes[0], replace(note, note_id='fresh', text=LOW)]
         u = weekly_uncertainty_sets(c.prepare_decision_snapshot())[0]
         self.assertFalse(u.conflict)
         self.assertEqual(u.latest_assimilated_source_week,1)

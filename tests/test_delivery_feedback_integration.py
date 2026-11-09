@@ -14,7 +14,7 @@ from src.school.delivery_policy import WeeklyDeliveryPolicy
 from src.school.delivery_feedback_acceptance import mentor_boundary_episode
 from src.school.delivery_experiments import normalized, episode_payload, scorecard, synthetic_environment
 from src.school.delivery_config import DeliveryConfig, WEEKLY_WAIT_V1, WEEKLY_TUTORING_V1
-from src.school.delivery_observations import MentorSessionObservationModel
+from src.school.delivery_observations import MentorSessionObservationModel, validate_note_source
 from src.school.observation_model import ObservationConfig
 from src.school.delivery_uncertainty import weekly_uncertainty_sets
 from src.school.delivery_resources import audit_delivery_events, validate_offers
@@ -22,7 +22,7 @@ from src.school.delivery_fairness import freeze_offer_window
 from src.school.student_condition import StudentCondition
 from src.intervention.feedback_notes import MENTOR_SIGNAL_PHRASES
 from src.intervention.observation_extractor import FixtureObservationExtractor
-from src.school.delivery_acceptance import VAGUE
+from src.school.delivery_acceptance import LOW, REGULAR, VAGUE
 
 
 COMPLETE = ObservationConfig(missing_probability=0, delay_probability=0)
@@ -79,6 +79,117 @@ class IntegrationDefectReproductions(unittest.TestCase):
         sa, sb = ca.prepare_decision_snapshot(), cb.prepare_decision_snapshot()
         self.assertEqual(sa, sb)
         self.assertEqual(a.windows, b.windows)
+
+
+class SchoolNoteProvenanceTests(unittest.TestCase):
+    def controller(self, observation_config=COMPLETE):
+        env = world(observation_config=observation_config)
+        return WeeklyFeedbackController(env, WeeklyDeliveryPolicy(env.config, 'wait'))
+
+    def test_registered_school_note_is_accepted(self):
+        c = self.controller()
+        note = c.notes[0]
+        c.notes = [note]
+        state = c.prepare_decision_snapshot()
+        self.assertEqual(c.attempts[0]['status'], 'accepted')
+        self.assertTrue(c.batches[0].facts)
+        self.assertEqual(state.students[0].estimate.last_observation_week, 0)
+        self.assertTrue(set(f.evidence_id for f in c.batches[0].facts)
+                        <= set(state.students[0].estimate.evidence_ids))
+
+    def test_unknown_school_source_is_quarantined_without_changing_posterior(self):
+        baseline, c = self.controller(), self.controller()
+        baseline.notes = []
+        c.notes = [replace(c.notes[0], source_event_ids=('unregistered-school-event',))]
+        expected, actual = baseline.prepare_decision_snapshot(), c.prepare_decision_snapshot()
+        self.assertEqual(c.attempts[0]['status'], 'quarantined')
+        self.assertFalse(c.batches)
+        for a, b in zip(expected.students, actual.students):
+            self.assertEqual(a.estimate.condition_probabilities, b.estimate.condition_probabilities)
+            self.assertEqual(a.estimate.estimate_id, b.estimate.estimate_id)
+            self.assertEqual(a.estimate.evidence_ids, b.estimate.evidence_ids)
+
+    def test_wrong_school_student_or_source_week_is_quarantined(self):
+        for changes in ({'student_id': 's1'}, {'source_week': 0}):
+            with self.subTest(changes=changes):
+                c = self.controller()
+                c.run_week()
+                note = next(n for n in c.notes if n.student_id == 's0' and n.source_week == 1)
+                c.notes = [replace(note, **changes)]
+                c.prepare_decision_snapshot()
+                self.assertEqual(c.attempts[-1]['status'], 'quarantined')
+                self.assertFalse(any(b.note_id == note.note_id for b in c.batches))
+
+    def test_premature_school_availability_is_quarantined(self):
+        for cutoff in (1, 3):
+            with self.subTest(cutoff=cutoff):
+                c = self.controller(replace(COMPLETE, delay_probability=1, delay_months=2))
+                note = replace(c.notes[0], available_week=1)
+                while c.environment.week < cutoff:
+                    c.run_week()
+                c.notes = [note]
+                state = c.prepare_decision_snapshot()
+                self.assertEqual(c.attempts[-1]['status'], 'quarantined')
+                self.assertIsNone(state.students[0].estimate.last_observation_week)
+
+    def test_school_note_itself_must_be_available_at_cutoff(self):
+        c = self.controller()
+        with self.assertRaisesRegex(ValueError, 'school.*provenance'):
+            validate_note_source(replace(c.notes[0], available_week=2), c.environment, 1)
+
+    def test_delayed_registered_school_note_is_accepted_at_correct_cutoff(self):
+        for observation_delay in (False, True):
+            with self.subTest(observation_delay=observation_delay):
+                obs = replace(COMPLETE, delay_probability=int(observation_delay), delay_months=2)
+                c = self.controller(obs)
+                note = replace(c.notes[0], available_week=3)
+                c.notes = [note]
+                c.run_week()
+                first = c.snapshots[0]
+                c.notes = [note]
+                c.run_week()
+                self.assertNotIn(note.note_id, c.processed)
+                c.notes = [note]
+                state = c.prepare_decision_snapshot()
+                self.assertEqual(c.attempts[-1]['status'], 'accepted')
+                self.assertEqual(state.students[0].estimate.last_observation_week, 0)
+                self.assertEqual(c.snapshots[0], first)
+                self.assertTrue(c.batches[-1].facts)
+
+    def test_school_notes_cannot_claim_mentor_or_programme_contract_fields(self):
+        for changes in ({'mentor_id': 'm0', 'programme_id': 'fake'},
+                        {'mentor_id': '', 'programme_id': ''},
+                        {'delivery_event_id': 'fake'}, {'delivery_event_id': ''},
+                        {'observation_contract': 'fake'}, {'observation_contract': ''},
+                        {'mentor_id': 'm0', 'programme_id': 'fake', 'session_id': 'fake',
+                         'delivery_event_id': 'fake', 'observation_contract': 'fake'}):
+            with self.subTest(changes=changes):
+                c = self.controller()
+                c.notes = [replace(c.notes[0], **changes)]
+                c.prepare_decision_snapshot()
+                self.assertEqual(c.attempts[0]['status'], 'quarantined')
+                self.assertFalse(c.batches)
+
+    def test_school_note_cannot_reference_other_event_types(self):
+        for source_kind in ('mentor', 'delivery'):
+            with self.subTest(source_kind=source_kind):
+                c = delivered_controller()
+                school = next(n for n in c.notes if n.source_week == 1 and not n.programme_id)
+                source = (c.environment.emitted_mentor_signals[0].event_id if source_kind == 'mentor'
+                          else next(e.event_id for e in c.environment.events if e.kind == 'session_delivered'))
+                c.notes = [replace(school, source_event_ids=(source,))]
+                c.prepare_decision_snapshot()
+                self.assertEqual(c.attempts[-1]['status'], 'quarantined')
+
+    def test_registered_school_provenance_allows_controlled_text_changes(self):
+        states = []
+        for text in (LOW, REGULAR):
+            c = self.controller()
+            c.notes = [replace(c.notes[0], text=text)]
+            states.append(c.prepare_decision_snapshot())
+            self.assertEqual(c.attempts[0]['status'], 'accepted')
+        self.assertNotEqual(states[0].students[0].estimate.condition_probabilities,
+                            states[1].students[0].estimate.condition_probabilities)
 
 
 class MentorFeedbackTests(unittest.TestCase):
@@ -196,6 +307,10 @@ class MentorFeedbackTests(unittest.TestCase):
         self.assertFalse(u.newly_assimilated_evidence_ids)
 
     def test_forged_student_mentor_programme_session_and_source_are_quarantined(self):
+        baseline_controller = delivered_controller()
+        baseline_note = isolate_mentor(baseline_controller)
+        baseline_controller.notes.remove(baseline_note)
+        baseline = baseline_controller.prepare_decision_snapshot()
         for field, value in (('student_id', 's1'), ('mentor_id', 'fake'), ('programme_id', 'fake'),
                 ('session_id', 'fake'), ('delivery_event_id', 'fake'), ('source_event_ids', ('fake',)),
                 ('source_week', 0), ('observation_contract', 'fake')):
@@ -203,7 +318,6 @@ class MentorFeedbackTests(unittest.TestCase):
                 c = delivered_controller()
                 note = isolate_mentor(c)
                 c.notes = [n for n in c.notes if n != note]
-                baseline = c.prepare_decision_snapshot()
                 c.notes.append(replace(note, **{field: value}))
                 state = c.prepare_decision_snapshot()
                 self.assertEqual([s.estimate.condition_probabilities for s in baseline.students],
@@ -355,6 +469,83 @@ class MentorFeedbackTests(unittest.TestCase):
 
 
 class FairnessDeterminismTests(unittest.TestCase):
+    def prepared_at(self, week):
+        env = synthetic_environment(DeliveryConfig(num_students=3, num_mentors=1, horizon_weeks=9))
+        while env.week < week:
+            env.step(DeliveryAction())
+        return env, env.prepare_decision()
+
+    def test_equivalent_preparation_returns_authoritative_state_without_mutation(self):
+        for week in (1, 5, 9, 10):
+            with self.subTest(week=week):
+                env, state = self.prepared_at(week)
+                before = pickle.dumps(env.__dict__)
+                # Collection order and equal reconstructed records are immaterial.
+                again = env.prepare_decision(
+                    estimates=tuple(replace(s.estimate) for s in reversed(state.students)),
+                    risks=tuple(replace(s.risk) for s in reversed(state.students)))
+                self.assertIs(again, state)
+                self.assertIs(env.prepare_decision(), state)
+                self.assertIs(env.observe(), state)
+                self.assertEqual(before, pickle.dumps(env.__dict__))
+
+    def test_conflicting_estimates_are_rejected_before_any_environment_mutation(self):
+        for week in (1, 5, 9):
+            env, state = self.prepared_at(week)
+            estimates = tuple(s.estimate for s in state.students)
+            risks = tuple(s.risk for s in state.students)
+            changes = ({'condition_probabilities': (.1, .2, .7, 0.)},
+                       {'estimate_id': 'different-estimate'}, {'evidence_ids': ('different-evidence',)},
+                       {'as_of_week': week + 1},
+                       {'last_observation_week': None if estimates[0].last_observation_week is not None else 0},
+                       {'uncertainty': (('entropy_nats', 0.),)})
+            for change in changes:
+                with self.subTest(week=week, change=change):
+                    changed = replace(estimates[0], **change)
+                    self.assertNotEqual(changed, estimates[0])
+                    changed_risks = (replace(risks[0], input_estimate_id=changed.estimate_id), *risks[1:])
+                    before = pickle.dumps(env.__dict__)
+                    with self.assertRaisesRegex(ValueError, 'cutoff already prepared with different estimates or risks'):
+                        env.prepare_decision(estimates=(changed, *estimates[1:]), risks=changed_risks)
+                    self.assertIs(env.observe(), state)
+                    self.assertEqual(before, pickle.dumps(env.__dict__))
+            self.assertEqual(env.window_initializations[-1].students, state.students)
+            self.assertEqual(env.windows[-1], freeze_offer_window(state, env.config))
+
+    def test_conflicting_risks_are_rejected_before_any_environment_mutation(self):
+        for week in (1, 5, 9):
+            env, state = self.prepared_at(week)
+            estimates = tuple(s.estimate for s in state.students)
+            risks = tuple(s.risk for s in state.students)
+            for change in ({'probability': 1. - risks[0].probability},
+                           {'input_estimate_id': 'different-estimate'}, {'as_of_week': week + 1},
+                           {'weeks_remaining': risks[0].weeks_remaining + 1},
+                           {'reference_policy': 'different-reference-policy'}):
+                with self.subTest(week=week, change=change):
+                    before = pickle.dumps(env.__dict__)
+                    with self.assertRaisesRegex(ValueError, 'cutoff already prepared with different estimates or risks'):
+                        env.prepare_decision(estimates=estimates,
+                            risks=(replace(risks[0], **change), *risks[1:]))
+                    self.assertIs(env.observe(), state)
+                    self.assertEqual(before, pickle.dumps(env.__dict__))
+
+    def test_invalid_first_preparation_does_not_freeze_or_advance_windows(self):
+        env = synthetic_environment(DeliveryConfig(num_students=3, num_mentors=1, horizon_weeks=9))
+        for week in (1, 5, 9):
+            while env.week < week:
+                env.step(DeliveryAction())
+            state = env.observe()
+            estimates = tuple(s.estimate for s in state.students)
+            risks = tuple(s.risk for s in state.students)
+            before = pickle.dumps(env.__dict__)
+            with self.assertRaisesRegex(ValueError, 'stale or mismatched'):
+                env.prepare_decision(estimates=estimates,
+                    risks=(replace(risks[0], input_estimate_id='stale'), *risks[1:]))
+            self.assertEqual(before, pickle.dumps(env.__dict__))
+            prepared = env.prepare_decision(estimates=estimates, risks=risks)
+            self.assertTrue(prepared.decision_prepared)
+            self.assertEqual(env.windows[-1], freeze_offer_window(prepared, env.config))
+
     def test_real_executions_with_extra_reads_cross_week_four_to_five(self):
         for seed in (41, 42):
             for mode in ('fair_point', 'fair_robust'):
