@@ -12,16 +12,17 @@ from .delivery_config import DeliveryConfig
 from .delivery_contracts import (DeliveryAction, DeliveryEvent, OfferWindow, Programme,
     ScheduledSession, StudentProfile, WeeklyDecisionState, WeeklyEstimate, WeeklyRisk, WeeklyStudent)
 from .delivery_fairness import freeze_offer_window, update_offer_window
+from .delivery_forecasts import committed_support_risk
 from .delivery_resources import audit_delivery_events, mentor_contracts, validate_offers
 from .money import amount
-from .observation_model import SyntheticObservationModel
+from .observation_model import SyntheticObservationModel, ObservationConfig
 from .student_condition import STATES, StudentCondition
 from .transition_model import keyed_uniform, sample_condition, validate_matrix
 from ..evaluation.provenance import digest
 
 
 class WeeklyDeliveryEnvironment:
-    def __init__(self, profiles, mentors, config, *, initial_conditions):
+    def __init__(self, profiles, mentors, config, *, initial_conditions, observation_config=ObservationConfig()):
         if not isinstance(config, DeliveryConfig):
             raise ValueError('weekly environment requires DeliveryConfig')
         self.config = config
@@ -46,7 +47,8 @@ class WeeklyDeliveryEnvironment:
         self._observations, self._registry = [], []
         self._window = None
         self._windows = []
-        self._observation_model = SyntheticObservationModel()
+        self.observation_config = observation_config
+        self._observation_model = SyntheticObservationModel(observation_config)
         self.exogenous_draws, self.evaluator_truth, self.records = [], [], []
         self._emit_observations(0)
         self.evaluator_truth.append((0, tuple(self._conditions.items())))
@@ -130,7 +132,8 @@ class WeeklyDeliveryEnvironment:
             # repeat offers in one four-week window still count only once.
             eligible = enrolled[sid] and not any(p.status != 'REFUSED' for p in known)
             students.append(WeeklyStudent(profile, enrolled[sid], estimate, risk, eligible,
-                cutoff - 1 if eligible else 0, prior_offers, known))
+                cutoff - 1 if eligible else 0, prior_offers, known,
+                committed_support_risk(self.config, estimate, known)))
         placeholder = self._window or OfferWindow(1, min(4, self.config.horizon_weeks), ())
         state = WeeklyDecisionState(cutoff, max(0, self.config.horizon_weeks-cutoff+1),
             tuple(students), self.mentors, self.ledger, placeholder, tuple(e.event_id for e in events))

@@ -16,6 +16,9 @@ from .fairness_audit import required_access
 from .fairness_planner import feasible_vector
 from .money import amount, integer_costs
 from .optimization import solve_milp
+from .delivery_forecasts import terminal_operator
+from .delivery_uncertainty import weekly_uncertainty_sets, weekly_belief_scenarios, weekly_scenario_values
+from .delivery_reassessment import reassess_programmes
 
 
 def delivery_rollout_marginals(config, cutoff, start_week):
@@ -26,21 +29,10 @@ def delivery_rollout_marginals(config, cutoff, start_week):
     Cancellation transfers mass from active to inactive before later weeks.
     This preserves acceptance/cancellation correlation across session weeks.
     """
-    wait, treatment = np.asarray(config.weekly_wait_matrix), config.treatment_matrix
-    active = np.eye(4) * config.acceptance_probability
-    inactive = np.eye(4) * (1 - config.acceptance_probability)
-    schedule = config.schedule(start_week)
-    q = config.attendance_probability * config.delivery_probability
-    for week in range(cutoff, config.horizon_weeks + 1):
-        if start_week < week <= schedule[-1]:
-            cancelled = active * config.cancellation_probability
-            active = active - cancelled
-            inactive = inactive + cancelled
-        matrix = (q * treatment + (1-q) * wait) if week in schedule else wait
-        active, inactive = active @ matrix, inactive @ wait
     retained = np.array([1., 1., 1., 0.])
-    baseline = np.linalg.matrix_power(wait, config.horizon_weeks-cutoff+1) @ retained
-    return (active + inactive) @ retained - baseline
+    return (terminal_operator(config, cutoff, config.schedule(start_week),
+                offer_week=start_week, accepted=False)
+            - terminal_operator(config, cutoff)) @ retained
 
 
 def weekly_resource_rows(state, candidates, config):
@@ -78,24 +70,53 @@ def weekly_resource_rows(state, candidates, config):
 class WeeklyDeliveryPolicy:
     MODES = ('wait', 'random', 'priority', 'point', 'fair_point', 'fair_robust')
 
-    def __init__(self, config, mode='fair_point', *, uncertainty_radius=.25):
+    def __init__(self, config, mode='fair_point', *, uncertainty_radius=.25,
+                 continuation_margin=.001, minimum_review_age_weeks=1):
         if mode not in self.MODES:
             raise ValueError('unsupported weekly allocation policy')
         if not math.isfinite(uncertainty_radius) or not 0 <= uncertainty_radius <= 1:
             raise ValueError('weekly uncertainty radius must be within [0,1]')
         self.config, self.mode, self.uncertainty_radius = config, mode, uncertainty_radius
+        if not math.isfinite(continuation_margin) or continuation_margin < 0:
+            raise ValueError('continuation margin must be nonnegative expected retained students')
+        if type(minimum_review_age_weeks) is not int or minimum_review_age_weeks < 1:
+            raise ValueError('minimum review age must be positive weeks')
+        self.continuation_margin, self.minimum_review_age_weeks = continuation_margin, minimum_review_age_weeks
+        self.last_uncertainty_sets, self.last_scenarios = (), ()
+        self.last_scenario_values = np.empty((0, 0))
 
     @property
     def configuration(self):
-        return dict(contract='scheduled_weekly/policy/v1', mode=self.mode,
+        return dict(contract='scheduled_weekly/policy/v2', mode=self.mode,
             uncertainty_radius=self.uncertainty_radius,
             valuation='expected_weekly_delivery_rollout_v1',
-            robust_scenarios='nominal_and_global_enrolled_low_high_marginal_mixtures',
+            robust_scenarios='nominal_and_one_documentation_subset_shift_at_a_time/v1',
+            uncertainty_rule='monthly_freshness_mixture_adapted_to_weeks/v1',
+            continuation_margin=self.continuation_margin, minimum_review_age_weeks=self.minimum_review_age_weeks,
+            continuation_rule='evidence_gated_capacity_opportunity/v1',
             fairness_objective='equal_cell_sum_shortfall_over_frozen_denominator',
             optimization_scope='deterministic_start_schedule_approximation')
 
     def plan(self, state):
         state.validate_estimates()
+        self.last_uncertainty_sets = weekly_uncertainty_sets(state, self.uncertainty_radius)
+        all_scenarios = weekly_belief_scenarios(state, self.last_uncertainty_sets,
+            delivery_rollout_marginals(self.config, state.week, state.week))
+        self.last_scenarios = all_scenarios if self.mode == 'fair_robust' else all_scenarios[:1]
+        self.last_scenario_values = np.empty((len(self.last_scenarios), 0))
+        if self.mode == 'wait':
+            # No new support; accepted obligations (if supplied externally) are
+            # honored. WAIT never actively reallocates an existing programme.
+            return DeliveryAction(status='wait', lexicographic_complete=True,
+                uncertainty_sets=self.last_uncertainty_sets)
+        reviews, cancellations = reassess_programmes(state, self.config, self.last_scenarios,
+            stability_margin=self.continuation_margin, minimum_age_weeks=self.minimum_review_age_weeks)
+        action = replace(self._plan_offers(state), cancel_programme_ids=cancellations,
+            continuation_reviews=reviews, uncertainty_sets=self.last_uncertainty_sets)
+        validate_offers(state, action, self.config)
+        return action
+
+    def _plan_offers(self, state):
         config = self.config
         if self.mode == 'wait':
             return DeliveryAction(status='wait', lexicographic_complete=True)
@@ -150,27 +171,8 @@ class WeeklyDeliveryPolicy:
             rows = np.vstack([rows, row])
             lower = np.append(lower, required_access(config.fairness_target, len(ids)) - len(ids & prior))
             upper = np.append(upper, np.inf)
-        by_id = {s.student_id: s for s in state.students}
-        marginal = {w: delivery_rollout_marginals(config, state.week, w)
-                    for w in {a.start_week for a in candidates}}
-        # One belief per student/scenario, shared across all alternative starts
-        # and mentors. A scenario cannot change a student's state to suit the
-        # candidate being valued. Extremes use the current-start reference gain.
-        reference_gain = delivery_rollout_marginals(config, state.week, state.week)
-        scenarios = []
-        for scenario in ('nominal', 'low', 'high') if robust else ('nominal',):
-            values = []
-            for a in candidates:
-                belief = np.asarray(by_id[a.student_id].estimate.condition_probabilities)
-                gain = marginal[a.start_week]
-                if scenario != 'nominal':
-                    best = int(np.argmin(reference_gain[:3]) if scenario == 'low' else np.argmax(reference_gain[:3]))
-                    extreme = np.zeros(4)
-                    extreme[best], extreme[3] = 1-belief[3], belief[3]
-                    belief = (1-self.uncertainty_radius)*belief + self.uncertainty_radius*extreme
-                values.append(float(belief @ gain))
-            scenarios.append(values)
-        scenario_values = np.asarray(scenarios)
+        scenario_values = weekly_scenario_values(config, state, candidates, self.last_scenarios)
+        self.last_scenario_values = scenario_values
         value_row, cost_row = np.zeros(size), np.zeros(size)
         cost_row[:count] = costs
         variable_lower = np.zeros(size)

@@ -1,0 +1,3679 @@
+{
+  "baseline_revision": "7cf26d07246216573e4c779f3dc8369455bd1436",
+  "contract": "scheduled_weekly/retained_acceptance_evidence/v1",
+  "full_artifacts": "results/phase4_1_acceptance_20261109/acceptance_report.json",
+  "joint_capacity_examples": {
+    "1": {
+      "actual_coverage_shortfall": 3,
+      "actual_unique_offers": 0,
+      "additional_shortfall_beyond_frozen_model": 1,
+      "bound_scope": "min_total_count_shortfall_then_max_unique_coverage_joint_reservation_model",
+      "cohort_witness": [
+        {
+          "actual_unique_offers": 0,
+          "attainable_unique_offers_in_joint_witness": 1,
+          "frozen_eligible_students": 2,
+          "group": "False",
+          "required_unique_offers": 2,
+          "stratum": "uncertain"
+        },
+        {
+          "actual_unique_offers": 0,
+          "attainable_unique_offers_in_joint_witness": 0,
+          "frozen_eligible_students": 1,
+          "group": "True",
+          "required_unique_offers": 1,
+          "stratum": "uncertain"
+        }
+      ],
+      "feasible_candidate_starts": 12,
+      "feasible_new_start_weeks": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "frozen_eligible_students": 3,
+      "guaranteed_realized_coverage": false,
+      "jointly_feasible_witness": [
+        {
+          "mentor_id": "mentor-0",
+          "start_week": 4,
+          "student_id": "fictional-02"
+        }
+      ],
+      "maximum_attainable_coverage_at_minimum_shortfall": 1,
+      "maximum_attainable_unique_offers": 1,
+      "model": "frozen_snapshot_fixed_commitments_no_future_releases_or_withdrawals/v1",
+      "required_unique_offers": 3,
+      "snapshot_cutoff_week": 1,
+      "solver_status": "optimal",
+      "terminal_no_carryover_infeasibility": false,
+      "unavoidable_shortfall_under_frozen_model": 2,
+      "window_end_week": 4,
+      "window_start_week": 1
+    },
+    "2": {
+      "actual_coverage_shortfall": 3,
+      "actual_unique_offers": 0,
+      "additional_shortfall_beyond_frozen_model": 2,
+      "bound_scope": "min_total_count_shortfall_then_max_unique_coverage_joint_reservation_model",
+      "cohort_witness": [
+        {
+          "actual_unique_offers": 0,
+          "attainable_unique_offers_in_joint_witness": 1,
+          "frozen_eligible_students": 2,
+          "group": "False",
+          "required_unique_offers": 2,
+          "stratum": "uncertain"
+        },
+        {
+          "actual_unique_offers": 0,
+          "attainable_unique_offers_in_joint_witness": 1,
+          "frozen_eligible_students": 1,
+          "group": "True",
+          "required_unique_offers": 1,
+          "stratum": "uncertain"
+        }
+      ],
+      "feasible_candidate_starts": 12,
+      "feasible_new_start_weeks": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "frozen_eligible_students": 3,
+      "guaranteed_realized_coverage": false,
+      "jointly_feasible_witness": [
+        {
+          "mentor_id": "mentor-0",
+          "start_week": 3,
+          "student_id": "fictional-02"
+        },
+        {
+          "mentor_id": "mentor-0",
+          "start_week": 4,
+          "student_id": "fictional-01"
+        }
+      ],
+      "maximum_attainable_coverage_at_minimum_shortfall": 2,
+      "maximum_attainable_unique_offers": 2,
+      "model": "frozen_snapshot_fixed_commitments_no_future_releases_or_withdrawals/v1",
+      "required_unique_offers": 3,
+      "snapshot_cutoff_week": 1,
+      "solver_status": "optimal",
+      "terminal_no_carryover_infeasibility": false,
+      "unavoidable_shortfall_under_frozen_model": 1,
+      "window_end_week": 4,
+      "window_start_week": 1
+    },
+    "3": {
+      "actual_coverage_shortfall": 3,
+      "actual_unique_offers": 0,
+      "additional_shortfall_beyond_frozen_model": 3,
+      "bound_scope": "min_total_count_shortfall_then_max_unique_coverage_joint_reservation_model",
+      "cohort_witness": [
+        {
+          "actual_unique_offers": 0,
+          "attainable_unique_offers_in_joint_witness": 2,
+          "frozen_eligible_students": 2,
+          "group": "False",
+          "required_unique_offers": 2,
+          "stratum": "uncertain"
+        },
+        {
+          "actual_unique_offers": 0,
+          "attainable_unique_offers_in_joint_witness": 1,
+          "frozen_eligible_students": 1,
+          "group": "True",
+          "required_unique_offers": 1,
+          "stratum": "uncertain"
+        }
+      ],
+      "feasible_candidate_starts": 12,
+      "feasible_new_start_weeks": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "frozen_eligible_students": 3,
+      "guaranteed_realized_coverage": false,
+      "jointly_feasible_witness": [
+        {
+          "mentor_id": "mentor-0",
+          "start_week": 1,
+          "student_id": "fictional-00"
+        },
+        {
+          "mentor_id": "mentor-0",
+          "start_week": 1,
+          "student_id": "fictional-02"
+        },
+        {
+          "mentor_id": "mentor-0",
+          "start_week": 4,
+          "student_id": "fictional-01"
+        }
+      ],
+      "maximum_attainable_coverage_at_minimum_shortfall": 3,
+      "maximum_attainable_unique_offers": 3,
+      "model": "frozen_snapshot_fixed_commitments_no_future_releases_or_withdrawals/v1",
+      "required_unique_offers": 3,
+      "snapshot_cutoff_week": 1,
+      "solver_status": "optimal",
+      "terminal_no_carryover_infeasibility": false,
+      "unavoidable_shortfall_under_frozen_model": 0,
+      "window_end_week": 4,
+      "window_start_week": 1
+    }
+  },
+  "limitations": [
+    "uncalibrated synthetic transition, observation and uncertainty assumptions",
+    "finite subset scenarios, not full rectangular robust optimization",
+    "frozen resource opportunity and fairness feasibility models",
+    "terminal retention 3/3 in both counterfactual arms",
+    "no statistical or real-world policy superiority claim"
+  ],
+  "matched_counterfactual": {
+    "low": {
+      "action_at_cutoff_2": {
+        "cancel_programme_ids": [],
+        "continuation_reviews": [
+          {
+            "continuation_value": 0.06448595885223354,
+            "cutoff_week": 2,
+            "decision": "continue",
+            "estimate_id": "37019b1c1436aa33a895bf053e315e50cbbc02360be60825112d0926ee810391",
+            "fresh_evidence": true,
+            "opportunity_solver_status": "optimal_empty/optimal",
+            "opportunity_value": 0.07096011937765906,
+            "programme_id": "41:fictional-00:weekly-programme:1",
+            "reason": "continuity_margin_protects_support",
+            "released_liability_if_cancelled": "4.0",
+            "remaining_session_weeks": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "rule": "evidence_gated_capacity_opportunity/v1",
+            "scenario_continuation_gains": [
+              0.06448595885223354
+            ],
+            "stability_margin": 0.01,
+            "student_id": "fictional-00",
+            "units": "expected_terminal_retained_students"
+          }
+        ],
+        "lexicographic_complete": true,
+        "objective": 0.0,
+        "offers": [],
+        "projected_normalized_shortfall": 0,
+        "projected_offers": [],
+        "solver_message": "",
+        "status": "no_candidates",
+        "uncertainty_sets": [
+          {
+            "belief_entropy_nats": 0.7141891535896661,
+            "clipping_applied": false,
+            "conflict": false,
+            "cutoff_week": 2,
+            "documentation_subset": "fresh_documented",
+            "estimate_id": "37019b1c1436aa33a895bf053e315e50cbbc02360be60825112d0926ee810391",
+            "fallback": null,
+            "freshness_weeks": 12,
+            "latest_assimilated_source_week": 1,
+            "missing_previous_interval": false,
+            "newly_assimilated_evidence_ids": [
+              "c4251b7f9b6f03bed01dd95f29977a0e46bc67c57dece303ba3583ef31199910"
+            ],
+            "radius": 0.25,
+            "rejected_condition_observation": false,
+            "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+            "signal_age_weeks": 0,
+            "source": "declared_synthetic_assumption_not_empirically_calibrated",
+            "student_id": "fictional-00"
+          },
+          {
+            "belief_entropy_nats": 0.6786012342017147,
+            "clipping_applied": false,
+            "conflict": false,
+            "cutoff_week": 2,
+            "documentation_subset": "fresh_documented",
+            "estimate_id": "6201ad864347e1d2b96b3b6d0a01145a713abe86982d66fa227210996921f41b",
+            "fallback": null,
+            "freshness_weeks": 12,
+            "latest_assimilated_source_week": 1,
+            "missing_previous_interval": false,
+            "newly_assimilated_evidence_ids": [
+              "eef8fe6c7190c8fe5de3a83cdb1ee7d121fe2cd31d99da406c9d36975391afdc"
+            ],
+            "radius": 0.25,
+            "rejected_condition_observation": false,
+            "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+            "signal_age_weeks": 0,
+            "source": "declared_synthetic_assumption_not_empirically_calibrated",
+            "student_id": "fictional-01"
+          },
+          {
+            "belief_entropy_nats": 0.6786012342017147,
+            "clipping_applied": false,
+            "conflict": false,
+            "cutoff_week": 2,
+            "documentation_subset": "fresh_documented",
+            "estimate_id": "4148b1f8c01a82ac53bdc4e8529b919df5f09773f2685290119bbd80073c127d",
+            "fallback": null,
+            "freshness_weeks": 12,
+            "latest_assimilated_source_week": 1,
+            "missing_previous_interval": false,
+            "newly_assimilated_evidence_ids": [
+              "39b4d15fa1a49b10781fc8a58c3439a0be999269255de24117c139a2a43a3f64"
+            ],
+            "radius": 0.25,
+            "rejected_condition_observation": false,
+            "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+            "signal_age_weeks": 0,
+            "source": "declared_synthetic_assumption_not_empirically_calibrated",
+            "student_id": "fictional-02"
+          }
+        ]
+      },
+      "commitments_after": {
+        "released": "0.0",
+        "reserved": "3.0",
+        "spendable": "5.9",
+        "spent": "2.1"
+      },
+      "committed_support_risk": {
+        "approximation": "joint_active_inactive_expected_weekly_delivery/v1",
+        "as_of_week": 2,
+        "forecast_regime": "continue_accepted_no_new_offers",
+        "input_estimate_id": "37019b1c1436aa33a895bf053e315e50cbbc02360be60825112d0926ee810391",
+        "probability": 0.11766397650188444,
+        "programme_ids": [
+          "41:fictional-00:weekly-programme:1"
+        ],
+        "student_id": "fictional-00",
+        "target": "synthetic_terminal_non_enrollment",
+        "version": 1,
+        "weeks_remaining": 7
+      },
+      "delivered_by_student": {
+        "fictional-00": 2,
+        "fictional-01": 0,
+        "fictional-02": 5
+      },
+      "estimate": {
+        "as_of_week": 2,
+        "condition_probabilities": [
+          0.049527165321520975,
+          0.22236838711891294,
+          0.728104447559566,
+          0.0
+        ],
+        "estimate_id": "37019b1c1436aa33a895bf053e315e50cbbc02360be60825112d0926ee810391",
+        "evidence_ids": [
+          "0b5cd62bacfb7dca4c8b6b12b046e5eb5f5fc1d819be1a0cc47127fcb50f2236",
+          "c4251b7f9b6f03bed01dd95f29977a0e46bc67c57dece303ba3583ef31199910"
+        ],
+        "last_observation_week": 1,
+        "student_id": "fictional-00",
+        "uncertainty": [
+          [
+            "entropy_nats",
+            0.7141891535896661
+          ],
+          [
+            "missing_current_signal",
+            false
+          ],
+          [
+            "unresolved_count",
+            0
+          ],
+          [
+            "likelihoods_empirically_calibrated",
+            false
+          ],
+          [
+            "new_condition_evidence_ids",
+            [
+              "c4251b7f9b6f03bed01dd95f29977a0e46bc67c57dece303ba3583ef31199910"
+            ]
+          ],
+          [
+            "condition_conflict",
+            false
+          ],
+          [
+            "rejected_condition_observation",
+            false
+          ]
+        ]
+      },
+      "fairness_feasibility": [
+        {
+          "actual_coverage_shortfall": 1,
+          "actual_unique_offers": 2,
+          "additional_shortfall_beyond_frozen_model": 0,
+          "bound_scope": "min_total_count_shortfall_then_max_unique_coverage_joint_reservation_model",
+          "cohort_witness": [
+            {
+              "actual_unique_offers": 2,
+              "attainable_unique_offers_in_joint_witness": 1,
+              "frozen_eligible_students": 2,
+              "group": "False",
+              "required_unique_offers": 1,
+              "stratum": "uncertain"
+            },
+            {
+              "actual_unique_offers": 0,
+              "attainable_unique_offers_in_joint_witness": 0,
+              "frozen_eligible_students": 1,
+              "group": "True",
+              "required_unique_offers": 1,
+              "stratum": "uncertain"
+            }
+          ],
+          "feasible_candidate_starts": 12,
+          "feasible_new_start_weeks": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "frozen_eligible_students": 3,
+          "guaranteed_realized_coverage": false,
+          "jointly_feasible_witness": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 4,
+              "student_id": "fictional-02"
+            }
+          ],
+          "maximum_attainable_coverage_at_minimum_shortfall": 1,
+          "maximum_attainable_unique_offers": 1,
+          "model": "frozen_snapshot_fixed_commitments_no_future_releases_or_withdrawals/v1",
+          "required_unique_offers": 2,
+          "snapshot_cutoff_week": 1,
+          "solver_status": "optimal",
+          "terminal_no_carryover_infeasibility": false,
+          "unavoidable_shortfall_under_frozen_model": 1,
+          "window_end_week": 4,
+          "window_start_week": 1
+        },
+        {
+          "actual_coverage_shortfall": 1,
+          "actual_unique_offers": 0,
+          "additional_shortfall_beyond_frozen_model": 0,
+          "bound_scope": "min_total_count_shortfall_then_max_unique_coverage_joint_reservation_model",
+          "cohort_witness": [
+            {
+              "actual_unique_offers": 0,
+              "attainable_unique_offers_in_joint_witness": 0,
+              "frozen_eligible_students": 1,
+              "group": "True",
+              "required_unique_offers": 1,
+              "stratum": "disengaged"
+            }
+          ],
+          "feasible_candidate_starts": 0,
+          "feasible_new_start_weeks": [],
+          "frozen_eligible_students": 1,
+          "guaranteed_realized_coverage": false,
+          "jointly_feasible_witness": [],
+          "maximum_attainable_coverage_at_minimum_shortfall": 0,
+          "maximum_attainable_unique_offers": 0,
+          "model": "frozen_snapshot_fixed_commitments_no_future_releases_or_withdrawals/v1",
+          "required_unique_offers": 1,
+          "snapshot_cutoff_week": 5,
+          "solver_status": "optimal_empty",
+          "terminal_no_carryover_infeasibility": true,
+          "unavoidable_shortfall_under_frozen_model": 1,
+          "window_end_week": 8,
+          "window_start_week": 5
+        }
+      ],
+      "note": {
+        "available_week": 2,
+        "mentor_id": null,
+        "note_id": "41:fictional-00:event:1:note",
+        "programme_id": null,
+        "source_event_ids": [
+          "41:fictional-00:event:1"
+        ],
+        "source_week": 1,
+        "student_id": "fictional-00",
+        "text": "The school reports low participation in recent activities."
+      },
+      "resource_audit": "passed_independent_event_reconstruction",
+      "reviews": [
+        {
+          "continuation_value": 0.06448595885223354,
+          "cutoff_week": 2,
+          "decision": "continue",
+          "estimate_id": "37019b1c1436aa33a895bf053e315e50cbbc02360be60825112d0926ee810391",
+          "fresh_evidence": true,
+          "opportunity_solver_status": "optimal_empty/optimal",
+          "opportunity_value": 0.07096011937765906,
+          "programme_id": "41:fictional-00:weekly-programme:1",
+          "reason": "continuity_margin_protects_support",
+          "released_liability_if_cancelled": "4.0",
+          "remaining_session_weeks": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "rule": "evidence_gated_capacity_opportunity/v1",
+          "scenario_continuation_gains": [
+            0.06448595885223354
+          ],
+          "stability_margin": 0.01,
+          "student_id": "fictional-00",
+          "units": "expected_terminal_retained_students"
+        }
+      ],
+      "simulated_trajectory": [
+        [
+          0,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          1,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          2,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          3,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          4,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          5,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          6,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          7,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          8,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ]
+      ],
+      "spent_money": "7.2",
+      "subsequent_offers": [
+        [],
+        [
+          {
+            "mentor_id": "mentor-0",
+            "start_week": 4,
+            "student_id": "fictional-02"
+          }
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "terminal_retained": 3,
+      "usual_support_risk": {
+        "as_of_week": 2,
+        "input_estimate_id": "37019b1c1436aa33a895bf053e315e50cbbc02360be60825112d0926ee810391",
+        "probability": 0.18214993535411805,
+        "reference_policy": "weekly_WAIT_no_additional_support",
+        "student_id": "fictional-00",
+        "weeks_remaining": 7
+      },
+      "validated_evidence": {
+        "as_of_month": 2,
+        "facts": [
+          {
+            "assertion_status": "reported",
+            "barrier_status": "unknown",
+            "condition_status": "present",
+            "end_offset": 58,
+            "event_id": "41:fictional-00:event:1",
+            "evidence": "The school reports low participation in recent activities.",
+            "evidence_id": "c4251b7f9b6f03bed01dd95f29977a0e46bc67c57dece303ba3583ef31199910",
+            "field": "participation",
+            "numeric_value": null,
+            "source_month": 1,
+            "start_offset": 0,
+            "trend": "unknown",
+            "unit": null,
+            "value": "low",
+            "workflow_status": "unknown"
+          }
+        ],
+        "note_id": "41:fictional-00:event:1:note",
+        "student_id": "fictional-00"
+      }
+    },
+    "negative_a": {
+      "action_at_cutoff_2": {
+        "cancel_programme_ids": [],
+        "continuation_reviews": [
+          {
+            "continuation_value": 0.05176803016483956,
+            "cutoff_week": 2,
+            "decision": "continue",
+            "estimate_id": "5151ca8d06361583f5ed9a71d48bdc828028c1e1d5bdf10ac10e443c18229f2e",
+            "fresh_evidence": false,
+            "opportunity_solver_status": "not_required",
+            "opportunity_value": null,
+            "programme_id": "41:fictional-00:weekly-programme:1",
+            "reason": "no_new_usable_condition_evidence",
+            "released_liability_if_cancelled": "4.0",
+            "remaining_session_weeks": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "rule": "evidence_gated_capacity_opportunity/v1",
+            "scenario_continuation_gains": [
+              0.05176803016483956
+            ],
+            "stability_margin": 0.01,
+            "student_id": "fictional-00",
+            "units": "expected_terminal_retained_students"
+          }
+        ],
+        "lexicographic_complete": true,
+        "objective": 0.0,
+        "offers": [],
+        "projected_normalized_shortfall": 0,
+        "projected_offers": [],
+        "solver_message": "",
+        "status": "no_candidates",
+        "uncertainty_sets": [
+          {
+            "belief_entropy_nats": 0.9966199777198224,
+            "clipping_applied": false,
+            "conflict": false,
+            "cutoff_week": 2,
+            "documentation_subset": "missing_or_stale",
+            "estimate_id": "5151ca8d06361583f5ed9a71d48bdc828028c1e1d5bdf10ac10e443c18229f2e",
+            "fallback": null,
+            "freshness_weeks": 12,
+            "latest_assimilated_source_week": 0,
+            "missing_previous_interval": true,
+            "newly_assimilated_evidence_ids": [],
+            "radius": 0.40625,
+            "rejected_condition_observation": false,
+            "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+            "signal_age_weeks": 1,
+            "source": "declared_synthetic_assumption_not_empirically_calibrated",
+            "student_id": "fictional-00"
+          },
+          {
+            "belief_entropy_nats": 0.6786012342017147,
+            "clipping_applied": false,
+            "conflict": false,
+            "cutoff_week": 2,
+            "documentation_subset": "fresh_documented",
+            "estimate_id": "6201ad864347e1d2b96b3b6d0a01145a713abe86982d66fa227210996921f41b",
+            "fallback": null,
+            "freshness_weeks": 12,
+            "latest_assimilated_source_week": 1,
+            "missing_previous_interval": false,
+            "newly_assimilated_evidence_ids": [
+              "eef8fe6c7190c8fe5de3a83cdb1ee7d121fe2cd31d99da406c9d36975391afdc"
+            ],
+            "radius": 0.25,
+            "rejected_condition_observation": false,
+            "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+            "signal_age_weeks": 0,
+            "source": "declared_synthetic_assumption_not_empirically_calibrated",
+            "student_id": "fictional-01"
+          },
+          {
+            "belief_entropy_nats": 0.6786012342017147,
+            "clipping_applied": false,
+            "conflict": false,
+            "cutoff_week": 2,
+            "documentation_subset": "fresh_documented",
+            "estimate_id": "4148b1f8c01a82ac53bdc4e8529b919df5f09773f2685290119bbd80073c127d",
+            "fallback": null,
+            "freshness_weeks": 12,
+            "latest_assimilated_source_week": 1,
+            "missing_previous_interval": false,
+            "newly_assimilated_evidence_ids": [
+              "39b4d15fa1a49b10781fc8a58c3439a0be999269255de24117c139a2a43a3f64"
+            ],
+            "radius": 0.25,
+            "rejected_condition_observation": false,
+            "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+            "signal_age_weeks": 0,
+            "source": "declared_synthetic_assumption_not_empirically_calibrated",
+            "student_id": "fictional-02"
+          }
+        ]
+      },
+      "commitments_after": {
+        "released": "0.0",
+        "reserved": "3.0",
+        "spendable": "5.9",
+        "spent": "2.1"
+      },
+      "committed_support_risk": {
+        "approximation": "joint_active_inactive_expected_weekly_delivery/v1",
+        "as_of_week": 2,
+        "forecast_regime": "continue_accepted_no_new_offers",
+        "input_estimate_id": "5151ca8d06361583f5ed9a71d48bdc828028c1e1d5bdf10ac10e443c18229f2e",
+        "probability": 0.09437596833030368,
+        "programme_ids": [
+          "41:fictional-00:weekly-programme:1"
+        ],
+        "student_id": "fictional-00",
+        "target": "synthetic_terminal_non_enrollment",
+        "version": 1,
+        "weeks_remaining": 7
+      },
+      "delivered_by_student": {
+        "fictional-00": 2,
+        "fictional-01": 0,
+        "fictional-02": 5
+      },
+      "estimate": {
+        "as_of_week": 2,
+        "condition_probabilities": [
+          0.16201129042412543,
+          0.31278312252478585,
+          0.5252055870510888,
+          0.0
+        ],
+        "estimate_id": "5151ca8d06361583f5ed9a71d48bdc828028c1e1d5bdf10ac10e443c18229f2e",
+        "evidence_ids": [
+          "0b5cd62bacfb7dca4c8b6b12b046e5eb5f5fc1d819be1a0cc47127fcb50f2236",
+          "2d579456a36a5f2a809323e912fd666061da0cc3129e746c6ca3d4da9ce943bc"
+        ],
+        "last_observation_week": 0,
+        "student_id": "fictional-00",
+        "uncertainty": [
+          [
+            "entropy_nats",
+            0.9966199777198224
+          ],
+          [
+            "missing_current_signal",
+            true
+          ],
+          [
+            "unresolved_count",
+            1
+          ],
+          [
+            "likelihoods_empirically_calibrated",
+            false
+          ],
+          [
+            "new_condition_evidence_ids",
+            []
+          ],
+          [
+            "condition_conflict",
+            false
+          ],
+          [
+            "rejected_condition_observation",
+            false
+          ]
+        ]
+      },
+      "fairness_feasibility": [
+        {
+          "actual_coverage_shortfall": 1,
+          "actual_unique_offers": 2,
+          "additional_shortfall_beyond_frozen_model": 0,
+          "bound_scope": "min_total_count_shortfall_then_max_unique_coverage_joint_reservation_model",
+          "cohort_witness": [
+            {
+              "actual_unique_offers": 2,
+              "attainable_unique_offers_in_joint_witness": 1,
+              "frozen_eligible_students": 2,
+              "group": "False",
+              "required_unique_offers": 1,
+              "stratum": "uncertain"
+            },
+            {
+              "actual_unique_offers": 0,
+              "attainable_unique_offers_in_joint_witness": 0,
+              "frozen_eligible_students": 1,
+              "group": "True",
+              "required_unique_offers": 1,
+              "stratum": "uncertain"
+            }
+          ],
+          "feasible_candidate_starts": 12,
+          "feasible_new_start_weeks": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "frozen_eligible_students": 3,
+          "guaranteed_realized_coverage": false,
+          "jointly_feasible_witness": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 4,
+              "student_id": "fictional-02"
+            }
+          ],
+          "maximum_attainable_coverage_at_minimum_shortfall": 1,
+          "maximum_attainable_unique_offers": 1,
+          "model": "frozen_snapshot_fixed_commitments_no_future_releases_or_withdrawals/v1",
+          "required_unique_offers": 2,
+          "snapshot_cutoff_week": 1,
+          "solver_status": "optimal",
+          "terminal_no_carryover_infeasibility": false,
+          "unavoidable_shortfall_under_frozen_model": 1,
+          "window_end_week": 4,
+          "window_start_week": 1
+        },
+        {
+          "actual_coverage_shortfall": 1,
+          "actual_unique_offers": 0,
+          "additional_shortfall_beyond_frozen_model": 0,
+          "bound_scope": "min_total_count_shortfall_then_max_unique_coverage_joint_reservation_model",
+          "cohort_witness": [
+            {
+              "actual_unique_offers": 0,
+              "attainable_unique_offers_in_joint_witness": 0,
+              "frozen_eligible_students": 1,
+              "group": "True",
+              "required_unique_offers": 1,
+              "stratum": "disengaged"
+            }
+          ],
+          "feasible_candidate_starts": 0,
+          "feasible_new_start_weeks": [],
+          "frozen_eligible_students": 1,
+          "guaranteed_realized_coverage": false,
+          "jointly_feasible_witness": [],
+          "maximum_attainable_coverage_at_minimum_shortfall": 0,
+          "maximum_attainable_unique_offers": 0,
+          "model": "frozen_snapshot_fixed_commitments_no_future_releases_or_withdrawals/v1",
+          "required_unique_offers": 1,
+          "snapshot_cutoff_week": 5,
+          "solver_status": "optimal_empty",
+          "terminal_no_carryover_infeasibility": true,
+          "unavoidable_shortfall_under_frozen_model": 1,
+          "window_end_week": 8,
+          "window_start_week": 5
+        }
+      ],
+      "note": {
+        "available_week": 2,
+        "mentor_id": null,
+        "note_id": "41:fictional-00:event:1:note",
+        "programme_id": null,
+        "source_event_ids": [
+          "41:fictional-00:event:1"
+        ],
+        "source_week": 1,
+        "student_id": "fictional-00",
+        "text": "There is insufficient evidence about participation."
+      },
+      "resource_audit": "passed_independent_event_reconstruction",
+      "reviews": [
+        {
+          "continuation_value": 0.05176803016483956,
+          "cutoff_week": 2,
+          "decision": "continue",
+          "estimate_id": "5151ca8d06361583f5ed9a71d48bdc828028c1e1d5bdf10ac10e443c18229f2e",
+          "fresh_evidence": false,
+          "opportunity_solver_status": "not_required",
+          "opportunity_value": null,
+          "programme_id": "41:fictional-00:weekly-programme:1",
+          "reason": "no_new_usable_condition_evidence",
+          "released_liability_if_cancelled": "4.0",
+          "remaining_session_weeks": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "rule": "evidence_gated_capacity_opportunity/v1",
+          "scenario_continuation_gains": [
+            0.05176803016483956
+          ],
+          "stability_margin": 0.01,
+          "student_id": "fictional-00",
+          "units": "expected_terminal_retained_students"
+        }
+      ],
+      "simulated_trajectory": [
+        [
+          0,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          1,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          2,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          3,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          4,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          5,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          6,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          7,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          8,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ]
+      ],
+      "spent_money": "7.2",
+      "subsequent_offers": [
+        [],
+        [
+          {
+            "mentor_id": "mentor-0",
+            "start_week": 4,
+            "student_id": "fictional-02"
+          }
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "terminal_retained": 3,
+      "usual_support_risk": {
+        "as_of_week": 2,
+        "input_estimate_id": "5151ca8d06361583f5ed9a71d48bdc828028c1e1d5bdf10ac10e443c18229f2e",
+        "probability": 0.14614399849514326,
+        "reference_policy": "weekly_WAIT_no_additional_support",
+        "student_id": "fictional-00",
+        "weeks_remaining": 7
+      },
+      "validated_evidence": {
+        "as_of_month": 2,
+        "facts": [
+          {
+            "assertion_status": "insufficient_evidence",
+            "barrier_status": "unknown",
+            "condition_status": "unknown",
+            "end_offset": 51,
+            "event_id": "41:fictional-00:event:1",
+            "evidence": "There is insufficient evidence about participation.",
+            "evidence_id": "2d579456a36a5f2a809323e912fd666061da0cc3129e746c6ca3d4da9ce943bc",
+            "field": "participation",
+            "numeric_value": null,
+            "source_month": 1,
+            "start_offset": 0,
+            "trend": "unknown",
+            "unit": null,
+            "value": "unknown",
+            "workflow_status": "unknown"
+          }
+        ],
+        "note_id": "41:fictional-00:event:1:note",
+        "student_id": "fictional-00"
+      }
+    },
+    "negative_b": {
+      "action_at_cutoff_2": {
+        "cancel_programme_ids": [],
+        "continuation_reviews": [
+          {
+            "continuation_value": 0.05176803016483956,
+            "cutoff_week": 2,
+            "decision": "continue",
+            "estimate_id": "5151ca8d06361583f5ed9a71d48bdc828028c1e1d5bdf10ac10e443c18229f2e",
+            "fresh_evidence": false,
+            "opportunity_solver_status": "not_required",
+            "opportunity_value": null,
+            "programme_id": "41:fictional-00:weekly-programme:1",
+            "reason": "no_new_usable_condition_evidence",
+            "released_liability_if_cancelled": "4.0",
+            "remaining_session_weeks": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "rule": "evidence_gated_capacity_opportunity/v1",
+            "scenario_continuation_gains": [
+              0.05176803016483956
+            ],
+            "stability_margin": 0.01,
+            "student_id": "fictional-00",
+            "units": "expected_terminal_retained_students"
+          }
+        ],
+        "lexicographic_complete": true,
+        "objective": 0.0,
+        "offers": [],
+        "projected_normalized_shortfall": 0,
+        "projected_offers": [],
+        "solver_message": "",
+        "status": "no_candidates",
+        "uncertainty_sets": [
+          {
+            "belief_entropy_nats": 0.9966199777198224,
+            "clipping_applied": false,
+            "conflict": false,
+            "cutoff_week": 2,
+            "documentation_subset": "missing_or_stale",
+            "estimate_id": "5151ca8d06361583f5ed9a71d48bdc828028c1e1d5bdf10ac10e443c18229f2e",
+            "fallback": null,
+            "freshness_weeks": 12,
+            "latest_assimilated_source_week": 0,
+            "missing_previous_interval": true,
+            "newly_assimilated_evidence_ids": [],
+            "radius": 0.40625,
+            "rejected_condition_observation": false,
+            "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+            "signal_age_weeks": 1,
+            "source": "declared_synthetic_assumption_not_empirically_calibrated",
+            "student_id": "fictional-00"
+          },
+          {
+            "belief_entropy_nats": 0.6786012342017147,
+            "clipping_applied": false,
+            "conflict": false,
+            "cutoff_week": 2,
+            "documentation_subset": "fresh_documented",
+            "estimate_id": "6201ad864347e1d2b96b3b6d0a01145a713abe86982d66fa227210996921f41b",
+            "fallback": null,
+            "freshness_weeks": 12,
+            "latest_assimilated_source_week": 1,
+            "missing_previous_interval": false,
+            "newly_assimilated_evidence_ids": [
+              "eef8fe6c7190c8fe5de3a83cdb1ee7d121fe2cd31d99da406c9d36975391afdc"
+            ],
+            "radius": 0.25,
+            "rejected_condition_observation": false,
+            "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+            "signal_age_weeks": 0,
+            "source": "declared_synthetic_assumption_not_empirically_calibrated",
+            "student_id": "fictional-01"
+          },
+          {
+            "belief_entropy_nats": 0.6786012342017147,
+            "clipping_applied": false,
+            "conflict": false,
+            "cutoff_week": 2,
+            "documentation_subset": "fresh_documented",
+            "estimate_id": "4148b1f8c01a82ac53bdc4e8529b919df5f09773f2685290119bbd80073c127d",
+            "fallback": null,
+            "freshness_weeks": 12,
+            "latest_assimilated_source_week": 1,
+            "missing_previous_interval": false,
+            "newly_assimilated_evidence_ids": [
+              "39b4d15fa1a49b10781fc8a58c3439a0be999269255de24117c139a2a43a3f64"
+            ],
+            "radius": 0.25,
+            "rejected_condition_observation": false,
+            "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+            "signal_age_weeks": 0,
+            "source": "declared_synthetic_assumption_not_empirically_calibrated",
+            "student_id": "fictional-02"
+          }
+        ]
+      },
+      "commitments_after": {
+        "released": "0.0",
+        "reserved": "3.0",
+        "spendable": "5.9",
+        "spent": "2.1"
+      },
+      "committed_support_risk": {
+        "approximation": "joint_active_inactive_expected_weekly_delivery/v1",
+        "as_of_week": 2,
+        "forecast_regime": "continue_accepted_no_new_offers",
+        "input_estimate_id": "5151ca8d06361583f5ed9a71d48bdc828028c1e1d5bdf10ac10e443c18229f2e",
+        "probability": 0.09437596833030368,
+        "programme_ids": [
+          "41:fictional-00:weekly-programme:1"
+        ],
+        "student_id": "fictional-00",
+        "target": "synthetic_terminal_non_enrollment",
+        "version": 1,
+        "weeks_remaining": 7
+      },
+      "delivered_by_student": {
+        "fictional-00": 2,
+        "fictional-01": 0,
+        "fictional-02": 5
+      },
+      "estimate": {
+        "as_of_week": 2,
+        "condition_probabilities": [
+          0.16201129042412543,
+          0.31278312252478585,
+          0.5252055870510888,
+          0.0
+        ],
+        "estimate_id": "5151ca8d06361583f5ed9a71d48bdc828028c1e1d5bdf10ac10e443c18229f2e",
+        "evidence_ids": [
+          "0b5cd62bacfb7dca4c8b6b12b046e5eb5f5fc1d819be1a0cc47127fcb50f2236",
+          "2d579456a36a5f2a809323e912fd666061da0cc3129e746c6ca3d4da9ce943bc"
+        ],
+        "last_observation_week": 0,
+        "student_id": "fictional-00",
+        "uncertainty": [
+          [
+            "entropy_nats",
+            0.9966199777198224
+          ],
+          [
+            "missing_current_signal",
+            true
+          ],
+          [
+            "unresolved_count",
+            1
+          ],
+          [
+            "likelihoods_empirically_calibrated",
+            false
+          ],
+          [
+            "new_condition_evidence_ids",
+            []
+          ],
+          [
+            "condition_conflict",
+            false
+          ],
+          [
+            "rejected_condition_observation",
+            false
+          ]
+        ]
+      },
+      "fairness_feasibility": [
+        {
+          "actual_coverage_shortfall": 1,
+          "actual_unique_offers": 2,
+          "additional_shortfall_beyond_frozen_model": 0,
+          "bound_scope": "min_total_count_shortfall_then_max_unique_coverage_joint_reservation_model",
+          "cohort_witness": [
+            {
+              "actual_unique_offers": 2,
+              "attainable_unique_offers_in_joint_witness": 1,
+              "frozen_eligible_students": 2,
+              "group": "False",
+              "required_unique_offers": 1,
+              "stratum": "uncertain"
+            },
+            {
+              "actual_unique_offers": 0,
+              "attainable_unique_offers_in_joint_witness": 0,
+              "frozen_eligible_students": 1,
+              "group": "True",
+              "required_unique_offers": 1,
+              "stratum": "uncertain"
+            }
+          ],
+          "feasible_candidate_starts": 12,
+          "feasible_new_start_weeks": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "frozen_eligible_students": 3,
+          "guaranteed_realized_coverage": false,
+          "jointly_feasible_witness": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 4,
+              "student_id": "fictional-02"
+            }
+          ],
+          "maximum_attainable_coverage_at_minimum_shortfall": 1,
+          "maximum_attainable_unique_offers": 1,
+          "model": "frozen_snapshot_fixed_commitments_no_future_releases_or_withdrawals/v1",
+          "required_unique_offers": 2,
+          "snapshot_cutoff_week": 1,
+          "solver_status": "optimal",
+          "terminal_no_carryover_infeasibility": false,
+          "unavoidable_shortfall_under_frozen_model": 1,
+          "window_end_week": 4,
+          "window_start_week": 1
+        },
+        {
+          "actual_coverage_shortfall": 1,
+          "actual_unique_offers": 0,
+          "additional_shortfall_beyond_frozen_model": 0,
+          "bound_scope": "min_total_count_shortfall_then_max_unique_coverage_joint_reservation_model",
+          "cohort_witness": [
+            {
+              "actual_unique_offers": 0,
+              "attainable_unique_offers_in_joint_witness": 0,
+              "frozen_eligible_students": 1,
+              "group": "True",
+              "required_unique_offers": 1,
+              "stratum": "disengaged"
+            }
+          ],
+          "feasible_candidate_starts": 0,
+          "feasible_new_start_weeks": [],
+          "frozen_eligible_students": 1,
+          "guaranteed_realized_coverage": false,
+          "jointly_feasible_witness": [],
+          "maximum_attainable_coverage_at_minimum_shortfall": 0,
+          "maximum_attainable_unique_offers": 0,
+          "model": "frozen_snapshot_fixed_commitments_no_future_releases_or_withdrawals/v1",
+          "required_unique_offers": 1,
+          "snapshot_cutoff_week": 5,
+          "solver_status": "optimal_empty",
+          "terminal_no_carryover_infeasibility": true,
+          "unavoidable_shortfall_under_frozen_model": 1,
+          "window_end_week": 8,
+          "window_start_week": 5
+        }
+      ],
+      "note": {
+        "available_week": 2,
+        "mentor_id": null,
+        "note_id": "41:fictional-00:event:1:note",
+        "programme_id": null,
+        "source_event_ids": [
+          "41:fictional-00:event:1"
+        ],
+        "source_week": 1,
+        "student_id": "fictional-00",
+        "text": "There is insufficient evidence about participation. The mentor will follow up."
+      },
+      "resource_audit": "passed_independent_event_reconstruction",
+      "reviews": [
+        {
+          "continuation_value": 0.05176803016483956,
+          "cutoff_week": 2,
+          "decision": "continue",
+          "estimate_id": "5151ca8d06361583f5ed9a71d48bdc828028c1e1d5bdf10ac10e443c18229f2e",
+          "fresh_evidence": false,
+          "opportunity_solver_status": "not_required",
+          "opportunity_value": null,
+          "programme_id": "41:fictional-00:weekly-programme:1",
+          "reason": "no_new_usable_condition_evidence",
+          "released_liability_if_cancelled": "4.0",
+          "remaining_session_weeks": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "rule": "evidence_gated_capacity_opportunity/v1",
+          "scenario_continuation_gains": [
+            0.05176803016483956
+          ],
+          "stability_margin": 0.01,
+          "student_id": "fictional-00",
+          "units": "expected_terminal_retained_students"
+        }
+      ],
+      "simulated_trajectory": [
+        [
+          0,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          1,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          2,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          3,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          4,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          5,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          6,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          7,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          8,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ]
+      ],
+      "spent_money": "7.2",
+      "subsequent_offers": [
+        [],
+        [
+          {
+            "mentor_id": "mentor-0",
+            "start_week": 4,
+            "student_id": "fictional-02"
+          }
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "terminal_retained": 3,
+      "usual_support_risk": {
+        "as_of_week": 2,
+        "input_estimate_id": "5151ca8d06361583f5ed9a71d48bdc828028c1e1d5bdf10ac10e443c18229f2e",
+        "probability": 0.14614399849514326,
+        "reference_policy": "weekly_WAIT_no_additional_support",
+        "student_id": "fictional-00",
+        "weeks_remaining": 7
+      },
+      "validated_evidence": {
+        "as_of_month": 2,
+        "facts": [
+          {
+            "assertion_status": "insufficient_evidence",
+            "barrier_status": "unknown",
+            "condition_status": "unknown",
+            "end_offset": 51,
+            "event_id": "41:fictional-00:event:1",
+            "evidence": "There is insufficient evidence about participation.",
+            "evidence_id": "2d579456a36a5f2a809323e912fd666061da0cc3129e746c6ca3d4da9ce943bc",
+            "field": "participation",
+            "numeric_value": null,
+            "source_month": 1,
+            "start_offset": 0,
+            "trend": "unknown",
+            "unit": null,
+            "value": "unknown",
+            "workflow_status": "unknown"
+          }
+        ],
+        "note_id": "41:fictional-00:event:1:note",
+        "student_id": "fictional-00"
+      }
+    },
+    "regular": {
+      "action_at_cutoff_2": {
+        "cancel_programme_ids": [
+          "41:fictional-00:weekly-programme:1"
+        ],
+        "continuation_reviews": [
+          {
+            "continuation_value": 0.02859958890468734,
+            "cutoff_week": 2,
+            "decision": "cancel",
+            "estimate_id": "a6ae2576fd570d72ff62e224556f0307d4dbde48151948f46b7da995f8261ded",
+            "fresh_evidence": true,
+            "opportunity_solver_status": "optimal_empty/optimal",
+            "opportunity_value": 0.07096011937765906,
+            "programme_id": "41:fictional-00:weekly-programme:1",
+            "reason": "released_capacity_opportunity_exceeds_remaining_benefit_and_margin",
+            "released_liability_if_cancelled": "4.0",
+            "remaining_session_weeks": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "rule": "evidence_gated_capacity_opportunity/v1",
+            "scenario_continuation_gains": [
+              0.02859958890468734
+            ],
+            "stability_margin": 0.01,
+            "student_id": "fictional-00",
+            "units": "expected_terminal_retained_students"
+          }
+        ],
+        "lexicographic_complete": true,
+        "objective": 0.0,
+        "offers": [],
+        "projected_normalized_shortfall": 0,
+        "projected_offers": [],
+        "solver_message": "",
+        "status": "no_candidates",
+        "uncertainty_sets": [
+          {
+            "belief_entropy_nats": 1.0513118681926965,
+            "clipping_applied": false,
+            "conflict": false,
+            "cutoff_week": 2,
+            "documentation_subset": "fresh_documented",
+            "estimate_id": "a6ae2576fd570d72ff62e224556f0307d4dbde48151948f46b7da995f8261ded",
+            "fallback": null,
+            "freshness_weeks": 12,
+            "latest_assimilated_source_week": 1,
+            "missing_previous_interval": false,
+            "newly_assimilated_evidence_ids": [
+              "f2f089c0cfa40029656135336813a27f79e1a7dc184009deafcc2c11ae67a491"
+            ],
+            "radius": 0.25,
+            "rejected_condition_observation": false,
+            "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+            "signal_age_weeks": 0,
+            "source": "declared_synthetic_assumption_not_empirically_calibrated",
+            "student_id": "fictional-00"
+          },
+          {
+            "belief_entropy_nats": 0.6786012342017147,
+            "clipping_applied": false,
+            "conflict": false,
+            "cutoff_week": 2,
+            "documentation_subset": "fresh_documented",
+            "estimate_id": "6201ad864347e1d2b96b3b6d0a01145a713abe86982d66fa227210996921f41b",
+            "fallback": null,
+            "freshness_weeks": 12,
+            "latest_assimilated_source_week": 1,
+            "missing_previous_interval": false,
+            "newly_assimilated_evidence_ids": [
+              "eef8fe6c7190c8fe5de3a83cdb1ee7d121fe2cd31d99da406c9d36975391afdc"
+            ],
+            "radius": 0.25,
+            "rejected_condition_observation": false,
+            "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+            "signal_age_weeks": 0,
+            "source": "declared_synthetic_assumption_not_empirically_calibrated",
+            "student_id": "fictional-01"
+          },
+          {
+            "belief_entropy_nats": 0.6786012342017147,
+            "clipping_applied": false,
+            "conflict": false,
+            "cutoff_week": 2,
+            "documentation_subset": "fresh_documented",
+            "estimate_id": "4148b1f8c01a82ac53bdc4e8529b919df5f09773f2685290119bbd80073c127d",
+            "fallback": null,
+            "freshness_weeks": 12,
+            "latest_assimilated_source_week": 1,
+            "missing_previous_interval": false,
+            "newly_assimilated_evidence_ids": [
+              "39b4d15fa1a49b10781fc8a58c3439a0be999269255de24117c139a2a43a3f64"
+            ],
+            "radius": 0.25,
+            "rejected_condition_observation": false,
+            "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+            "signal_age_weeks": 0,
+            "source": "declared_synthetic_assumption_not_empirically_calibrated",
+            "student_id": "fictional-02"
+          }
+        ]
+      },
+      "commitments_after": {
+        "released": "4.0",
+        "reserved": "0.0",
+        "spendable": "9.9",
+        "spent": "1.1"
+      },
+      "committed_support_risk": {
+        "approximation": "joint_active_inactive_expected_weekly_delivery/v1",
+        "as_of_week": 2,
+        "forecast_regime": "continue_accepted_no_new_offers",
+        "input_estimate_id": "a6ae2576fd570d72ff62e224556f0307d4dbde48151948f46b7da995f8261ded",
+        "probability": 0.05302341375354367,
+        "programme_ids": [
+          "41:fictional-00:weekly-programme:1"
+        ],
+        "student_id": "fictional-00",
+        "target": "synthetic_terminal_non_enrollment",
+        "version": 1,
+        "weeks_remaining": 7
+      },
+      "delivered_by_student": {
+        "fictional-00": 1,
+        "fictional-01": 0,
+        "fictional-02": 5
+      },
+      "estimate": {
+        "as_of_week": 2,
+        "condition_probabilities": [
+          0.4501433264062308,
+          0.34486435229700857,
+          0.20499232129676057,
+          0.0
+        ],
+        "estimate_id": "a6ae2576fd570d72ff62e224556f0307d4dbde48151948f46b7da995f8261ded",
+        "evidence_ids": [
+          "0b5cd62bacfb7dca4c8b6b12b046e5eb5f5fc1d819be1a0cc47127fcb50f2236",
+          "f2f089c0cfa40029656135336813a27f79e1a7dc184009deafcc2c11ae67a491"
+        ],
+        "last_observation_week": 1,
+        "student_id": "fictional-00",
+        "uncertainty": [
+          [
+            "entropy_nats",
+            1.0513118681926965
+          ],
+          [
+            "missing_current_signal",
+            false
+          ],
+          [
+            "unresolved_count",
+            0
+          ],
+          [
+            "likelihoods_empirically_calibrated",
+            false
+          ],
+          [
+            "new_condition_evidence_ids",
+            [
+              "f2f089c0cfa40029656135336813a27f79e1a7dc184009deafcc2c11ae67a491"
+            ]
+          ],
+          [
+            "condition_conflict",
+            false
+          ],
+          [
+            "rejected_condition_observation",
+            false
+          ]
+        ]
+      },
+      "fairness_feasibility": [
+        {
+          "actual_coverage_shortfall": 1,
+          "actual_unique_offers": 2,
+          "additional_shortfall_beyond_frozen_model": 0,
+          "bound_scope": "min_total_count_shortfall_then_max_unique_coverage_joint_reservation_model",
+          "cohort_witness": [
+            {
+              "actual_unique_offers": 2,
+              "attainable_unique_offers_in_joint_witness": 1,
+              "frozen_eligible_students": 2,
+              "group": "False",
+              "required_unique_offers": 1,
+              "stratum": "uncertain"
+            },
+            {
+              "actual_unique_offers": 0,
+              "attainable_unique_offers_in_joint_witness": 0,
+              "frozen_eligible_students": 1,
+              "group": "True",
+              "required_unique_offers": 1,
+              "stratum": "uncertain"
+            }
+          ],
+          "feasible_candidate_starts": 12,
+          "feasible_new_start_weeks": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "frozen_eligible_students": 3,
+          "guaranteed_realized_coverage": false,
+          "jointly_feasible_witness": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 4,
+              "student_id": "fictional-02"
+            }
+          ],
+          "maximum_attainable_coverage_at_minimum_shortfall": 1,
+          "maximum_attainable_unique_offers": 1,
+          "model": "frozen_snapshot_fixed_commitments_no_future_releases_or_withdrawals/v1",
+          "required_unique_offers": 2,
+          "snapshot_cutoff_week": 1,
+          "solver_status": "optimal",
+          "terminal_no_carryover_infeasibility": false,
+          "unavoidable_shortfall_under_frozen_model": 1,
+          "window_end_week": 4,
+          "window_start_week": 1
+        },
+        {
+          "actual_coverage_shortfall": 1,
+          "actual_unique_offers": 0,
+          "additional_shortfall_beyond_frozen_model": 0,
+          "bound_scope": "min_total_count_shortfall_then_max_unique_coverage_joint_reservation_model",
+          "cohort_witness": [
+            {
+              "actual_unique_offers": 0,
+              "attainable_unique_offers_in_joint_witness": 0,
+              "frozen_eligible_students": 1,
+              "group": "True",
+              "required_unique_offers": 1,
+              "stratum": "disengaged"
+            }
+          ],
+          "feasible_candidate_starts": 0,
+          "feasible_new_start_weeks": [],
+          "frozen_eligible_students": 1,
+          "guaranteed_realized_coverage": false,
+          "jointly_feasible_witness": [],
+          "maximum_attainable_coverage_at_minimum_shortfall": 0,
+          "maximum_attainable_unique_offers": 0,
+          "model": "frozen_snapshot_fixed_commitments_no_future_releases_or_withdrawals/v1",
+          "required_unique_offers": 1,
+          "snapshot_cutoff_week": 5,
+          "solver_status": "optimal_empty",
+          "terminal_no_carryover_infeasibility": true,
+          "unavoidable_shortfall_under_frozen_model": 1,
+          "window_end_week": 8,
+          "window_start_week": 5
+        }
+      ],
+      "note": {
+        "available_week": 2,
+        "mentor_id": null,
+        "note_id": "41:fictional-00:event:1:note",
+        "programme_id": null,
+        "source_event_ids": [
+          "41:fictional-00:event:1"
+        ],
+        "source_week": 1,
+        "student_id": "fictional-00",
+        "text": "The school reports regular participation in recent activities."
+      },
+      "resource_audit": "passed_independent_event_reconstruction",
+      "reviews": [
+        {
+          "continuation_value": 0.02859958890468734,
+          "cutoff_week": 2,
+          "decision": "cancel",
+          "estimate_id": "a6ae2576fd570d72ff62e224556f0307d4dbde48151948f46b7da995f8261ded",
+          "fresh_evidence": true,
+          "opportunity_solver_status": "optimal_empty/optimal",
+          "opportunity_value": 0.07096011937765906,
+          "programme_id": "41:fictional-00:weekly-programme:1",
+          "reason": "released_capacity_opportunity_exceeds_remaining_benefit_and_margin",
+          "released_liability_if_cancelled": "4.0",
+          "remaining_session_weeks": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "rule": "evidence_gated_capacity_opportunity/v1",
+          "scenario_continuation_gains": [
+            0.02859958890468734
+          ],
+          "stability_margin": 0.01,
+          "student_id": "fictional-00",
+          "units": "expected_terminal_retained_students"
+        }
+      ],
+      "simulated_trajectory": [
+        [
+          0,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          1,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          2,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          3,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          4,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          5,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          6,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          7,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ],
+        [
+          8,
+          [
+            [
+              "fictional-00",
+              "vulnerable"
+            ],
+            [
+              "fictional-01",
+              "disengaged"
+            ],
+            [
+              "fictional-02",
+              "stable"
+            ]
+          ]
+        ]
+      ],
+      "spent_money": "6.2",
+      "subsequent_offers": [
+        [
+          {
+            "mentor_id": "mentor-0",
+            "start_week": 3,
+            "student_id": "fictional-02"
+          }
+        ],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "terminal_retained": 3,
+      "usual_support_risk": {
+        "as_of_week": 2,
+        "input_estimate_id": "a6ae2576fd570d72ff62e224556f0307d4dbde48151948f46b7da995f8261ded",
+        "probability": 0.0816230026582313,
+        "reference_policy": "weekly_WAIT_no_additional_support",
+        "student_id": "fictional-00",
+        "weeks_remaining": 7
+      },
+      "validated_evidence": {
+        "as_of_month": 2,
+        "facts": [
+          {
+            "assertion_status": "reported",
+            "barrier_status": "unknown",
+            "condition_status": "present",
+            "end_offset": 62,
+            "event_id": "41:fictional-00:event:1",
+            "evidence": "The school reports regular participation in recent activities.",
+            "evidence_id": "f2f089c0cfa40029656135336813a27f79e1a7dc184009deafcc2c11ae67a491",
+            "field": "participation",
+            "numeric_value": null,
+            "source_month": 1,
+            "start_offset": 0,
+            "trend": "unknown",
+            "unit": null,
+            "value": "regular",
+            "workflow_status": "unknown"
+          }
+        ],
+        "note_id": "41:fictional-00:event:1:note",
+        "student_id": "fictional-00"
+      }
+    }
+  },
+  "negative_control_decisions_identical": true,
+  "point_robust_information_comparisons": {
+    "fair_point_accurate_41": {
+      "cutoff_2_reviews": [
+        {
+          "continuation_value": 0.06448595885223354,
+          "cutoff_week": 2,
+          "decision": "continue",
+          "estimate_id": "369276cdbd55b9baa6f284ca205d717b458358cd93ced2bf225a78bdcffd2d61",
+          "fresh_evidence": true,
+          "opportunity_solver_status": "optimal_empty/optimal",
+          "opportunity_value": 0.038887995170053424,
+          "programme_id": "41:fictional-01:weekly-programme:1",
+          "reason": "continuity_margin_protects_support",
+          "released_liability_if_cancelled": "4.0",
+          "remaining_session_weeks": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "rule": "evidence_gated_capacity_opportunity/v1",
+          "scenario_continuation_gains": [
+            0.06448595885223354
+          ],
+          "stability_margin": 0.01,
+          "student_id": "fictional-01",
+          "units": "expected_terminal_retained_students"
+        }
+      ],
+      "cutoff_2_uncertainty_sets": [
+        {
+          "belief_entropy_nats": 0.903212423923798,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "fresh_documented",
+          "estimate_id": "c299361aabca3c0e7b25392835f33c8bf948e53111ff9762a386c1c3538dce74",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 1,
+          "missing_previous_interval": false,
+          "newly_assimilated_evidence_ids": [
+            "5913f1527838372281134eb4bc64365d701cf22009f3dd8623fe036f1dac1225"
+          ],
+          "radius": 0.25,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 0,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-00"
+        },
+        {
+          "belief_entropy_nats": 0.7141891535896661,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "fresh_documented",
+          "estimate_id": "369276cdbd55b9baa6f284ca205d717b458358cd93ced2bf225a78bdcffd2d61",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 1,
+          "missing_previous_interval": false,
+          "newly_assimilated_evidence_ids": [
+            "eef8fe6c7190c8fe5de3a83cdb1ee7d121fe2cd31d99da406c9d36975391afdc"
+          ],
+          "radius": 0.25,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 0,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-01"
+        },
+        {
+          "belief_entropy_nats": 0.4796999911369133,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "fresh_documented",
+          "estimate_id": "c360a81238832ac5a14f151cad151e300bd64696188d5b89a525618b6440cfe0",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 1,
+          "missing_previous_interval": false,
+          "newly_assimilated_evidence_ids": [
+            "585fcf7c32e462f49884d06ca8b184d096a78ba94755d004d54a8ff74dd7ee48"
+          ],
+          "radius": 0.25,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 0,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-02"
+        }
+      ],
+      "cutoff_actions": [
+        {
+          "cancellations": [],
+          "objective": 0.06737443863537988,
+          "offers": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 1,
+              "student_id": "fictional-01"
+            }
+          ],
+          "solver_status": "weekly_rollout_milp_optimal",
+          "week": 1
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 2
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 3
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 4
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 5
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 6
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 7
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 8
+        }
+      ],
+      "seed": 41,
+      "terminal_retained": 3
+    },
+    "fair_point_accurate_42": {
+      "cutoff_2_reviews": [
+        {
+          "continuation_value": 0.06768677144401106,
+          "cutoff_week": 2,
+          "decision": "continue",
+          "estimate_id": "868a0dfd704d7001b353fd099f425e462c1c8d47b357ece638637a9eec9d0374",
+          "fresh_evidence": true,
+          "opportunity_solver_status": "optimal_empty/optimal",
+          "opportunity_value": 0.03700826233332068,
+          "programme_id": "42:fictional-01:weekly-programme:1",
+          "reason": "continuity_margin_protects_support",
+          "released_liability_if_cancelled": "4.0",
+          "remaining_session_weeks": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "rule": "evidence_gated_capacity_opportunity/v1",
+          "scenario_continuation_gains": [
+            0.06768677144401106
+          ],
+          "stability_margin": 0.01,
+          "student_id": "fictional-01",
+          "units": "expected_terminal_retained_students"
+        }
+      ],
+      "cutoff_2_uncertainty_sets": [
+        {
+          "belief_entropy_nats": 1.0875532272984396,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "fresh_documented",
+          "estimate_id": "2b3b66fb53f8902cdde53c6f71f94c87f37f9c88135f32f4ec421317bd8fe1f2",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 1,
+          "missing_previous_interval": false,
+          "newly_assimilated_evidence_ids": [
+            "e29f7598cbdbb6d021f8bec31b655d01fb4b120535249fdded7dd6a8807b8eb0"
+          ],
+          "radius": 0.25,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 0,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-00"
+        },
+        {
+          "belief_entropy_nats": 0.6186274524073669,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "fresh_documented",
+          "estimate_id": "868a0dfd704d7001b353fd099f425e462c1c8d47b357ece638637a9eec9d0374",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 1,
+          "missing_previous_interval": false,
+          "newly_assimilated_evidence_ids": [
+            "fdb6bacbee09b15612373f53e8b4d3b4aaf52b965a774cac5aaf4bc5c9e7d6cb"
+          ],
+          "radius": 0.25,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 0,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-01"
+        },
+        {
+          "belief_entropy_nats": 1.0875532272984396,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "fresh_documented",
+          "estimate_id": "1bb75c7f44b13fcc74611a80911e8977df17e0c58e71b58f33162d9f10d8eab5",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 1,
+          "missing_previous_interval": false,
+          "newly_assimilated_evidence_ids": [
+            "209ca49a18f77e175afa44327b00e1a975e3639ab10830c55cbe4ec1faf562bd"
+          ],
+          "radius": 0.25,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 0,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-02"
+        }
+      ],
+      "cutoff_actions": [
+        {
+          "cancellations": [],
+          "objective": 0.07204475462101353,
+          "offers": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 1,
+              "student_id": "fictional-01"
+            }
+          ],
+          "solver_status": "weekly_rollout_milp_optimal",
+          "week": 1
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 2
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 3
+        },
+        {
+          "cancellations": [],
+          "objective": 0.03393111954564579,
+          "offers": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 4,
+              "student_id": "fictional-00"
+            }
+          ],
+          "solver_status": "weekly_rollout_milp_optimal",
+          "week": 4
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 5
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 6
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 7
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 8
+        }
+      ],
+      "seed": 42,
+      "terminal_retained": 2
+    },
+    "fair_point_stale_missing_41": {
+      "cutoff_2_reviews": [
+        {
+          "continuation_value": 0.05176803016483956,
+          "cutoff_week": 2,
+          "decision": "continue",
+          "estimate_id": "2021e125c4b0af9ee60f1b3c13eefe0837ad10f2c8f943bc1e1da50aca6ad2e3",
+          "fresh_evidence": false,
+          "opportunity_solver_status": "not_required",
+          "opportunity_value": null,
+          "programme_id": "41:fictional-01:weekly-programme:1",
+          "reason": "no_new_usable_condition_evidence",
+          "released_liability_if_cancelled": "4.0",
+          "remaining_session_weeks": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "rule": "evidence_gated_capacity_opportunity/v1",
+          "scenario_continuation_gains": [
+            0.05176803016483956
+          ],
+          "stability_margin": 0.01,
+          "student_id": "fictional-01",
+          "units": "expected_terminal_retained_students"
+        }
+      ],
+      "cutoff_2_uncertainty_sets": [
+        {
+          "belief_entropy_nats": 1.0574394463476886,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "missing_or_stale",
+          "estimate_id": "594ef27f15de297cf9a3c1104e58ea1c899e7872a1547b1eb78b3bda25718206",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 0,
+          "missing_previous_interval": true,
+          "newly_assimilated_evidence_ids": [],
+          "radius": 0.40625,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 1,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-00"
+        },
+        {
+          "belief_entropy_nats": 0.9966199777198224,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "missing_or_stale",
+          "estimate_id": "2021e125c4b0af9ee60f1b3c13eefe0837ad10f2c8f943bc1e1da50aca6ad2e3",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 0,
+          "missing_previous_interval": true,
+          "newly_assimilated_evidence_ids": [],
+          "radius": 0.40625,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 1,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-01"
+        },
+        {
+          "belief_entropy_nats": 0.859383901421529,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "missing_or_stale",
+          "estimate_id": "1b6208ebb4bbb5b5b057ef3f14b4681209dd30d98ce6d2674204938b981f80af",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 0,
+          "missing_previous_interval": true,
+          "newly_assimilated_evidence_ids": [],
+          "radius": 0.40625,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 1,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-02"
+        }
+      ],
+      "cutoff_actions": [
+        {
+          "cancellations": [],
+          "objective": 0.06737443863537988,
+          "offers": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 1,
+              "student_id": "fictional-01"
+            }
+          ],
+          "solver_status": "weekly_rollout_milp_optimal",
+          "week": 1
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 2
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 3
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 4
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 5
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 6
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 7
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 8
+        }
+      ],
+      "seed": 41,
+      "terminal_retained": 3
+    },
+    "fair_point_stale_missing_42": {
+      "cutoff_2_reviews": [
+        {
+          "continuation_value": 0.055386267685359626,
+          "cutoff_week": 2,
+          "decision": "continue",
+          "estimate_id": "6c801d3e7e8cc6b8250339a391294e105a3f92a1accd0f505377eff9bee06efa",
+          "fresh_evidence": false,
+          "opportunity_solver_status": "not_required",
+          "opportunity_value": null,
+          "programme_id": "42:fictional-01:weekly-programme:1",
+          "reason": "no_new_usable_condition_evidence",
+          "released_liability_if_cancelled": "4.0",
+          "remaining_session_weeks": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "rule": "evidence_gated_capacity_opportunity/v1",
+          "scenario_continuation_gains": [
+            0.055386267685359626
+          ],
+          "stability_margin": 0.01,
+          "student_id": "fictional-01",
+          "units": "expected_terminal_retained_students"
+        }
+      ],
+      "cutoff_2_uncertainty_sets": [
+        {
+          "belief_entropy_nats": 0.859383901421529,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "missing_or_stale",
+          "estimate_id": "0c7c89c4739e53e3ae4a422eec0543681435b8223428e1e96973a6d3cc688962",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 0,
+          "missing_previous_interval": true,
+          "newly_assimilated_evidence_ids": [],
+          "radius": 0.40625,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 1,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-00"
+        },
+        {
+          "belief_entropy_nats": 0.9408398306751518,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "missing_or_stale",
+          "estimate_id": "6c801d3e7e8cc6b8250339a391294e105a3f92a1accd0f505377eff9bee06efa",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 0,
+          "missing_previous_interval": true,
+          "newly_assimilated_evidence_ids": [],
+          "radius": 0.40625,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 1,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-01"
+        },
+        {
+          "belief_entropy_nats": 0.859383901421529,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "missing_or_stale",
+          "estimate_id": "5abe769db2cdba0c89420eda594beac85ca636d5d2b0e86559a0f1d136174a76",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 0,
+          "missing_previous_interval": true,
+          "newly_assimilated_evidence_ids": [],
+          "radius": 0.40625,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 1,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-02"
+        }
+      ],
+      "cutoff_actions": [
+        {
+          "cancellations": [],
+          "objective": 0.07204475462101353,
+          "offers": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 1,
+              "student_id": "fictional-01"
+            }
+          ],
+          "solver_status": "weekly_rollout_milp_optimal",
+          "week": 1
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 2
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 3
+        },
+        {
+          "cancellations": [],
+          "objective": 0.01971744698213093,
+          "offers": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 4,
+              "student_id": "fictional-00"
+            }
+          ],
+          "solver_status": "weekly_rollout_milp_optimal",
+          "week": 4
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 5
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 6
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 7
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 8
+        }
+      ],
+      "seed": 42,
+      "terminal_retained": 2
+    },
+    "fair_robust_accurate_41": {
+      "cutoff_2_reviews": [
+        {
+          "continuation_value": 0.06803818038992127,
+          "cutoff_week": 2,
+          "decision": "continue",
+          "estimate_id": "369276cdbd55b9baa6f284ca205d717b458358cd93ced2bf225a78bdcffd2d61",
+          "fresh_evidence": true,
+          "opportunity_solver_status": "optimal_empty/optimal",
+          "opportunity_value": 0.030347112219088392,
+          "programme_id": "41:fictional-01:weekly-programme:1",
+          "reason": "continuity_margin_protects_support",
+          "released_liability_if_cancelled": "4.0",
+          "remaining_session_weeks": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "rule": "evidence_gated_capacity_opportunity/v1",
+          "scenario_continuation_gains": [
+            0.06448595885223354,
+            0.049248576971074126,
+            0.06803818038992127
+          ],
+          "stability_margin": 0.01,
+          "student_id": "fictional-01",
+          "units": "expected_terminal_retained_students"
+        }
+      ],
+      "cutoff_2_uncertainty_sets": [
+        {
+          "belief_entropy_nats": 0.903212423923798,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "fresh_documented",
+          "estimate_id": "c299361aabca3c0e7b25392835f33c8bf948e53111ff9762a386c1c3538dce74",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 1,
+          "missing_previous_interval": false,
+          "newly_assimilated_evidence_ids": [
+            "5913f1527838372281134eb4bc64365d701cf22009f3dd8623fe036f1dac1225"
+          ],
+          "radius": 0.25,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 0,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-00"
+        },
+        {
+          "belief_entropy_nats": 0.7141891535896661,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "fresh_documented",
+          "estimate_id": "369276cdbd55b9baa6f284ca205d717b458358cd93ced2bf225a78bdcffd2d61",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 1,
+          "missing_previous_interval": false,
+          "newly_assimilated_evidence_ids": [
+            "eef8fe6c7190c8fe5de3a83cdb1ee7d121fe2cd31d99da406c9d36975391afdc"
+          ],
+          "radius": 0.25,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 0,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-01"
+        },
+        {
+          "belief_entropy_nats": 0.4796999911369133,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "fresh_documented",
+          "estimate_id": "c360a81238832ac5a14f151cad151e300bd64696188d5b89a525618b6440cfe0",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 1,
+          "missing_previous_interval": false,
+          "newly_assimilated_evidence_ids": [
+            "585fcf7c32e462f49884d06ca8b184d096a78ba94755d004d54a8ff74dd7ee48"
+          ],
+          "radius": 0.25,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 0,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-02"
+        }
+      ],
+      "cutoff_actions": [
+        {
+          "cancellations": [],
+          "objective": 0.05181403337174338,
+          "offers": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 1,
+              "student_id": "fictional-01"
+            }
+          ],
+          "solver_status": "weekly_rollout_milp_optimal",
+          "week": 1
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 2
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 3
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 4
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 5
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 6
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 7
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 8
+        }
+      ],
+      "seed": 41,
+      "terminal_retained": 3
+    },
+    "fair_robust_accurate_42": {
+      "cutoff_2_reviews": [
+        {
+          "continuation_value": 0.0704387898337544,
+          "cutoff_week": 2,
+          "decision": "continue",
+          "estimate_id": "868a0dfd704d7001b353fd099f425e462c1c8d47b357ece638637a9eec9d0374",
+          "fresh_evidence": true,
+          "opportunity_solver_status": "optimal_empty/optimal",
+          "opportunity_value": 0.02893731259153883,
+          "programme_id": "42:fictional-01:weekly-programme:1",
+          "reason": "continuity_margin_protects_support",
+          "released_liability_if_cancelled": "4.0",
+          "remaining_session_weeks": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "rule": "evidence_gated_capacity_opportunity/v1",
+          "scenario_continuation_gains": [
+            0.06768677144401106,
+            0.05164918641490724,
+            0.0704387898337544
+          ],
+          "stability_margin": 0.01,
+          "student_id": "fictional-01",
+          "units": "expected_terminal_retained_students"
+        }
+      ],
+      "cutoff_2_uncertainty_sets": [
+        {
+          "belief_entropy_nats": 1.0875532272984396,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "fresh_documented",
+          "estimate_id": "2b3b66fb53f8902cdde53c6f71f94c87f37f9c88135f32f4ec421317bd8fe1f2",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 1,
+          "missing_previous_interval": false,
+          "newly_assimilated_evidence_ids": [
+            "e29f7598cbdbb6d021f8bec31b655d01fb4b120535249fdded7dd6a8807b8eb0"
+          ],
+          "radius": 0.25,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 0,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-00"
+        },
+        {
+          "belief_entropy_nats": 0.6186274524073669,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "fresh_documented",
+          "estimate_id": "868a0dfd704d7001b353fd099f425e462c1c8d47b357ece638637a9eec9d0374",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 1,
+          "missing_previous_interval": false,
+          "newly_assimilated_evidence_ids": [
+            "fdb6bacbee09b15612373f53e8b4d3b4aaf52b965a774cac5aaf4bc5c9e7d6cb"
+          ],
+          "radius": 0.25,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 0,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-01"
+        },
+        {
+          "belief_entropy_nats": 1.0875532272984396,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "fresh_documented",
+          "estimate_id": "1bb75c7f44b13fcc74611a80911e8977df17e0c58e71b58f33162d9f10d8eab5",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 1,
+          "missing_previous_interval": false,
+          "newly_assimilated_evidence_ids": [
+            "209ca49a18f77e175afa44327b00e1a975e3639ab10830c55cbe4ec1faf562bd"
+          ],
+          "radius": 0.25,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 0,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-02"
+        }
+      ],
+      "cutoff_actions": [
+        {
+          "cancellations": [],
+          "objective": 0.05531677036096864,
+          "offers": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 1,
+              "student_id": "fictional-01"
+            }
+          ],
+          "solver_status": "weekly_rollout_milp_optimal",
+          "week": 1
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 2
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 3
+        },
+        {
+          "cancellations": [],
+          "objective": 0.02614300892175931,
+          "offers": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 4,
+              "student_id": "fictional-00"
+            }
+          ],
+          "solver_status": "weekly_rollout_milp_optimal",
+          "week": 4
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 5
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 6
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 7
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 8
+        }
+      ],
+      "seed": 42,
+      "terminal_retained": 2
+    },
+    "fair_robust_stale_missing_41": {
+      "cutoff_2_reviews": [
+        {
+          "continuation_value": 0.0627070486928359,
+          "cutoff_week": 2,
+          "decision": "continue",
+          "estimate_id": "2021e125c4b0af9ee60f1b3c13eefe0837ad10f2c8f943bc1e1da50aca6ad2e3",
+          "fresh_evidence": false,
+          "opportunity_solver_status": "not_required",
+          "opportunity_value": null,
+          "programme_id": "41:fictional-01:weekly-programme:1",
+          "reason": "no_new_usable_condition_evidence",
+          "released_liability_if_cancelled": "4.0",
+          "remaining_session_weeks": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "rule": "evidence_gated_capacity_opportunity/v1",
+          "scenario_continuation_gains": [
+            0.05176803016483956,
+            0.03217394313720929,
+            0.0627070486928359
+          ],
+          "stability_margin": 0.01,
+          "student_id": "fictional-01",
+          "units": "expected_terminal_retained_students"
+        }
+      ],
+      "cutoff_2_uncertainty_sets": [
+        {
+          "belief_entropy_nats": 1.0574394463476886,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "missing_or_stale",
+          "estimate_id": "594ef27f15de297cf9a3c1104e58ea1c899e7872a1547b1eb78b3bda25718206",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 0,
+          "missing_previous_interval": true,
+          "newly_assimilated_evidence_ids": [],
+          "radius": 0.40625,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 1,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-00"
+        },
+        {
+          "belief_entropy_nats": 0.9966199777198224,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "missing_or_stale",
+          "estimate_id": "2021e125c4b0af9ee60f1b3c13eefe0837ad10f2c8f943bc1e1da50aca6ad2e3",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 0,
+          "missing_previous_interval": true,
+          "newly_assimilated_evidence_ids": [],
+          "radius": 0.40625,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 1,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-01"
+        },
+        {
+          "belief_entropy_nats": 0.859383901421529,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "missing_or_stale",
+          "estimate_id": "1b6208ebb4bbb5b5b057ef3f14b4681209dd30d98ce6d2674204938b981f80af",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 0,
+          "missing_previous_interval": true,
+          "newly_assimilated_evidence_ids": [],
+          "radius": 0.40625,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 1,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-02"
+        }
+      ],
+      "cutoff_actions": [
+        {
+          "cancellations": [],
+          "objective": 0.05181403337174338,
+          "offers": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 1,
+              "student_id": "fictional-01"
+            }
+          ],
+          "solver_status": "weekly_rollout_milp_optimal",
+          "week": 1
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 2
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 3
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 4
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 5
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 6
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 7
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 8
+        }
+      ],
+      "seed": 41,
+      "terminal_retained": 3
+    },
+    "fair_robust_stale_missing_42": {
+      "cutoff_2_reviews": [
+        {
+          "continuation_value": 0.0648553772206447,
+          "cutoff_week": 2,
+          "decision": "continue",
+          "estimate_id": "6c801d3e7e8cc6b8250339a391294e105a3f92a1accd0f505377eff9bee06efa",
+          "fresh_evidence": false,
+          "opportunity_solver_status": "not_required",
+          "opportunity_value": null,
+          "programme_id": "42:fictional-01:weekly-programme:1",
+          "reason": "no_new_usable_condition_evidence",
+          "released_liability_if_cancelled": "4.0",
+          "remaining_session_weeks": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "rule": "evidence_gated_capacity_opportunity/v1",
+          "scenario_continuation_gains": [
+            0.055386267685359626,
+            0.03432227166501809,
+            0.0648553772206447
+          ],
+          "stability_margin": 0.01,
+          "student_id": "fictional-01",
+          "units": "expected_terminal_retained_students"
+        }
+      ],
+      "cutoff_2_uncertainty_sets": [
+        {
+          "belief_entropy_nats": 0.859383901421529,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "missing_or_stale",
+          "estimate_id": "0c7c89c4739e53e3ae4a422eec0543681435b8223428e1e96973a6d3cc688962",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 0,
+          "missing_previous_interval": true,
+          "newly_assimilated_evidence_ids": [],
+          "radius": 0.40625,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 1,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-00"
+        },
+        {
+          "belief_entropy_nats": 0.9408398306751518,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "missing_or_stale",
+          "estimate_id": "6c801d3e7e8cc6b8250339a391294e105a3f92a1accd0f505377eff9bee06efa",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 0,
+          "missing_previous_interval": true,
+          "newly_assimilated_evidence_ids": [],
+          "radius": 0.40625,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 1,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-01"
+        },
+        {
+          "belief_entropy_nats": 0.859383901421529,
+          "clipping_applied": false,
+          "conflict": false,
+          "cutoff_week": 2,
+          "documentation_subset": "missing_or_stale",
+          "estimate_id": "5abe769db2cdba0c89420eda594beac85ca636d5d2b0e86559a0f1d136174a76",
+          "fallback": null,
+          "freshness_weeks": 12,
+          "latest_assimilated_source_week": 0,
+          "missing_previous_interval": true,
+          "newly_assimilated_evidence_ids": [],
+          "radius": 0.40625,
+          "rejected_condition_observation": false,
+          "rule": "monthly_freshness_mixture_adapted_to_weeks/v1",
+          "signal_age_weeks": 1,
+          "source": "declared_synthetic_assumption_not_empirically_calibrated",
+          "student_id": "fictional-02"
+        }
+      ],
+      "cutoff_actions": [
+        {
+          "cancellations": [],
+          "objective": 0.05531677036096864,
+          "offers": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 1,
+              "student_id": "fictional-01"
+            }
+          ],
+          "solver_status": "weekly_rollout_milp_optimal",
+          "week": 1
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 2
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 3
+        },
+        {
+          "cancellations": [],
+          "objective": 0.01177739857649138,
+          "offers": [
+            {
+              "mentor_id": "mentor-0",
+              "start_week": 4,
+              "student_id": "fictional-00"
+            }
+          ],
+          "solver_status": "weekly_rollout_milp_optimal",
+          "week": 4
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 5
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 6
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 7
+        },
+        {
+          "cancellations": [],
+          "objective": 0.0,
+          "offers": [],
+          "solver_status": "no_candidates",
+          "week": 8
+        }
+      ],
+      "seed": 42,
+      "terminal_retained": 2
+    }
+  },
+  "protocol_sha256": "37fee05a3899a8b60438d3d84ef4d4389ed37148ab72647c33df0914c20b066d",
+  "reproduction": "python -m src.school.delivery_acceptance --output results/phase4_1_fresh_run",
+  "scope": "synthetic_engineering_verification_not_statistical_policy_evidence",
+  "source_fingerprints_sha256": "22604f045c91a239f339e9dc63bc2aed6026b8f3f816c6ce48ee53eeef34aa4d",
+  "terminal_weeks_9_12_fairness": {
+    "actual_coverage_shortfall": 2,
+    "actual_unique_offers": 0,
+    "additional_shortfall_beyond_frozen_model": 0,
+    "bound_scope": "min_total_count_shortfall_then_max_unique_coverage_joint_reservation_model",
+    "cohort_witness": [
+      {
+        "actual_unique_offers": 0,
+        "attainable_unique_offers_in_joint_witness": 0,
+        "frozen_eligible_students": 2,
+        "group": "False",
+        "required_unique_offers": 1,
+        "stratum": "uncertain"
+      },
+      {
+        "actual_unique_offers": 0,
+        "attainable_unique_offers_in_joint_witness": 0,
+        "frozen_eligible_students": 1,
+        "group": "True",
+        "required_unique_offers": 1,
+        "stratum": "uncertain"
+      }
+    ],
+    "feasible_candidate_starts": 0,
+    "feasible_new_start_weeks": [],
+    "frozen_eligible_students": 3,
+    "guaranteed_realized_coverage": false,
+    "jointly_feasible_witness": [],
+    "maximum_attainable_coverage_at_minimum_shortfall": 0,
+    "maximum_attainable_unique_offers": 0,
+    "model": "frozen_snapshot_fixed_commitments_no_future_releases_or_withdrawals/v1",
+    "required_unique_offers": 2,
+    "snapshot_cutoff_week": 9,
+    "solver_status": "optimal_empty",
+    "terminal_no_carryover_infeasibility": true,
+    "unavoidable_shortfall_under_frozen_model": 2,
+    "window_end_week": 12,
+    "window_start_week": 9
+  },
+  "verification": {
+    "baseline": {
+      "seconds": 100.72,
+      "status": "passed",
+      "tests": 393
+    },
+    "delivery": {
+      "seconds": 2.773,
+      "status": "passed",
+      "tests": 76
+    },
+    "exact_replays": {
+      "fair_point_accurate_41": "exact_replay_verified",
+      "fair_point_accurate_42": "exact_replay_verified",
+      "fair_point_stale_missing_41": "exact_replay_verified",
+      "fair_point_stale_missing_42": "exact_replay_verified",
+      "fair_robust_accurate_41": "exact_replay_verified",
+      "fair_robust_accurate_42": "exact_replay_verified",
+      "fair_robust_stale_missing_41": "exact_replay_verified",
+      "fair_robust_stale_missing_42": "exact_replay_verified",
+      "low": "exact_replay_verified",
+      "negative_a": "exact_replay_verified",
+      "negative_b": "exact_replay_verified",
+      "regular": "exact_replay_verified"
+    },
+    "full_suite": {
+      "seconds": 93.951,
+      "status": "passed",
+      "tests": 426
+    },
+    "github_ci": "configured_not_run",
+    "historical_v1": {
+      "original_checkout_replay": "exact_replay_verified",
+      "reader": "seal_and_identity_verified",
+      "source_revision": "7cf26d07246216573e4c779f3dc8369455bd1436"
+    },
+    "initial_failing_reproductions": {
+      "expected_errors": 4,
+      "status": "reproduced_before_implementation"
+    },
+    "local_python_313": "not_run",
+    "phase_named_regressions": {
+      "seconds": 52.907,
+      "status": "passed",
+      "tests": 116
+    },
+    "runtime": {
+      "dependencies": [
+        [
+          "attrs",
+          "26.1.0"
+        ],
+        [
+          "cloudpickle",
+          "3.1.2"
+        ],
+        [
+          "contourpy",
+          "1.4.0"
+        ],
+        [
+          "cycler",
+          "0.12.1"
+        ],
+        [
+          "fonttools",
+          "4.68.0"
+        ],
+        [
+          "joblib",
+          "1.6.0"
+        ],
+        [
+          "jsonschema",
+          "4.25.1"
+        ],
+        [
+          "jsonschema-specifications",
+          "2025.9.1"
+        ],
+        [
+          "kiwisolver",
+          "1.5.1"
+        ],
+        [
+          "matplotlib",
+          "3.10.8"
+        ],
+        [
+          "numpy",
+          "2.3.5"
+        ],
+        [
+          "packaging",
+          "26.3"
+        ],
+        [
+          "pandas",
+          "2.2.3"
+        ],
+        [
+          "pillow",
+          "13.0.0"
+        ],
+        [
+          "pyparsing",
+          "3.3.3"
+        ],
+        [
+          "python-dateutil",
+          "4.0.0"
+        ],
+        [
+          "pytz",
+          "2026.6"
+        ],
+        [
+          "referencing",
+          "0.37.0"
+        ],
+        [
+          "rpds-py",
+          "2026.9.1"
+        ],
+        [
+          "scikit-learn",
+          "1.7.2"
+        ],
+        [
+          "scipy",
+          "1.16.3"
+        ],
+        [
+          "tabulate",
+          "0.9.0"
+        ],
+        [
+          "threadpoolctl",
+          "3.8.0"
+        ],
+        [
+          "typing_extensions",
+          "4.16.0"
+        ],
+        [
+          "tzdata",
+          "2026.6"
+        ]
+      ],
+      "implementation": "CPython",
+      "python": "3.12.12"
+    },
+    "standalone_replay": {
+      "compared": "all_decisions_events_resources_observations_estimates_fairness_and_hidden_trajectories",
+      "episode_identity": "8d510f39dfd368442e66551b8f0fe3f17e84177246cebd7b2634aedba43f2dbb",
+      "status": "exact_replay_verified"
+    }
+  }
+}

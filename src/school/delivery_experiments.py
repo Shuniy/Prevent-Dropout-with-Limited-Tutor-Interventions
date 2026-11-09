@@ -12,15 +12,16 @@ from .delivery_config import DeliveryConfig
 from .delivery_contracts import StudentProfile, WeeklyNote
 from .delivery_controller import WeeklyFeedbackController
 from .delivery_environment import WeeklyDeliveryEnvironment
-from .delivery_fairness import offer_fairness_rows
+from .delivery_fairness import offer_fairness_rows, offer_feasibility_diagnostics
 from .delivery_policy import WeeklyDeliveryPolicy
 from .mentor import Mentor
 from .mentor_availability import MentorAvailability
 from .student_condition import StudentCondition
 from .money import amount
+from .observation_model import ObservationConfig
 
 
-PROTOCOL_PATH = Path(__file__).resolve().parents[2]/'docs'/'phase4_delivery_protocol_v1.md'
+PROTOCOL_PATH = Path(__file__).resolve().parents[2]/'docs'/'phase4_1_adaptive_delivery_correctness.md'
 
 
 def normalized(value):
@@ -35,8 +36,11 @@ def scorecard(controller):
         'support_offered', 'offer_accepted', 'offer_refused', 'programme_active',
         'session_delivered', 'session_missed', 'programme_completed', 'programme_cancelled', 'programme_incomplete')}
     fairness = []
+    feasibility = []
     terminal_conditions = dict(env.evaluator_truth[-1][1])
     for window in env.windows:
+        frozen = next(s for s in controller.snapshots if s.week == window.start_week)
+        feasibility.append(offer_feasibility_diagnostics(frozen,env.config,events))
         cohorts = {(c.group,c.stratum): c.student_ids for c in window.cohorts}
         rows = offer_fairness_rows(window,events,env.config)
         for row in rows:
@@ -63,7 +67,10 @@ def scorecard(controller):
         released_liabilities=ledger.released, administration_cost=ledger.administrative_cost,
         remaining_unspent_budget=str(amount(ledger.budget)-amount(ledger.spent)),
         spendable_budget=ledger.spendable, overbooking_checks='passed_independent_event_reconstruction',
-        mentor_workload=workload, fairness=fairness,
+        mentor_workload=workload, fairness=fairness, fairness_feasibility=feasibility,
+        risk_targets=dict(usual_support='WeeklyRisk.probability: synthetic terminal non-enrollment; no future tutoring',
+            committed_support='WeeklyCommittedRisk.probability: continue accepted schedules, no new offers',
+            approximation='joint_active_inactive_expected_weekly_delivery/v1'),
         extraction_attempts=len(controller.attempts),
         quarantined_extractions=sum(a['status'] == 'quarantined' for a in controller.attempts),
         actionable_extraction_opportunities=sum(r['actionable_extraction_attempts'] for r in controller.extraction_diagnostics
@@ -78,7 +85,7 @@ def scorecard(controller):
 def episode_payload(controller):
     controller.validate()
     env = controller.environment
-    return dict(contract='scheduled_weekly/replay/v1',
+    return dict(contract='scheduled_weekly/replay/v2',
         notes=[{**asdict(n), 'creation_time': n.creation_time} for n in controller.notes],
         extraction_attempts=controller.attempts,
         actionable_extraction_diagnostics=controller.extraction_diagnostics,
@@ -99,9 +106,10 @@ def save_delivery_episode(controller, output):
     """Validate, serialize, seal, verify, publish once; never replace a run."""
     payload = normalized(episode_payload(controller))
     env = controller.environment
-    manifest = dict(contract='scheduled_weekly/replay/v1', scenario=asdict(env.config),
+    manifest = dict(contract='scheduled_weekly/replay/v2', scenario=asdict(env.config),
         policy=controller.policy.configuration, note_quality=asdict(controller.note_quality),
         estimator=controller.estimator.configuration,
+        observation_config=asdict(env.observation_config),
         initial_authorized_profiles=[asdict(p) for p in env.profiles],
         initial_and_future_mentor_calendars=[asdict(m) for m in env.mentors],
         extractor=extractor_identity(controller.extractor),
@@ -124,20 +132,35 @@ def save_delivery_episode(controller, output):
     return manifest['episode_identity']
 
 
-def replay_delivery_episode(source, output=None):
-    """Re-run public policy decisions and hidden transitions without a live LLM."""
+def read_delivery_episode(source):
+    """Read/verify v1 or v2 artifacts without claiming execution compatibility.
+
+    Historical v1 exact execution belongs to its fingerprinted original checkout
+    and runtime. This reader preserves access without weakening those guards.
+    """
     source = Path(source)
     verify_directory(source)
     manifest = json.loads((source/'manifest.json').read_text())
-    if manifest.get('contract') != 'scheduled_weekly/replay/v1':
+    if manifest.get('contract') not in ('scheduled_weekly/replay/v1', 'scheduled_weekly/replay/v2'):
         raise ValueError('unsupported weekly replay contract')
     if digest({k:v for k,v in manifest.items() if k != 'episode_identity'}) != manifest['episode_identity']:
         raise ValueError('weekly manifest identity mismatch')
     payload = json.loads((source/'episode.json').read_text())
     if digest(payload) != manifest['payload_sha256']:
         raise ValueError('weekly payload identity mismatch')
+    if digest(manifest['protocol_text']) != manifest['protocol_sha256']:
+        raise ValueError('weekly protocol identity mismatch')
+    return manifest,payload
+
+
+def replay_delivery_episode(source, output=None):
+    """Re-run public policy decisions and hidden transitions without a live LLM."""
+    source = Path(source)
+    manifest,payload = read_delivery_episode(source)
     if source_fingerprints() != manifest['provenance']['source_fingerprints']:
         raise ValueError('exact weekly replay requires recorded source/configuration versions')
+    if manifest['contract'] == 'scheduled_weekly/replay/v1':
+        raise ValueError('v1 remains readable; exact execution requires its archived v1 source and runtime')
     if (manifest['protocol_text'] != PROTOCOL_PATH.read_text()
             or digest(manifest['protocol_text']) != manifest['protocol_sha256']):
         raise ValueError('weekly protocol version mismatch')
@@ -152,9 +175,12 @@ def replay_delivery_episode(source, output=None):
         cost_units_per_session=amount(m['cost_per_session'])) for m in manifest['initial_and_future_mentor_calendars'])
     world = json.loads((source/'evaluator_only'/'world.json').read_text())
     env = WeeklyDeliveryEnvironment(tuple(StudentProfile(**p) for p in manifest['initial_authorized_profiles']),
-        mentors, config, initial_conditions=tuple(tuple(row) for row in world['initial_conditions']))
+        mentors, config, initial_conditions=tuple(tuple(row) for row in world['initial_conditions']),
+        observation_config=ObservationConfig(**manifest['observation_config']))
     policy_record = manifest['policy']
-    policy = WeeklyDeliveryPolicy(config, policy_record['mode'], uncertainty_radius=policy_record['uncertainty_radius'])
+    policy = WeeklyDeliveryPolicy(config, policy_record['mode'], uncertainty_radius=policy_record['uncertainty_radius'],
+        continuation_margin=policy_record['continuation_margin'],
+        minimum_review_age_weeks=policy_record['minimum_review_age_weeks'])
     if policy.configuration != policy_record:
         raise ValueError('weekly policy configuration mismatch')
     notes = {n['note_id']: WeeklyNote(**{**{k:v for k,v in n.items() if k != 'creation_time'},
@@ -169,6 +195,8 @@ def replay_delivery_episode(source, output=None):
     controller.run_episode(outcome_provider=lambda week: overrides.get(week, {}))
     if normalized(episode_payload(controller)) != payload:
         raise ValueError('weekly replay mismatch in decisions, estimates, events, observations or ledger')
+    if normalized(scorecard(controller)) != json.loads((source/'summary.json').read_text()):
+        raise ValueError('weekly replay summary mismatch in risk labels, fairness feasibility or resource diagnostics')
     if normalized(dict(initial_conditions=env.initial_conditions, truth=env.evaluator_truth,
                        exogenous_draws=env.exogenous_draws)) != world:
         raise ValueError('weekly replay evaluator trajectory/randomness mismatch')

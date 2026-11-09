@@ -12,6 +12,43 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install offline test dependencies
-        run: pip install numpy==2.3.5 pandas==2.2.3 matplotlib 'scipy>=1.11,<2' 'jsonschema>=4.18,<5' tabulate scikit-learn
+        run: pip install -r requirements-offline.txt
       - name: Run offline tests
         run: python -m unittest discover -s tests
+  adaptive-acceptance:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      MPLCONFIGDIR: /tmp/phase41-matplotlib
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.12'
+      - name: Install frozen offline dependencies
+        run: pip install -r requirements-offline.txt
+      - name: Create fresh acceptance output directory
+        run: mkdir -p "$RUNNER_TEMP/phase41/logs"
+      - name: Run Phase 1–4 regressions
+        run: |
+          python -m unittest discover -s tests -p 'test_phase*.py' 2>&1 | tee "$RUNNER_TEMP/phase41/logs/phases.log"
+          python -m unittest discover -s tests -p 'test_delivery_*.py' 2>&1 | tee "$RUNNER_TEMP/phase41/logs/delivery.log"
+      - name: Run complete available suite
+        run: python -m unittest discover -s tests 2>&1 | tee "$RUNNER_TEMP/phase41/logs/full-suite.log"
+      - name: Execute matched examples, exact replay and independent resource audit
+        run: python -m src.school.delivery_acceptance --output "$RUNNER_TEMP/phase41/acceptance" 2>&1 | tee "$RUNNER_TEMP/phase41/logs/acceptance.log"
+      - name: Verify required artifacts
+        run: |
+          test -s "$RUNNER_TEMP/phase41/acceptance/acceptance_report.json"
+          test -s "$RUNNER_TEMP/phase41/acceptance/regular/summary.json"
+          test -s "$RUNNER_TEMP/phase41/acceptance/regular_replay/replay_result.json"
+          test -s "$RUNNER_TEMP/phase41/acceptance/artifact_integrity.json"
+      - name: Upload synthetic evidence and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase4-1-synthetic-acceptance
+          path: ${{ runner.temp }}/phase41
+          if-no-files-found: error

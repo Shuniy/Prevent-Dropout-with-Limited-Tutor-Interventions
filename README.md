@@ -47,6 +47,14 @@ offers, delivery-driven effects and exact weekly replay. Its
 [versioned weekly protocol](docs/phase4_delivery_protocol_v1.md) and
 [configuration](configs/delivery_weekly_v1.toml) are synthetic assumptions.
 Old configurations continue to select the atomic monthly benchmark.
+The [Phase 4.1 amendment](docs/phase4_1_adaptive_delivery_correctness.md) adds
+evidence-gated active-programme reassessment, documentation-sensitive uncertainty,
+committed-support risk and joint fairness-feasibility diagnostics. Reproduce its
+synthetic acceptance and exact offline replays with
+`python -m src.school.delivery_acceptance --output results/phase4_1_new_run` after
+installing `requirements-offline.txt` under Python 3.12 or 3.13. Use a fresh output
+path for each execution; [retained measured evidence](docs/phase4_1_acceptance_results.json)
+is included with the source, and CI uploads full synthetic episodes and logs.
 
 Check current implemented behavior against `src/`, `configs/` and `tests/`.
 Code and passing tests establish tested behavior, not scientific correctness.

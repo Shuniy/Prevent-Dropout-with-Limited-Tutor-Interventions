@@ -56,8 +56,8 @@ class StudentStateEstimator:
             result['action_contract'] = self.action_contract
         return result
 
-    def initialize(self, student_id, initial_observations=(), *, registry=(), as_of_month=1):
-        return self._update(student_id, None, initial_observations, (), as_of_month, registry)
+    def initialize(self, student_id, initial_observations=(), *, registry=(), as_of_month=1, known_actions=()):
+        return self._update(student_id, None, initial_observations, known_actions, as_of_month, registry)
 
     def update(self, previous_belief, validated_observations=(), known_actions=(), *,
                as_of_month, registry=()):

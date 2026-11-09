@@ -1,9 +1,97 @@
 """Frozen four-week unique OFFER coverage, distinct from monthly admissions."""
-from dataclasses import replace
+from dataclasses import asdict, replace
 
 from .delivery_contracts import OfferCohort, OfferWindow
 from .fairness_audit import required_access
 from .student_condition import STATES
+
+
+def offer_feasibility_diagnostics(state, config, events=()):
+    """Exact joint reservation-model bound at a frozen window snapshot.
+
+    Fixed commitments, unchanged enrollment, no future releases/refusals and full
+    worst-case offer liabilities. This is conditional physical feasibility, not
+    guaranteed realized coverage. Cohort counts come from ONE shared witness;
+    independent per-cell maxima are never summed.
+    """
+    import numpy as np
+    from .delivery_contracts import DeliveryAction
+    from .delivery_resources import feasible_offers, validate_offers
+    from .delivery_policy import weekly_resource_rows
+    from .fairness_planner import feasible_vector
+    from .optimization import solve_milp
+    window = state.fairness_window
+    cohorts = tuple(c for c in window.cohorts if c.student_ids)
+    frozen = set(sid for c in cohorts for sid in c.student_ids)
+    prior = set(window.offered_ids)
+    candidates = tuple(a for a in feasible_offers(state, config, end_week=window.end_week)
+                       if a.student_id in frozen-prior)
+    required = [required_access(config.fairness_target, len(c.student_ids)) for c in cohorts]
+    selected, status, minimum, maximum = (), 'optimal_empty', None, 0
+    if candidates:
+        n, k = len(candidates), len(cohorts)
+        resource, bounds, _ = weekly_resource_rows(state, candidates, config)
+        cardinality = solve_milp(-np.ones(n), resource, np.full(len(resource), -np.inf), bounds,
+            binary_count=n, time_limit=config.planner_time_limit)
+        maximum = None
+        if cardinality.status == 0 and feasible_vector(cardinality, resource,
+                np.full(len(resource), -np.inf), bounds):
+            witness_max = tuple(a for a,b in zip(candidates,np.rint(cardinality.x)) if b)
+            validate_offers(state,DeliveryAction(witness_max),config,projected=True)
+            maximum = len({a.student_id for a in witness_max})
+        rows = np.pad(resource, ((0,0), (0,k)))
+        lower, upper = np.full(len(rows), -np.inf), bounds
+        for i,c in enumerate(cohorts):
+            row = np.zeros(n+k)
+            row[:n] = [int(a.student_id in c.student_ids) for a in candidates]
+            row[n+i] = 1
+            rows = np.vstack([rows,row])
+            lower = np.append(lower, required[i]-len(set(c.student_ids)&prior))
+            upper = np.append(upper, np.inf)
+        objective = np.r_[np.zeros(n),np.ones(k)]
+        result = solve_milp(objective, rows, lower, upper, binary_count=n,
+            integer_count=n+k, time_limit=config.planner_time_limit)
+        if result.status != 0 or not feasible_vector(result, rows, lower, upper, integer_count=n+k):
+            status = 'nonoptimal_bound_unavailable_'+str(result.status)
+        else:
+            minimum = int(round(objective @ result.x))
+            rows = np.vstack([rows,objective])
+            lower, upper = np.append(lower,-np.inf), np.append(upper,minimum)
+            result = solve_milp(np.r_[-np.ones(n),np.zeros(k)], rows, lower, upper,
+                binary_count=n, integer_count=n+k, time_limit=config.planner_time_limit)
+            if result.status == 0 and feasible_vector(result, rows, lower, upper, integer_count=n+k):
+                selected = tuple(a for a,b in zip(candidates,np.rint(result.x[:n])) if b)
+                validate_offers(state,DeliveryAction(selected),config,projected=True)
+                status = 'optimal'
+            else:
+                status, minimum = 'nonoptimal_bound_unavailable_'+str(result.status), None
+    else:
+        minimum = sum(max(0,r-len(set(c.student_ids)&prior)) for c,r in zip(cohorts,required))
+    actual = {e.student_id for e in events if e.kind == 'support_offered'
+              and window.start_week <= e.source_week <= window.end_week}
+    actual |= prior
+    witness = prior | {a.student_id for a in selected}
+    shortfall = sum(max(0,r-len(set(c.student_ids)&actual)) for c,r in zip(cohorts,required))
+    return dict(window_start_week=window.start_week, window_end_week=window.end_week,
+        snapshot_cutoff_week=state.week, frozen_eligible_students=len(frozen),
+        required_unique_offers=sum(required), actual_unique_offers=len(actual&frozen),
+        actual_coverage_shortfall=shortfall,
+        feasible_candidate_starts=len(candidates),
+        feasible_new_start_weeks=sorted({a.start_week for a in candidates}),
+        maximum_attainable_unique_offers=maximum+len(prior&frozen) if maximum is not None else None,
+        maximum_attainable_coverage_at_minimum_shortfall=len(witness&frozen) if minimum is not None else None,
+        unavoidable_shortfall_under_frozen_model=minimum,
+        additional_shortfall_beyond_frozen_model=max(0,shortfall-minimum) if minimum is not None else None,
+        terminal_no_carryover_infeasibility=config.schedule(state.week)[-1] > config.horizon_weeks,
+        solver_status=status, jointly_feasible_witness=tuple(asdict(a) for a in selected),
+        cohort_witness=tuple(dict(group=c.group,stratum=c.stratum,
+            frozen_eligible_students=len(c.student_ids),required_unique_offers=r,
+            actual_unique_offers=len(set(c.student_ids)&actual),
+            attainable_unique_offers_in_joint_witness=len(set(c.student_ids)&witness))
+            for c,r in zip(cohorts,required)),
+        model='frozen_snapshot_fixed_commitments_no_future_releases_or_withdrawals/v1',
+        bound_scope='min_total_count_shortfall_then_max_unique_coverage_joint_reservation_model',
+        guaranteed_realized_coverage=False)
 
 
 def freeze_offer_window(state, config):

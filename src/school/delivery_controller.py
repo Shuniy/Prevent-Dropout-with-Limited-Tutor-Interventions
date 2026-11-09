@@ -32,13 +32,15 @@ class WeeklyFeedbackController:
         self.note_quality = note_quality
         self.recorded_notes = recorded_notes
         self.estimator = StudentStateEstimator(wait_matrix=environment.config.weekly_wait_matrix,
-            treatment_matrix=environment.config.treatment_matrix, action_contract='weekly_delivered_v1')
+            treatment_matrix=environment.config.treatment_matrix, action_contract='weekly_delivered_v1',
+            observation_config=environment.observation_config)
         self.risk_model = SimulatedWithdrawalRiskEstimator(environment.config.weekly_wait_matrix)
         self.estimates = {}
         self.notes, self.batches, self.attempts, self.snapshots, self.decisions = [], [], [], [], []
         self.processed = set()
         self._generated = set()
         self._cutoff_diagnostics = {}
+        self._new_evidence_by_cutoff = {}
         self._generate_notes()
 
     def _generate_notes(self):
@@ -116,14 +118,31 @@ class WeeklyFeedbackController:
             previous = self.estimates.get(sid)
             estimate = (self.estimator.update(previous, incoming[sid], actions,
                 as_of_month=cutoff, registry=records) if previous else
-                self.estimator.initialize(sid, incoming[sid], registry=records, as_of_month=cutoff))
+                self.estimator.initialize(sid, incoming[sid], registry=records, as_of_month=cutoff,
+                    known_actions=actions))
             self.estimates[sid] = estimate
             update = self.estimator.updates[-1]
-            new_evidence[sid] = set(update.accepted_observations) & set(update.assimilated_condition_evidence_ids)
+            new = self._new_evidence_by_cutoff.setdefault((cutoff,sid),set())
+            new.update(set(update.accepted_observations) & set(update.assimilated_condition_evidence_ids))
+            new.intersection_update(update.assimilated_condition_evidence_ids)
+            new_evidence[sid] = set(new)
+            # Audit only current condition-note attempts. Lifecycle prose and
+            # repeated citations cannot manufacture a fresh condition reading.
+            current = [a for a in self.attempts if a['student_id'] == sid
+                       and a['as_of_month'] == cutoff and a['note_type'] == 'monitoring']
+            conflict_events = {event for event,reason in update.rejected_observations
+                               if reason == 'conflicting_correlated_event'}
+            conflict = any(f.event_id in conflict_events and
+                f.source_month >= (estimate.last_observation_month if estimate.last_observation_month is not None else 0)
+                for f in estimate.observation_history)
+            quality = (*estimate.observation_uncertainty,
+                ('new_condition_evidence_ids', tuple(sorted(new_evidence[sid]))),
+                ('condition_conflict', conflict),
+                ('rejected_condition_observation', any(a['status'] == 'quarantined' for a in current)))
             risk = self.risk_model.predict(estimate, max(0, env.config.horizon_weeks-cutoff+1))
             wrapped.append(WeeklyEstimate(sid, cutoff, estimate.condition_probabilities,
                 estimate.estimate_id, estimate.evidence_ids, estimate.last_observation_month,
-                estimate.observation_uncertainty))
+                quality))
             risks.append(WeeklyRisk(sid, cutoff, risk.months_remaining, risk.input_estimate_id, risk.probability))
         state = env.observe(estimates=tuple(wrapped), risks=tuple(risks))
         eligible = {s.student_id for s in state.students if s.eligible}

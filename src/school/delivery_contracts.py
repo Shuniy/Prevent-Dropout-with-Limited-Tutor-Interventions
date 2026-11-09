@@ -5,6 +5,7 @@ import math
 
 from .belief_state import validate_belief
 from .money import amount
+from .delivery_forecasts import WeeklyCommittedRisk
 
 
 @dataclass(frozen=True)
@@ -40,6 +41,8 @@ class DeliveryAction:
     projected_normalized_shortfall: float = 0.
     lexicographic_complete: bool = False
     solver_message: str = ''
+    continuation_reviews: tuple = ()
+    uncertainty_sets: tuple = ()
 
 
 EVENT_KINDS = ('support_offered', 'offer_accepted', 'offer_refused', 'session_reserved',
@@ -147,6 +150,7 @@ class WeeklyStudent:
     waiting_weeks: int
     offers: tuple[str, ...]
     programmes: tuple[Programme, ...]
+    committed_risk: WeeklyCommittedRisk | None = None
 
     @property
     def student_id(self):
@@ -218,7 +222,7 @@ class WeeklyDecisionState:
     ledger: LedgerSnapshot
     fairness_window: OfferWindow
     authorized_event_ids: tuple[str, ...]
-    contract: str = 'scheduled_weekly/decision/v1'
+    contract: str = 'scheduled_weekly/decision/v2'
 
     def validate_estimates(self):
         for s in self.students:
@@ -227,6 +231,11 @@ class WeeklyDecisionState:
                     or s.risk.weeks_remaining != self.weeks_remaining
                     or s.risk.input_estimate_id != s.estimate.estimate_id):
                 raise ValueError('stale or mismatched weekly estimate/risk identity')
+            r = s.committed_risk
+            if r is not None and (r.student_id != s.student_id or r.as_of_week != self.week
+                    or r.weeks_remaining != self.weeks_remaining
+                    or r.input_estimate_id != s.estimate.estimate_id):
+                raise ValueError('stale or mismatched committed-support estimate/risk identity')
 
 
 @dataclass(frozen=True)
