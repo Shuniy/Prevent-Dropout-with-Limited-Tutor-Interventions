@@ -1,0 +1,29 @@
+[phase5]
+protocol_version = "phase5_research/v2"
+prediction_horizon = 4
+prediction_cohort_size = 32
+prediction_weeks = 8
+training_world_seeds = [100,101,102,103,104,105,106,107,108,109]
+validation_world_seeds = [200,201,202,203,204,205]
+prediction_test_world_seeds = [300,301,302,303,304,305,306,307]
+training_population_seed_base = 11000
+validation_population_seed_base = 22000
+prediction_test_population_seed_base = 33000
+development_world_seeds = [400,401,402,403,404,405,406,407,408,409]
+heldout_world_seeds = [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026,2027,2028,2029]
+development_population_seed = 44000
+primary_population_seed = 55000
+sensitivity_population_seeds = [55001,55002]
+
+[delivery]
+num_students = 48
+num_mentors = 2
+horizon_weeks = 12
+sessions_required = 5
+budget = 40.0
+weekly_mentor_hours = 2.0
+weekly_session_capacity = 2
+max_concurrent_students = 2
+fairness_target = 0.3
+effect_strength = 1.0
+fairness_grouping_attribute = "sex_source"

@@ -79,6 +79,31 @@ Report unresolved scientific design decisions rather than guessing.
 
 ## Setup and commands
 
+Phase 5 adds opt-in source-lineage sampling, a separately trained four-week
+simulated withdrawal-event predictor, held-out prose challenges and frozen weekly
+policy comparisons. See the [implementation and limits](docs/phase5_population_risk_language_validation.md)
+and [amended Phase 5 protocol](docs/phase5_research_protocol_v2.md). The retained
+[v1 protocol](docs/phase5_research_protocol_v1.md) produced an unexercised cohort;
+v2 adds compatibility gates and fresh held-out worlds. Existing runners and
+analytical terminal-risk targets retain their contracts.
+
+```sh
+# Fresh immutable destination; includes training, language, 10 development and
+# 30 primary paired worlds, controls and one-factor sensitivities:
+python -m src.evaluation.phase5_experiments --stage all --output results/phase5_new_run
+# Regenerate reference labels, refit on train/validation only, recompute metrics,
+# and replay every saved episode without a live model:
+python -m src.evaluation.phase5_experiments --verify results/phase5_new_run
+# Bounded validation-source pilot only:
+python -m src.evaluation.phase5_experiments --stage pilot --output results/phase5_new_pilot
+# Separate explicit live-inference experiment; unavailable inference is reported:
+python -m src.evaluation.phase5_experiments --stage language --live-llm-model qwen3.5:latest \
+  --output results/phase5_new_live_language
+# Separately frozen adverse-effect follow-up (same weekly simulator):
+python -m src.evaluation.phase5_experiments --stage adverse \
+  --model results/phase5_new_run/prediction/model.json --output results/phase5_new_adverse
+```
+
 Use Python 3.12 or 3.13, as declared in `pyproject.toml`:
 
 ```bash
