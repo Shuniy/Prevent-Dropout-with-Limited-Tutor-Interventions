@@ -5,7 +5,7 @@
     "implemented": true,
     "locally_tested": true,
     "scientifically_evaluated": "bounded_synthetic_pilot",
-    "remotely_ci_verified": false
+    "remotely_ci_verified": true
   },
   "base_commit": "9f14b16a626b9f2e017000ee411ff099ae3c5a42",
   "branch": "fix/phase-5-research-evidence-fix",
@@ -938,12 +938,62 @@
     }
   },
   "ci": {
-    "status": "pending_push",
-    "required_jobs": [
-      "unittest",
-      "adaptive-acceptance",
-      "phase5-acceptance"
-    ]
+    "status": "success",
+    "run_id": 43335546608,
+    "url": "https://github.com/Shuniy/Prevent-Dropout-with-Limited-Tutor-Interventions/actions/runs/43335546608",
+    "tested_source_commit": "c9e4afe10e8d100e5d104febb67e2bc7706f3cde",
+    "python": "3.13.18",
+    "jobs": [
+      {
+        "name": "phase5-acceptance",
+        "id": 131590674965,
+        "conclusion": "success"
+      },
+      {
+        "name": "unittest",
+        "id": 131590675343,
+        "conclusion": "success"
+      },
+      {
+        "name": "adaptive-acceptance",
+        "id": 131590675486,
+        "conclusion": "success"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": 13997700980,
+        "name": "phase4-synthetic-acceptance-python313",
+        "size_in_bytes": 1152087,
+        "digest": "sha256:c5d392292fae13a1bcfeb07229cf0fa0c944579a9be7f7d68e9ff059474ed706",
+        "expired": false
+      },
+      {
+        "id": 13996933491,
+        "name": "phase5-bounded-acceptance-python313",
+        "size_in_bytes": 4163996,
+        "digest": "sha256:1e937e32905603d752b6690b1076126f4abd6bf1bb6f4d1e87c0291f8810ba24",
+        "expired": false
+      },
+      {
+        "id": 13996903845,
+        "name": "python313-unit-logs",
+        "size_in_bytes": 2961,
+        "digest": "sha256:e8352fa4a3140d1d244479553cebc0387bcb21086891b6201a25966241b7cc45",
+        "expired": false
+      }
+    ],
+    "counts": {
+      "unittest": 552,
+      "phase5_focused": 86,
+      "adaptive_phase_regressions": 202,
+      "adaptive_delivery_regressions": 116,
+      "adaptive_full_suite": 552
+    },
+    "pr_creation": {
+      "status": "not_created",
+      "reason": "GitHub integration returned HTTP 403 Resource not accessible by integration"
+    }
   },
   "intermediate_failures": [
     "initial baseline overlapped edits; isolated original commit subsequently passed 513/513",

@@ -1,8 +1,17 @@
 # Phase 5 post-review correctness and Python 3.13
 
-Implemented and locally verified on 13 November 2026. Scientific evidence below
-is a bounded synthetic pilot. Remote CI is pending the first push of this change;
-its three required jobs are unit tests, adaptive acceptance and Phase 5 acceptance.
+Implemented, locally tested and remotely CI-verified on 13 November 2026.
+Scientific evidence below is a bounded synthetic pilot. All three required jobs
+passed on runner-selected **Python 3.13.18**: unit tests (552/552), adaptive
+acceptance (202 phase regressions, 116 delivery regressions, 552 full tests and
+both delivery acceptance commands), and Phase 5 acceptance (86 focused tests,
+22 bounded episodes, independent replay/report verification). All three evidence
+and log artifacts were retained. See the
+[verified CI run](https://github.com/Shuniy/Prevent-Dropout-with-Limited-Tutor-Interventions/actions/runs/43335546608)
+for source commit `c9e4afe10e8d100e5d104febb67e2bc7706f3cde`.
+This documentation-only update leaves the verified execution-source bytes unchanged.
+The branch was pushed; draft PR creation returned HTTP 403 from the GitHub
+integration, so no PR was created and nothing was merged into `main`.
 Measured identities and denominators are retained in
 [phase5_post_review_results.json](phase5_post_review_results.json).
 
