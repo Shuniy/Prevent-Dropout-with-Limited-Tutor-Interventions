@@ -52,7 +52,7 @@ evidence-gated active-programme reassessment, documentation-sensitive uncertaint
 committed-support risk and joint fairness-feasibility diagnostics. Reproduce its
 synthetic acceptance and exact offline replays with
 `python -m src.school.delivery_acceptance --output results/phase4_1_new_run` after
-installing `requirements-offline.txt` under Python 3.12 or 3.13. Use a fresh output
+installing `requirements-offline.txt` under Python 3.13. Use a fresh output
 path for each execution; [retained measured evidence](docs/phase4_1_acceptance_results.json)
 is included with the source, and CI uploads full synthetic episodes and logs.
 
@@ -87,33 +87,53 @@ and [amended Phase 5 protocol](docs/phase5_research_protocol_v2.md). The retaine
 v2 adds compatibility gates and fresh held-out worlds. Existing runners and
 analytical terminal-risk targets retain their contracts.
 
-```sh
-# Fresh immutable destination; includes training, language, 10 development and
-# 30 primary paired worlds, controls and one-factor sensitivities:
-python -m src.evaluation.phase5_experiments --stage all --output results/phase5_new_run
-# Regenerate reference labels, refit on train/validation only, recompute metrics,
-# and replay every saved episode without a live model:
-python -m src.evaluation.phase5_experiments --verify results/phase5_new_run
-# Bounded validation-source pilot only:
-python -m src.evaluation.phase5_experiments --stage pilot --output results/phase5_new_pilot
-# Separate explicit live-inference experiment; unavailable inference is reported:
-python -m src.evaluation.phase5_experiments --stage language --live-llm-model qwen3.5:latest \
-  --output results/phase5_new_live_language
-# Separately frozen adverse-effect follow-up (same weekly simulator):
-python -m src.evaluation.phase5_experiments --stage adverse \
-  --model results/phase5_new_run/prediction/model.json --output results/phase5_new_adverse
-```
+The [post-review follow-up](docs/phase5_post_review_correctness.md) and its
+[separate protocol](docs/phase5_post_review_protocol_v3.md) add schedule-aware model
+v2, an explicit real-LLM benchmark, and a population-cluster robustness pilot.
+The original zero held-out extraction recall and lack of an established
+FairRobust retention advantage remain unchanged.
 
-Use Python 3.12 or 3.13, as declared in `pyproject.toml`:
+Use **Python 3.13 only** for active development. `.python-version` selects the
+minor release, and CI selects the latest available 3.13 patch. Historical exact
+replay requires the recorded source, interpreter and dependencies; migration
+does not establish bit-for-bit replay of old Python 3.12 evidence.
 
 ```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m pip install --no-deps -e .
+# Creates a Python 3.13 environment and installs the frozen offline environment:
+bash scripts/bootstrap.sh .venv313
+source .venv313/bin/activate
+python --version
+python -m unittest discover -s tests
+# Alternatively create a fresh environment with either supported bootstrap tool:
+uv venv --python 3.13 --seed .venv313-fresh
+# or: python3.13 -m venv .venv313-fresh
+# Activate that environment before using python, python3 or pip.
 ```
 
-The requirements include dependencies for preserved research notebooks.
+`requirements-offline.txt` retains the tested offline pins. For optional
+notebooks and tensor examples, install `requirements.txt` in a separate Python
+3.13 environment; its existing dependency choices are retained.
+
+```bash
+# Bounded CI profile: five-session model, source-held-out offers, language,
+# independent resource/fairness audits, exact replay and inventory checks:
+python -m src.evaluation.phase5_followup --stage acceptance --output results/phase5_new_acceptance
+# Explicit research pilot: separate train/validation/test, three held-out
+# population draws, two paired worlds per population, offline language controls:
+python -m src.evaluation.phase5_followup --stage all --output results/phase5_new_pilot
+python -m src.evaluation.phase5_followup --verify results/phase5_new_pilot
+# Optional genuine local model requests; no fixture/gold fallback:
+python -m src.evaluation.phase5_followup --stage language --llm-model qwen3.5:latest \
+  --timeout 45 --retries 0 --llm-downstream boundary --output results/phase5_new_llm
+# --llm-downstream all also executes every note in the source-held-out LLM arm.
+# --corpus external_annotations_v2.json imports the documented annotation contract.
+```
+
+The original v1/v2 execution commands and runtime provenance remain in the
+[historical report](docs/phase5_population_risk_language_validation.md). Its
+archived two-session model is incompatible with five-session risk-priority
+allocation. Use the new model for active schedule-compatible comparisons.
+
 
 ```bash
 # Offline weekly delivery demonstration and exact replays, in a new output path:
@@ -215,7 +235,7 @@ categorical beliefs, synthetic withdrawal risk and both existing CMDP planners.
 Run `python scripts/run_cmdp_feedback_pilot.py` for the offline fixture pilot, or
 add `--extractor ollama --max-notes-per-month 1 --max-monitoring-notes-per-month 1`
 for the existing local model. Run `python scripts/verify_phase2.py --output
-results/phase2_new_run` on Python 3.12 or 3.13 for the offline verification harness.
+results/phase2_new_run` on Python 3.13 for the offline verification harness.
 It runs the focused and full test suites, checks the diff, and saves deterministic
 evidence-to-allocation traces plus successful, empty, mixed and failed extraction
 replays. It records Git revision, source fingerprints and dependency versions.

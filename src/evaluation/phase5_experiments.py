@@ -24,7 +24,8 @@ from ..school.delivery_experiments import normalized,scorecard
 from ..school.phase5_delivery import (population_environment,ResearchInformationController,
     PredictionController,TrainedRiskPriorityPolicy,save_phase5_episode,replay_phase5_episode)
 from ..school.population_sampling import population_validation
-from ..school.trained_withdrawal_risk import fit_model,TrainedWithdrawalRiskModel
+from ..school.trained_withdrawal_risk_v1 import fit_model,TrainedWithdrawalRiskModel, decision_features as historical_features
+from ..school.trained_withdrawal_risk import load_versioned_model
 from ..school.student_condition import STATES,StudentCondition
 from ..school.delivery_resources import feasible_offers
 
@@ -134,7 +135,7 @@ def run_prediction(config,output,protocol):
             print(f'prediction {split} world {world}',flush=True)
             cfg=replace(base,num_students=p['prediction_cohort_size'],horizon_weeks=p['prediction_weeks'],sessions_required=2,seed=world)
             c,pop=make_controller(cfg,split,p[pop_key]+world,'random')
-            rows.extend(generate_reference_labels(c,pop,horizon=p['prediction_horizon']))
+            rows.extend(generate_reference_labels(c,pop,horizon=p['prediction_horizon'],feature_builder=historical_features))
             path=output/'trajectories'/f'{split}_{world}'
             save_phase5_episode(c,pop,path,protocol_text=protocol)
             replay_phase5_episode(path)
@@ -350,7 +351,7 @@ def verify_run(source,*,replay=True):
     count=0
     for path in manifests:
         record=json.loads(path.read_text())
-        if record.get('contract')=='phase5_source_weekly/replay/v1':
+        if record.get('contract') in ('phase5_source_weekly/replay/v1','phase5_source_weekly/replay/v2'):
             if record['protocol_text']!=frozen['protocol']:
                 raise ValueError('episode protocol differs from frozen research execution')
             if replay:
@@ -412,7 +413,7 @@ def verify_run(source,*,replay=True):
                     config=replace(base,num_students=p['prediction_cohort_size'],horizon_weeks=p['prediction_weeks'],
                         sessions_required=2,seed=world)
                     c,pop=make_controller(config,split,p[pop_key]+world,'random')
-                    regenerated.extend(generate_reference_labels(c,pop,horizon=p['prediction_horizon']))
+                    regenerated.extend(generate_reference_labels(c,pop,horizon=p['prediction_horizon'],feature_builder=historical_features))
                     label_worlds+=1
                 if normalized(regenerated)!=saved:
                     raise ValueError('independent reference-branch label regeneration mismatch')
@@ -455,7 +456,7 @@ def run(config_path,output,stage,model_path=None,*,live_llm_model=None,ollama_ur
         identity['adverse_scenario']=asdict(adverse_effect_config(DeliveryConfig(**config['delivery'])))
     with staged_artifacts(output,identity={'phase5_execution':digest(identity)}) as staging:
         write_exclusive(staging/'frozen_execution.json',identity)
-        summary={};model=TrainedWithdrawalRiskModel.load(model_path) if model_path else None
+        summary={};model=load_versioned_model(json.loads(Path(model_path).read_text())) if model_path else None
         if stage in ('all','prediction'):
             prediction_output=staging/'prediction';prediction_output.mkdir()
             model,summary['prediction']=run_prediction(config,prediction_output,protocol)

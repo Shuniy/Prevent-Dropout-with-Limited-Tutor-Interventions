@@ -1,36 +1,51 @@
 name: Offline tests
 on: [push, pull_request]
+env:
+  PYTHON_VERSION: '3.13'
+  MPLCONFIGDIR: /tmp/school-dropout-matplotlib
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
 jobs:
   unittest:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.12', '3.13']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install offline test dependencies
-        run: pip install -r requirements-offline.txt
-      - name: Run offline tests
-        run: python -m unittest discover -s tests
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: mkdir -p "$RUNNER_TEMP/unit/logs"
+      - name: Install offline dependencies and project
+        run: |
+          python --version
+          python -m pip install -r requirements-offline.txt 2>&1 | tee "$RUNNER_TEMP/unit/logs/install.log"
+          python -m pip install --no-deps -e . 2>&1 | tee "$RUNNER_TEMP/unit/logs/package.log"
+      - name: Run complete offline suite including Phase 5
+        run: python -m unittest discover -s tests 2>&1 | tee "$RUNNER_TEMP/unit/logs/tests.log"
+      - name: Retain logs and available diagnostics
+        id: unit-evidence
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: python313-unit-logs
+          path: ${{ runner.temp }}/unit
+          if-no-files-found: warn
+      - name: Require uploaded logs when tests succeeded
+        if: success() && steps.unit-evidence.outcome != 'success'
+        run: exit 1
   adaptive-acceptance:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    env:
-      MPLCONFIGDIR: /tmp/phase41-matplotlib
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12.12'
-      - name: Install frozen offline dependencies
-        run: pip install -r requirements-offline.txt
-      - name: Create fresh acceptance output directory
-        run: mkdir -p "$RUNNER_TEMP/phase41/logs"
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: mkdir -p "$RUNNER_TEMP/phase41/logs"
+      - name: Install frozen offline dependencies and project
+        run: |
+          python -m pip install -r requirements-offline.txt 2>&1 | tee "$RUNNER_TEMP/phase41/logs/install.log"
+          python -m pip install --no-deps -e .
       - name: Run Phase 1–4 regressions
         run: |
           python -m unittest discover -s tests -p 'test_phase*.py' 2>&1 | tee "$RUNNER_TEMP/phase41/logs/phases.log"
@@ -52,9 +67,57 @@ jobs:
           test -s "$RUNNER_TEMP/phase41/mentor_acceptance/extra_reads_replay/replay_result.json"
           test -s "$RUNNER_TEMP/phase41/mentor_acceptance/artifact_integrity.json"
       - name: Upload synthetic evidence and logs
+        id: adaptive-evidence
         if: always()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
-          name: phase4-1-synthetic-acceptance
+          name: phase4-synthetic-acceptance-python313
           path: ${{ runner.temp }}/phase41
-          if-no-files-found: error
+          include-hidden-files: true
+          if-no-files-found: warn
+      - name: Require uploaded evidence when acceptance succeeded
+        if: success() && steps.adaptive-evidence.outcome != 'success'
+        run: exit 1
+  phase5-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: mkdir -p "$RUNNER_TEMP/phase5/logs"
+      - name: Install frozen offline dependencies and project
+        run: |
+          python -m pip install -r requirements-offline.txt 2>&1 | tee "$RUNNER_TEMP/phase5/logs/install.log"
+          python -m pip install --no-deps -e .
+      - name: Phase 5 focused regressions
+        run: python -m unittest discover -s tests -p 'test_phase5*.py' 2>&1 | tee "$RUNNER_TEMP/phase5/logs/tests.log"
+      - name: Bounded source-held-out scientific software acceptance
+        run: python -m src.evaluation.phase5_followup --stage acceptance --output "$RUNNER_TEMP/phase5/acceptance" 2>&1 | tee "$RUNNER_TEMP/phase5/logs/acceptance.log"
+      - name: Independently verify exact replay and derived reports
+        run: python -m src.evaluation.phase5_followup --verify "$RUNNER_TEMP/phase5/acceptance" 2>&1 | tee "$RUNNER_TEMP/phase5/logs/verification.log"
+      - name: Require completed artifacts
+        run: |
+          test -s "$RUNNER_TEMP/phase5/acceptance/source_manifest_validation.json"
+          test -s "$RUNNER_TEMP/phase5/acceptance/prediction/model.json"
+          test -s "$RUNNER_TEMP/phase5/acceptance/prediction/schedule_compatibility.json"
+          test -s "$RUNNER_TEMP/phase5/acceptance/language/recorded_replay.json"
+          test -s "$RUNNER_TEMP/phase5/acceptance/downstream/controlled_boundary/boundary_report.json"
+          test -s "$RUNNER_TEMP/phase5/acceptance/population/population_report.json"
+          test -s "$RUNNER_TEMP/phase5/acceptance/completion.json"
+          test -s "$RUNNER_TEMP/phase5/acceptance/artifact_integrity.json"
+      - name: Retain synthetic evidence, logs and failed attempts
+        id: phase5-evidence
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase5-bounded-acceptance-python313
+          path: ${{ runner.temp }}/phase5
+          include-hidden-files: true
+          if-no-files-found: warn
+      - name: Require uploaded evidence when acceptance succeeded
+        if: success() && steps.phase5-evidence.outcome != 'success'
+        run: exit 1

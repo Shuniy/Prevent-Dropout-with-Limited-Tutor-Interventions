@@ -1,4 +1,5 @@
 # Complete offline-test environment, frozen with Python 3.12.12 on 2026-11-09.
+# Original freeze provenance retained; these same pins are tested on active Python 3.13.
 # No notebook runtime, tensor libraries, credentials or inference server needed.
 attrs==26.1.0
 cloudpickle==3.1.2

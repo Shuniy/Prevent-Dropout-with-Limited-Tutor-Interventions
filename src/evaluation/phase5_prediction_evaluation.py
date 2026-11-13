@@ -37,7 +37,12 @@ def reference_label_from_record(record):
     values=dict(record)
     features=dict(values.pop('features'))
     features['numeric']=tuple(tuple(pair) for pair in features['numeric'])
-    return ReferenceLabel(features=DecisionFeatures(**features),**values)
+    if features['schema'] == 'authorized_weekly_features/v1':
+        from ..school.trained_withdrawal_risk_v1 import DecisionFeatures as FeatureRecord
+    else:
+        FeatureRecord = DecisionFeatures
+        features['schedule_issues'] = tuple(features.get('schedule_issues',()))
+    return ReferenceLabel(features=FeatureRecord(**features),**values)
 
 
 def withdrawal_event(conditions):
@@ -77,7 +82,7 @@ def analytical_event_probability(student, config, horizon):
     return float(np.clip(1-active.sum()-inactive.sum(),0,1))
 
 
-def generate_reference_labels(controller, population, *, horizon=4, landmark_weeks=None):
+def generate_reference_labels(controller, population, *, horizon=4, landmark_weeks=None, feature_builder=decision_features):
     """Continue a FACTUAL policy; fork each landmark BEFORE its next action.
 
     A branch is an exact deepcopy of the weekly environment (including accepted
@@ -92,7 +97,7 @@ def generate_reference_labels(controller, population, *, horizon=4, landmark_wee
         state = controller.prepare_decision_snapshot()
         if landmark_weeks is None or env.week in landmark_weeks:
             enrolled = [s for s in state.students if s.enrolled]
-            features = {s.student_id:decision_features(s,cutoff_week=state.week,
+            features = {s.student_id:feature_builder(s,cutoff_week=state.week,
                 remaining_weeks=state.weeks_remaining,config=env.config,horizon=horizon) for s in enrolled}
             branch = deepcopy(env)
             duration = min(horizon,state.weeks_remaining)

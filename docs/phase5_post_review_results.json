@@ -1,0 +1,964 @@
+{
+  "contract": "phase5_post_review_measured_results/v3",
+  "date": "2026-11-13",
+  "status": {
+    "implemented": true,
+    "locally_tested": true,
+    "scientifically_evaluated": "bounded_synthetic_pilot",
+    "remotely_ci_verified": false
+  },
+  "base_commit": "9f14b16a626b9f2e017000ee411ff099ae3c5a42",
+  "branch": "fix/phase-5-research-evidence-fix",
+  "source_fingerprints_identity": "de2263f301589e4639e92fb88bb0a18e5050fdef87d8d3ae6ba29e61724d8ea9",
+  "python": "3.13.5",
+  "dependency_changes": [],
+  "optional_environment": {
+    "installation": "passed",
+    "pip_check": "No broken requirements found",
+    "imports": "passed",
+    "full_suite_executed": false
+  },
+  "files_changed": [
+    ".github/workflows/offline-tests.yml",
+    ".gitignore",
+    ".python-version",
+    "README.md",
+    "configs/phase5_followup_v3.toml",
+    "configs/phase5_historical_inputs_v1.json",
+    "docs/phase5_external_annotations_v2.md",
+    "docs/phase5_post_review_correctness.md",
+    "docs/phase5_post_review_protocol_v3.md",
+    "docs/phase5_post_review_results.json",
+    "pyproject.toml",
+    "requirements-offline.txt",
+    "scripts/bootstrap.sh",
+    "scripts/verify_phase2.py",
+    "src/evaluation/phase5_experiments.py",
+    "src/evaluation/phase5_followup.py",
+    "src/evaluation/phase5_language_decisions.py",
+    "src/evaluation/phase5_language_followup.py",
+    "src/evaluation/phase5_prediction_evaluation.py",
+    "src/evaluation/provenance.py",
+    "src/intervention/followup_extractor.py",
+    "src/intervention/observation_extractor.py",
+    "src/intervention/ollama_client.py",
+    "src/school/followup_notes.py",
+    "src/school/phase5_delivery.py",
+    "src/school/population_sampling.py",
+    "src/school/state_estimator.py",
+    "src/school/trained_withdrawal_risk.py",
+    "src/school/trained_withdrawal_risk_v1.py",
+    "tests/test_phase5_acceptance_integrity.py",
+    "tests/test_phase5_language_followup.py",
+    "tests/test_phase5_population_robustness.py",
+    "tests/test_phase5_schedule_followup.py"
+  ],
+  "tests": {
+    "baseline-original-commit": {
+      "tests": 513,
+      "seconds": 113.344,
+      "failures": 0,
+      "errors": 0,
+      "log": "results/phase5_post_review_20261113/logs/baseline-original-commit.log"
+    },
+    "full-suite-verified": {
+      "tests": 552,
+      "seconds": 245.781,
+      "failures": 0,
+      "errors": 0,
+      "log": "results/phase5_post_review_20261113/logs/full-suite-verified.log"
+    },
+    "phase5-focused-verified": {
+      "tests": 86,
+      "seconds": 71.59,
+      "failures": 0,
+      "errors": 0,
+      "log": "results/phase5_post_review_20261113/logs/phase5-focused-verified.log"
+    },
+    "language-scope-fix": {
+      "tests": 17,
+      "seconds": 5.219,
+      "failures": 0,
+      "errors": 0,
+      "log": "results/phase5_post_review_20261113/logs/language-scope-fix.log"
+    }
+  },
+  "phase2_commands": {
+    "focused": {
+      "command": "/Users/shuniy/Documents/projects/school-dropout/.venv313/bin/python -m unittest tests.test_phase2_correctness tests.test_phase1_correctness tests.test_feedback_closed_loop tests.test_feedback_extraction tests.test_feedback_estimation tests.test_research_information tests.test_extraction_evaluation -v",
+      "exit_code": 0,
+      "tests": 69,
+      "seconds": 11.456,
+      "log": "focused.log"
+    },
+    "offline": {
+      "command": "/Users/shuniy/Documents/projects/school-dropout/.venv313/bin/python -m unittest discover -s tests",
+      "exit_code": 0,
+      "tests": 552,
+      "seconds": 236.249,
+      "log": "offline.log"
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "tests": null,
+      "seconds": null,
+      "log": "diff_check.log"
+    }
+  },
+  "phase3_commands": {
+    "focused": {
+      "command": "/Users/shuniy/Documents/projects/school-dropout/.venv313/bin/python -m unittest tests.test_phase3_correctness tests.test_phase3_final_repairs tests.test_phase1_correctness tests.test_phase2_correctness tests.test_research_information tests.test_simulation_comparison",
+      "exit_code": 0,
+      "tests": 124,
+      "seconds": 111.063
+    },
+    "offline": {
+      "command": "/Users/shuniy/Documents/projects/school-dropout/.venv313/bin/python -m unittest discover -s tests",
+      "exit_code": 0,
+      "tests": 552,
+      "seconds": 197.659
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "tests": null,
+      "seconds": null
+    },
+    "status": {
+      "command": "git status --short",
+      "exit_code": 0,
+      "tests": null,
+      "seconds": null
+    },
+    "diff_stat": {
+      "command": "git diff --stat",
+      "exit_code": 0,
+      "tests": null,
+      "seconds": null
+    },
+    "immutable_verification": {
+      "command": "/Users/shuniy/Documents/projects/school-dropout/.venv313/bin/python scripts/verify_experiment_records.py /Users/shuniy/Documents/projects/school-dropout/results/phase5_post_review_20261113/phase3_verified/immutable_records",
+      "exit_code": 0
+    }
+  },
+  "phase3": {
+    "status": "passed",
+    "episodes": 40,
+    "replayed_policies": 8
+  },
+  "phase4_replays": {
+    "phase4_1_verified": 12,
+    "phase4_2_verified": 5
+  },
+  "historical_inputs": {
+    "status": "unchanged",
+    "origin_commit": "9f14b16a626b9f2e017000ee411ff099ae3c5a42",
+    "files": 10,
+    "manifest_identity": "ab4cac8830dcb46b605b536c5afd43f0bd81268551ea3ccb6e8a7789f841076e"
+  },
+  "prediction": {
+    "abstentions": 0,
+    "metrics": {
+      "analytical_target_matched": {
+        "auroc": 0.7025558616467708,
+        "average_precision": 0.1479314518234715,
+        "brier": 0.06929181225497091,
+        "events": 33,
+        "log_loss": 0.2530063441346218,
+        "n": 429,
+        "prevalence": 0.07692307692307693,
+        "reliability": [
+          {
+            "event_rate": 0.06629834254143646,
+            "lower": 0.0,
+            "mean_prediction": 0.043582565798994964,
+            "n": 362,
+            "upper": 0.1
+          },
+          {
+            "event_rate": 0.13432835820895522,
+            "lower": 0.1,
+            "mean_prediction": 0.11521515814612178,
+            "n": 67,
+            "upper": 0.2
+          },
+          {
+            "event_rate": null,
+            "lower": 0.2,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.3
+          },
+          {
+            "event_rate": null,
+            "lower": 0.3,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.4
+          },
+          {
+            "event_rate": null,
+            "lower": 0.4,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.5
+          },
+          {
+            "event_rate": null,
+            "lower": 0.5,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.6
+          },
+          {
+            "event_rate": null,
+            "lower": 0.6,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.7
+          },
+          {
+            "event_rate": null,
+            "lower": 0.7,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.8
+          },
+          {
+            "event_rate": null,
+            "lower": 0.8,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.9
+          },
+          {
+            "event_rate": null,
+            "lower": 0.9,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 1.0
+          }
+        ]
+      },
+      "trained": {
+        "auroc": 0.5911769207223753,
+        "average_precision": 0.12481891241193552,
+        "brier": 0.07037963563947587,
+        "events": 33,
+        "log_loss": 0.26806516489998095,
+        "n": 429,
+        "prevalence": 0.07692307692307693,
+        "reliability": [
+          {
+            "event_rate": 0.05263157894736842,
+            "lower": 0.0,
+            "mean_prediction": 0.06622999715635294,
+            "n": 323,
+            "upper": 0.1
+          },
+          {
+            "event_rate": 0.1509433962264151,
+            "lower": 0.1,
+            "mean_prediction": 0.11739263300235415,
+            "n": 106,
+            "upper": 0.2
+          },
+          {
+            "event_rate": null,
+            "lower": 0.2,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.3
+          },
+          {
+            "event_rate": null,
+            "lower": 0.3,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.4
+          },
+          {
+            "event_rate": null,
+            "lower": 0.4,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.5
+          },
+          {
+            "event_rate": null,
+            "lower": 0.5,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.6
+          },
+          {
+            "event_rate": null,
+            "lower": 0.6,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.7
+          },
+          {
+            "event_rate": null,
+            "lower": 0.7,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.8
+          },
+          {
+            "event_rate": null,
+            "lower": 0.8,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.9
+          },
+          {
+            "event_rate": null,
+            "lower": 0.9,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 1.0
+          }
+        ]
+      },
+      "training_constant": {
+        "auroc": 0.6590526476890114,
+        "average_precision": 0.10957438361744581,
+        "brier": 0.0692052571455533,
+        "events": 33,
+        "log_loss": 0.2553075730145802,
+        "n": 429,
+        "prevalence": 0.07692307692307693,
+        "reliability": [
+          {
+            "event_rate": 0.07692307692307693,
+            "lower": 0.0,
+            "mean_prediction": 0.07577467624883634,
+            "n": 429,
+            "upper": 0.1
+          },
+          {
+            "event_rate": null,
+            "lower": 0.1,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.2
+          },
+          {
+            "event_rate": null,
+            "lower": 0.2,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.3
+          },
+          {
+            "event_rate": null,
+            "lower": 0.3,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.4
+          },
+          {
+            "event_rate": null,
+            "lower": 0.4,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.5
+          },
+          {
+            "event_rate": null,
+            "lower": 0.5,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.6
+          },
+          {
+            "event_rate": null,
+            "lower": 0.6,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.7
+          },
+          {
+            "event_rate": null,
+            "lower": 0.7,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.8
+          },
+          {
+            "event_rate": null,
+            "lower": 0.8,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 0.9
+          },
+          {
+            "event_rate": null,
+            "lower": 0.9,
+            "mean_prediction": null,
+            "n": 0,
+            "upper": 1.0
+          }
+        ]
+      }
+    },
+    "model_version": "d8b42b2685d907c7d2e06f84c72ac0c281d49e0bfec157d4ccfef236e4fed046",
+    "ood": 3,
+    "scored": 429,
+    "world_mean_brier": {
+      "analytical_target_matched": {
+        "ci95_high": 0.17728071439726895,
+        "ci95_low": -0.03842009186562094,
+        "confidence": 0.95,
+        "mean": 0.069430311265824,
+        "n": 2,
+        "sample_sd": 0.012003860002237283,
+        "status": "ok"
+      },
+      "trained": {
+        "ci95_high": 0.15537893061219715,
+        "ci95_low": -0.014401631035089013,
+        "confidence": 0.95,
+        "mean": 0.07048864978855407,
+        "n": 2,
+        "sample_sd": 0.009448374943167146,
+        "status": "ok"
+      },
+      "training_constant": {
+        "ci95_high": 0.14829785092139153,
+        "ci95_low": -0.009684459375558771,
+        "confidence": 0.95,
+        "mean": 0.06930669577291637,
+        "n": 2,
+        "sample_sd": 0.008791796231504702,
+        "status": "ok"
+      }
+    }
+  },
+  "model": {
+    "model_version": "d8b42b2685d907c7d2e06f84c72ac0c281d49e0bfec157d4ccfef236e4fed046",
+    "contract": "trained_withdrawal_model/v2",
+    "schema": "authorized_weekly_schedule_features/v2",
+    "target": "simulated_any_withdrawal_within_horizon/v1",
+    "reference": "continue_accepted_schedules_no_new_offers/v1",
+    "regime_identity": "22e344c8f47da2012896c95cc78d206b8fb8a253c5a19fadad233a13a52d04e3",
+    "hyperparameters": {
+      "C": 10.0,
+      "penalty": "l2",
+      "solver": "lbfgs",
+      "max_iter": 2000
+    },
+    "calibration": {
+      "method": "sigmoid",
+      "slope": 0.3243977826850574,
+      "intercept": -1.506553409338131,
+      "fit_worlds": [
+        1300,
+        1302
+      ]
+    },
+    "training_schedule_patterns": [
+      "[1,0.0,0.0,0.0,0.0,0.0]",
+      "[1,1.0,1.0,0.0,0.0,0.0]",
+      "[2,0.0,0.0,0.0,0.0,0.0]",
+      "[2,1.0,1.0,0.0,0.0,0.0]",
+      "[2,1.0,1.0,1.0,0.0,0.0]",
+      "[3,0.0,0.0,0.0,0.0,0.0]",
+      "[3,1.0,1.0,0.0,0.0,0.0]",
+      "[3,1.0,1.0,1.0,0.0,0.0]",
+      "[3,1.0,1.0,1.0,1.0,0.0]",
+      "[4,0.0,0.0,0.0,0.0,0.0]",
+      "[4,1.0,1.0,0.0,0.0,0.0]",
+      "[4,1.0,1.0,1.0,0.0,0.0]",
+      "[4,1.0,1.0,1.0,1.0,0.0]",
+      "[4,1.0,1.0,1.0,1.0,1.0]"
+    ],
+    "dependencies": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "scikit-learn": "1.7.2"
+    }
+  },
+  "population": {
+    "ancestry_overlap": {
+      "65000|65001": {
+        "shared_linkage_groups": 13,
+        "shared_source_anchors": 13
+      },
+      "65000|65002": {
+        "shared_linkage_groups": 21,
+        "shared_source_anchors": 21
+      },
+      "65001|65002": {
+        "shared_linkage_groups": 13,
+        "shared_source_anchors": 13
+      }
+    },
+    "contract": "population_cluster_pilot/v1",
+    "episodes": 12,
+    "feasibility": {
+      "exercised_group_episodes": 12,
+      "incomplete_stages": 0,
+      "nonzero_offer_episodes": 12,
+      "solver_failures": 0
+    },
+    "inference": "conditional on finite source-test pool; seeded simulated cohorts are not independent observed schools; pilot only",
+    "outcomes": {
+      "access_gap": {
+        "by_population": {
+          "65000": {
+            "ci95_high": 0.5710918640180039,
+            "ci95_low": -0.4877585306846706,
+            "confidence": 0.95,
+            "mean": 0.04166666666666667,
+            "n": 2,
+            "sample_sd": 0.05892556509887897,
+            "status": "ok"
+          },
+          "65001": {
+            "ci95_high": 0.5271617206320036,
+            "ci95_low": -0.45023864370892663,
+            "confidence": 0.95,
+            "mean": 0.038461538461538464,
+            "n": 2,
+            "sample_sd": 0.05439282932204212,
+            "status": "ok"
+          },
+          "65002": {
+            "ci95_high": 0.5271617206320036,
+            "ci95_low": -0.45023864370892663,
+            "confidence": 0.95,
+            "mean": 0.038461538461538464,
+            "n": 2,
+            "sample_sd": 0.05439282932204212,
+            "status": "ok"
+          }
+        },
+        "contrast": "FairRobust_minus_FairPoint",
+        "decomposition": "descriptive method of moments; nested independent world seeds; equal population weighting",
+        "estimated_between_population_variance": 0.0,
+        "observed_population_mean_variance": 3.424282270436122e-06,
+        "population_clusters": {
+          "ci95_high": 0.04412676573685486,
+          "ci95_low": 0.03493306332297421,
+          "confidence": 0.95,
+          "mean": 0.039529914529914535,
+          "n": 3,
+          "sample_sd": 0.0018504816320180327,
+          "status": "ok"
+        },
+        "unavailable_populations": [],
+        "within_population_world_variance_mean": 0.0031297939951786106
+      },
+      "normalized_shortfall": {
+        "by_population": {
+          "65000": {
+            "ci95_high": 0.5710918640180079,
+            "ci95_low": -0.487758530684674,
+            "confidence": 0.95,
+            "mean": 0.04166666666666696,
+            "n": 2,
+            "sample_sd": 0.058925565098879376,
+            "status": "ok"
+          },
+          "65001": {
+            "ci95_high": 7.145666413414337,
+            "ci95_low": -6.235410003157926,
+            "confidence": 0.95,
+            "mean": 0.45512820512820507,
+            "n": 2,
+            "sample_sd": 0.744663734766053,
+            "status": "ok"
+          },
+          "65002": {
+            "ci95_high": 7.380264088848051,
+            "ci95_low": -6.303341011924974,
+            "confidence": 0.95,
+            "mean": 0.5384615384615385,
+            "n": 2,
+            "sample_sd": 0.7614996105085897,
+            "status": "ok"
+          }
+        },
+        "contrast": "FairRobust_minus_FairPoint",
+        "decomposition": "descriptive method of moments; nested independent world seeds; equal population weighting",
+        "estimated_between_population_variance": 0.0,
+        "observed_population_mean_variance": 0.07078333881218489,
+        "population_clusters": {
+          "ci95_high": 1.0059937457928894,
+          "ci95_low": -0.3158228056219491,
+          "confidence": 0.95,
+          "mean": 0.3450854700854702,
+          "n": 3,
+          "sample_sd": 0.26605138378175164,
+          "status": "ok"
+        },
+        "unavailable_populations": [],
+        "within_population_world_variance_mean": 0.3792926523008943
+      },
+      "retention_rate": {
+        "by_population": {
+          "65000": {
+            "ci95_high": 0.14277296600450048,
+            "ci95_low": -0.12193963267116723,
+            "confidence": 0.95,
+            "mean": 0.01041666666666663,
+            "n": 2,
+            "sample_sd": 0.014731391274719688,
+            "status": "ok"
+          },
+          "65001": {
+            "ci95_high": 0.0,
+            "ci95_low": 0.0,
+            "confidence": 0.95,
+            "mean": 0.0,
+            "n": 2,
+            "sample_sd": 0.0,
+            "status": "ok"
+          },
+          "65002": {
+            "ci95_high": 0.0,
+            "ci95_low": 0.0,
+            "confidence": 0.95,
+            "mean": 0.0,
+            "n": 2,
+            "sample_sd": 0.0,
+            "status": "ok"
+          }
+        },
+        "contrast": "FairRobust_minus_FairPoint",
+        "decomposition": "descriptive method of moments; nested independent world seeds; equal population weighting",
+        "estimated_between_population_variance": 0.0,
+        "observed_population_mean_variance": 3.616898148148123e-05,
+        "population_clusters": {
+          "ci95_high": 0.018411988644778207,
+          "ci95_low": -0.011467544200333787,
+          "confidence": 0.95,
+          "mean": 0.00347222222222221,
+          "n": 3,
+          "sample_sd": 0.006014065304058581,
+          "status": "ok"
+        },
+        "unavailable_populations": [],
+        "within_population_world_variance_mean": 7.233796296296246e-05
+      },
+      "worst_group_retention": {
+        "by_population": {
+          "65000": {
+            "ci95_high": 0.0,
+            "ci95_low": 0.0,
+            "confidence": 0.95,
+            "mean": 0.0,
+            "n": 2,
+            "sample_sd": 0.0,
+            "status": "ok"
+          },
+          "65001": {
+            "ci95_high": 0.0,
+            "ci95_low": 0.0,
+            "confidence": 0.95,
+            "mean": 0.0,
+            "n": 2,
+            "sample_sd": 0.0,
+            "status": "ok"
+          },
+          "65002": {
+            "ci95_high": 0.0,
+            "ci95_low": 0.0,
+            "confidence": 0.95,
+            "mean": 0.0,
+            "n": 2,
+            "sample_sd": 0.0,
+            "status": "ok"
+          }
+        },
+        "contrast": "FairRobust_minus_FairPoint",
+        "decomposition": "descriptive method of moments; nested independent world seeds; equal population weighting",
+        "estimated_between_population_variance": 0.0,
+        "observed_population_mean_variance": 0.0,
+        "population_clusters": {
+          "ci95_high": 0.0,
+          "ci95_low": 0.0,
+          "confidence": 0.95,
+          "mean": 0.0,
+          "n": 3,
+          "sample_sd": 0.0,
+          "status": "ok"
+        },
+        "unavailable_populations": [],
+        "within_population_world_variance_mean": 0.0
+      }
+    },
+    "populations": 3
+  },
+  "cohorts": [
+    {
+      "population_seed": 65000,
+      "population_identity": "4cfabf38b039e97ffdae886fcae52507e0109edff8e2b5be72f3800b11c2a9de",
+      "source_pool_size": 140,
+      "with_replacement": false,
+      "unique_source_anchors": 48,
+      "repeated_anchor_descendants": 0,
+      "repeated_linkage_descendants": 0,
+      "compatibility": {
+        "exercised_design": true,
+        "feasible_students": 18,
+        "feasible_students_by_audited_group": {
+          "F": 13,
+          "M": 5
+        },
+        "shared_need_strata": [
+          "stable",
+          "uncertain"
+        ]
+      },
+      "eligible_support_types": {
+        "device_access": 9,
+        "family_liaison": 1,
+        "homework_support": 4,
+        "transport_assessment": 3,
+        "tutoring": 18,
+        "wellbeing_checkin": 13
+      },
+      "eligible_audited_groups": {
+        "F": 31,
+        "M": 17
+      }
+    },
+    {
+      "population_seed": 65001,
+      "population_identity": "da1c5bd01f5926a041bfe3dac0890a0d0e6349e8aab9ddde70dd99717bf34258",
+      "source_pool_size": 140,
+      "with_replacement": false,
+      "unique_source_anchors": 48,
+      "repeated_anchor_descendants": 0,
+      "repeated_linkage_descendants": 0,
+      "compatibility": {
+        "exercised_design": true,
+        "feasible_students": 20,
+        "feasible_students_by_audited_group": {
+          "F": 13,
+          "M": 7
+        },
+        "shared_need_strata": [
+          "stable",
+          "uncertain"
+        ]
+      },
+      "eligible_support_types": {
+        "device_access": 7,
+        "family_liaison": 1,
+        "homework_support": 8,
+        "transport_assessment": 4,
+        "tutoring": 20,
+        "wellbeing_checkin": 8
+      },
+      "eligible_audited_groups": {
+        "F": 26,
+        "M": 22
+      }
+    },
+    {
+      "population_seed": 65002,
+      "population_identity": "cef22a214b28e71fe81ea943478de159bf90155d88c2b883d6ebbe7a2b048d1d",
+      "source_pool_size": 140,
+      "with_replacement": false,
+      "unique_source_anchors": 48,
+      "repeated_anchor_descendants": 0,
+      "repeated_linkage_descendants": 0,
+      "compatibility": {
+        "exercised_design": true,
+        "feasible_students": 17,
+        "feasible_students_by_audited_group": {
+          "F": 13,
+          "M": 4
+        },
+        "shared_need_strata": [
+          "disengaged",
+          "uncertain"
+        ]
+      },
+      "eligible_support_types": {
+        "device_access": 9,
+        "family_liaison": 1,
+        "homework_support": 7,
+        "transport_assessment": 2,
+        "tutoring": 17,
+        "wellbeing_checkin": 12
+      },
+      "eligible_audited_groups": {
+        "F": 36,
+        "M": 12
+      }
+    }
+  ],
+  "language": {
+    "llm": {
+      "status": "executed_real_model",
+      "request_attempts": 19,
+      "model_responses": 19,
+      "configuration": {
+        "prompt_version": "observable_note_prompt/v2",
+        "prompt_sha256": "690be2f64765dc1377730f600aba514605d0adbed6efacc74508b261c2228b81",
+        "schema_sha256": "bfc378ab32d3891fd4709b85f4c9df8f5b2e8c9ae1efac2ef988f33972d09fe1",
+        "rule_version": "development_sentence_rules/v2",
+        "rules_sha256": "c2c8a54edc49ca6ec7253b59d4a1003d33fbfe2ad2c41908745045a3b6d797ea",
+        "retries": 0,
+        "inference_kind": "real_ollama",
+        "inference": {
+          "backend": "ollama/api/chat",
+          "endpoint_sha256": "42081e71dd5a51184e72107ee64a0bca58c6944f08bb3d1fd72f8846d6e6a1d9",
+          "model": "qwen3.5:latest",
+          "model_digest": "d63f830f28d515fefea546f213fca7a75e9dd5176ef51a6deabc952d1c99a911",
+          "num_ctx": 8192,
+          "timeout_seconds": 45.0,
+          "temperature": 0,
+          "think": false,
+          "stream": false
+        }
+      }
+    },
+    "splits": {
+      "development": {
+        "metrics": {
+          "tp": 6,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "inference": {
+          "request_attempts": 7,
+          "model_responses": 7,
+          "latency_seconds": 46.53773679223377,
+          "status": "executed_real_model"
+        }
+      },
+      "validation": {
+        "metrics": {
+          "tp": 3,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "inference": {
+          "request_attempts": 4,
+          "model_responses": 4,
+          "latency_seconds": 25.888067541993223,
+          "status": "executed_real_model"
+        }
+      },
+      "test": {
+        "metrics": {
+          "tp": 3,
+          "fp": 0,
+          "fn": 3,
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666
+        },
+        "inference": {
+          "request_attempts": 8,
+          "model_responses": 8,
+          "latency_seconds": 42.133682084968314,
+          "status": "executed_real_model"
+        }
+      }
+    },
+    "independent_human_validation": "incomplete",
+    "original_frozen_result": {
+      "development": "10/10",
+      "validation": "0/8",
+      "test": "0/11",
+      "modified": false
+    }
+  },
+  "actual_llm_downstream": {
+    "inference": {
+      "request_attempts": 1,
+      "model_responses": 1,
+      "status": "executed_real_model"
+    },
+    "gold_equivalence": {
+      "belief_l1": 0.0,
+      "risk_l1": 0.0,
+      "allocation_changed": false,
+      "continuation_cancellation_changed": false,
+      "decision_difference_is_improvement": false,
+      "later_allocation_changed": false
+    },
+    "deterministic_vs_gold": {
+      "belief_l1": 0.6404265315086562,
+      "risk_l1": 0.06452099583691195,
+      "allocation_changed": false,
+      "continuation_cancellation_changed": true,
+      "decision_difference_is_improvement": false,
+      "later_allocation_changed": true
+    },
+    "full_source_heldout_llm_closed_loop": "unexecuted_not_requested; route tested using explicitly labelled mocks"
+  },
+  "final_artifacts": {
+    "research_pilot_verified": {
+      "path": "results/phase5_post_review_20261113/research_pilot_verified",
+      "inventory_sha256": "452585a42fb258f19706b998ba023876188816d1302cd30bc8ddd4c9a8b6ecae",
+      "verification": {
+        "status": "verified",
+        "episodes": 33,
+        "reference_worlds_regenerated": 10,
+        "offline_replay": true,
+        "inventory_files": 269
+      }
+    },
+    "bounded_acceptance_verified": {
+      "path": "results/phase5_post_review_20261113/bounded_acceptance_verified",
+      "inventory_sha256": "4e2921f29046ee260fdd4384a294f9429d154ec319ef31ac6f7d619c969c6084",
+      "verification": {
+        "status": "verified",
+        "episodes": 22,
+        "reference_worlds_regenerated": 9,
+        "offline_replay": true,
+        "inventory_files": 178
+      }
+    },
+    "real_language_verified": {
+      "path": "results/phase5_post_review_20261113/real_language_verified",
+      "inventory_sha256": "314c1d1564ba6754b31c08aaed4d4202f6cbd3e7f2aa19fd9ea77445e64125db",
+      "verification": {
+        "status": "verified",
+        "episodes": 11,
+        "reference_worlds_regenerated": 0,
+        "offline_replay": true,
+        "inventory_files": 86
+      }
+    }
+  },
+  "ci": {
+    "status": "pending_push",
+    "required_jobs": [
+      "unittest",
+      "adaptive-acceptance",
+      "phase5-acceptance"
+    ]
+  },
+  "intermediate_failures": [
+    "initial baseline overlapped edits; isolated original commit subsequently passed 513/513",
+    "architecture regression: extraction imported school record; fixed without relaxing the existing test",
+    "superseded source-changing verification runs rejected by strict provenance; final verified runs use the frozen source identity",
+    "initial development prompt rejected unsupported status fields; prompt clarified using development examples only"
+  ],
+  "limitations": [
+    "synthetic transitions and observations, no empirical school effect claim",
+    "no independent human annotations",
+    "conservative evidence rules miss three supported follow-up test facts",
+    "two held-out prediction worlds and three population clusters are pilot evidence",
+    "no established trained-predictor or FairRobust retention superiority",
+    "finite held-out source anchors recur across population draws",
+    "full real-LLM source-held-out closed loop not executed",
+    "historical Python 3.12 exact replay requires its original source/runtime"
+  ]
+}

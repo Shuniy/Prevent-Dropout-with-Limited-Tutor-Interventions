@@ -86,6 +86,9 @@ class ObservationExtractor(Protocol):
 
 def supported_phrases(note):
     """Weekly grammar extension; preserve the historical monthly language."""
+    if getattr(note,'evidence_contract',None) == 'development_sentence_entailment/v2':
+        from .followup_extractor import followup_phrases
+        return followup_phrases(note)
     weekly = getattr(note, 'extraction_period_adapter', None) == 'week_indices_in_legacy_schema/v1'
     return {**PHRASES, **MENTOR_PHRASES} if weekly else PHRASES
 

@@ -79,8 +79,8 @@ class ReplayFixture(CountingExtractor):
 
 
 def verify(output):
-    if sys.version_info[:2] not in ((3, 12), (3, 13)):
-        raise RuntimeError("verification requires supported Python 3.12 or 3.13")
+    if sys.version_info[:2] != (3, 13):
+        raise RuntimeError("active verification requires Python 3.13")
     output = output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     identity = source_identity()

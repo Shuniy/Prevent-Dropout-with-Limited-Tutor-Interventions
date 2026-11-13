@@ -1,0 +1,26 @@
+[followup]
+protocol_version = "phase5_post_review/v3"
+training_world_seeds = [1200, 1201, 1202, 1203]
+validation_world_seeds = [1300, 1301, 1302, 1303]
+test_world_seeds = [1400, 1401]
+training_population_seed_base = 110000
+validation_population_seed_base = 220000
+test_population_seed_base = 330000
+prediction_students = 32
+prediction_weeks = 8
+population_seeds = [65000, 65001, 65002]
+population_world_seeds = [[1600, 1601], [1700, 1701], [1800, 1801]]
+
+[delivery]
+num_students = 48
+num_mentors = 2
+horizon_weeks = 8
+sessions_required = 5
+session_cadence_weeks = 1
+budget = 40.0
+weekly_mentor_hours = 2.0
+weekly_session_capacity = 2
+max_concurrent_students = 2
+fairness_target = 0.3
+effect_strength = 1.0
+fairness_grouping_attribute = "sex_source"

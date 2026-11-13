@@ -118,7 +118,8 @@ class StudentStateEstimator:
                 probabilities = self._normalize(probabilities * mask, "impossible registry observation")
             for event_id, facts in sorted(by_time[time].items()):
                 facts = sorted(facts, key=lambda f: f.evidence_id)
-                signals = {reverse[f.evidence] for f in facts if f.evidence in reverse}
+                signals = {self._signal_for_fact(f,reverse) for f in facts}
+                signals.discard(None)
                 conflict = any(f.assertion_status == "conflicting" for f in facts) or len(signals) > 1
                 if conflict:
                     unresolved.extend(facts)
@@ -135,7 +136,7 @@ class StudentStateEstimator:
                     continue
                 probabilities = weighted / weighted.sum()
                 assimilated_months.add(time)
-                assimilated_ids.update(f.evidence_id for f in facts if f.evidence in reverse)
+                assimilated_ids.update(f.evidence_id for f in facts if self._signal_for_fact(f,reverse) is not None)
         posterior = validate_belief(probabilities)
         facts = tuple(sorted(history.values(), key=lambda f: (f.source_month, f.event_id, f.evidence_id)))
         last = max(assimilated_months, default=None)
@@ -161,6 +162,10 @@ class StudentStateEstimator:
                             tuple(predicted), tuple(accepted), tuple(rejected), posterior,
                             estimate_id, uncertainty, tuple(sorted(assimilated_ids))))
         return result
+
+    @staticmethod
+    def _signal_for_fact(fact,reverse):
+        return reverse.get(fact.evidence)
 
     @staticmethod
     def _normalize(values, reason):

@@ -173,10 +173,16 @@ def population_validation(population, pool=None):
         raise ValueError('source fingerprint mismatch')
     source = pool.partition(population.split)
     generated = [dict(r) for r in population.profiles]
+    if (len(generated)!=len(population.lineage) or not generated
+            or len({r['student_id'] for r in generated})!=len(generated)
+            or tuple(r['student_id'] for r in generated)!=tuple(l.student_id for l in population.lineage)):
+        raise ValueError('population profile/lineage identities must match one-to-one')
     anchors = {r['student_id']: r for r in source}
     for row, lineage in zip(generated, population.lineage):
         anchor = anchors[lineage.source_anchor]
         if (lineage.source_split != population.split or lineage.linkage_group != anchor['linkage_group_id']
+                or lineage.source_fingerprint!=pool.fingerprint or lineage.population_seed!=population.population_seed
+                or lineage.generator_version!=population.generator.version
                 or any(row[k] != anchor[k] for k in (*CONTEXT_FIELDS, *UNKNOWN_FIELDS))):
             raise ValueError('descendant changed inherited source context')
     numeric, categorical, missingness = {}, {}, {}

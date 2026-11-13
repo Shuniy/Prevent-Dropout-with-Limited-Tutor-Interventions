@@ -17,7 +17,7 @@ from .delivery_resources import feasible_offers, validate_offers
 from .loading import create_mentors
 from .observation_model import ObservationConfig
 from .population_sampling import sample_population, PopulationGeneratorConfig, population_validation
-from .trained_withdrawal_risk import TrainedWithdrawalRiskModel, decision_features
+from .trained_withdrawal_risk import TrainedWithdrawalRiskModel, decision_features, load_versioned_model, model_features
 
 
 def population_environment(config, *, population_mode='legacy_fixed_fixture', split=None,
@@ -60,7 +60,7 @@ class PredictionController(WeeklyFeedbackController):
         state=super().prepare_decision_snapshot()
         if self.trained_model is not None and state.week not in self._predicted_cutoffs:
             for student in state.students:
-                features=decision_features(student,cutoff_week=state.week,remaining_weeks=state.weeks_remaining,
+                features=model_features(self.trained_model,student,cutoff_week=state.week,remaining_weeks=state.weeks_remaining,
                     config=self.environment.config,horizon=self.prediction_horizon)
                 self.trained_predictions.append(self.trained_model.predict(features,
                     expected_estimate_id=student.estimate.estimate_id,expected_model_version=self.trained_model.version))
@@ -137,6 +137,15 @@ class TrainedRiskPriorityPolicy(WeeklyDeliveryPolicy):
     """Separate risk-target baseline; never substitutes WeeklyRisk or benefit."""
     def __init__(self,config,model,horizon=4):
         super().__init__(config,'priority')
+        if model is None:
+            raise ValueError('trained risk priority requires an explicit model')
+        from .trained_withdrawal_risk import regime_fingerprint
+        if (model.artifact['contract'] == 'trained_withdrawal_model/v1'
+                and (config.sessions_required != 2 or config.session_cadence_weeks != 1)):
+            raise ValueError('incompatible historical two-session trained-risk baseline')
+        if (model.artifact['contract'] == 'trained_withdrawal_model/v2'
+                and regime_fingerprint(config) != model.artifact['regime_identity']):
+            raise ValueError('incompatible trained-risk baseline reference regime')
         self.model,self.horizon=model,horizon
 
     @property
@@ -148,7 +157,7 @@ class TrainedRiskPriorityPolicy(WeeklyDeliveryPolicy):
     def _plan_offers(self,state):
         probabilities={}
         for s in state.students:
-            f=decision_features(s,cutoff_week=state.week,remaining_weeks=state.weeks_remaining,
+            f=model_features(self.model,s,cutoff_week=state.week,remaining_weeks=state.weeks_remaining,
                 config=self.config,horizon=self.horizon)
             p=self.model.predict(f,expected_estimate_id=s.estimate.estimate_id,expected_model_version=self.model.version)
             if p.probability is not None:
@@ -175,7 +184,8 @@ def save_phase5_episode(controller,population,output,*,protocol_text):
         raise ValueError('Phase 5 replay requires explicit source lineage')
     env=controller.environment
     model=getattr(controller,'trained_model',None)
-    manifest=dict(contract='phase5_source_weekly/replay/v1',scenario=asdict(env.config),
+    language_condition=getattr(controller,'language_condition',None)
+    manifest=dict(contract='phase5_source_weekly/replay/v3' if language_condition else 'phase5_source_weekly/replay/v2',scenario=asdict(env.config),
         population=asdict(population),population_identity=population.identity,
         policy=controller.policy.configuration,observation_config=asdict(env.observation_config),
         note_quality=asdict(controller.note_quality),extractor=extractor_identity(controller.extractor),
@@ -184,6 +194,8 @@ def save_phase5_episode(controller,population,output,*,protocol_text):
         information_mode=getattr(controller,'information_mode',None),
         protocol_text=protocol_text,protocol_identity=digest(protocol_text),
         runtime=runtime_identity(),source_fingerprints=source_fingerprints())
+    if language_condition is not None:
+        manifest['language_condition']=language_condition
     payload=phase5_payload(controller)
     manifest['payload_identity']=digest(payload)
     manifest['identity']=digest(manifest)
@@ -204,7 +216,7 @@ def replay_phase5_episode(source,output=None,*,on_verified_controller=None):
     verify_directory(source)
     manifest=json.loads((source/'manifest.json').read_text())
     payload=json.loads((source/'episode.json').read_text())
-    if (manifest.get('contract') != 'phase5_source_weekly/replay/v1'
+    if (manifest.get('contract') not in ('phase5_source_weekly/replay/v1','phase5_source_weekly/replay/v2','phase5_source_weekly/replay/v3')
             or digest({k:v for k,v in manifest.items() if k!='identity'})!=manifest['identity']
             or digest(payload)!=manifest['payload_identity']
             or digest(manifest['protocol_text'])!=manifest['protocol_identity']):
@@ -220,7 +232,7 @@ def replay_phase5_episode(source,output=None,*,on_verified_controller=None):
         observation_config=ObservationConfig(**manifest['observation_config']))
     if population.identity!=manifest['population_identity'] or normalized(asdict(population))!=p:
         raise ValueError('source population/lineage reconstruction mismatch')
-    model=TrainedWithdrawalRiskModel(manifest['trained_model']) if manifest['trained_model'] else None
+    model=load_versioned_model(manifest['trained_model']) if manifest['trained_model'] else None
     pc=manifest['policy']
     if pc['contract']=='trained_risk_priority/v1':
         if model is None:
@@ -232,10 +244,14 @@ def replay_phase5_episode(source,output=None,*,on_verified_controller=None):
     if policy.configuration!=pc:
         raise ValueError('Phase 5 policy reconstruction mismatch')
     weekly=payload['weekly']
-    notes={n['note_id']:WeeklyNote(**{**{k:v for k,v in n.items() if k!='creation_time'},
-        'source_event_ids':tuple(n['source_event_ids'])}) for n in weekly['notes']}
+    from ..evaluation.phase5_language_decisions import note_from_record
+    notes={n['note_id']:note_from_record(n) for n in weekly['notes']}
     controller_class=ResearchInformationController if manifest['information_mode'] is not None else PredictionController
     information={'information_mode':manifest['information_mode']} if manifest['information_mode'] is not None else {}
+    if manifest.get('language_condition') is not None:
+        from ..evaluation.phase5_language_decisions import FollowupInformationController
+        controller_class=FollowupInformationController
+        information={'language_condition':manifest['language_condition']}
     controller=controller_class(env,policy,trained_model=model,prediction_horizon=manifest['prediction_horizon'],**information,
         extractor=RecordedOutcomeExtractor(weekly['extraction_attempts'],weekly['extracted_batches']),
         note_quality=NoteQuality(**manifest['note_quality']),recorded_notes=notes).run_episode()

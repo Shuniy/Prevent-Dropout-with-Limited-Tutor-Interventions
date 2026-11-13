@@ -1,0 +1,16 @@
+{
+  "contract": "phase5_historical_inputs/v1",
+  "origin_commit": "9f14b16a626b9f2e017000ee411ff099ae3c5a42",
+  "sha256": {
+    "docs/phase5_research_protocol_v1.md": "73e1648573d7c6ad6769fe94ae0d68eb74c72548c6db2616ec0c7d726c233b5d",
+    "docs/phase5_research_protocol_v2.md": "bbc17538888ae6ca18ad7071a49782f0762f999820adcb454e631a17a40ddcb6",
+    "docs/phase5_adverse_effect_protocol_v1.md": "2cffb79c2c85ebf3701cf8f534585e77eab6ddc6f9f2dfe1efb7daeddd1c17fe",
+    "docs/phase5_acceptance_results.json": "8caeb1960a25fd0dd03ec11cd21502f1958983e75c7540d6a3568637e3a23eed",
+    "docs/phase5_population_risk_language_validation.md": "acb4e9bc3990029bc06c1bfbdc1043c29fe7152c7af61ffc5f801ddacc979686",
+    "configs/phase5_evaluation_v1.toml": "0179cc5396f75ea2f86943e5af129e919c41f68306c1e32dce0a98bd765e12f8",
+    "configs/phase5_evaluation_v2.toml": "9a127d1333ffb222b462f3c9616519eb565d7391451ac6be4ee33ef602188c60",
+    "data/processed/students/student_dataset.csv": "7aef06c9779c878aab2d98628b46649cebd04488a17b864e0995cdc4cc591ae3",
+    "data/processed/splits/split_manifest.csv": "7e168ff2f2d1e753c347d1231c1bbcea8550c5a2cc78dc0a13a8569334786b79"
+  },
+  "legacy_model_source_sha256": "2b2bcdefeee126ea52e813f7c84b731dd283e93e9bccd212261b331141e180a3"
+}

@@ -36,6 +36,8 @@ class OllamaClient:
             'temperature': self.temperature, 'think': False, 'stream': False}
 
     def generate(self, messages: list[dict], schema: dict) -> dict:
+        self.last_raw_output = None
+        self.response_received = False
         payload = {"model": self.model, "messages": messages, "stream": False,
                    "think": False, "format": schema,
                    "options": {"temperature": self.temperature, "num_ctx": self.num_ctx}}
@@ -49,5 +51,9 @@ class OllamaClient:
         except (URLError, TimeoutError) as exc:
             raise RuntimeError(f"Ollama unavailable at endpoint {endpoint_identity(self.base_url)}") from exc
         if result.get("done_reason") == "length":
+            self.response_received = True
+            self.last_raw_output = result.get('message',{}).get('content')
             raise ValueError("Ollama output was truncated; increase context or output budget")
-        return json.loads(result["message"]["content"])
+        self.response_received = True
+        self.last_raw_output = result["message"]["content"]
+        return json.loads(self.last_raw_output)

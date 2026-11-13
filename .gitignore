@@ -6,6 +6,7 @@ results/
 *.zip
 .ipynb_checkpoints/
 .venv312/
+.venv313/
 
 *.egg-info/
 build/

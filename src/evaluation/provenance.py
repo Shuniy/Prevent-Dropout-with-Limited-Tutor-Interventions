@@ -22,8 +22,8 @@ def digest(value):
 
 
 def runtime_identity():
-    if sys.version_info[:2] not in ((3, 12), (3, 13)):
-        raise ValueError('experiment provenance requires supported Python 3.12 or 3.13')
+    if sys.version_info[:2] != (3, 13):
+        raise ValueError('active experiment provenance requires Python 3.13; use the archived source/environment for historical replay')
     def git(*args):
         return subprocess.check_output(['git', *args], cwd=PROJECT_ROOT, stderr=subprocess.PIPE)
     # Scope dirty identity to execution inputs, avoiding output/report recursion.
@@ -40,6 +40,7 @@ def runtime_identity():
 def source_fingerprints():
     paths = [*(PROJECT_ROOT/'src').rglob('*.py'), *(PROJECT_ROOT/'scripts').rglob('*.py'),
              *(PROJECT_ROOT/'configs').rglob('*.toml'), PROJECT_ROOT/'requirements.txt',
+             *(PROJECT_ROOT/'configs').glob('phase5_*.json'), PROJECT_ROOT/'requirements-offline.txt',
              PROJECT_ROOT/'pyproject.toml', PROJECT_ROOT/'.python-version']
     return {str(p.relative_to(PROJECT_ROOT)): sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
 
@@ -87,6 +88,13 @@ def extractor_identity(extractor):
         identity['fixture_payload_sha256'] = digest(extractor.fixtures)
     if isinstance(extractor, observation_extractor.RecordedOutcomeExtractor):
         identity['recorded_outcomes_sha256'] = digest(list(extractor.outcomes.values()))
+    if config.get('prompt_version') == 'observable_note_prompt/v2':
+        identity['followup_execution']={k:config[k] for k in ('prompt_version','prompt_sha256',
+            'schema_sha256','rule_version','rules_sha256','retries','inference_kind')}
+        identity['system_prompt_sha256']=config['prompt_sha256']
+        identity['schema_sha256']=config['schema_sha256']
+        identity['evidence_contract']='development_sentence_entailment/v2'
+        identity['followup_execution']['inference_scope']=config.get('inference_scope','all_supplied_notes')
     return identity
 
 

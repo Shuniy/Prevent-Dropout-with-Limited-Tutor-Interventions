@@ -19,18 +19,24 @@ from ..evaluation.provenance import digest, write_exclusive
 
 TARGET = 'simulated_any_withdrawal_within_horizon/v1'
 REFERENCE = 'continue_accepted_schedules_no_new_offers/v1'
-FEATURE_SCHEMA = 'authorized_weekly_features/v1'
+FEATURE_SCHEMA = 'authorized_weekly_schedule_features/v2'
+MODEL_CONTRACT = 'trained_withdrawal_model/v2'
 NUMERIC = ('belief_stable', 'belief_vulnerable', 'belief_disengaged', 'belief_withdrawn',
     'entropy', 'source_age', 'missing_signal', 'conflict', 'rejected', 'evidence_count',
-    'need_score', 'waiting_weeks', 'delivered_sessions', 'reserved_sessions', 'active_programme', 'horizon')
+    'need_score', 'waiting_weeks', 'delivered_sessions', 'reserved_sessions', 'active_programme', 'horizon',
+    'scheduled_session_week_0', 'scheduled_session_week_1', 'scheduled_session_week_2', 'scheduled_session_week_3')
 
 
 def regime_fingerprint(config):
-    # Episode length and resource budgets do not change the individual reference
-    # law; existing accepted schedules are features/public future commitments.
-    return digest({k:getattr(config,k) for k in ('transition_version','weekly_wait_matrix',
+    # A deliberately conservative compatibility boundary. Budgets and cohort size
+    # do not affect an already accepted individual's no-new-offers reference law.
+    return digest(dict(parameters={k:getattr(config,k) for k in ('world_mode','contract_version','time_unit',
+        'sessions_required','session_cadence_weeks','session_duration_hours','rescheduling_policy',
+        'acceptance_probability','transition_version','weekly_wait_matrix',
         'weekly_tutoring_matrix','effect_strength','attendance_probability','delivery_probability',
-        'cancellation_probability','terminate_on_withdrawal')})
+        'cancellation_probability','terminate_on_withdrawal')},
+        schedule='first_session_at_offer_week; fixed_cadence; no_rescheduling/v1',
+        commitments='one_accepted_programme; cancellation_before_later_week_service; no_controller_cancellations; independent_attendance_and_delivery; transition_after_service/v1'))
 
 
 @dataclass(frozen=True)
@@ -44,6 +50,7 @@ class DecisionFeatures:
     support_type: str
     regime_identity: str
     schema: str = FEATURE_SCHEMA
+    schedule_issues: tuple[str, ...] = ()
 
     @property
     def fingerprint(self):
@@ -51,8 +58,8 @@ class DecisionFeatures:
 
 
 def decision_features(student, *, cutoff_week, remaining_weeks, config, horizon=4):
-    if type(horizon) is not int or horizon < 1:
-        raise ValueError('positive integer forecast horizon required')
+    if type(horizon) is not int or not 1 <= horizon <= 4:
+        raise ValueError('forecast horizon must be an integer in [1,4]')
     if remaining_weeks < 0 or student.estimate.as_of_week != cutoff_week:
         raise ValueError('stale estimate or invalid remaining horizon')
     e, info = student.estimate, dict(student.estimate.uncertainty)
@@ -63,6 +70,27 @@ def decision_features(student, *, cutoff_week, remaining_weeks, config, horizon=
     active = tuple(p for p in student.programmes if p.status in ('SCHEDULED','ACTIVE'))
     if any(p.offer_week >= cutoff_week for p in student.programmes):
         raise ValueError('future programme history')
+    issues = []
+    if len(active) > 1:
+        issues.append('multiple_active_programmes')
+    for programme in student.programmes:
+        weeks = tuple(s.week for s in programme.sessions)
+        if (programme.student_id != student.student_id or not weeks
+                or len(weeks) != config.sessions_required
+                or weeks != config.schedule(weeks[0])
+                or weeks[0] != programme.offer_week):
+            issues.append('unsupported_programme_schedule')
+        for session in programme.sessions:
+            if session.week >= cutoff_week and session.status in ('DELIVERED','MISSED'):
+                raise ValueError('future session realization is not authorized')
+            if session.week < cutoff_week and session.status == 'RESERVED':
+                issues.append('past_unresolved_reservation')
+            if session.status not in ('RESERVED','DELIVERED','MISSED','RELEASED'):
+                issues.append('unknown_session_status')
+        if programme.status not in ('REFUSED','SCHEDULED','ACTIVE','CANCELLED','COMPLETED','INCOMPLETE'):
+            issues.append('unknown_programme_status')
+        if programme not in active and any(s.status == 'RESERVED' for s in programme.sessions):
+            issues.append('inactive_programme_reservation')
     values = dict(zip(NUMERIC[:4], map(float, belief)))
     values.update(entropy=float(-sum(p*math.log(p) for p in belief if p > 0)),
         source_age=age, missing_signal=float(info.get('missing_current_signal', age is None or age > 0)),
@@ -72,9 +100,13 @@ def decision_features(student, *, cutoff_week, remaining_weeks, config, horizon=
         delivered_sessions=float(sum(p.delivered_sessions for p in student.programmes)),
         reserved_sessions=float(sum(s.status == 'RESERVED' and s.week >= cutoff_week for p in active for s in p.sessions)),
         active_programme=float(bool(active)), horizon=float(min(horizon, remaining_weeks)))
+    values.update({f'scheduled_session_week_{offset}':float(sum(
+        s.status == 'RESERVED' and s.week == cutoff_week+offset
+        for p in active for s in p.sessions)) if offset < min(horizon,remaining_weeks) else 0.
+        for offset in range(4)})
     return DecisionFeatures(student.student_id, cutoff_week, e.estimate_id, student.enrolled,
         min(horizon,remaining_weeks), tuple((k,values[k]) for k in NUMERIC),
-        student.profile.support_type, regime_fingerprint(config))
+        student.profile.support_type, regime_fingerprint(config), schedule_issues=tuple(sorted(set(issues))))
 
 
 @dataclass(frozen=True)
@@ -104,6 +136,10 @@ def _numeric(features):
         raise ValueError('nonfinite input feature')
     if values['horizon'] != features.horizon:
         raise ValueError('inconsistent forecast horizon')
+    if any(values[f'scheduled_session_week_{i}'] not in (0.,1.) for i in range(4)):
+        raise ValueError('scheduled session feature must be an authorized reservation indicator')
+    if any(values[f'scheduled_session_week_{i}'] for i in range(features.horizon,4)):
+        raise ValueError('reservation indicator lies beyond target horizon')
     return [values[k] for k in NUMERIC]
 
 
@@ -111,13 +147,15 @@ class TrainedWithdrawalRiskModel:
     def __init__(self, artifact):
         artifact = json.loads(json.dumps(artifact, allow_nan=False))
         version = artifact.pop('model_version', None)
-        if artifact.get('contract') != 'trained_withdrawal_model/v1' or digest(artifact) != version:
+        if artifact.get('contract') != MODEL_CONTRACT or digest(artifact) != version:
             raise ValueError('model version/hash mismatch')
         size=2*len(NUMERIC)+len(artifact['categories'])
         if (artifact['schema']!=FEATURE_SCHEMA or artifact['target']!=TARGET or artifact['reference']!=REFERENCE
                 or len(artifact['coefficients'])!=size or len(artifact['scales'])!=size
                 or any(s<=0 for s in artifact['scales'])
                 or any(len(artifact[k])!=len(NUMERIC) for k in ('medians','minimum','maximum'))
+                or not artifact.get('training_schedule_patterns')
+                or any(not math.isfinite(v) for v in (*artifact['coefficients'],artifact['intercept'],*artifact['scales']))
                 or artifact['calibration']['method'] not in ('none','sigmoid')):
             raise ValueError('invalid trained model feature/target/preprocessing contract')
         self.artifact = {**artifact, 'model_version':version}
@@ -152,6 +190,8 @@ class TrainedWithdrawalRiskModel:
             row, reason = [None]*len(NUMERIC), 'invalid_features'
         if reference_regime != REFERENCE or features.regime_identity != a['regime_identity']:
             reason = 'reference_regime_mismatch'
+        if features.schedule_issues:
+            reason = 'unsupported_programme_schedule'
         if not features.enrolled:
             reason = 'not_currently_enrolled'
         if features.horizon == 0:
@@ -163,6 +203,10 @@ class TrainedWithdrawalRiskModel:
                 ood.append('range:'+k)
         if features.support_type not in a['categories']:
             ood.append('unknown_category:support_type')
+        if schedule_pattern(features) not in a['training_schedule_patterns']:
+            ood.append('unseen_schedule_pattern')
+            if reason is None:
+                reason = 'unsupported_schedule_pattern'
         probability = None
         if reason is None:
             score = float(self._transform(features) @ np.asarray(a['coefficients']) + a['intercept'])
@@ -189,6 +233,9 @@ def fit_model(training, validation, *, hyperparameters=(.1, 1., 10.)):
         raise ValueError('source group/world leakage')
     if len({r.features.regime_identity for r in (*training,*validation)}) != 1:
         raise ValueError('mixed reference laws')
+    if any(r.features.schedule_issues or r.target != TARGET or r.reference_policy != REFERENCE
+           or r.features.horizon < 1 for r in (*training,*validation)):
+        raise ValueError('invalid reference label or unsupported schedule')
     raw = np.array([[np.nan if v is None else v for v in _numeric(r.features)] for r in training])
     # All-missing columns have the declared training-only zero imputation.
     medians = [float(np.median(raw[np.isfinite(raw[:,i]),i])) if np.isfinite(raw[:,i]).any() else 0.
@@ -223,10 +270,11 @@ def fit_model(training, validation, *, hyperparameters=(.1, 1., 10.)):
     candidates, selection_report = [], []
     for strength in hyperparameters:
         estimator = LogisticRegression(C=strength,max_iter=2000,solver='lbfgs',random_state=0).fit(x/scales,y)
-        base = dict(contract='trained_withdrawal_model/v1', target=TARGET, reference=REFERENCE,
+        base = dict(contract=MODEL_CONTRACT, target=TARGET, reference=REFERENCE,
             schema=FEATURE_SCHEMA, preprocessing='train_median_missing_indicator_scale_onehot/v1',
             medians=medians, scales=scales.tolist(), minimum=minimum, maximum=maximum, categories=categories,
             supported_horizons=sorted({r.features.horizon for r in training}),
+            training_schedule_patterns=sorted({schedule_pattern(r.features) for r in training}),
             regime_identity=training[0].features.regime_identity,
             coefficients=estimator.coef_[0].tolist(), intercept=float(estimator.intercept_[0]),
             hyperparameters=dict(C=strength,penalty='l2',solver='lbfgs',max_iter=2000),
@@ -249,14 +297,43 @@ def fit_model(training, validation, *, hyperparameters=(.1, 1., 10.)):
             losses = []
             for world in selection_worlds:
                 rows = [r for r in selection if r.world_seed == world]
-                losses.append(np.mean([(model.predict(r.features, expected_estimate_id=r.features.estimate_id,
-                    expected_model_version=model.version).probability-int(r.withdrawal_event))**2 for r in rows]))
+                probabilities = [model.predict(r.features, expected_estimate_id=r.features.estimate_id,
+                    expected_model_version=model.version).probability for r in rows]
+                # Coverage is fixed by training, never selected using outcomes.
+                scored = [(p,int(r.withdrawal_event)) for p,r in zip(probabilities,rows) if p is not None]
+                if not scored:
+                    raise ValueError('no supported schedule predictions in a validation selection world')
+                losses.append(np.mean([(p-y)**2 for p,y in scored]))
             loss = float(np.mean(losses))
             candidates.append((loss,strength,record['calibration']['method'],model))
-            selection_report.append(dict(C=strength,calibration=record['calibration'],world_mean_brier=loss))
+            selection_report.append(dict(C=strength,calibration=record['calibration'],world_mean_brier=loss,
+                selection_records=len(selection), supported_selection_records=sum(
+                    schedule_pattern(r.features) in base['training_schedule_patterns'] for r in selection)))
     selected = min(candidates,key=lambda t:t[:3])[3]
     constants = {str(h):float(np.mean([r.withdrawal_event for r in training if r.features.horizon == h]))
                  for h in selected.artifact['supported_horizons']}
     return selected, dict(selection=selection_report, selected_model=selected.version,
         constant_by_horizon=constants, training_prevalence=float(np.mean(y)),
         calibration_status='selected_on_disjoint_validation_worlds',provenance=provenance)
+
+
+def schedule_pattern(features):
+    values = dict(features.numeric)
+    return json.dumps([features.horizon,values.get('active_programme'),
+        *[values.get(f'scheduled_session_week_{i}') for i in range(4)]],separators=(',',':'))
+
+
+def load_versioned_model(artifact):
+    """Explicit historical dispatch; the v2 loader itself always rejects v1."""
+    if artifact.get('contract') == 'trained_withdrawal_model/v1':
+        from .trained_withdrawal_risk_v1 import TrainedWithdrawalRiskModel as HistoricalModel
+        return HistoricalModel(artifact)
+    return TrainedWithdrawalRiskModel(artifact)
+
+
+def model_features(model, student, **kwargs):
+    if (model.artifact['contract'] == 'trained_withdrawal_model/v1'
+            and kwargs['config'].sessions_required == 2 and kwargs['config'].session_cadence_weeks == 1):
+        from .trained_withdrawal_risk_v1 import decision_features as historical_features
+        return historical_features(student, **kwargs)
+    return decision_features(student, **kwargs)
